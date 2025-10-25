@@ -1,6 +1,6 @@
 {
   "name": "toolbox-app",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "ToolBox - Sua caixa de ferramentas definitiva",
   "main": "backend/src/main.js",
   "scripts": {
