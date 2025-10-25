@@ -269,8 +269,8 @@ Este projeto está sob a licença **MIT**. Veja o arquivo [LICENSE](LICENSE) par
 ## 🔗 Links Úteis
 
 - [📚 Documentação Completa](docs/)
-- [🐛 Reportar Bug](https://github.com/seu-usuario/toolbox/issues)
-- [💡 Sugerir Feature](https://github.com/seu-usuario/toolbox/issues)
+- [🐛 Reportar Bug](https://github.com/Fish7w7/Pandora/issues)
+- [💡 Sugerir Feature](https://github.com/Fish7w7/Pandora/issues)
 - [📖 Changelog](CHANGELOG.md)
 
 ---
