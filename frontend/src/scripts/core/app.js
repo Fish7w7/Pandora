@@ -1,41 +1,41 @@
-// ToolBox - Aplicação Principal
-// Inicialização e gerenciamento global
-
-// Estado Global da Aplicação
 const App = {
-    version: '1.0.0',
+    version: '2.0.0',
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
     
-    // Configuração de Ferramentas
     tools: [
         { id: 'home', name: 'Início', icon: '🏠', description: 'Página inicial' },
         { id: 'password', name: 'Gerador de Senhas', icon: '🔑', description: 'Crie senhas seguras' },
         { id: 'weather', name: 'Clima', icon: '🌤️', description: 'Veja a temperatura local' },
-        { id: 'translator', name: 'Tradutor', icon: '🌐', description: 'Traduza textos rapidamente' },
+        { id: 'translator', name: 'Tradutor', icon: '🌍', description: 'Traduza textos rapidamente' },
         { id: 'ai-assistant', name: 'Assistente IA', icon: '🤖', description: 'Perguntas e respostas' },
         { id: 'mini-game', name: 'Mini Game', icon: '🎮', description: 'Jogue e se divirta' },
         { id: 'temp-email', name: 'Email Temporário', icon: '📧', description: 'Emails descartáveis' },
         { id: 'music', name: 'Player de Música', icon: '🎵', description: 'Ouça suas músicas' },
-        { id: 'offline', name: 'Zona Offline', icon: '📶', description: 'Jogos sem internet' }
+        { id: 'offline', name: 'Zona Offline', icon: '📶', description: 'Jogos sem internet' },
+        { id: 'updates', name: 'Atualizações', icon: '🔄', description: 'Verificar atualizações' } // ← ADICIONADO
     ],
     
-    // Inicializar aplicação
     init() {
         console.log('🧰 ToolBox v' + this.version + ' iniciando...');
         
-        // Simular loading
         setTimeout(() => {
             this.hideLoading();
             this.checkAuth();
+            
+            // ← ADICIONAR VERIFICAÇÃO DE UPDATES
+            if (typeof AutoUpdater !== 'undefined' && AutoUpdater.getAutoCheckSetting()) {
+                setTimeout(() => {
+                    AutoUpdater.checkForUpdates(true);
+                }, 3000);
+            }
+            // ← FIM
         }, 2500);
         
-        // Listeners globais
         this.setupGlobalListeners();
     },
     
-    // Esconder tela de loading
     hideLoading() {
         const loadingScreen = document.getElementById('loading-screen');
         loadingScreen.style.opacity = '0';
@@ -44,7 +44,6 @@ const App = {
         }, 500);
     },
     
-    // Verificar autenticação
     checkAuth() {
         const savedUser = Auth.getStoredUser();
         if (savedUser) {
@@ -55,25 +54,19 @@ const App = {
         }
     },
     
-    // Mostrar tela de login
     showLogin() {
         document.getElementById('login-screen').classList.remove('hidden');
     },
     
-    // Mostrar aplicação principal
     showMainApp() {
         document.getElementById('login-screen').classList.add('hidden');
         document.getElementById('main-app').classList.remove('hidden');
         document.getElementById('user-display').textContent = this.user.username;
         
-        // Renderizar menu de navegação
         this.renderNavMenu();
-        
-        // Carregar ferramenta inicial
         Router.navigate('home');
     },
     
-    // Renderizar menu de navegação
     renderNavMenu() {
         const navMenu = document.getElementById('nav-menu');
         navMenu.innerHTML = this.tools.map(tool => `
@@ -85,11 +78,13 @@ const App = {
                     <span class="font-medium block">${tool.name}</span>
                     <span class="text-xs text-white/70">${tool.description}</span>
                 </div>
+                ${tool.id === 'updates' && typeof AutoUpdater !== 'undefined' && AutoUpdater.updateAvailable ? 
+                    '<span class="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">NEW</span>' 
+                    : ''}
             </div>
         `).join('');
     },
     
-    // Atualizar ferramenta ativa no menu
     updateActiveNav(toolId) {
         this.currentTool = toolId;
         document.querySelectorAll('.nav-item').forEach(item => {
@@ -101,9 +96,7 @@ const App = {
         });
     },
     
-    // Setup de listeners globais
     setupGlobalListeners() {
-        // Logout
         document.getElementById('logout-btn')?.addEventListener('click', () => {
             if (confirm('Deseja realmente sair?')) {
                 Auth.logout();
@@ -111,7 +104,6 @@ const App = {
             }
         });
         
-        // Detectar status online/offline
         window.addEventListener('online', () => {
             this.isOnline = true;
             Utils.showNotification('✅ Conexão restaurada!', 'success');
@@ -123,13 +115,11 @@ const App = {
         });
     },
     
-    // Obter ferramenta por ID
     getTool(toolId) {
         return this.tools.find(t => t.id === toolId);
     }
 };
 
-// Easter Egg da "investigação policial"
 function showEasterEgg() {
     const messages = [
         "⚠️ AVISO IMPORTANTE ⚠️",
@@ -141,17 +131,14 @@ function showEasterEgg() {
     
     alert(messages.join('\n'));
     
-    // Efeito shake no sidebar
     document.getElementById('sidebar').classList.add('shake');
     setTimeout(() => {
         document.getElementById('sidebar').classList.remove('shake');
     }, 500);
 }
 
-// Inicializar aplicação quando DOM estiver pronto
 document.addEventListener('DOMContentLoaded', () => {
     App.init();
 });
 
-// Exportar para uso global
 window.App = App;

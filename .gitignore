@@ -10,6 +10,7 @@ out/
 # Logs
 *.log
 npm-debug.log*
+publish.bat
 
 # Environment variables
 .env

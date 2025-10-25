@@ -1,15 +1,12 @@
-// Sistema de Roteamento
 const Router = {
     currentRoute: 'home',
     
-    // Navegar para uma ferramenta
     navigate(toolId) {
         this.currentRoute = toolId;
         App.updateActiveNav(toolId);
         this.render();
     },
     
-    // Renderizar conteúdo
     render() {
         const container = document.getElementById('tool-container');
         container.innerHTML = '';
@@ -51,12 +48,15 @@ const Router = {
                 container.innerHTML = OfflineZone.render();
                 OfflineZone.init();
                 break;
+            case 'updates':  // ← ADICIONADO
+                container.innerHTML = AutoUpdater.render();
+                AutoUpdater.init();
+                break;
             default:
                 container.innerHTML = this.renderNotFound();
         }
     },
     
-    // Renderizar Home
     renderHome() {
         const tools = App.tools.filter(t => t.id !== 'home');
         
@@ -86,7 +86,6 @@ const Router = {
         `;
     },
     
-    // Renderizar página não encontrada
     renderNotFound() {
         return `
             <div class="text-center py-20">
