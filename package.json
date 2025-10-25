@@ -1,6 +1,6 @@
 {
   "name": "toolbox-app",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "ToolBox - Sua caixa de ferramentas definitiva",
   "main": "backend/src/main.js",
   "scripts": {
@@ -11,7 +11,11 @@
     "build:mac": "electron-builder --mac",
     "build:linux": "electron-builder --linux"
   },
-  "keywords": ["electron", "toolbox", "utilities"],
+  "keywords": [
+    "electron",
+    "toolbox",
+    "utilities"
+  ],
   "author": "Seu Nome",
   "license": "MIT",
   "devDependencies": {
