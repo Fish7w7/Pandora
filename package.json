@@ -1,0 +1,45 @@
+{
+  "name": "toolbox-app",
+  "version": "2.0.0",
+  "description": "ToolBox - Sua caixa de ferramentas definitiva",
+  "main": "backend/src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win --x64",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "keywords": ["electron", "toolbox", "utilities"],
+  "author": "Seu Nome",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.toolbox.app",
+    "productName": "ToolBox",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "backend/**/*",
+      "frontend/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "frontend/public/assets/icons/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "frontend/public/assets/icons/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "frontend/public/assets/icons/icon.png"
+    }
+  }
+}

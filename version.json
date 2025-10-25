@@ -1,0 +1,19 @@
+{
+  "version": "2.0.0",
+  "releaseDate": "2025-01-26",
+  "changelog": [
+    "🎨 Interface moderna e premium",
+    "🔐 Sistema de autenticação",
+    "🔑 Gerador de senhas seguras",
+    "🌤️ Sistema de clima com previsão",
+    "🌍 Tradutor multilíngue",
+    "🤖 Assistente IA com Gemini",
+    "🎮 Mini games (Snake, Jogo da Velha)",
+    "📧 Email temporário",
+    "🎵 Player de música",
+    "🔄 Sistema de auto-atualização"
+  ],
+  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/latest",
+  "releaseNotesUrl": "https://github.com/Fish7w7/Pandora/releases",
+  "critical": false
+}
