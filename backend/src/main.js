@@ -67,7 +67,7 @@ function getIconPath() {
 }
 
 app.whenReady().then(() => {
-    console.log('🐱 NyanTools v2.0.2');
+    console.log('🐱 NyanTools v2.1.0');
     console.log('📁 App path:', app.getAppPath());
     console.log('🖥️ Plataforma:', process.platform);
     createWindow();
