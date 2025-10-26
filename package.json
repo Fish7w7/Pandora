@@ -19,7 +19,7 @@
     "utilities",
     "cat"
   ],
-  "author": "Ga",
+  "author": "Seu Nome",
   "license": "MIT",
   "devDependencies": {
     "cross-env": "^7.0.3",

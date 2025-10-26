@@ -1,11 +1,11 @@
 const AutoUpdater = {
-    currentVersion: '2.0.1',
+    currentVersion: '2.1.0',
     updateUrl: 'https://raw.githubusercontent.com/Fish7w7/Pandora/main/version.json',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
     updateAvailable: false,
     latestVersion: null,
-    minCheckInterval: 5 * 60 * 1000, // 5 minutos em milissegundos
+    minCheckInterval: 5 * 60 * 1000,
     
     render() {
         const lastCheck = Utils.loadData('last_update_check');
@@ -15,21 +15,21 @@ const AutoUpdater = {
             <div class="max-w-4xl mx-auto">
                 <div class="text-center mb-8">
                     <h1 class="text-5xl font-black text-gray-800 mb-3">🔄 Atualizações</h1>
-                    <p class="text-gray-600 text-lg">Mantenha seu ToolBox sempre atualizado</p>
+                    <p class="text-gray-600 text-lg">Mantenha seu NyanTools sempre atualizado にゃん~</p>
                 </div>
                 
                 <!-- Versão Atual -->
-                <div class="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl p-8 text-white shadow-2xl mb-6">
+                <div class="bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 rounded-2xl p-8 text-white shadow-2xl mb-6">
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center gap-4">
-                            <div class="text-6xl">🧰</div>
+                            <div class="text-6xl">🐱</div>
                             <div>
-                                <h2 class="text-3xl font-black">ToolBox</h2>
-                                <p class="text-blue-100">Sua caixa de ferramentas definitiva</p>
+                                <h2 class="text-3xl font-black">NyanTools</h2>
+                                <p class="text-purple-100">にゃん~ Your purr-fect toolkit</p>
                             </div>
                         </div>
                         <div class="text-right">
-                            <div class="text-sm text-blue-100 mb-1">Versão Atual</div>
+                            <div class="text-sm text-purple-100 mb-1">Versão Atual</div>
                             <div class="text-4xl font-black">v${this.currentVersion}</div>
                         </div>
                     </div>
@@ -104,7 +104,7 @@ const AutoUpdater = {
             return `
                 <div class="text-center py-12">
                     <div class="loader mx-auto mb-4"></div>
-                    <p class="text-gray-600 text-lg font-semibold">Verificando atualizações...</p>
+                    <p class="text-gray-600 text-lg font-semibold">Verificando atualizações... にゃん~</p>
                     <p class="text-sm text-gray-500 mt-2">Conectando ao GitHub...</p>
                 </div>
             `;
@@ -116,7 +116,7 @@ const AutoUpdater = {
                     <div class="flex items-start gap-4 mb-6">
                         <div class="text-6xl">🎉</div>
                         <div class="flex-1">
-                            <h3 class="text-3xl font-black text-green-800 mb-2">Nova Atualização Disponível!</h3>
+                            <h3 class="text-3xl font-black text-green-800 mb-2">Nova Atualização Disponível! にゃん~</h3>
                             <p class="text-green-700 text-lg mb-4">
                                 Versão <strong class="text-2xl">${this.latestVersion.version}</strong> está disponível
                             </p>
@@ -145,7 +145,7 @@ const AutoUpdater = {
         return `
             <div class="text-center py-12">
                 <div class="text-7xl mb-4">✅</div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-2">Você está atualizado!</h3>
+                <h3 class="text-2xl font-bold text-gray-800 mb-2">Você está atualizado! にゃん~</h3>
                 <p class="text-gray-600">Versão ${this.currentVersion} é a mais recente</p>
             </div>
         `;
@@ -154,20 +154,31 @@ const AutoUpdater = {
     renderChangelog() {
         const changelog = [
             {
-                version: '2.0.1',
+                version: '2.1.0',
                 date: '2025-01-26',
                 changes: [
-                    '🎵 Player moderno e intuitivo',
-                    '🔊 Suporte a playlists',
-                    '🎧 Equalizador personalizado'
+                    '🐱 Rebranding completo para NyanTools',
+                    '🎨 Nova identidade visual kawaii',
+                    '🎌 Interface em tema japonês にゃん~',
+                    '✨ Ícone do gatinho em todo o app',
+                    '🔧 Correções e melhorias gerais'
+                ]
+            },
+            {
+                version: '2.0.2',
+                date: '2025-01-26',
+                changes: [
+                    '🔄 Sistema de auto-atualização',
+                    '🎨 Ícones customizados',
+                    '🐛 Correções de bugs'
                 ]
             }
         ];
         
         return changelog.map(release => `
-            <div class="border-l-4 border-blue-500 pl-6 pb-6">
+            <div class="border-l-4 border-purple-500 pl-6 pb-6">
                 <div class="flex items-center gap-3 mb-3">
-                    <span class="px-4 py-1 bg-blue-100 text-blue-800 rounded-full font-bold">v${release.version}</span>
+                    <span class="px-4 py-1 bg-purple-100 text-purple-800 rounded-full font-bold">v${release.version}</span>
                     <span class="text-gray-500 text-sm">${new Date(release.date).toLocaleDateString('pt-BR')}</span>
                 </div>
                 <ul class="space-y-2 text-gray-700">
@@ -244,12 +255,11 @@ const AutoUpdater = {
     async checkForUpdates(silent = false) {
         if (this.checking) {
             if (!silent) {
-                Utils.showNotification('⏱️ Verificação já em andamento...', 'info');
+                Utils.showNotification('⏱️ Verificação já em andamento... にゃん~', 'info');
             }
             return;
         }
         
-        // Verificar se pode fazer a requisição
         if (!this.canCheckNow()) {
             const lastCheck = Utils.loadData('last_update_check');
             const timeLeft = this.minCheckInterval - (Date.now() - lastCheck.date);
@@ -257,7 +267,7 @@ const AutoUpdater = {
             
             if (!silent) {
                 Utils.showNotification(
-                    `⏱️ Aguarde ${minutesLeft} minuto${minutesLeft > 1 ? 's' : ''} para verificar novamente`,
+                    `⏱️ Aguarde ${minutesLeft} minuto${minutesLeft > 1 ? 's' : ''} にゃん~`,
                     'warning'
                 );
             }
@@ -272,9 +282,6 @@ const AutoUpdater = {
         }
         
         try {
-            console.log('🔍 Verificando atualizações...');
-            
-            // Fazer requisição sem cache-busting timestamp
             const response = await fetch(this.updateUrl, {
                 method: 'GET',
                 cache: 'no-cache',
@@ -285,21 +292,11 @@ const AutoUpdater = {
             });
             
             if (!response.ok) {
-                if (response.status === 429) {
-                    throw new Error('Muitas requisições ao GitHub. Aguarde alguns minutos e tente novamente.');
-                } else if (response.status === 404) {
-                    throw new Error('Arquivo de versão não encontrado no GitHub.');
-                } else if (response.status === 403) {
-                    throw new Error('Acesso negado pelo GitHub. Verifique sua conexão.');
-                } else {
-                    throw new Error(`Erro HTTP ${response.status}: ${response.statusText}`);
-                }
+                throw new Error(`Erro HTTP ${response.status}`);
             }
             
             const data = await response.json();
-            console.log('✅ Dados recebidos:', data);
             
-            // Salvar timestamp da verificação
             Utils.saveData('last_update_check', { 
                 date: Date.now(),
                 version: this.currentVersion 
@@ -310,38 +307,20 @@ const AutoUpdater = {
                 this.latestVersion = data;
                 
                 if (!silent) {
-                    Utils.showNotification('🎉 Nova atualização disponível: v' + data.version, 'success');
+                    Utils.showNotification('🎉 Nova atualização: v' + data.version + ' にゃん~', 'success');
                 } else {
                     this.showUpdateNotification(data.version);
                 }
             } else {
                 if (!silent) {
-                    Utils.showNotification('✅ Você está na versão mais recente!', 'success');
+                    Utils.showNotification('✅ Você está atualizado! にゃん~', 'success');
                 }
             }
             
         } catch (error) {
-            console.error('❌ Erro ao verificar atualizações:', error);
-            
+            console.error('❌ Erro:', error);
             if (!silent) {
-                // Mostrar erro detalhado para o usuário
-                Utils.showNotification('❌ ' + error.message, 'error');
-                
-                // Se for erro 429, dar instruções extras
-                if (error.message.includes('429') || error.message.includes('Muitas requisições')) {
-                    setTimeout(() => {
-                        alert(
-                            '⚠️ LIMITE DE REQUISIÇÕES ATINGIDO\n\n' +
-                            'O GitHub limita o número de requisições.\n\n' +
-                            'Soluções:\n' +
-                            '1. Aguarde 5-10 minutos\n' +
-                            '2. Não clique várias vezes seguidas\n' +
-                            '3. O app verifica automaticamente ao iniciar\n\n' +
-                            'Você pode verificar manualmente em:\n' +
-                            this.githubReleasesUrl
-                        );
-                    }, 500);
-                }
+                Utils.showNotification('❌ Erro ao verificar atualizações', 'error');
             }
         } finally {
             this.checking = false;
@@ -378,7 +357,7 @@ const AutoUpdater = {
             window.open(url, '_blank');
         }
         
-        Utils.showNotification('🌐 Abrindo página de download...', 'info');
+        Utils.showNotification('🌐 Abrindo página de download... にゃん~', 'info');
     },
     
     viewReleaseNotes() {
@@ -400,16 +379,16 @@ const AutoUpdater = {
     
     showUpdateNotification(version) {
         const notification = document.createElement('div');
-        notification.className = 'fixed bottom-4 right-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-4 rounded-xl shadow-2xl z-50 max-w-sm animate-fadeIn';
+        notification.className = 'fixed bottom-4 right-4 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 text-white px-6 py-4 rounded-xl shadow-2xl z-50 max-w-sm animate-fadeIn';
         notification.innerHTML = `
             <div class="flex items-start gap-3">
-                <span class="text-3xl">🎉</span>
+                <span class="text-3xl">🐱</span>
                 <div class="flex-1">
-                    <div class="font-bold text-lg mb-1">Nova atualização!</div>
-                    <div class="text-sm text-green-100 mb-3">Versão ${version} disponível</div>
+                    <div class="font-bold text-lg mb-1">Nova atualização! にゃん~</div>
+                    <div class="text-sm text-purple-100 mb-3">Versão ${version} disponível</div>
                     <div class="flex gap-2">
                         <button onclick="Router.navigate('updates'); this.closest('.fixed').remove();" 
-                                class="px-4 py-2 bg-white text-green-600 rounded-lg font-bold text-sm hover:bg-green-50 transition-all">
+                                class="px-4 py-2 bg-white text-purple-600 rounded-lg font-bold text-sm hover:bg-purple-50 transition-all">
                             Ver Detalhes
                         </button>
                         <button onclick="this.closest('.fixed').remove();" 
@@ -443,7 +422,7 @@ const AutoUpdater = {
     toggleAutoCheck(enabled) {
         Utils.saveData('auto_check_updates', enabled);
         Utils.showNotification(
-            enabled ? '✅ Verificação automática ativada' : '❌ Verificação automática desativada',
+            enabled ? '✅ Verificação automática ativada にゃん~' : '❌ Verificação automática desativada',
             enabled ? 'success' : 'info'
         );
     }
