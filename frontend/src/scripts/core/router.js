@@ -48,7 +48,7 @@ const Router = {
                 container.innerHTML = OfflineZone.render();
                 OfflineZone.init();
                 break;
-            case 'updates':  // ← ADICIONADO
+            case 'updates':
                 container.innerHTML = AutoUpdater.render();
                 AutoUpdater.init();
                 break;
@@ -63,13 +63,18 @@ const Router = {
         return `
             <div class="max-w-6xl mx-auto">
                 <div class="mb-8">
-                    <h1 class="text-4xl font-bold text-gray-800 mb-2">🧰 Bem-vindo ao ToolBox!</h1>
-                    <p class="text-gray-600">Olá, <strong>${App.user.username}</strong>! Escolha uma ferramenta abaixo para começar.</p>
+                    <div class="flex items-center gap-4 mb-4">
+                        <div class="text-7xl animate-bounce-slow">🐱</div>
+                        <div>
+                            <h1 class="text-4xl font-bold text-gray-800 mb-2">にゃん~ Bem-vindo ao NyanTools!</h1>
+                            <p class="text-gray-600">Olá, <strong>${App.user.username}</strong>! Escolha uma ferramenta abaixo para começar.</p>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     ${tools.map(tool => `
-                        <div class="tool-card bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl"
+                        <div class="tool-card bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transform hover:scale-105 transition-all"
                              onclick="Router.navigate('${tool.id}')">
                             <div class="text-5xl mb-4">${tool.icon}</div>
                             <h3 class="text-xl font-bold text-gray-800 mb-2">${tool.name}</h3>
@@ -78,9 +83,14 @@ const Router = {
                     `).join('')}
                 </div>
                 
-                <div class="mt-12 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl p-6 text-white">
-                    <h3 class="text-2xl font-bold mb-2">💡 Dica do Dia</h3>
-                    <p>Use o <strong>Gerador de Senhas</strong> para criar senhas seguras e únicas para cada site!</p>
+                <div class="mt-12 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 rounded-xl p-6 text-white shadow-2xl">
+                    <div class="flex items-start gap-4">
+                        <div class="text-5xl">💡</div>
+                        <div>
+                            <h3 class="text-2xl font-bold mb-2">💡 Dica do Dia にゃん~</h3>
+                            <p>Use o <strong>Gerador de Senhas</strong> para criar senhas seguras e únicas para cada site! 🔐✨</p>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -89,11 +99,11 @@ const Router = {
     renderNotFound() {
         return `
             <div class="text-center py-20">
-                <div class="text-8xl mb-4">🤔</div>
-                <h2 class="text-3xl font-bold text-gray-800 mb-2">Página não encontrada</h2>
+                <div class="text-8xl mb-4">🐱❓</div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Página não encontrada にゃん~</h2>
                 <p class="text-gray-600 mb-6">A ferramenta que você procura não existe.</p>
                 <button onclick="Router.navigate('home')" class="btn-primary">
-                    Voltar ao Início
+                    🏠 Voltar ao Início
                 </button>
             </div>
         `;

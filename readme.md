@@ -1,10 +1,11 @@
-# 🧰 ToolBox
+# 🐱 NyanTools
 
-**Sua caixa de ferramentas definitiva!** Uma aplicação desktop moderna construída com Electron que reúne diversas ferramentas úteis em um só lugar.
+**にゃん~ Your Purr-fect Toolkit!** Uma aplicação desktop moderna e kawaii construída com Electron que reúne diversas ferramentas úteis em um só lugar.
 
-![Version](https://img.shields.io/badge/version-2.0.0-blue)
+![Version](https://img.shields.io/badge/version-2.0.2-blue)
 ![Electron](https://img.shields.io/badge/electron-27.0.0-green)
 ![License](https://img.shields.io/badge/license-MIT-orange)
+![Kawaii](https://img.shields.io/badge/kawaii-100%25-ff69b4)
 
 ---
 
@@ -25,9 +26,10 @@
 - Informações detalhadas: umidade, vento, pressão, nascer/pôr do sol
 
 ### 🌍 **Tradutor Universal**
-- Suporte para 10+ idiomas
+- Suporte para 12+ idiomas
 - Tradução automática em tempo real
 - Função de inverter idiomas
+- Síntese de voz para ouvir traduções
 - API gratuita MyMemory
 
 ### 🤖 **Assistente IA**
@@ -51,9 +53,9 @@
 
 ### 🎵 **Player de Música**
 - Interface moderna e intuitiva
-- Controles de reprodução completos
-- Links para Spotify e YouTube Music
-- Rádios web integradas
+- Player integrado com YouTube
+- 4 playlists temáticas (Lofi, Study, Electronic, Relaxing)
+- Controles completos de reprodução
 
 ### 📶 **Zona Offline**
 - Jogo da Velha (2 jogadores)
@@ -61,77 +63,57 @@
 - Funciona sem internet
 - Mais jogos em breve (Termo, Quiz, Memória, Forca)
 
+### 🔄 **Sistema de Atualizações**
+- Verificação automática de updates
+- Download direto do GitHub
+- Changelog detalhado
+- Notificações de novas versões
+
 ---
 
-## 📦 Estrutura do Projeto
+## 📦 Instalação
 
+### **Windows**
+1. Baixe `NyanTools-2.0.2-Setup.exe` da [página de releases](https://github.com/Fish7w7/Pandora/releases)
+2. Execute o instalador
+3. Siga as instruções na tela
+4. にゃん~ Pronto para usar!
+
+### **Desenvolvimento**
+```bash
+# Clone o repositório
+git clone https://github.com/Fish7w7/Pandora.git
+cd Pandora
+
+# Instale as dependências
+npm install
+
+# Execute em modo desenvolvimento
+npm start
+
+# Ou com DevTools
+npm run dev
 ```
-meu-app/
-├── backend/                    # Backend (futuro)
-│   └── src/
-│       ├── config/            # Configurações
-│       ├── controllers/       # Controladores
-│       ├── services/          # Serviços
-│       ├── utils/             # Utilitários backend
-│       └── main.js           # Entry point backend
-│
-├── frontend/                  # Frontend principal
-│   ├── public/               # Arquivos públicos
-│   │   ├── assets/
-│   │   │   ├── icons/       # Ícones do app
-│   │   │   └── images/      # Imagens
-│   │   └── index.html       # HTML principal
-│   │
-│   └── src/                 # Código fonte
-│       ├── scripts/         # JavaScript
-│       │   ├── components/  # Componentes reutilizáveis
-│       │   ├── constants/   # Constantes
-│       │   ├── core/        # Núcleo da aplicação
-│       │   │   ├── app.js        # App principal
-│       │   │   ├── auth.js       # Autenticação
-│       │   │   └── router.js     # Roteamento
-│       │   │
-│       │   ├── tools/       # Ferramentas
-│       │   │   ├── ai-assistant/
-│       │   │   │   └── ai-chat.js
-│       │   │   ├── crypto-tracker/    # (Em breve)
-│       │   │   ├── mini-game/
-│       │   │   │   └── game.js
-│       │   │   ├── music-player/
-│       │   │   │   └── music.js
-│       │   │   ├── offline-zone/
-│       │   │   │   └── offline.js
-│       │   │   ├── password-generator/
-│       │   │   │   └── password.js
-│       │   │   ├── temp-email/
-│       │   │   │   └── temp-email.js
-│       │   │   ├── translator/
-│       │   │   │   └── translator.js
-│       │   │   └── weather/
-│       │   │       └── weather.js
-│       │   │
-│       │   └── utils/       # Utilitários
-│       │       └── helpers.js
-│       │
-│       └── styles/          # Estilos CSS
-│           └── main.css
-│
-├── shared/                  # Código compartilhado
-│   ├── constants/          # Constantes globais
-│   ├── types/              # Tipos TypeScript (futuro)
-│   └── utils/              # Utilitários compartilhados
-│
-├── tests/                  # Testes
-│   ├── e2e/               # Testes end-to-end
-│   ├── integration/       # Testes de integração
-│   └── unit/              # Testes unitários
-│
-├── docs/                   # Documentação
-├── migrate.sh             # Script de migração
-├── package.json           # Dependências
-├── README.md              # Este arquivo
-└── script.js              # Scripts auxiliares
-```
+
+---
+
+## 🎨 Ícone e Identidade Visual
+
+O NyanTools usa um adorável gatinho como mascote! 🐱
+
+Para configurar os ícones:
+1. Coloque seus arquivos em `frontend/public/assets/icons/`:
+   - `icon.png` (512x512) - Linux
+   - `icon.ico` (256x256) - Windows
+   - `icon.icns` (512x512) - macOS
+
+2. Os ícones serão automaticamente aplicados em:
+   - Janela da aplicação
+   - Barra de tarefas
+   - Atalhos
+   - Instalador
+
+---
 
 ## ⚙️ Configuração
 
@@ -150,73 +132,132 @@ meu-app/
 
 ---
 
-## 🎨 Tecnologias Utilizadas
+## 🔨 Build
+
+### **Windows**
+```bash
+npm run build:win
+```
+Gera:
+- `NyanTools-2.0.2-Setup.exe` (Instalador NSIS)
+- `NyanTools 2.0.2.exe` (Versão portátil)
+
+### **macOS**
+```bash
+npm run build:mac
+```
+Gera:
+- `NyanTools-2.0.2-x64.dmg`
+- `NyanTools-2.0.2-arm64.dmg`
+
+### **Linux**
+```bash
+npm run build:linux
+```
+Gera:
+- `NyanTools-2.0.2-x64.AppImage`
+- `NyanTools-2.0.2-x64.deb`
+
+### **Todos os Sistemas**
+```bash
+npm run build:all
+```
+
+---
+
+## 📁 Estrutura do Projeto
+
+```
+nyantools/
+├── backend/
+│   └── src/
+│       └── main.js              # Entry point Electron
+│
+├── frontend/
+│   ├── public/
+│   │   ├── assets/
+│   │   │   └── icons/          # Ícones da aplicação
+│   │   │       ├── icon.png
+│   │   │       ├── icon.ico
+│   │   │       └── icon.icns
+│   │   └── index.html          # HTML principal
+│   │
+│   └── src/
+│       ├── scripts/
+│       │   ├── core/           # Núcleo (app, auth, router)
+│       │   ├── tools/          # Ferramentas individuais
+│       │   └── utils/          # Utilitários
+│       │
+│       └── styles/
+│           └── main.css        # Estilos globais
+│
+├── package.json
+└── README.md
+```
+
+---
+
+## 🎯 Tecnologias Utilizadas
 
 ### **Frontend**
-- **Electron 27.0** - Framework desktop multiplataforma
+- **Electron 27.0** - Framework desktop
 - **Tailwind CSS** - Framework CSS utilitário
 - **Vanilla JavaScript (ES6+)** - JavaScript moderno
 
 ### **APIs Integradas**
-- **OpenWeatherMap API** - Dados meteorológicos globais
-- **MyMemory API** - Tradução de textos gratuita
-- **Google Gemini API** - Inteligência artificial avançada
-- **1SecMail API** - Emails temporários (alternativa)
+- **OpenWeatherMap API** - Dados meteorológicos
+- **MyMemory API** - Tradução gratuita
+- **Google Gemini API** - Inteligência artificial
+- **YouTube Player API** - Reprodução de música
 
-### **Recursos Web**
-- **LocalStorage** - Armazenamento local de dados
-- **Geolocation API** - Localização GPS
+### **Recursos**
+- **LocalStorage** - Armazenamento local
+- **Geolocation API** - GPS
 - **Fetch API** - Requisições HTTP
+- **Speech Synthesis** - Síntese de voz
+
 ---
 
 ## 📝 Roadmap
 
 ### **✅ Concluído**
-- [x] Sistema de autenticação simples
-- [x] Gerador de senhas forte
-- [x] Sistema de clima com previsão
+- [x] Sistema de autenticação
+- [x] Gerador de senhas
+- [x] Sistema de clima
 - [x] Tradutor multilíngue
-- [x] Assistente IA com Gemini
-- [x] Mini games (Snake, Jogo da Velha)
+- [x] Assistente IA
+- [x] Mini games
 - [x] Email temporário
-- [x] Player de música básico
+- [x] Player de música
 - [x] Zona offline
+- [x] Sistema de atualizações
+- [x] Ícones customizados
 
 ### **🚧 Em Desenvolvimento**
-- [ ] 💰 **Crypto Tracker** - Cotações de criptomoedas
+- [ ] 💰 **Crypto Tracker** - Cotações
 - [ ] 🧮 **Calculadora Científica**
 - [ ] 📝 **Editor de Markdown**
 - [ ] ✅ **Gerenciador de Tarefas**
 - [ ] 📊 **Conversor de Unidades**
 
-### **🔮 Melhorias Futuras**
+### **🔮 Futuro**
 - [ ] 🌓 Modo escuro/claro
 - [ ] 🎨 Temas personalizáveis
 - [ ] ☁️ Sincronização na nuvem
-- [ ] 🔌 Sistema de plugins/extensões
+- [ ] 🔌 Sistema de plugins
 - [ ] 🌍 Multi-idioma na interface
-- [ ] 📱 Versão mobile (React Native)
-- [ ] 🔔 Sistema de notificações
-- [ ] ⚡ Atalhos de teclado globais
+- [ ] 📱 Versão mobile
+
 ---
 
 ## 🤝 Contribuindo
 
-Contribuições são muito bem-vindas! Para contribuir:
+Contribuições são bem-vindas! にゃん~
 
 1. **Fork** o projeto
-2. Crie uma **branch** para sua feature:
-   ```bash
-   git checkout -b feature/MinhaFeature
-   ```
-3. **Commit** suas mudanças:
-   ```bash
-   git commit -m 'feat: Adiciona MinhaFeature'
-   ```
-4. **Push** para a branch:
-   ```bash
-   git push origin feature/MinhaFeature
-   ```
+2. Crie uma **branch**: `git checkout -b feature/MinhaFeature`
+3. **Commit**: `git commit -m 'feat: Adiciona MinhaFeature'`
+4. **Push**: `git push origin feature/MinhaFeature`
 5. Abra um **Pull Request**
 
 ### **Padrões de Commit**
@@ -242,49 +283,29 @@ Este projeto está sob a licença **MIT**. Veja o arquivo [LICENSE](LICENSE) par
 **Seu Nome**
 - 🌐 GitHub: [@Fish7w7](https://github.com/Fish7w7)
 - 📧 Email: kik73261@gmail.com
-- 💼 LinkedIn: [zzz](zzzz)
 
 ---
 
 ## 🙏 Agradecimentos
 
-- [Electron](https://www.electronjs.org/) - Framework desktop incrível
-- [Tailwind CSS](https://tailwindcss.com/) - CSS utilitário moderno
-- [OpenWeatherMap](https://openweathermap.org/) - Dados meteorológicos
-- [Google Gemini](https://deepmind.google/technologies/gemini/) - IA avançada
-- [MyMemory](https://mymemory.translated.net/) - Tradução gratuita
-- Comunidade open source - Inspiração e suporte
-
----
-
-## 📊 Status do Projeto
-
-![Status](https://img.shields.io/badge/status-active-success)
-![Maintenance](https://img.shields.io/badge/maintained-yes-brightgreen)
-![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)
-![Tests](https://img.shields.io/badge/tests-passing-brightgreen)
-
----
-
-## 🔗 Links Úteis
-
-- [📚 Documentação Completa](docs/)
-- [🐛 Reportar Bug](https://github.com/Fish7w7/Pandora/issues)
-- [💡 Sugerir Feature](https://github.com/Fish7w7/Pandora/issues)
-- [📖 Changelog](CHANGELOG.md)
+- [Electron](https://www.electronjs.org/) - Framework desktop
+- [Tailwind CSS](https://tailwindcss.com/) - CSS framework
+- [OpenWeatherMap](https://openweathermap.org/) - API de clima
+- [Google Gemini](https://deepmind.google/technologies/gemini/) - IA
+- Comunidade open source にゃん~ 🐱
 
 ---
 
 ## 💡 Easter Eggs
 
-Procure pelo botão "Sobre" no menu lateral... 😉
+Procure pelo botão "Sobre" no menu lateral... にゃん~ 😉
 
 ---
 
 <div align="center">
-  <strong>Feito com ❤️ e ☕</strong>
+  <strong>Feito com ❤️ e にゃん~</strong>
   <br><br>
   <sub>Se este projeto te ajudou, considere dar uma ⭐</sub>
   <br>
-  <sub>Compartilhe com seus amigos! 🚀</sub>
+  <sub>Compartilhe com seus amigos! 🐱✨</sub>
 </div>

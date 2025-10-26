@@ -4,6 +4,9 @@ const path = require('path');
 let mainWindow;
 
 function createWindow() {
+    // Definir caminho do ícone baseado na plataforma
+    const iconPath = getIconPath();
+    
     mainWindow = new BrowserWindow({
         width: 1400,
         height: 900,
@@ -16,26 +19,28 @@ function createWindow() {
         frame: true,
         backgroundColor: '#1a1a2e',
         show: false,
-        icon: path.join(__dirname, '../../frontend/public/assets/icons/icon.png')
+        icon: iconPath,
+        title: 'NyanTools にゃん~' // ← NOME ATUALIZADO
     });
 
-    // CAMINHO CORRETO PARA A NOVA ESTRUTURA
-    // __dirname = D:\Vscode - Projetos\Novo\meu-app\backend\src
-    // Subir 2 níveis e entrar em frontend/public/index.html
     const indexPath = path.join(__dirname, '../../frontend/public/index.html');
     
+    console.log('🐱 NyanTools iniciando... にゃん~');
     console.log('📂 Diretório atual:', __dirname);
     console.log('📄 Carregando aplicação de:', indexPath);
+    console.log('🎨 Ícone carregado de:', iconPath);
     
     mainWindow.loadFile(indexPath);
 
     mainWindow.once('ready-to-show', () => {
         mainWindow.show();
-        console.log('✅ Aplicação iniciada com sucesso!');
+        console.log('✅ NyanTools iniciado com sucesso! にゃん~');
     });
 
-    // DevTools aberto para debug
-    mainWindow.webContents.openDevTools();
+    // DevTools apenas em desenvolvimento
+    if (process.env.NODE_ENV === 'development') {
+        mainWindow.webContents.openDevTools();
+    }
 
     mainWindow.on('closed', () => {
         mainWindow = null;
@@ -48,9 +53,23 @@ function createWindow() {
     });
 }
 
+// Função para obter o caminho correto do ícone baseado na plataforma
+function getIconPath() {
+    const iconsDir = path.join(__dirname, '../../frontend/public/assets/icons');
+    
+    if (process.platform === 'win32') {
+        return path.join(iconsDir, 'icon.ico');
+    } else if (process.platform === 'darwin') {
+        return path.join(iconsDir, 'icon.icns');
+    } else {
+        return path.join(iconsDir, 'icon.png');
+    }
+}
+
 app.whenReady().then(() => {
-    console.log('🧰 ToolBox iniciando...');
+    console.log('🐱 NyanTools v2.0.2');
     console.log('📁 App path:', app.getAppPath());
+    console.log('🖥️ Plataforma:', process.platform);
     createWindow();
 
     app.on('activate', () => {
@@ -66,7 +85,6 @@ app.on('window-all-closed', () => {
     }
 });
 
-// Log de erros não capturados
 process.on('uncaughtException', (error) => {
     console.error('❌ Erro não capturado:', error);
 });

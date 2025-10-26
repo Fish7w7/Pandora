@@ -1,5 +1,5 @@
 const App = {
-    version: '2.0.0',
+    version: '2.0.2',
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
@@ -14,23 +14,21 @@ const App = {
         { id: 'temp-email', name: 'Email Temporário', icon: '📧', description: 'Emails descartáveis' },
         { id: 'music', name: 'Player de Música', icon: '🎵', description: 'Ouça suas músicas' },
         { id: 'offline', name: 'Zona Offline', icon: '📶', description: 'Jogos sem internet' },
-        { id: 'updates', name: 'Atualizações', icon: '🔄', description: 'Verificar atualizações' } // ← ADICIONADO
+        { id: 'updates', name: 'Atualizações', icon: '🔄', description: 'Verificar atualizações' }
     ],
     
     init() {
-        console.log('🧰 ToolBox v' + this.version + ' iniciando...');
+        console.log('🐱 NyanTools v' + this.version + ' iniciando... にゃん~');
         
         setTimeout(() => {
             this.hideLoading();
             this.checkAuth();
             
-            // ← ADICIONAR VERIFICAÇÃO DE UPDATES
             if (typeof AutoUpdater !== 'undefined' && AutoUpdater.getAutoCheckSetting()) {
                 setTimeout(() => {
                     AutoUpdater.checkForUpdates(true);
                 }, 3000);
             }
-            // ← FIM
         }, 2500);
         
         this.setupGlobalListeners();
@@ -98,7 +96,7 @@ const App = {
     
     setupGlobalListeners() {
         document.getElementById('logout-btn')?.addEventListener('click', () => {
-            if (confirm('Deseja realmente sair?')) {
+            if (confirm('Deseja realmente sair? にゃん~')) {
                 Auth.logout();
                 location.reload();
             }
@@ -106,12 +104,12 @@ const App = {
         
         window.addEventListener('online', () => {
             this.isOnline = true;
-            Utils.showNotification('✅ Conexão restaurada!', 'success');
+            Utils.showNotification('✅ Conexão restaurada! にゃん~', 'success');
         });
         
         window.addEventListener('offline', () => {
             this.isOnline = false;
-            Utils.showNotification('⚠️ Você está offline', 'warning');
+            Utils.showNotification('⚠️ Você está offline にゃん~', 'warning');
         });
     },
     
@@ -122,11 +120,15 @@ const App = {
 
 function showEasterEgg() {
     const messages = [
-        "⚠️ AVISO IMPORTANTE ⚠️",
+        "🐱 NYAN NYAN! にゃん~",
         "",
+        "Bem-vindo ao NyanTools!",
+        "Sua caixa de ferramentas kawaii 🎌",
+        "",
+        "⚠️ AVISO IMPORTANTE ⚠️",
         "Em caso de investigação policial, eu declaro que não tenho envolvimento com este grupo e não sei como estou no mesmo, provavelmente fui inserido por terceiros, declaro que estou disposto a colaborar com as investigações e estou disposto a me apresentar a depoimento se necessário.",
         "",
-        "Vc Foi Mogado, Sobra nada pro beta --- Use o ToolBox com responsabilidade!"
+        "Use o NyanTools com responsabilidade! にゃん~ 🐱✨"
     ];
     
     alert(messages.join('\n'));
