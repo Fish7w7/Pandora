@@ -74,7 +74,7 @@
 ## 📦 Instalação
 
 ### **Windows**
-1. Baixe `NyanTools-2.0.2-Setup.exe` da [página de releases](https://github.com/Fish7w7/Pandora/releases)
+1. Baixe `NyanTools-2.3.2-Setup.exe` da [página de releases](https://github.com/Fish7w7/Pandora/releases)
 2. Execute o instalador
 3. Siga as instruções na tela
 4. にゃん~ Pronto para usar!
