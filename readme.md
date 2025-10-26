@@ -133,51 +133,6 @@ meu-app/
 └── script.js              # Scripts auxiliares
 ```
 
----
-
-## 🚀 Instalação e Uso
-
-### **Pré-requisitos**
-- Node.js (v16 ou superior)
-- npm ou yarn
-
-### **1. Clonar o repositório**
-```bash
-git clone https://github.com/seu-usuario/toolbox.git
-cd toolbox
-```
-
-### **2. Instalar dependências**
-```bash
-npm install
-```
-
-### **3. Executar em desenvolvimento**
-```bash
-npm start
-```
-
-### **4. Build para produção**
-
-**Windows:**
-```bash
-npm run build:win
-```
-
-**macOS:**
-```bash
-npm run build:mac
-```
-
-**Linux:**
-```bash
-npm run build:linux
-```
-
-Os arquivos compilados estarão na pasta `dist/`
-
----
-
 ## ⚙️ Configuração
 
 ### **API Keys Necessárias**
@@ -212,39 +167,6 @@ Os arquivos compilados estarão na pasta `dist/`
 - **LocalStorage** - Armazenamento local de dados
 - **Geolocation API** - Localização GPS
 - **Fetch API** - Requisições HTTP
-
----
-
-## 📸 Screenshots
-
-### Tela de Login
-![Login](screenshots/login.png)
-
-### Dashboard Principal
-![Dashboard](screenshots/dashboard.png)
-
-### Gerador de Senhas
-![Password](screenshots/password.png)
-
-### Clima com Previsão
-![Weather](screenshots/weather.png)
-
-### Assistente IA
-![AI Chat](screenshots/ai-chat.png)
-
----
-
-## 🛠️ Scripts Disponíveis
-
-```bash
-npm start          # Inicia a aplicação em modo desenvolvimento
-npm run dev        # Inicia com DevTools aberto
-npm run build      # Build para todas as plataformas
-npm run build:win  # Build apenas para Windows (.exe)
-npm run build:mac  # Build apenas para macOS (.dmg)
-npm run build:linux # Build apenas para Linux (.AppImage)
-```
-
 ---
 
 ## 📝 Roadmap
@@ -276,34 +198,6 @@ npm run build:linux # Build apenas para Linux (.AppImage)
 - [ ] 📱 Versão mobile (React Native)
 - [ ] 🔔 Sistema de notificações
 - [ ] ⚡ Atalhos de teclado globais
-
----
-
-## 🐛 Problemas Conhecidos e Soluções
-
-### **Erro: ERR_FILE_NOT_FOUND**
-**Causa:** Caminho incorreto para arquivos  
-**Solução:** Verifique os caminhos em `main.js`:
-```javascript
-const indexPath = path.join(__dirname, '../public/index.html');
-```
-
-### **API Key OpenWeather não funciona**
-**Causa:** Chave ainda não ativada  
-**Solução:** Aguarde 10-15 minutos após criar a conta.
-
-### **Geolocalização não autorizada**
-**Causa:** Permissão bloqueada  
-**Solução:** Ative nas configurações do Electron ou navegador.
-
-### **Erro 403 em Email Temporário**
-**Causa:** APIs de email temporário bloqueiam Electron  
-**Solução:** Use a opção de abrir no navegador externo.
-
-### **Assistente IA retorna erro**
-**Causa:** API Key inválida ou expirada  
-**Solução:** Gere uma nova chave no Google AI Studio.
-
 ---
 
 ## 🤝 Contribuindo
@@ -346,9 +240,9 @@ Este projeto está sob a licença **MIT**. Veja o arquivo [LICENSE](LICENSE) par
 ## 👤 Autor
 
 **Seu Nome**
-- 🌐 GitHub: [@seu-usuario](https://github.com/seu-usuario)
-- 📧 Email: seu.email@exemplo.com
-- 💼 LinkedIn: [Seu Nome](https://linkedin.com/in/seu-usuario)
+- 🌐 GitHub: [@Fish7w7](https://github.com/Fish7w7)
+- 📧 Email: kik73261@gmail.com
+- 💼 LinkedIn: [zzz](zzzz)
 
 ---
 
@@ -375,8 +269,8 @@ Este projeto está sob a licença **MIT**. Veja o arquivo [LICENSE](LICENSE) par
 ## 🔗 Links Úteis
 
 - [📚 Documentação Completa](docs/)
-- [🐛 Reportar Bug](https://github.com/seu-usuario/toolbox/issues)
-- [💡 Sugerir Feature](https://github.com/seu-usuario/toolbox/issues)
+- [🐛 Reportar Bug](https://github.com/Fish7w7/Pandora/issues)
+- [💡 Sugerir Feature](https://github.com/Fish7w7/Pandora/issues)
 - [📖 Changelog](CHANGELOG.md)
 
 ---
