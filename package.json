@@ -1,6 +1,6 @@
 {
   "name": "nyantools",
-  "version": "2.3.2",
+  "version": "2.4.0",
   "description": "NyanTools - Your purr-fect toolkit にゃん~ | Agora com Tema Escuro e Novos Jogos!",
   "main": "backend/src/main.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "build:linux": "electron-builder --linux",
     "build:all": "electron-builder --win --mac --linux"
   },
-      "keywords": [
+  "keywords": [
     "electron",
     "nyantools",
     "toolkit",
