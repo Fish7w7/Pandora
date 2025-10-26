@@ -1,5 +1,5 @@
 const AutoUpdater = {
-    currentVersion: '2.0.0',
+    currentVersion: '2.0.1',
     updateUrl: 'https://raw.githubusercontent.com/Fish7w7/Pandora/main/version.json',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -154,14 +154,12 @@ const AutoUpdater = {
     renderChangelog() {
         const changelog = [
             {
-                version: '2.0.0',
+                version: '2.0.1',
                 date: '2025-01-26',
                 changes: [
-                    '🎨 Nova interface moderna com Tailwind CSS',
-                    '🤖 Assistente IA com Google Gemini',
-                    '🌤️ Sistema de clima com previsão de 5 dias',
-                    '🔄 Sistema de auto-atualização',
-                    '🎮 Zona offline com jogos'
+                    '🎵 Player moderno e intuitivo',
+                    '🔊 Suporte a playlists',
+                    '🎧 Equalizador personalizado'
                 ]
             }
         ];
