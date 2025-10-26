@@ -1,0 +1,299 @@
+/* ========================================
+   TEMA ESCURO - NyanTools にゃん~
+   ======================================== */
+
+/* Aplicar tema escuro quando o body tem a classe 'dark-theme' */
+body.dark-theme {
+    background-color: #0f172a;
+    color: #e2e8f0;
+}
+
+/* ===== SIDEBAR ===== */
+body.dark-theme #sidebar {
+    background: linear-gradient(to bottom, #1e1b4b, #312e81, #4c1d95);
+}
+
+/* ===== MAIN CONTENT ===== */
+body.dark-theme main {
+    background-color: #0f172a;
+}
+
+/* ===== CARDS E CONTAINERS ===== */
+body.dark-theme .bg-white {
+    background-color: #1e293b !important;
+    color: #e2e8f0 !important;
+}
+
+body.dark-theme .bg-gray-100 {
+    background-color: #0f172a !important;
+}
+
+body.dark-theme .bg-gray-50 {
+    background-color: #1e293b !important;
+}
+
+/* ===== TEXTO ===== */
+body.dark-theme .text-gray-800 {
+    color: #f1f5f9 !important;
+}
+
+body.dark-theme .text-gray-700 {
+    color: #cbd5e1 !important;
+}
+
+body.dark-theme .text-gray-600 {
+    color: #94a3b8 !important;
+}
+
+body.dark-theme .text-gray-500 {
+    color: #64748b !important;
+}
+
+body.dark-theme .text-gray-400 {
+    color: #475569 !important;
+}
+
+/* ===== BORDAS ===== */
+body.dark-theme .border-gray-200 {
+    border-color: #334155 !important;
+}
+
+body.dark-theme .border-gray-300 {
+    border-color: #475569 !important;
+}
+
+body.dark-theme .border-gray-400 {
+    border-color: #64748b !important;
+}
+
+/* ===== INPUTS ===== */
+body.dark-theme input,
+body.dark-theme textarea,
+body.dark-theme select {
+    background-color: #334155 !important;
+    color: #e2e8f0 !important;
+    border-color: #475569 !important;
+}
+
+body.dark-theme input::placeholder,
+body.dark-theme textarea::placeholder {
+    color: #64748b !important;
+}
+
+body.dark-theme input:focus,
+body.dark-theme textarea:focus,
+body.dark-theme select:focus {
+    background-color: #475569 !important;
+    border-color: #6366f1 !important;
+}
+
+/* ===== BOTÕES ===== */
+body.dark-theme .btn-primary {
+    background-color: #4f46e5;
+}
+
+body.dark-theme .btn-primary:hover {
+    background-color: #4338ca;
+}
+
+body.dark-theme .btn-secondary {
+    background-color: #334155;
+    color: #e2e8f0;
+}
+
+body.dark-theme .btn-secondary:hover {
+    background-color: #475569;
+}
+
+/* ===== CARDS DE FERRAMENTAS ===== */
+body.dark-theme .tool-card {
+    background-color: #1e293b !important;
+    border: 1px solid #334155;
+}
+
+body.dark-theme .tool-card:hover {
+    background-color: #334155 !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== JOGO DA VELHA ===== */
+body.dark-theme .aspect-square {
+    background: linear-gradient(135deg, #1e293b, #334155) !important;
+}
+
+body.dark-theme .aspect-square:hover {
+    background: linear-gradient(135deg, #334155, #475569) !important;
+}
+
+/* ===== TERMO - TILES ===== */
+body.dark-theme .bg-gray-200 {
+    background-color: #334155 !important;
+}
+
+body.dark-theme .bg-gray-400 {
+    background-color: #475569 !important;
+}
+
+/* Manter as cores do Termo (verde, amarelo) */
+body.dark-theme .bg-green-500,
+body.dark-theme .bg-green-600 {
+    /* Cores mantidas */
+}
+
+body.dark-theme .bg-yellow-500,
+body.dark-theme .bg-yellow-600 {
+    /* Cores mantidas */
+}
+
+/* ===== TECLADO DO TERMO/FORCA ===== */
+body.dark-theme button {
+    border-color: #334155;
+}
+
+body.dark-theme .bg-gray-200 {
+    background-color: #334155 !important;
+}
+
+/* ===== NOTIFICAÇÕES ===== */
+body.dark-theme .fixed.top-4.right-4 {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+}
+
+/* ===== SHADOWS ===== */
+body.dark-theme .shadow-lg {
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5),
+                0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-theme .shadow-xl {
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5),
+                0 10px 10px -5px rgba(0, 0, 0, 0.3) !important;
+}
+
+body.dark-theme .shadow-2xl {
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* ===== GRADIENTES MANTIDOS ===== */
+/* Mantém os gradientes coloridos do app */
+body.dark-theme .bg-gradient-to-r,
+body.dark-theme .bg-gradient-to-br,
+body.dark-theme .bg-gradient-to-b {
+    /* Gradientes de cores mantidos */
+}
+
+/* ===== SCROLLBAR ===== */
+body.dark-theme ::-webkit-scrollbar {
+    width: 8px;
+}
+
+body.dark-theme ::-webkit-scrollbar-track {
+    background: #1e293b;
+}
+
+body.dark-theme ::-webkit-scrollbar-thumb {
+    background: #475569;
+    border-radius: 4px;
+}
+
+body.dark-theme ::-webkit-scrollbar-thumb:hover {
+    background: #64748b;
+}
+
+/* ===== BACKGROUNDS ESPECIAIS ===== */
+body.dark-theme .bg-blue-50 {
+    background-color: #1e3a5f !important;
+}
+
+body.dark-theme .bg-green-50 {
+    background-color: #1e4d3e !important;
+}
+
+body.dark-theme .bg-yellow-50 {
+    background-color: #4d3e1e !important;
+}
+
+body.dark-theme .bg-red-50 {
+    background-color: #4d1e2e !important;
+}
+
+body.dark-theme .bg-purple-50 {
+    background-color: #2e1e4d !important;
+}
+
+body.dark-theme .bg-pink-50 {
+    background-color: #4d1e3e !important;
+}
+
+body.dark-theme .bg-indigo-50 {
+    background-color: #1e2e4d !important;
+}
+
+body.dark-theme .bg-cyan-50 {
+    background-color: #1e4d4d !important;
+}
+
+/* ===== BORDERS ESPECIAIS ===== */
+body.dark-theme .border-blue-200 {
+    border-color: #1e40af !important;
+}
+
+body.dark-theme .border-green-200 {
+    border-color: #15803d !important;
+}
+
+body.dark-theme .border-yellow-200 {
+    border-color: #ca8a04 !important;
+}
+
+body.dark-theme .border-red-200 {
+    border-color: #b91c1c !important;
+}
+
+body.dark-theme .border-purple-200 {
+    border-color: #7e22ce !important;
+}
+
+/* ===== HOVER STATES ===== */
+body.dark-theme .hover\:bg-gray-200:hover {
+    background-color: #334155 !important;
+}
+
+body.dark-theme .hover\:bg-gray-300:hover {
+    background-color: #475569 !important;
+}
+
+/* ===== LOADING SCREEN ===== */
+body.dark-theme #loading-screen {
+    background: linear-gradient(to bottom right, #1e1b4b, #312e81, #4c1d95);
+}
+
+/* ===== TRANSIÇÃO SUAVE ===== */
+body,
+body * {
+    transition: background-color 0.3s ease,
+                color 0.3s ease,
+                border-color 0.3s ease;
+}
+
+/* ===== CANVAS (JOGOS) ===== */
+body.dark-theme canvas {
+    background-color: #0f172a !important;
+}
+
+/* ===== SPECIAL: Manter legibilidade em gradientes ===== */
+body.dark-theme .bg-gradient-to-r.from-purple-500,
+body.dark-theme .bg-gradient-to-r.from-blue-500,
+body.dark-theme .bg-gradient-to-r.from-green-500,
+body.dark-theme .bg-gradient-to-r.from-red-500 {
+    color: white !important;
+}
+
+/* ===== CONFIGURAÇÕES - PREVIEW CARDS ===== */
+body.dark-theme .bg-gradient-to-br.from-white {
+    background: linear-gradient(to bottom right, #1e293b, #334155) !important;
+}
+
+body.dark-theme .bg-gradient-to-br.from-gray-800 {
+    /* Mantém escuro */
+}

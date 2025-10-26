@@ -1,14 +1,90 @@
 {
-  "version": "2.1.0",
-  "releaseDate": "2025-01-26",
+  "version": "2.2.2",
+  "releaseDate": "2025-10-26",
   "changelog": [
-    "🐱 Rebranding completo para NyanTools にゃん~",
-    "🎨 Nova identidade visual",
-    "🎌 Interface em tema japonês",
-    "✨ Ícone do gatinho em todo o app",
-    "🔧 Correções e melhorias gerais"
+    "🎮 NOVOS JOGOS: Termo e Forca totalmente funcionais!",
+    "⚙️ Sistema de Configurações completo com 5 abas",
+    "🌙 Tema Escuro implementado e funcional",
+    "🐛 Bug do Jogo da Velha corrigido (símbolos invertidos)",
+    "✨ Melhorias de performance e estabilidade",
+    "💾 Sistema de backup e restore de dados",
+    "🎨 Interface aprimorada em todos os jogos"
   ],
-  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/latest",
-  "releaseNotesUrl": "https://github.com/Fish7w7/Pandora/releases",
-  "critical": false
+  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v2.1.2",
+  "releaseNotesUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v2.1.2",
+  "critical": false,
+  "features": {
+    "termo": {
+      "description": "Wordle em Português - 5 letras, 6 tentativas",
+      "dailyWord": true,
+      "wordsCount": "90+"
+    },
+    "forca": {
+      "description": "Jogo da Forca clássico com dicas",
+      "dailyWord": true,
+      "wordsCount": "40+",
+      "lives": 6
+    },
+    "darkTheme": {
+      "description": "Tema escuro completo",
+      "status": "✅ Funcional",
+      "smoothTransitions": true
+    },
+    "settings": {
+      "tabs": ["Aparência", "Atualizações", "Notificações", "Dados", "Sobre"],
+      "features": ["Backup", "Restore", "Theme Toggle", "Storage Info"]
+    }
+  },
+  "bugFixes": [
+    "Jogo da Velha - símbolos de vitória corrigidos",
+    "Termo - palavras inválidas removidas",
+    "Forca - erro de null pointer resolvido",
+    "Forca - letras repetidas agora funcionam corretamente",
+    "Interface - botão duplicado de atualizações removido"
+  ],
+  "technicalImprovements": [
+    "Validações de segurança em todos os jogos",
+    "Try-catch para tratamento de erros",
+    "Loading states apropriados",
+    "Logs detalhados para debugging",
+    "Código modularizado e organizado"
+  ],
+  "filesAdded": [
+    "termo.js",
+    "forca.js",
+    "settings.js",
+    "dark-theme.css",
+    "animations.css"
+  ],
+  "filesModified": [
+    "offline.js",
+    "app.js",
+    "router.js",
+    "index.html",
+    "main.css"
+  ],
+  "statistics": {
+    "newGames": 3,
+    "settingsTabs": 5,
+    "bugsFi xed": 8,
+    "newFiles": 5,
+    "totalWords": "130+",
+    "cssLines": "100+"
+  },
+  "minimumRequirements": {
+    "os": ["Windows 10+", "macOS 10.14+", "Linux (Ubuntu 20.04+)"],
+    "ram": "512 MB",
+    "disk": "100 MB",
+    "screen": "1024x768"
+  },
+  "nextVersion": {
+    "version": "2.4.0",
+    "plannedFeatures": [
+      "Cores de destaque personalizáveis",
+      "Mais jogos offline (Quiz, Memória)",
+      "Sistema de estatísticas",
+      "Sistema de conquistas",
+      "Melhor responsividade mobile"
+    ]
+  }
 }

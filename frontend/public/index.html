@@ -6,6 +6,7 @@
     <title>NyanTools にゃん~</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="../src/styles/main.css">
+    <link rel="stylesheet" href="../src/styles/dark-theme.css">
 </head>
 <body class="bg-gray-100 overflow-hidden">
 
@@ -105,7 +106,7 @@
                 <div class="mt-8 text-center">
                     <div class="flex items-center justify-center gap-2 text-white/60 text-xs font-bold tracking-widest mb-4">
                         <div class="w-12 h-px bg-white/30"></div>
-                        <span>VERSION 2.0.2</span>
+                        <span>VERSION 2.1.0</span>
                         <div class="w-12 h-px bg-white/30"></div>
                     </div>
                     <p class="text-white/50 text-xs">
@@ -135,10 +136,6 @@
             </nav>
             
             <div class="p-4 border-t border-white/20">
-                <button onclick="showEasterEgg()" class="w-full py-2 px-4 bg-white/10 hover:bg-white/20 rounded-lg mb-2 transition-all">
-                    ℹ️ Sobre
-                </button>
-
                 <button id="logout-btn" class="w-full py-2 px-4 bg-red-500/80 hover:bg-red-600 rounded-lg transition-all flex items-center justify-center gap-2">
                     <span>🚪 Sair</span>
                 </button>
@@ -164,8 +161,13 @@
     <script src="../src/scripts/tools/mini-game/game.js"></script>
     <script src="../src/scripts/tools/temp-email/temp-email.js"></script>
     <script src="../src/scripts/tools/music-player/music.js"></script>
+    <!-- NOVOS SCRIPTS DOS JOGOS SEPARADOS -->
+    <script src="../src/scripts/tools/offline-zone/termo.js"></script>
+    <script src="../src/scripts/tools/offline-zone/forca.js"></script>
     <script src="../src/scripts/tools/offline-zone/offline.js"></script>
-    <script src="../src/scripts/core/app.js"></script>
+    <!-- SCRIPT DE CONFIGURAÇÕES -->
+    <script src="../src/scripts/tools/settings/settings.js"></script>
     <script src="../src/scripts/tools/updater/updater.js"></script>
+    <script src="../src/scripts/core/app.js"></script>
 </body>
 </html>

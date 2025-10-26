@@ -48,6 +48,10 @@ const Router = {
                 container.innerHTML = OfflineZone.render();
                 OfflineZone.init();
                 break;
+            case 'settings':
+                container.innerHTML = Settings.render();
+                Settings.init();
+                break;
             case 'updates':
                 container.innerHTML = AutoUpdater.render();
                 AutoUpdater.init();
@@ -74,7 +78,7 @@ const Router = {
                 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     ${tools.map(tool => `
-                        <div class="tool-card bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transform hover:scale-105 transition-all"
+                        <div class="tool-card bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transform hover:scale-105 transition-all relative"
                              onclick="Router.navigate('${tool.id}')">
                             <div class="text-5xl mb-4">${tool.icon}</div>
                             <h3 class="text-xl font-bold text-gray-800 mb-2">${tool.name}</h3>
@@ -89,6 +93,7 @@ const Router = {
                         <div>
                             <h3 class="text-2xl font-bold mb-2">💡 Dica do Dia にゃん~</h3>
                             <p>Use o <strong>Gerador de Senhas</strong> para criar senhas seguras e únicas para cada site! 🔐✨</p>
+                            <p class="mt-2 text-sm text-purple-100">Novo: Jogue <strong>Termo</strong> e <strong>Forca</strong> na Zona Offline! 🎮</p>
                         </div>
                     </div>
                 </div>

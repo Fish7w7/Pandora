@@ -97,24 +97,6 @@ npm run dev
 
 ---
 
-## 🎨 Ícone e Identidade Visual
-
-O NyanTools usa um adorável gatinho como mascote! 🐱
-
-Para configurar os ícones:
-1. Coloque seus arquivos em `frontend/public/assets/icons/`:
-   - `icon.png` (512x512) - Linux
-   - `icon.ico` (256x256) - Windows
-   - `icon.icns` (512x512) - macOS
-
-2. Os ícones serão automaticamente aplicados em:
-   - Janela da aplicação
-   - Barra de tarefas
-   - Atalhos
-   - Instalador
-
----
-
 ## ⚙️ Configuração
 
 ### **API Keys Necessárias**
@@ -171,28 +153,43 @@ npm run build:all
 nyantools/
 ├── backend/
 │   └── src/
-│       └── main.js              # Entry point Electron
+│       └── main.js                  # Entry point do Electron
 │
 ├── frontend/
 │   ├── public/
 │   │   ├── assets/
-│   │   │   └── icons/          # Ícones da aplicação
+│   │   │   └── icons/               # Ícones da aplicação
 │   │   │       ├── icon.png
 │   │   │       ├── icon.ico
 │   │   │       └── icon.icns
-│   │   └── index.html          # HTML principal
+│   │   └── index.html               # HTML principal
 │   │
 │   └── src/
 │       ├── scripts/
-│       │   ├── core/           # Núcleo (app, auth, router)
-│       │   ├── tools/          # Ferramentas individuais
-│       │   └── utils/          # Utilitários
+│       │   ├── core/                # Núcleo (app, auth, router)
+│       │   │   ├── app.js
+│       │   │   ├── auth.js
+│       │   │   └── router.js
+│       │   │
+│       │   ├── tools/               # Ferramentas individuais
+│       │   │   ├── offline-zone/
+│       │   │   │   ├── offline.js   
+│       │   │   │   ├── termo.js     
+│       │   │   │   └── forca.js     
+│       │   │   ├── settings/        # Sistema de Configurações
+│       │   │   │   └── settings.js  
+│       │   │   └── ...outros jogos
+│       │   │
+│       │   └── utils/               # Funções auxiliares
+│       │       └── helpers.js
 │       │
 │       └── styles/
-│           └── main.css        # Estilos globais
+│           ├── main.css             # animações e responsividade
+│           └── animations.css       # efeitos visuais dos jogos
 │
-├── package.json
-└── README.md
+├── package.json                     
+└── README.md                        
+
 ```
 
 ---
@@ -234,18 +231,17 @@ nyantools/
 - [x] Ícones customizados
 
 ### **🚧 Em Desenvolvimento**
-- [ ] 💰 **Crypto Tracker** - Cotações
-- [ ] 🧮 **Calculadora Científica**
-- [ ] 📝 **Editor de Markdown**
-- [ ] ✅ **Gerenciador de Tarefas**
-- [ ] 📊 **Conversor de Unidades**
+- [ ] 🌓 **Modo escuro/claro**
+- [ ] 🎨 **Temas personalizáveis**
+- [ ] ☁️ **Sincronização na nuvem**
+- [ ] 🔌 **Sistema de plugins**
+- [ ] 🌍 **Multi-idioma na interface**
 
 ### **🔮 Futuro**
-- [ ] 🌓 Modo escuro/claro
-- [ ] 🎨 Temas personalizáveis
-- [ ] ☁️ Sincronização na nuvem
-- [ ] 🔌 Sistema de plugins
-- [ ] 🌍 Multi-idioma na interface
+- [ ] 🧮 Calculadora Científica
+- [ ] 📝 Editor de Markdown
+- [ ] ✅ Gerenciador de Tarefas
+- [ ] 📊 Conversor de Unidades
 - [ ] 📱 Versão mobile
 
 ---
@@ -280,7 +276,7 @@ Este projeto está sob a licença **MIT**. Veja o arquivo [LICENSE](LICENSE) par
 
 ## 👤 Autor
 
-**Seu Nome**
+**Ga**
 - 🌐 GitHub: [@Fish7w7](https://github.com/Fish7w7)
 - 📧 Email: kik73261@gmail.com
 

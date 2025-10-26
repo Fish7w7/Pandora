@@ -1,5 +1,5 @@
 const App = {
-    version: '2.1.0',
+    version: '2.3.2',
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
@@ -14,7 +14,7 @@ const App = {
         { id: 'temp-email', name: 'Email Temporário', icon: '📧', description: 'Emails descartáveis' },
         { id: 'music', name: 'Player de Música', icon: '🎵', description: 'Ouça suas músicas' },
         { id: 'offline', name: 'Zona Offline', icon: '📶', description: 'Jogos sem internet' },
-        { id: 'updates', name: 'Atualizações', icon: '🔄', description: 'Verificar atualizações' }
+        { id: 'settings', name: 'Configurações', icon: '⚙️', description: 'Personalize o app' }
     ],
     
     init() {
@@ -76,9 +76,6 @@ const App = {
                     <span class="font-medium block">${tool.name}</span>
                     <span class="text-xs text-white/70">${tool.description}</span>
                 </div>
-                ${tool.id === 'updates' && typeof AutoUpdater !== 'undefined' && AutoUpdater.updateAvailable ? 
-                    '<span class="px-2 py-1 bg-red-500 text-white text-xs font-bold rounded-full animate-pulse">NEW</span>' 
-                    : ''}
             </div>
         `).join('');
     },

@@ -1,5 +1,5 @@
 const AutoUpdater = {
-    currentVersion: '2.1.0',
+    currentVersion: '2.3.2',
     updateUrl: 'https://raw.githubusercontent.com/Fish7w7/Pandora/main/version.json',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -154,23 +154,27 @@ const AutoUpdater = {
     renderChangelog() {
         const changelog = [
             {
+                version: '2.3.2',
+                date: '2025-10-27',
+                changes: [
+                    "🎮 NOVOS JOGOS: Termo e Forca totalmente funcionais!",
+                    "⚙️ Sistema de Configurações completo com 5 abas",
+                    "🌙 Tema Escuro implementado e funcional",
+                    "🐛 Bug do Jogo da Velha corrigido (símbolos invertidos)",
+                    "✨ Melhorias de performance e estabilidade",
+                    "💾 Sistema de backup e restore de dados",
+                    "🎨 Interface aprimorada em todos os jogos"
+                ]
+            },
+            {
                 version: '2.1.0',
-                date: '2025-01-26',
+                date: '2025-10-26',
                 changes: [
                     '🐱 Rebranding completo para NyanTools',
                     '🎨 Nova identidade visual kawaii',
                     '🎌 Interface em tema japonês にゃん~',
                     '✨ Ícone do gatinho em todo o app',
                     '🔧 Correções e melhorias gerais'
-                ]
-            },
-            {
-                version: '2.0.2',
-                date: '2025-01-26',
-                changes: [
-                    '🔄 Sistema de auto-atualização',
-                    '🎨 Ícones customizados',
-                    '🐛 Correções de bugs'
                 ]
             }
         ];

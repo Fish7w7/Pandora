@@ -1,7 +1,7 @@
 {
   "name": "nyantools",
-  "version": "2.1.0",
-  "description": "NyanTools - Your purr-fect toolkit にゃん~",
+  "version": "2.3.2",
+  "description": "NyanTools - Your purr-fect toolkit にゃん~ | Agora com Tema Escuro e Novos Jogos!",
   "main": "backend/src/main.js",
   "scripts": {
     "start": "electron .",
@@ -12,14 +12,21 @@
     "build:linux": "electron-builder --linux",
     "build:all": "electron-builder --win --mac --linux"
   },
-  "keywords": [
+      "keywords": [
     "electron",
     "nyantools",
     "toolkit",
     "utilities",
-    "cat"
+    "cat",
+    "games",
+    "termo",
+    "wordle",
+    "forca",
+    "hangman",
+    "dark-theme",
+    "offline-games"
   ],
-  "author": "Seu Nome",
+  "author": "Fish7w7",
   "license": "MIT",
   "devDependencies": {
     "cross-env": "^7.0.3",
