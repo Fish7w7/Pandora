@@ -309,3 +309,140 @@ input:focus {
         padding: 1rem;
     }
 }
+
+/* ===== ANIMAÇÕES DO MINI PLAYER ===== */
+
+/* Slide in do canto inferior direito */
+@keyframes slideInUp {
+    from {
+        transform: translateY(100px) scale(0.8);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+}
+
+.animate-slideInUp {
+    animation: slideInUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Slide out para remover */
+@keyframes slideOutDown {
+    from {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+    }
+    to {
+        transform: translateY(100px) scale(0.8);
+        opacity: 0;
+    }
+}
+
+.animate-slideOutDown {
+    animation: slideOutDown 0.3s ease-out forwards;
+}
+
+/* Hover effect no mini player */
+#mini-player {
+    transition: all 0.3s ease;
+}
+
+#mini-player:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px -5px rgba(0, 0, 0, 0.3);
+}
+
+/* Animação de pulso para o ícone da música */
+@keyframes musicPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.1);
+    }
+}
+
+#mini-player .animate-pulse {
+    animation: musicPulse 2s ease-in-out infinite;
+}
+
+/* Barra de progresso animada */
+#mini-progress {
+    transition: width 0.3s ease-out;
+}
+
+/* Hover nos botões do mini player */
+#mini-player button {
+    transition: all 0.2s ease;
+}
+
+#mini-player button:hover {
+    transform: scale(1.1);
+}
+
+#mini-player button:active {
+    transform: scale(0.95);
+}
+
+/* Responsividade do mini player */
+@media (max-width: 640px) {
+    #mini-player {
+        bottom: 1rem !important;
+        right: 1rem !important;
+        left: 1rem !important;
+        max-width: none !important;
+    }
+}
+
+/* Garantir que o mini player fique acima de tudo */
+#mini-player {
+    z-index: 9999 !important;
+    backdrop-filter: blur(10px);
+}
+
+/* Animação de entrada suave */
+@keyframes fadeInScale {
+    from {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.animate-fadeInScale {
+    animation: fadeInScale 0.3s ease-out;
+}
+
+/* Efeito glass no mini player */
+#mini-player::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: inherit;
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: -1;
+}
+
+/* Sombra animada */
+@keyframes shadowPulse {
+    0%, 100% {
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+        box-shadow: 0 15px 40px -5px rgba(0, 0, 0, 0.4);
+    }
+}
+
+#mini-player {
+    animation: shadowPulse 3s ease-in-out infinite;
+}

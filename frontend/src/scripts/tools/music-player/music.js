@@ -1,9 +1,11 @@
 // Player de Música 100% CLOUDINARY - NyanTools
+// ✨ NOVO: Modo Background - Toca em todas as abas!
+
 const MusicPlayer = {
     currentSong: null,
     currentPlaylist: 'lofi',
     isPlaying: false,
-    audio: null,
+    audio: null, // ⚠️ Agora é GLOBAL (não recriado)
     volume: 10,
     
     playlists: {
@@ -78,6 +80,82 @@ const MusicPlayer = {
         }
     },
     
+    // ✨ NOVO: Mini Player Flutuante
+    renderMiniPlayer() {
+        if (!this.currentSong || !this.isPlaying) return '';
+        
+        const song = this.currentSong;
+        const playlist = this.playlists[this.currentPlaylist];
+        
+        return `
+            <div id="mini-player" class="fixed bottom-6 right-6 bg-gradient-to-br ${playlist.gradient} rounded-2xl shadow-2xl p-4 z-50 max-w-xs animate-slideInUp">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="text-4xl animate-pulse">${song.cover}</div>
+                    <div class="flex-1 text-white">
+                        <div class="font-bold text-sm truncate">${song.title}</div>
+                        <div class="text-xs opacity-90 truncate">${song.artist}</div>
+                    </div>
+                    <button onclick="Router.navigate('music')" 
+                            class="bg-white/20 hover:bg-white/30 p-2 rounded-lg transition-all">
+                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"/>
+                        </svg>
+                    </button>
+                </div>
+                
+                <div class="flex items-center gap-2">
+                    <button onclick="MusicPlayer.togglePlay()" 
+                            class="bg-white/20 hover:bg-white/30 p-2 rounded-lg transition-all">
+                        <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            ${this.isPlaying ? 
+                                '<path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/>' :
+                                '<path d="M8 5v14l11-7z"/>'
+                            }
+                        </svg>
+                    </button>
+                    
+                    <button onclick="MusicPlayer.previous()" 
+                            class="bg-white/20 hover:bg-white/30 p-2 rounded-lg transition-all">
+                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/>
+                        </svg>
+                    </button>
+                    
+                    <button onclick="MusicPlayer.next()" 
+                            class="bg-white/20 hover:bg-white/30 p-2 rounded-lg transition-all">
+                        <svg class="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M16 18h2V6h-2zm-11-1l8.5-6L5 5z"/>
+                        </svg>
+                    </button>
+                    
+                    <input type="range" 
+                           min="0" max="100" 
+                           value="${this.volume}" 
+                           onchange="MusicPlayer.setVolume(this.value)"
+                           class="flex-1 h-2 bg-white/30 rounded-lg appearance-none cursor-pointer">
+                </div>
+                
+                <div class="mt-2">
+                    <div class="w-full bg-white/30 rounded-full h-1 overflow-hidden">
+                        <div id="mini-progress" class="bg-white h-full rounded-full transition-all" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+        `;
+    },
+    
+    // ✨ NOVO: Atualizar Mini Player
+    updateMiniPlayer() {
+        const miniPlayer = document.getElementById('mini-player');
+        if (!miniPlayer || !this.audio) return;
+        
+        const progress = (this.audio.currentTime / this.audio.duration) * 100 || 0;
+        const progressBar = document.getElementById('mini-progress');
+        if (progressBar) {
+            progressBar.style.width = progress + '%';
+        }
+    },
+    
     render() {
         const playlist = this.playlists[this.currentPlaylist];
         const currentSong = this.currentSong || playlist.songs[0];
@@ -103,11 +181,11 @@ const MusicPlayer = {
                     <div class="absolute inset-0 bg-gradient-to-br ${playlist.gradient} rounded-3xl blur-2xl opacity-20"></div>
                     <div class="relative bg-white rounded-3xl shadow-2xl p-8 border-2 border-gray-100">
                         
-                        <!-- Audio Player -->
+                        <!-- Audio Player (GLOBAL - não recriado) -->
                         <div class="mb-8">
                             <div class="aspect-video bg-gradient-to-br ${playlist.gradient} rounded-2xl overflow-hidden shadow-2xl flex items-center justify-center relative">
                                 <div class="text-9xl animate-pulse">${currentSong.cover}</div>
-                                <audio id="audio-player" class="hidden" crossorigin="anonymous"></audio>
+                                <!-- ⚠️ Áudio agora é criado apenas UMA VEZ no init() -->
                             </div>
                         </div>
                         
@@ -239,6 +317,7 @@ const MusicPlayer = {
                                 <p>⚡ Carregamento rápido e estável</p>
                                 <p>🌍 Disponível globalmente</p>
                                 <p>📦 Sem ocupar espaço no seu PC!</p>
+                                <p>🎵 <strong>Toca em segundo plano!</strong> Mude de aba sem parar a música</p>
                             </div>
                         </div>
                     </div>
@@ -247,32 +326,39 @@ const MusicPlayer = {
         `;
     },
     
+    // ✨ MODIFICADO: Init agora cria áudio GLOBAL
     init() {
         console.log('🎵 Init chamado');
+        
+        // ⚠️ IMPORTANTE: Criar áudio apenas se não existir
+        if (!this.audio) {
+            this.audio = new Audio();
+            this.audio.volume = this.volume / 100;
+            
+            // Event listeners GLOBAIS
+            this.audio.addEventListener('timeupdate', () => {
+                this.updateProgress();
+                this.updateMiniPlayer();
+            });
+            this.audio.addEventListener('ended', () => this.next());
+            this.audio.addEventListener('loadedmetadata', () => this.updateDuration());
+            this.audio.addEventListener('error', (e) => {
+                console.error('❌ Erro ao carregar:', this.audio.error);
+                Utils.showNotification('❌ Erro ao carregar música', 'error');
+            });
+            
+            console.log('✅ Áudio GLOBAL criado');
+        }
         
         if (!this.currentSong) {
             this.currentSong = this.playlists[this.currentPlaylist].songs[0];
         }
         
-        setTimeout(() => {
-            this.audio = document.getElementById('audio-player');
-            
-            if (this.audio) {
-                this.audio.volume = this.volume / 100;
-                this.audio.src = this.currentSong.file;
-                
-                this.audio.addEventListener('timeupdate', () => this.updateProgress());
-                this.audio.addEventListener('ended', () => this.next());
-                this.audio.addEventListener('loadedmetadata', () => this.updateDuration());
-                
-                this.audio.addEventListener('error', (e) => {
-                    console.error('❌ Erro ao carregar:', this.audio.error);
-                    Utils.showNotification('❌ Erro ao carregar música', 'error');
-                });
-                
-                console.log('✅ Áudio inicializado:', this.audio.src);
-            }
-        }, 100);
+        // Atualizar src se necessário
+        if (this.audio.src !== this.currentSong.file) {
+            this.audio.src = this.currentSong.file;
+            console.log('🔄 Música carregada:', this.currentSong.title);
+        }
     },
     
     togglePlay() {
@@ -285,21 +371,25 @@ const MusicPlayer = {
             this.audio.pause();
             this.isPlaying = false;
             Utils.showNotification('⏸️ Pausado', 'info');
-            this.updatePlayButton();
         } else {
             this.audio.play()
                 .then(() => {
                     this.isPlaying = true;
                     Utils.showNotification(`▶️ ${this.currentSong.title}`, 'success');
-                    this.updatePlayButton();
+                    // ✨ NOVO: Atualizar mini player em outras abas
+                    this.refreshMiniPlayer();
                 })
                 .catch(err => {
                     console.error('❌ Erro:', err);
                     Utils.showNotification('❌ Erro: ' + err.message, 'error');
                 });
         }
+        
+        // ✨ NOVO: Atualizar botão na página de música
+        this.updatePlayButton();
     },
     
+    // ✨ NOVO: Atualizar botão de play
     updatePlayButton() {
         const playButton = document.querySelector('button[onclick*="togglePlay"]');
         if (!playButton) return;
@@ -310,30 +400,50 @@ const MusicPlayer = {
         playButton.innerHTML = this.isPlaying ? svgPause : svgPlay;
     },
     
+    // ✨ NOVO: Refresh mini player
+    refreshMiniPlayer() {
+        // Remover mini player antigo
+        const oldMini = document.getElementById('mini-player');
+        if (oldMini) oldMini.remove();
+        
+        // Adicionar novo se estiver tocando
+        if (this.isPlaying && Router.currentRoute !== 'music') {
+            const container = document.getElementById('tool-container');
+            if (container) {
+                container.insertAdjacentHTML('beforeend', this.renderMiniPlayer());
+            }
+        }
+    },
+    
     playSong(id, playlistKey) {
         const playlist = this.playlists[playlistKey];
         const song = playlist.songs.find(s => s.id === id);
         
         if (!song) return;
         
-        if (this.audio && this.isPlaying) {
-            this.audio.pause();
-        }
-        
+        // ✨ MODIFICADO: Não pausar, apenas trocar música
         this.currentSong = song;
         this.currentPlaylist = playlistKey;
-        this.isPlaying = false;
         
-        Router.render();
+        if (this.audio) {
+            this.audio.src = song.file;
+            this.audio.load();
+            
+            // Se estava tocando, continuar tocando
+            if (this.isPlaying) {
+                this.audio.play().catch(err => {
+                    console.error('❌ Erro ao tocar:', err);
+                    this.isPlaying = false;
+                });
+            }
+        }
         
-        setTimeout(() => {
-            this.init();
-            setTimeout(() => {
-                if (this.audio && this.audio.readyState >= 2) {
-                    this.togglePlay();
-                }
-            }, 300);
-        }, 100);
+        // Re-renderizar apenas se estiver na página de música
+        if (Router.currentRoute === 'music') {
+            Router.render();
+        } else {
+            this.refreshMiniPlayer();
+        }
     },
     
     next() {
@@ -356,15 +466,18 @@ const MusicPlayer = {
         this.currentPlaylist = key;
         const playlist = this.playlists[key];
         
-        this.isPlaying = false;
         this.currentSong = playlist.songs[0];
         
         if (this.audio) {
-            this.audio.pause();
+            this.audio.src = this.currentSong.file;
+            this.audio.load();
         }
         
         Utils.showNotification(`📂 ${playlist.name}`, 'info');
-        Router.render();
+        
+        if (Router.currentRoute === 'music') {
+            Router.render();
+        }
     },
     
     setVolume(value) {
@@ -379,7 +492,7 @@ const MusicPlayer = {
     },
     
     seekTo(value) {
-        if (this.audio) {
+        if (this.audio && this.audio.duration) {
             const time = (value / 100) * this.audio.duration;
             this.audio.currentTime = time;
         }
@@ -395,7 +508,7 @@ const MusicPlayer = {
         const progressBar = document.getElementById('progress-bar');
         const currentTimeEl = document.getElementById('current-time');
         
-        if (progressBar) progressBar.value = progress;
+        if (progressBar) progressBar.value = progress || 0;
         if (currentTimeEl) currentTimeEl.textContent = this.formatTime(currentTime);
     },
     
@@ -403,7 +516,7 @@ const MusicPlayer = {
         if (!this.audio) return;
         
         const durationEl = document.getElementById('duration-time');
-        if (durationEl) {
+        if (durationEl && this.audio.duration) {
             durationEl.textContent = this.formatTime(this.audio.duration);
         }
     },

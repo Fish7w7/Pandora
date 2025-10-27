@@ -59,6 +59,19 @@ const Router = {
             default:
                 container.innerHTML = this.renderNotFound();
         }
+        
+        // ✨ NOVO: Adicionar mini player em TODAS as abas (exceto música)
+        // ⚠️ IMPORTANTE: Este código está DENTRO da função render()
+        if (this.currentRoute !== 'music' && MusicPlayer.isPlaying && MusicPlayer.currentSong) {
+            setTimeout(() => {
+                // Remover mini player antigo se existir
+                const oldMini = document.getElementById('mini-player');
+                if (oldMini) oldMini.remove();
+                
+                // Adicionar novo mini player
+                container.insertAdjacentHTML('beforeend', MusicPlayer.renderMiniPlayer());
+            }, 100);
+        }
     },
     
     renderHome() {
@@ -94,6 +107,7 @@ const Router = {
                             <h3 class="text-2xl font-bold mb-2">💡 Dica do Dia にゃん~</h3>
                             <p>Use o <strong>Gerador de Senhas</strong> para criar senhas seguras e únicas para cada site! 🔐✨</p>
                             <p class="mt-2 text-sm text-purple-100">Novo: Jogue <strong>Termo</strong> e <strong>Forca</strong> na Zona Offline! 🎮</p>
+                            <p class="mt-2 text-sm text-purple-100">🎵 <strong>Música em background!</strong> Inicie uma música e continue navegando nas outras abas!</p>
                         </div>
                     </div>
                 </div>

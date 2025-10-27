@@ -347,128 +347,130 @@ const Settings = {
         `;
     },
     
-    renderAbout() {
+renderAbout() {
+        // Obter o ano atual para o Copyright
+        const currentYear = new Date().getFullYear();
+        
         return `
             <div class="space-y-6">
-                <!-- Info do App -->
-                <div class="bg-gradient-to-br from-purple-500 via-pink-500 to-red-500 rounded-2xl p-8 text-white shadow-2xl">
-                    <div class="flex items-center justify-between mb-6">
-                        <div class="flex items-center gap-4">
-                            <div class="text-7xl">🐱</div>
-                            <div>
-                                <h2 class="text-4xl font-black">NyanTools</h2>
-                                <p class="text-purple-100 text-lg">にゃん~ Your purr-fect toolkit</p>
-                            </div>
-                        </div>
-                        <div class="text-right">
-                            <div class="text-sm text-purple-100 mb-1">Versão</div>
-                            <div class="text-4xl font-black">v${App.version}</div>
+                <div class="bg-gradient-to-br from-purple-600 via-pink-600 to-red-600 rounded-2xl p-8 text-white shadow-2xl text-center overflow-hidden relative">
+                    <div class="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full opacity-50 blur-xl"></div>
+                    <div class="absolute -bottom-10 -right-10 w-40 h-40 bg-white/10 rounded-full opacity-50 blur-xl"></div>
+                    
+                    <div class="relative">
+                        <div class="text-8xl mb-4 animate-bounce-slow">🐱</div>
+                        <h2 class="text-5xl font-black">NyanTools にゃん~</h2>
+                        <p class="text-purple-100 text-xl mt-2 mb-6">Sua caixa de ferramentas purr-feita!</p>
+                        <div class="inline-block bg-white/30 backdrop-blur-sm text-white text-lg font-black px-6 py-2 rounded-full shadow-lg">
+                            Versão ${App.version}
                         </div>
                     </div>
                 </div>
                 
-                <!-- Créditos -->
-                <div class="bg-white rounded-2xl shadow-2xl p-8">
-                    <h3 class="text-2xl font-black text-gray-800 mb-6">👤 Desenvolvedor</h3>
-                    <div class="space-y-4">
-                        <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
-                            <span class="text-3xl">👨‍💻</span>
-                            <div>
-                                <div class="font-bold text-gray-800">Fish7w7</div>
-                                <div class="text-sm text-gray-600">Desenvolvedor Principal</div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    
+                    <div class="space-y-6 lg:col-span-1">
+                        
+                        <div class="bg-white rounded-2xl shadow-2xl p-8">
+                            <h3 class="text-2xl font-black text-gray-800 mb-6">👤 Desenvolvedor</h3>
+                            <div class="space-y-4">
+                                <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
+                                    <span class="text-3xl">👨‍💻</span>
+                                    <div>
+                                        <div class="font-bold text-gray-800">Fish7w7</div>
+                                        <div class="text-sm text-gray-600">Desenvolvedor Principal</div>
+                                    </div>
+                                </div>
+                                <a href="https://github.com/Fish7w7/Pandora" target="_blank" class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all cursor-pointer">
+                                    <svg class="w-8 h-8 text-gray-700" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path fill-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.165 6.839 9.489.5.092.682-.217.682-.483 0-.237-.009-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.11-4.555-4.951 0-1.093.39-1.988 1.03-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0 1 12 6.818c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.026 2.747-1.026.546 1.379.202 2.398.1 2.65.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.942.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.001 10.001 0 0 0 22 12c0-5.523-4.477-10-10-10Z" clip-rule="evenodd" /></svg>
+                                    <div>
+                                        <div class="font-bold text-blue-600">GitHub</div>
+                                        <div class="text-sm text-gray-600">Fish7w7/Pandora</div>
+                                    </div>
+                                </a>
+                                <a href="mailto:kik73261@gmail.com" class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl hover:bg-gray-100 transition-all cursor-pointer">
+                                    <svg class="w-8 h-8 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" /></svg>
+                                    <div>
+                                        <div class="font-bold text-gray-800">Email</div>
+                                        <div class="text-sm text-gray-600">kik73261@gmail.com</div>
+                                    </div>
+                                </a>
                             </div>
                         </div>
-                        <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
-                            <span class="text-3xl">📧</span>
-                            <div>
-                                <div class="font-bold text-gray-800">kik73261@gmail.com</div>
-                                <div class="text-sm text-gray-600">Email de Contato</div>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-4 p-4 bg-gray-50 rounded-xl">
-                            <span class="text-3xl">🌐</span>
-                            <div>
-                                <a href="https://github.com/Fish7w7/Pandora" target="_blank" class="font-bold text-blue-600 hover:underline">github.com/Fish7w7/Pandora</a>
-                                <div class="text-sm text-gray-600">Repositório GitHub</div>
+
+                        <div class="bg-white rounded-2xl shadow-2xl p-8">
+                            <h3 class="text-2xl font-black text-gray-800 mb-6">🔗 Links Úteis</h3>
+                            <div class="space-y-3">
+                                <a href="https://github.com/Fish7w7/Pandora/issues" target="_blank" class="flex items-center gap-3 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all">
+                                    <span class="text-2xl">🐛</span>
+                                    <span class="font-bold text-gray-800">Reportar Bug</span>
+                                </a>
+                                <a href="https://github.com/Fish7w7/Pandora/discussions" target="_blank" class="flex items-center gap-3 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all">
+                                    <span class="text-2xl">💬</span>
+                                    <span class="font-bold text-gray-800">Sugerir Ideias</span>
+                                </a>
+                                <a href="https://github.com/Fish7w7/Pandora" target="_blank" class="flex items-center gap-3 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all">
+                                    <span class="text-2xl">⭐</span>
+                                    <span class="font-bold text-gray-800">Dar Star no GitHub</span>
+                                </a>
+                                <a href="https://github.com/Fish7w7/Pandora/releases" target="_blank" class="flex items-center gap-3 p-4 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all">
+                                    <span class="text-2xl">📦</span>
+                                    <span class="font-bold text-gray-800">Ver Releases</span>
+                                </a>
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <!-- Tecnologias -->
-                <div class="bg-white rounded-2xl shadow-2xl p-8">
-                    <h3 class="text-2xl font-black text-gray-800 mb-6">🛠️ Tecnologias</h3>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                        <div class="p-4 bg-blue-50 rounded-xl text-center">
-                            <div class="text-3xl mb-2">⚛️</div>
-                            <div class="font-bold text-gray-800">Electron</div>
-                            <div class="text-xs text-gray-600">v27.0.0</div>
+                    
+                    <div class="space-y-6 lg:col-span-2">
+                        
+                        <div class="bg-white rounded-2xl shadow-2xl p-8">
+                            <h3 class="text-2xl font-black text-gray-800 mb-6">🛠️ Tecnologias</h3>
+                            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                                <div class="p-4 bg-blue-50 rounded-xl text-center transition-all transform hover:scale-105">
+                                    <div class="text-4xl mb-2">⚛️</div>
+                                    <div class="font-bold text-gray-800">Electron</div>
+                                    <div class="text-xs text-gray-600">v27.0.0</div>
+                                </div>
+                                <div class="p-4 bg-cyan-50 rounded-xl text-center transition-all transform hover:scale-105">
+                                    <div class="text-4xl mb-2">🎨</div>
+                                    <div class="font-bold text-gray-800">Tailwind CSS</div>
+                                    <div class="text-xs text-gray-600">v3.x</div>
+                                </div>
+                                <div class="p-4 bg-yellow-50 rounded-xl text-center transition-all transform hover:scale-105">
+                                    <div class="text-4xl mb-2">📜</div>
+                                    <div class="font-bold text-gray-800">JavaScript</div>
+                                    <div class="text-xs text-gray-600">ES6+</div>
+                                </div>
+                                <div class="p-4 bg-green-50 rounded-xl text-center transition-all transform hover:scale-105">
+                                    <div class="text-4xl mb-2">🤖</div>
+                                    <div class="font-bold text-gray-800">Google Gemini</div>
+                                    <div class="text-xs text-gray-600">API</div>
+                                </div>
+                                <div class="p-4 bg-orange-50 rounded-xl text-center transition-all transform hover:scale-105">
+                                    <div class="text-4xl mb-2">🌤️</div>
+                                    <div class="font-bold text-gray-800">OpenWeather</div>
+                                    <div class="text-xs text-gray-600">API</div>
+                                </div>
+                                <div class="p-4 bg-purple-50 rounded-xl text-center transition-all transform hover:scale-105">
+                                    <div class="text-4xl mb-2">🎵</div>
+                                    <div class="font-bold text-gray-800">YouTube</div>
+                                    <div class="text-xs text-gray-600">API</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="p-4 bg-cyan-50 rounded-xl text-center">
-                            <div class="text-3xl mb-2">🎨</div>
-                            <div class="font-bold text-gray-800">Tailwind CSS</div>
-                            <div class="text-xs text-gray-600">v3.x</div>
+                        
+                        <div class="bg-white rounded-2xl shadow-2xl p-8">
+                            <h3 class="text-2xl font-black text-gray-800 mb-4">📄 Licença</h3>
+                            <div class="bg-gray-50 rounded-xl p-6 border border-gray-200">
+                                <p class="text-gray-700 mb-4">
+                                    Este projeto está licenciado sob a <strong>Licença MIT</strong>.
+                                </p>
+                                <p class="text-sm text-gray-600">
+                                    Copyright © ${currentYear} Fish7w7. Todos os direitos reservados.
+                                </p>
+                            </div>
                         </div>
-                        <div class="p-4 bg-yellow-50 rounded-xl text-center">
-                            <div class="text-3xl mb-2">📜</div>
-                            <div class="font-bold text-gray-800">JavaScript</div>
-                            <div class="text-xs text-gray-600">ES6+</div>
-                        </div>
-                        <div class="p-4 bg-green-50 rounded-xl text-center">
-                            <div class="text-3xl mb-2">🤖</div>
-                            <div class="font-bold text-gray-800">Google Gemini</div>
-                            <div class="text-xs text-gray-600">API</div>
-                        </div>
-                        <div class="p-4 bg-orange-50 rounded-xl text-center">
-                            <div class="text-3xl mb-2">🌤️</div>
-                            <div class="font-bold text-gray-800">OpenWeather</div>
-                            <div class="text-xs text-gray-600">API</div>
-                        </div>
-                        <div class="p-4 bg-purple-50 rounded-xl text-center">
-                            <div class="text-3xl mb-2">🎵</div>
-                            <div class="font-bold text-gray-800">YouTube</div>
-                            <div class="text-xs text-gray-600">API</div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Licença -->
-                <div class="bg-white rounded-2xl shadow-2xl p-8">
-                    <h3 class="text-2xl font-black text-gray-800 mb-4">📄 Licença</h3>
-                    <div class="bg-gray-50 rounded-xl p-6">
-                        <p class="text-gray-700 mb-4">
-                            Este projeto está licenciado sob a <strong>Licença MIT</strong>.
-                        </p>
-                        <p class="text-sm text-gray-600">
-                            Copyright © ${new Date().getFullYear()} Fish7w7. Todos os direitos reservados.
-                        </p>
-                    </div>
-                </div>
-                
-                <!-- Links Úteis -->
-                <div class="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl p-8 text-white shadow-2xl">
-                    <h3 class="text-2xl font-black mb-6">🔗 Links Úteis</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <a href="https://github.com/Fish7w7/Pandora/issues" target="_blank" 
-                           class="flex items-center gap-3 p-4 bg-white/20 hover:bg-white/30 rounded-xl transition-all">
-                            <span class="text-2xl">🐛</span>
-                            <span class="font-bold">Reportar Bug</span>
-                        </a>
-                        <a href="https://github.com/Fish7w7/Pandora/discussions" target="_blank" 
-                           class="flex items-center gap-3 p-4 bg-white/20 hover:bg-white/30 rounded-xl transition-all">
-                            <span class="text-2xl">💬</span>
-                            <span class="font-bold">Sugestões</span>
-                        </a>
-                        <a href="https://github.com/Fish7w7/Pandora" target="_blank" 
-                           class="flex items-center gap-3 p-4 bg-white/20 hover:bg-white/30 rounded-xl transition-all">
-                            <span class="text-2xl">⭐</span>
-                            <span class="font-bold">Dar Star no GitHub</span>
-                        </a>
-                        <a href="https://github.com/Fish7w7/Pandora/releases" target="_blank" 
-                           class="flex items-center gap-3 p-4 bg-white/20 hover:bg-white/30 rounded-xl transition-all">
-                            <span class="text-2xl">📦</span>
-                            <span class="font-bold">Releases</span>
-                        </a>
+
                     </div>
                 </div>
             </div>
