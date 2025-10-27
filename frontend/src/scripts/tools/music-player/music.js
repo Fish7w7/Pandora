@@ -1,13 +1,11 @@
-// Player de Música com YouTube Embeds - 100% Funcional
+// Player de Música 100% CLOUDINARY - NyanTools
 const MusicPlayer = {
     currentSong: null,
     currentPlaylist: 'lofi',
     isPlaying: false,
-    volume: 70,
+    audio: null,
+    volume: 10,
     
-    // Playlists com vídeos do YouTube
-    // INSTRUÇÕES: Cole o ID do vídeo do YouTube (parte depois de v= na URL)
-    // Exemplo: https://www.youtube.com/watch?v=jfKfPfyJRdk → ID = jfKfPfyJRdk
     playlists: {
         lofi: {
             name: 'Lofi Chill Beats',
@@ -16,50 +14,19 @@ const MusicPlayer = {
             songs: [
                 {
                     id: 1,
-                    title: 'Lofi Hip Hop Radio 24/7',
-                    artist: 'Lofi Girl',
-                    youtubeId: 'rPjez8z61rI', // Cole o ID do YouTube aqui
+                    title: 'Lofi Hip Hop Mix',
+                    artist: 'Chill Beats',
+                    file: 'https://res.cloudinary.com/digea8r7l/video/upload/v1761542001/Chill-Lofi-Beats_alo6hn.mp3',
                     cover: '🎵',
-                    duration: '∞'
+                    duration: '1:42:54'
                 },
                 {
                     id: 2,
-                    title: 'Chill Lofi Study Beats',
-                    artist: 'ChillHop Music',
-                    youtubeId: '5qap5aO4i9A',
+                    title: 'Chill Study Beats',
+                    artist: 'Study Music',
+                    file: 'https://res.cloudinary.com/digea8r7l/video/upload/v1761541990/Chill-Study-Music_f0ro3s.mp3',
                     cover: '🎹',
-                    duration: '3:45'
-                },
-                {
-                    id: 3,
-                    title: 'Jazz Lofi Hip Hop',
-                    artist: 'Lofi Fruits',
-                    youtubeId: 'rUxyKA_-grg',
-                    cover: '☕',
-                    duration: '4:12'
-                }
-            ]
-        },
-        study: {
-            name: 'Study Session',
-            icon: '📚',
-            gradient: 'from-blue-400 to-cyan-500',
-            songs: [
-                {
-                    id: 4,
-                    title: 'Deep Focus Music',
-                    artist: 'Greenred Productions',
-                    youtubeId: 'oPVte6aMprI',
-                    cover: '📚',
-                    duration: '3:52:17'
-                },
-                {
-                    id: 5,
-                    title: 'Study Music',
-                    artist: 'Study Music Project',
-                    youtubeId: 'LGJjKpTHWwU',
-                    cover: '💡',
-                    duration: '3:30'
+                    duration: '1:07:38'
                 }
             ]
         },
@@ -70,42 +37,42 @@ const MusicPlayer = {
             songs: [
                 {
                     id: 6,
-                    title: 'Synthwave Radio',
-                    artist: 'The 80s Guy',
-                    youtubeId: '4xDzrJKXOOY',
+                    title: 'Electronic ITS OVER :D',
+                    artist: 'Shake Music',
+                    file: 'https://res.cloudinary.com/digea8r7l/video/upload/v1761541996/Songs-Eletronic_eccyvb.mp3',
                     cover: '🌃',
-                    duration: '∞'
+                    duration: '42:16'
                 },
                 {
                     id: 7,
-                    title: 'MIX ELECTRO POP',
-                    artist: 'Jay Clap dj',
-                    youtubeId: 'xwtdhWltSIg',
+                    title: 'Electronic POP',
+                    artist: 'EDM Mix',
+                    file: 'https://res.cloudinary.com/digea8r7l/video/upload/v1761541988/MIX-ELECTRO_njhdtb.mp3',
                     cover: '⚡',
-                    duration: '47:26'
+                    duration: '24:27'
                 }
             ]
         },
         relaxing: {
-            name: 'Relaxing Ambient',
-            icon: '🌊',
+            name: 'Outros',
+            icon: '😾',
             gradient: 'from-green-400 to-teal-500',
             songs: [
                 {
                     id: 8,
-                    title: 'Peaceful Piano',
-                    artist: 'Yellow Brick Cinema',
-                    youtubeId: 'lTRiuFIWV54',
-                    cover: '🌊',
-                    duration: '1:01:14'
+                    title: 'Pedrada',
+                    artist: 'Depressão',
+                    file: 'https://res.cloudinary.com/digea8r7l/video/upload/v1761541979/Tenta-acreditar_yn0abe.mp3',
+                    cover: '😿',
+                    duration: '3:59'
                 },
                 {
                     id: 9,
-                    title: 'Meditation Music',
-                    artist: 'Meditation Relax Music',
-                    youtubeId: '1ZYbU82GVz4',
-                    cover: '🧘',
-                    duration: '8:00'
+                    title: 'É...',
+                    artist: '😭',
+                    file: 'https://res.cloudinary.com/digea8r7l/video/upload/v1761541981/Nao-Fosse-Tao-Tarde_mbauqt.mp3',
+                    cover: '👨‍👩‍👦',
+                    duration: '2:46'
                 }
             ]
         }
@@ -128,7 +95,7 @@ const MusicPlayer = {
                     <h1 class="text-5xl font-black mb-3 bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent">
                         Player de Música
                     </h1>
-                    <p class="text-gray-600 text-lg font-semibold">Músicas reais do YouTube • 100% Funcional</p>
+                    <p class="text-gray-600 text-lg font-semibold">Streaming via Cloudinary ☁️</p>
                 </div>
                 
                 <!-- Main Player Card -->
@@ -136,18 +103,11 @@ const MusicPlayer = {
                     <div class="absolute inset-0 bg-gradient-to-br ${playlist.gradient} rounded-3xl blur-2xl opacity-20"></div>
                     <div class="relative bg-white rounded-3xl shadow-2xl p-8 border-2 border-gray-100">
                         
-                        <!-- YouTube Player -->
+                        <!-- Audio Player -->
                         <div class="mb-8">
-                            <div class="aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl">
-                                <iframe 
-                                    id="youtube-player"
-                                    width="100%" 
-                                    height="100%" 
-                                    src="https://www.youtube.com/embed/${currentSong.youtubeId}?autoplay=${this.isPlaying ? 1 : 0}&controls=1&modestbranding=1&rel=0"
-                                    frameborder="0" 
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                                    allowfullscreen>
-                                </iframe>
+                            <div class="aspect-video bg-gradient-to-br ${playlist.gradient} rounded-2xl overflow-hidden shadow-2xl flex items-center justify-center relative">
+                                <div class="text-9xl animate-pulse">${currentSong.cover}</div>
+                                <audio id="audio-player" class="hidden" crossorigin="anonymous"></audio>
                             </div>
                         </div>
                         
@@ -158,7 +118,19 @@ const MusicPlayer = {
                                 <div class="text-left">
                                     <h2 class="text-3xl font-black text-gray-800">${currentSong.title}</h2>
                                     <p class="text-lg text-gray-600 font-semibold">${currentSong.artist}</p>
+                                    <p class="text-sm text-gray-500">☁️ Cloudinary CDN • ${currentSong.duration}</p>
                                 </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Progress Bar -->
+                        <div class="mb-6">
+                            <div class="flex items-center gap-4">
+                                <span id="current-time" class="text-sm font-bold text-gray-600">0:00</span>
+                                <input type="range" id="progress-bar" min="0" max="100" value="0" 
+                                       class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                       onchange="MusicPlayer.seekTo(this.value)">
+                                <span id="duration-time" class="text-sm font-bold text-gray-600">${currentSong.duration}</span>
                             </div>
                         </div>
                         
@@ -187,11 +159,13 @@ const MusicPlayer = {
                             </button>
                         </div>
                         
-                        <!-- Info Box -->
-                        <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 text-center">
-                            <p class="text-blue-800 font-semibold">
-                                ▶️ Use os controles do YouTube ou os botões acima • Volume controlado pelo player do YouTube
-                            </p>
+                        <!-- Volume Control -->
+                        <div class="flex items-center gap-4 mb-6">
+                            <span class="text-2xl">🔊</span>
+                            <input type="range" id="volume-control" min="0" max="100" value="${this.volume}" 
+                                   class="flex-1 h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
+                                   oninput="MusicPlayer.setVolume(this.value)">
+                            <span id="volume-display" class="text-sm font-bold text-gray-600">${this.volume}%</span>
                         </div>
                     </div>
                 </div>
@@ -254,24 +228,17 @@ const MusicPlayer = {
                     </div>
                 </div>
                 
-                <!-- Tutorial Box -->
-                <div class="mt-8 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-2xl">
+                <!-- Info -->
+                <div class="mt-8 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl p-6 text-white shadow-2xl">
                     <div class="flex items-start gap-4">
-                        <div class="text-5xl">🎓</div>
+                        <div class="text-5xl">☁️</div>
                         <div>
-                            <h3 class="text-2xl font-black mb-3">Como Adicionar Suas Músicas</h3>
-                            <div class="space-y-2 text-green-50">
-                                <p><strong>1.</strong> Vá no YouTube e encontre a música/vídeo que deseja</p>
-                                <p><strong>2.</strong> Copie o ID do vídeo (parte depois de <code class="bg-white/20 px-2 py-1 rounded">v=</code> na URL)</p>
-                                <p><strong>3.</strong> Abra o arquivo <code class="bg-white/20 px-2 py-1 rounded">music.js</code> e cole o ID no campo <code class="bg-white/20 px-2 py-1 rounded">youtubeId</code></p>
-                                <p class="italic">🎵 Em breve você poderá adicionar ainda mais músicas ou ter mais liberdade para organizar suas playlists!</p>
-                            </div>
-                            <div class="mt-4 bg-white/20 rounded-xl p-4">
-                                <p class="text-sm font-bold mb-2">📝 Exemplo:</p>
-                                <code class="text-xs">
-                                    URL: https://www.youtube.com/watch?v=<span class="bg-yellow-400 text-gray-900 px-1">jfKfPfyJRdk</span><br>
-                                    ID: <span class="bg-yellow-400 text-gray-900 px-1">jfKfPfyJRdk</span>
-                                </code>
+                            <h3 class="text-2xl font-black mb-3">Streaming Online</h3>
+                            <div class="space-y-2 text-blue-50">
+                                <p>✅ Músicas hospedadas no Cloudinary CDN</p>
+                                <p>⚡ Carregamento rápido e estável</p>
+                                <p>🌍 Disponível globalmente</p>
+                                <p>📦 Sem ocupar espaço no seu PC!</p>
                             </div>
                         </div>
                     </div>
@@ -281,21 +248,66 @@ const MusicPlayer = {
     },
     
     init() {
+        console.log('🎵 Init chamado');
+        
         if (!this.currentSong) {
             this.currentSong = this.playlists[this.currentPlaylist].songs[0];
         }
+        
+        setTimeout(() => {
+            this.audio = document.getElementById('audio-player');
+            
+            if (this.audio) {
+                this.audio.volume = this.volume / 100;
+                this.audio.src = this.currentSong.file;
+                
+                this.audio.addEventListener('timeupdate', () => this.updateProgress());
+                this.audio.addEventListener('ended', () => this.next());
+                this.audio.addEventListener('loadedmetadata', () => this.updateDuration());
+                
+                this.audio.addEventListener('error', (e) => {
+                    console.error('❌ Erro ao carregar:', this.audio.error);
+                    Utils.showNotification('❌ Erro ao carregar música', 'error');
+                });
+                
+                console.log('✅ Áudio inicializado:', this.audio.src);
+            }
+        }, 100);
     },
     
     togglePlay() {
-        this.isPlaying = !this.isPlaying;
-        
-        if (this.isPlaying) {
-            Utils.showNotification(`▶️ ${this.currentSong.title}`, 'success');
-        } else {
-            Utils.showNotification('⏸️ Pausado (use o player do YouTube)', 'info');
+        if (!this.audio) {
+            Utils.showNotification('⚠️ Player não inicializado', 'warning');
+            return;
         }
         
-        Router.render();
+        if (this.isPlaying) {
+            this.audio.pause();
+            this.isPlaying = false;
+            Utils.showNotification('⏸️ Pausado', 'info');
+            this.updatePlayButton();
+        } else {
+            this.audio.play()
+                .then(() => {
+                    this.isPlaying = true;
+                    Utils.showNotification(`▶️ ${this.currentSong.title}`, 'success');
+                    this.updatePlayButton();
+                })
+                .catch(err => {
+                    console.error('❌ Erro:', err);
+                    Utils.showNotification('❌ Erro: ' + err.message, 'error');
+                });
+        }
+    },
+    
+    updatePlayButton() {
+        const playButton = document.querySelector('button[onclick*="togglePlay"]');
+        if (!playButton) return;
+        
+        const svgPause = '<svg class="w-12 h-12" fill="currentColor" viewBox="0 0 24 24"><path d="M6 4h4v16H6V4zm8 0h4v16h-4V4z"/></svg>';
+        const svgPlay = '<svg class="w-12 h-12 ml-1" fill="currentColor" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
+        
+        playButton.innerHTML = this.isPlaying ? svgPause : svgPlay;
     },
     
     playSong(id, playlistKey) {
@@ -304,12 +316,24 @@ const MusicPlayer = {
         
         if (!song) return;
         
+        if (this.audio && this.isPlaying) {
+            this.audio.pause();
+        }
+        
         this.currentSong = song;
         this.currentPlaylist = playlistKey;
-        this.isPlaying = true;
+        this.isPlaying = false;
         
-        Utils.showNotification(`🎵 ${song.title}`, 'success');
         Router.render();
+        
+        setTimeout(() => {
+            this.init();
+            setTimeout(() => {
+                if (this.audio && this.audio.readyState >= 2) {
+                    this.togglePlay();
+                }
+            }, 300);
+        }, 100);
     },
     
     next() {
@@ -335,8 +359,60 @@ const MusicPlayer = {
         this.isPlaying = false;
         this.currentSong = playlist.songs[0];
         
+        if (this.audio) {
+            this.audio.pause();
+        }
+        
         Utils.showNotification(`📂 ${playlist.name}`, 'info');
         Router.render();
+    },
+    
+    setVolume(value) {
+        this.volume = parseInt(value);
+        if (this.audio) {
+            this.audio.volume = this.volume / 100;
+        }
+        const volumeDisplay = document.getElementById('volume-display');
+        if (volumeDisplay) {
+            volumeDisplay.textContent = this.volume + '%';
+        }
+    },
+    
+    seekTo(value) {
+        if (this.audio) {
+            const time = (value / 100) * this.audio.duration;
+            this.audio.currentTime = time;
+        }
+    },
+    
+    updateProgress() {
+        if (!this.audio) return;
+        
+        const currentTime = this.audio.currentTime;
+        const duration = this.audio.duration;
+        const progress = (currentTime / duration) * 100;
+        
+        const progressBar = document.getElementById('progress-bar');
+        const currentTimeEl = document.getElementById('current-time');
+        
+        if (progressBar) progressBar.value = progress;
+        if (currentTimeEl) currentTimeEl.textContent = this.formatTime(currentTime);
+    },
+    
+    updateDuration() {
+        if (!this.audio) return;
+        
+        const durationEl = document.getElementById('duration-time');
+        if (durationEl) {
+            durationEl.textContent = this.formatTime(this.audio.duration);
+        }
+    },
+    
+    formatTime(seconds) {
+        if (isNaN(seconds)) return '0:00';
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
     }
 };
 

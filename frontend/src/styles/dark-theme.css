@@ -1,8 +1,9 @@
 /* ========================================
-   TEMA ESCURO - NyanTools にゃん~
+   TEMA ESCURO - NyanTools ã«ã‚ƒã‚“~
+   VERSÃƒO SIMPLES E FUNCIONAL
    ======================================== */
 
-/* Aplicar tema escuro quando o body tem a classe 'dark-theme' */
+/* Aplicar tema escuro */
 body.dark-theme {
     background-color: #0f172a;
     color: #e2e8f0;
@@ -21,49 +22,40 @@ body.dark-theme main {
 /* ===== CARDS E CONTAINERS ===== */
 body.dark-theme .bg-white {
     background-color: #1e293b !important;
-    color: #e2e8f0 !important;
+    color: #f1f5f9 !important;
 }
 
 body.dark-theme .bg-gray-100 {
-    background-color: #0f172a !important;
+    background-color: #1e293b !important;
+    color: #f1f5f9 !important;
 }
 
 body.dark-theme .bg-gray-50 {
     background-color: #1e293b !important;
-}
-
-/* ===== TEXTO ===== */
-body.dark-theme .text-gray-800 {
     color: #f1f5f9 !important;
 }
 
-body.dark-theme .text-gray-700 {
+/* ===== TEXTO GERAL ===== */
+body.dark-theme h1,
+body.dark-theme h2,
+body.dark-theme h3,
+body.dark-theme h4,
+body.dark-theme h5,
+body.dark-theme h6 {
+    color: #f1f5f9 !important;
+}
+
+body.dark-theme p,
+body.dark-theme span,
+body.dark-theme div,
+body.dark-theme label {
     color: #cbd5e1 !important;
 }
 
+body.dark-theme .text-gray-800,
+body.dark-theme .text-gray-700,
 body.dark-theme .text-gray-600 {
-    color: #94a3b8 !important;
-}
-
-body.dark-theme .text-gray-500 {
-    color: #64748b !important;
-}
-
-body.dark-theme .text-gray-400 {
-    color: #475569 !important;
-}
-
-/* ===== BORDAS ===== */
-body.dark-theme .border-gray-200 {
-    border-color: #334155 !important;
-}
-
-body.dark-theme .border-gray-300 {
-    border-color: #475569 !important;
-}
-
-body.dark-theme .border-gray-400 {
-    border-color: #64748b !important;
+    color: #cbd5e1 !important;
 }
 
 /* ===== INPUTS ===== */
@@ -71,38 +63,165 @@ body.dark-theme input,
 body.dark-theme textarea,
 body.dark-theme select {
     background-color: #334155 !important;
-    color: #e2e8f0 !important;
+    color: #f1f5f9 !important;
     border-color: #475569 !important;
 }
 
 body.dark-theme input::placeholder,
 body.dark-theme textarea::placeholder {
-    color: #64748b !important;
+    color: #94a3b8 !important;
 }
 
-body.dark-theme input:focus,
-body.dark-theme textarea:focus,
-body.dark-theme select:focus {
-    background-color: #475569 !important;
-    border-color: #6366f1 !important;
+/* ===== BOTÃ•ES ===== */
+body.dark-theme button {
+    color: inherit;
 }
 
-/* ===== BOTÕES ===== */
-body.dark-theme .btn-primary {
-    background-color: #4f46e5;
+body.dark-theme button.bg-gray-200,
+body.dark-theme button.bg-gray-300 {
+    background-color: #334155 !important;
+    color: #f1f5f9 !important;
 }
 
-body.dark-theme .btn-primary:hover {
-    background-color: #4338ca;
+/* ===== TERMO - FIX PRINCIPAL ===== */
+/* Tiles vazios (parte branca vira preta) */
+body.dark-theme .bg-white.border-2,
+body.dark-theme .bg-white.border-gray-300 {
+    background-color: #1e293b !important;
+    border-color: #64748b !important;
+    color: #f1f5f9 !important;
 }
 
-body.dark-theme .btn-secondary {
-    background-color: #334155;
-    color: #e2e8f0;
+/* Grid de tiles */
+body.dark-theme .bg-gray-200 {
+    background-color: #1e293b !important;
+    color: #f1f5f9 !important;
 }
 
-body.dark-theme .btn-secondary:hover {
-    background-color: #475569;
+/* Legenda do Termo - fundo branco vira cinza escuro */
+body.dark-theme .bg-gradient-to-br.from-gray-50 {
+    background: #1e293b !important;
+}
+
+body.dark-theme .bg-gradient-to-br.from-gray-50 * {
+    color: #cbd5e1 !important;
+}
+
+/* Manter cores do Termo (verde, amarelo) */
+body.dark-theme .bg-green-500 {
+    background-color: #22c55e !important;
+    color: #ffffff !important;
+}
+
+body.dark-theme .bg-yellow-500 {
+    background-color: #eab308 !important;
+    color: #000000 !important;
+}
+
+body.dark-theme .bg-gray-400 {
+    background-color: #64748b !important;
+    color: #ffffff !important;
+}
+
+/* ===== FORCA - FIX PRINCIPAL ===== */
+/* Ãrea branca da dica */
+body.dark-theme .bg-gradient-to-br.from-blue-50 {
+    background: #1e3a5f !important;
+}
+
+body.dark-theme .bg-gradient-to-br.from-blue-50 * {
+    color: #e0f2fe !important;
+}
+
+/* InstruÃ§Ãµes */
+body.dark-theme .bg-gradient-to-br.from-purple-50 {
+    background: #2e1e4d !important;
+}
+
+body.dark-theme .bg-gradient-to-br.from-purple-50 * {
+    color: #f3e8ff !important;
+}
+
+/* Badges coloridos */
+body.dark-theme .bg-indigo-100 {
+    background-color: #312e81 !important;
+}
+
+body.dark-theme .bg-indigo-100 * {
+    color: #e0e7ff !important;
+}
+
+body.dark-theme .bg-green-100 {
+    background-color: #1e4d3e !important;
+}
+
+body.dark-theme .bg-green-100 * {
+    color: #d1fae5 !important;
+}
+
+body.dark-theme .bg-yellow-100 {
+    background-color: #4d3e1e !important;
+}
+
+body.dark-theme .bg-yellow-100 * {
+    color: #fef3c7 !important;
+}
+
+body.dark-theme .bg-red-100 {
+    background-color: #4d1e2e !important;
+}
+
+body.dark-theme .bg-red-100 * {
+    color: #fee2e2 !important;
+}
+
+/* ===== GERADOR DE SENHAS - FIX PRINCIPAL ===== */
+/* Checkboxes coloridos */
+body.dark-theme .bg-blue-50 {
+    background-color: #1e3a5f !important;
+}
+
+body.dark-theme .bg-blue-50 * {
+    color: #e0f2fe !important;
+}
+
+body.dark-theme .bg-green-50 {
+    background-color: #1e4d3e !important;
+}
+
+body.dark-theme .bg-green-50 * {
+    color: #d1fae5 !important;
+}
+
+body.dark-theme .bg-purple-50 {
+    background-color: #2e1e4d !important;
+}
+
+body.dark-theme .bg-purple-50 * {
+    color: #f3e8ff !important;
+}
+
+body.dark-theme .bg-orange-50 {
+    background-color: #4d3e1e !important;
+}
+
+body.dark-theme .bg-orange-50 * {
+    color: #ffedd5 !important;
+}
+
+/* ===== TECLADO (Termo/Forca) ===== */
+body.dark-theme button[class*="bg-indigo"],
+body.dark-theme button[class*="bg-blue"] {
+    color: #ffffff !important;
+}
+
+/* ===== GRADIENTES ===== */
+body.dark-theme [class*="bg-gradient"] {
+    color: white !important;
+}
+
+body.dark-theme [class*="bg-gradient"] * {
+    color: white !important;
 }
 
 /* ===== CARDS DE FERRAMENTAS ===== */
@@ -113,80 +232,15 @@ body.dark-theme .tool-card {
 
 body.dark-theme .tool-card:hover {
     background-color: #334155 !important;
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
 }
 
-/* ===== JOGO DA VELHA ===== */
-body.dark-theme .aspect-square {
-    background: linear-gradient(135deg, #1e293b, #334155) !important;
-}
-
-body.dark-theme .aspect-square:hover {
-    background: linear-gradient(135deg, #334155, #475569) !important;
-}
-
-/* ===== TERMO - TILES ===== */
-body.dark-theme .bg-gray-200 {
-    background-color: #334155 !important;
-}
-
-body.dark-theme .bg-gray-400 {
-    background-color: #475569 !important;
-}
-
-/* Manter as cores do Termo (verde, amarelo) */
-body.dark-theme .bg-green-500,
-body.dark-theme .bg-green-600 {
-    /* Cores mantidas */
-}
-
-body.dark-theme .bg-yellow-500,
-body.dark-theme .bg-yellow-600 {
-    /* Cores mantidas */
-}
-
-/* ===== TECLADO DO TERMO/FORCA ===== */
-body.dark-theme button {
-    border-color: #334155;
-}
-
-body.dark-theme .bg-gray-200 {
-    background-color: #334155 !important;
-}
-
-/* ===== NOTIFICAÇÕES ===== */
-body.dark-theme .fixed.top-4.right-4 {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
-}
-
-/* ===== SHADOWS ===== */
-body.dark-theme .shadow-lg {
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5),
-                0 4px 6px -2px rgba(0, 0, 0, 0.3) !important;
-}
-
-body.dark-theme .shadow-xl {
-    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5),
-                0 10px 10px -5px rgba(0, 0, 0, 0.3) !important;
-}
-
-body.dark-theme .shadow-2xl {
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6) !important;
-}
-
-/* ===== GRADIENTES MANTIDOS ===== */
-/* Mantém os gradientes coloridos do app */
-body.dark-theme .bg-gradient-to-r,
-body.dark-theme .bg-gradient-to-br,
-body.dark-theme .bg-gradient-to-b {
-    /* Gradientes de cores mantidos */
+/* ===== BORDAS ===== */
+body.dark-theme .border-gray-200,
+body.dark-theme .border-gray-300 {
+    border-color: #475569 !important;
 }
 
 /* ===== SCROLLBAR ===== */
-body.dark-theme ::-webkit-scrollbar {
-    width: 8px;
-}
-
 body.dark-theme ::-webkit-scrollbar-track {
     background: #1e293b;
 }
@@ -200,100 +254,106 @@ body.dark-theme ::-webkit-scrollbar-thumb:hover {
     background: #64748b;
 }
 
-/* ===== BACKGROUNDS ESPECIAIS ===== */
-body.dark-theme .bg-blue-50 {
-    background-color: #1e3a5f !important;
+/* ===== SHADOWS ===== */
+body.dark-theme .shadow-lg,
+body.dark-theme .shadow-xl,
+body.dark-theme .shadow-2xl {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5) !important;
 }
 
-body.dark-theme .bg-green-50 {
-    background-color: #1e4d3e !important;
+/* ===== TRANSIÃ‡ÃƒO SUAVE ===== */
+body.dark-theme * {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
-
-body.dark-theme .bg-yellow-50 {
-    background-color: #4d3e1e !important;
-}
-
-body.dark-theme .bg-red-50 {
-    background-color: #4d1e2e !important;
-}
-
-body.dark-theme .bg-purple-50 {
-    background-color: #2e1e4d !important;
-}
-
-body.dark-theme .bg-pink-50 {
-    background-color: #4d1e3e !important;
-}
-
-body.dark-theme .bg-indigo-50 {
-    background-color: #1e2e4d !important;
-}
-
-body.dark-theme .bg-cyan-50 {
-    background-color: #1e4d4d !important;
-}
-
-/* ===== BORDERS ESPECIAIS ===== */
-body.dark-theme .border-blue-200 {
-    border-color: #1e40af !important;
-}
-
-body.dark-theme .border-green-200 {
-    border-color: #15803d !important;
-}
-
-body.dark-theme .border-yellow-200 {
-    border-color: #ca8a04 !important;
-}
-
-body.dark-theme .border-red-200 {
-    border-color: #b91c1c !important;
-}
-
-body.dark-theme .border-purple-200 {
-    border-color: #7e22ce !important;
-}
-
-/* ===== HOVER STATES ===== */
-body.dark-theme .hover\:bg-gray-200:hover {
-    background-color: #334155 !important;
-}
-
-body.dark-theme .hover\:bg-gray-300:hover {
-    background-color: #475569 !important;
-}
-
-/* ===== LOADING SCREEN ===== */
-body.dark-theme #loading-screen {
-    background: linear-gradient(to bottom right, #1e1b4b, #312e81, #4c1d95);
-}
-
-/* ===== TRANSIÇÃO SUAVE ===== */
-body,
-body * {
-    transition: background-color 0.3s ease,
-                color 0.3s ease,
-                border-color 0.3s ease;
-}
-
-/* ===== CANVAS (JOGOS) ===== */
-body.dark-theme canvas {
-    background-color: #0f172a !important;
-}
-
-/* ===== SPECIAL: Manter legibilidade em gradientes ===== */
-body.dark-theme .bg-gradient-to-r.from-purple-500,
-body.dark-theme .bg-gradient-to-r.from-blue-500,
-body.dark-theme .bg-gradient-to-r.from-green-500,
-body.dark-theme .bg-gradient-to-r.from-red-500 {
-    color: white !important;
-}
-
-/* ===== CONFIGURAÇÕES - PREVIEW CARDS ===== */
-body.dark-theme .bg-gradient-to-br.from-white {
+/* ===== CONFIGURAÃ‡Ã•ES - APARÃŠNCIA ===== */
+/* Cards de tema */
+body.dark-theme .bg-gradient-to-br.from-white.to-gray-100 {
     background: linear-gradient(to bottom right, #1e293b, #334155) !important;
 }
 
-body.dark-theme .bg-gradient-to-br.from-gray-800 {
-    /* Mantém escuro */
+body.dark-theme .bg-gradient-to-br.from-white.to-gray-100 * {
+    color: #f1f5f9 !important;
+}
+
+body.dark-theme .bg-gradient-to-br.from-gray-800.to-gray-900 {
+    background: linear-gradient(to bottom right, #0f172a, #1e293b) !important;
+}
+
+body.dark-theme .bg-gradient-to-br.from-gray-800.to-gray-900 * {
+    color: #f1f5f9 !important;
+}
+
+/* Banner "Em Desenvolvimento" */
+body.dark-theme .bg-yellow-50.border-yellow-200 {
+    background-color: #4d3e1e !important;
+    border-color: #ca8a04 !important;
+}
+
+body.dark-theme .bg-yellow-50.border-yellow-200 * {
+    color: #fef3c7 !important;
+}
+
+body.dark-theme .bg-blue-50.border-blue-200 {
+    background-color: #1e3a5f !important;
+    border-color: #1e40af !important;
+}
+
+body.dark-theme .bg-blue-50.border-blue-200 * {
+    color: #e0f2fe !important;
+}
+
+/* ===== CONFIGURAÃ‡Ã•ES - DADOS ===== */
+/* Cards de aÃ§Ãµes */
+body.dark-theme .bg-green-50.border-green-300 {
+    background-color: #1e4d3e !important;
+    border-color: #15803d !important;
+}
+
+body.dark-theme .bg-green-50.border-green-300 * {
+    color: #d1fae5 !important;
+}
+
+body.dark-theme .bg-blue-50.border-blue-300 {
+    background-color: #1e3a5f !important;
+    border-color: #1e40af !important;
+}
+
+body.dark-theme .bg-blue-50.border-blue-300 * {
+    color: #e0f2fe !important;
+}
+
+body.dark-theme .bg-yellow-50.border-yellow-300 {
+    background-color: #4d3e1e !important;
+    border-color: #ca8a04 !important;
+}
+
+body.dark-theme .bg-yellow-50.border-yellow-300 * {
+    color: #fef3c7 !important;
+}
+
+body.dark-theme .bg-red-50.border-red-300 {
+    background-color: #4d1e2e !important;
+    border-color: #b91c1c !important;
+}
+
+body.dark-theme .bg-red-50.border-red-300 * {
+    color: #fee2e2 !important;
+}
+
+/* Ãcones e textos especÃ­ficos */
+body.dark-theme .text-green-800 {
+    color: #86efac !important;
+}
+
+body.dark-theme .text-blue-800 {
+    color: #93c5fd !important;
+}
+
+body.dark-theme .text-yellow-800 {
+    color: #fde047 !important;
+}
+
+body.dark-theme .text-red-700,
+body.dark-theme .text-red-800 {
+    color: #fca5a5 !important;
 }
