@@ -5,22 +5,22 @@ const App = {
     isOnline: navigator.onLine,
     
     tools: [
-        { id: 'home', name: 'InÃ­cio', icon: 'ðŸ ', description: 'PÃ¡gina inicial' },
-        { id: 'password', name: 'Gerador de Senhas', icon: 'ðŸ”‘', description: 'Crie senhas seguras' },
-        { id: 'weather', name: 'Clima', icon: 'ðŸŒ¤ï¸', description: 'Veja a temperatura local' },
-        { id: 'translator', name: 'Tradutor', icon: 'ðŸŒ', description: 'Traduza textos rapidamente' },
-        { id: 'ai-assistant', name: 'Assistente IA', icon: 'ðŸ¤–', description: 'Perguntas e respostas' },
-        { id: 'mini-game', name: 'Mini Game', icon: 'ðŸŽ®', description: 'Jogue e se divirta' },
-        { id: 'temp-email', name: 'Email TemporÃ¡rio', icon: 'ðŸ“§', description: 'Emails descartÃ¡veis' },
-        { id: 'music', name: 'Player de MÃºsica', icon: 'ðŸŽµ', description: 'OuÃ§a suas mÃºsicas' },
-        { id: 'offline', name: 'Zona Offline', icon: 'ðŸ“¶', description: 'Jogos sem internet' },
-        { id: 'settings', name: 'ConfiguraÃ§Ãµes', icon: 'âš™ï¸', description: 'Personalize o app' }
+        { id: 'home', name: 'Início', icon: '🏠', description: 'Página inicial' },
+        { id: 'password', name: 'Gerador de Senhas', icon: '🔑', description: 'Crie senhas seguras' },
+        { id: 'weather', name: 'Clima', icon: '🌤️', description: 'Veja a temperatura local' },
+        { id: 'translator', name: 'Tradutor', icon: '🌍', description: 'Traduza textos rapidamente' },
+        { id: 'ai-assistant', name: 'Assistente IA', icon: '🤖', description: 'Perguntas e respostas' },
+        { id: 'mini-game', name: 'Mini Game', icon: '🎮', description: 'Jogue e se divirta' },
+        { id: 'temp-email', name: 'Email Temporário', icon: '📧', description: 'Emails descartáveis' },
+        { id: 'music', name: 'Player de Música', icon: '🎵', description: 'Ouça suas músicas' },
+        { id: 'offline', name: 'Zona Offline', icon: '📶', description: 'Jogos sem internet' },
+        { id: 'settings', name: 'Configurações', icon: '⚙️', description: 'Personalize o app' }
     ],
     
     init() {
-        console.log('ðŸ± NyanTools v' + this.version + ' iniciando... ã«ã‚ƒã‚“~');
+        console.log('🐱 NyanTools v' + this.version + ' iniciando... にゃん~');
         
-        // ðŸ”§ FIX BUG 1: Aplicar tema salvo ANTES de mostrar o app
+        // 🔧 FIX BUG 1: Aplicar tema salvo ANTES de mostrar o app
         this.applyThemeOnStart();
         
         setTimeout(() => {
@@ -37,33 +37,33 @@ const App = {
         this.setupGlobalListeners();
     },
     
-   applyThemeOnStart() {
-    // Aplicar tema mÃºltiplas vezes para garantir
-    const applyTheme = () => {
-        const savedTheme = Utils.loadData('app_theme') || 'light';
-        console.log('ðŸŽ¨ Aplicando tema:', savedTheme);
+    applyThemeOnStart() {
+        // Aplicar tema múltiplas vezes para garantir
+        const applyTheme = () => {
+            const savedTheme = Utils.loadData('app_theme') || 'light';
+            console.log('🎨 Aplicando tema:', savedTheme);
+            
+            if (savedTheme === 'dark') {
+                document.body.classList.add('dark-theme');
+                console.log('✅ Tema escuro aplicado');
+            } else {
+                document.body.classList.remove('dark-theme');
+                console.log('✅ Tema claro aplicado');
+            }
+            
+            // Garantir que o valor está salvo
+            Utils.saveData('app_theme', savedTheme);
+        };
         
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-theme');
-            console.log('âœ… Tema escuro aplicado');
-        } else {
-            document.body.classList.remove('dark-theme');
-            console.log('âœ… Tema claro aplicado');
-        }
+        // Aplicar AGORA
+        applyTheme();
         
-        // Garantir que o valor estÃ¡ salvo
-        Utils.saveData('app_theme', savedTheme);
-    };
-    
-    // Aplicar AGORA
-    applyTheme();
-    
-    // Aplicar novamente apÃ³s 100ms (garantia)
-    setTimeout(applyTheme, 100);
-    
-    // Aplicar quando a janela carregar completamente
-    window.addEventListener('load', applyTheme);
-},
+        // Aplicar novamente após 100ms (garantia)
+        setTimeout(applyTheme, 100);
+        
+        // Aplicar quando a janela carregar completamente
+        window.addEventListener('load', applyTheme);
+    },
     
     hideLoading() {
         const loadingScreen = document.getElementById('loading-screen');
@@ -85,12 +85,20 @@ const App = {
     
     showLogin() {
         document.getElementById('login-screen').classList.remove('hidden');
-        // ðŸ”§ FIX BUG 3: Focar no input de username apÃ³s mostrar o login
+        
+        // 🔧 FIX: Chamar setupLoginForm após mostrar a tela
         setTimeout(() => {
+            if (typeof window.setupLoginForm === 'function') {
+                window.setupLoginForm();
+                console.log('🔧 setupLoginForm() chamado');
+            } else {
+                console.error('❌ setupLoginForm não encontrado!');
+            }
+            
             const usernameInput = document.getElementById('login-username');
             if (usernameInput) {
                 usernameInput.focus();
-                console.log('âœ… Foco no input de username');
+                console.log('✅ Foco no input de username');
             }
         }, 300);
     },
@@ -132,29 +140,29 @@ const App = {
     
     setupGlobalListeners() {
         document.getElementById('logout-btn')?.addEventListener('click', () => {
-            if (confirm('Deseja realmente sair? ã«ã‚ƒã‚“~')) {
+            if (confirm('Deseja realmente sair? にゃん~')) {
                 Auth.logout();
                 
-                // ðŸ”§ FIX BUG 3: Recarregar a pÃ¡gina de forma limpa
-                console.log('ðŸšª Fazendo logout e limpando estado...');
+                // 🔧 FIX: Recarregar a página de forma limpa
+                console.log('🚪 Fazendo logout e limpando estado...');
                 
-                // Limpar formulÃ¡rio antes de recarregar
+                // Limpar formulário antes de recarregar
                 const loginForm = document.getElementById('login-form');
                 if (loginForm) loginForm.reset();
                 
-                // Recarregar pÃ¡gina
+                // Recarregar página
                 location.reload();
             }
         });
         
         window.addEventListener('online', () => {
             this.isOnline = true;
-            Utils.showNotification('âœ… ConexÃ£o restaurada! ã«ã‚ƒã‚“~', 'success');
+            Utils.showNotification('✅ Conexão restaurada! にゃん~', 'success');
         });
         
         window.addEventListener('offline', () => {
             this.isOnline = false;
-            Utils.showNotification('âš ï¸ VocÃª estÃ¡ offline ã«ã‚ƒã‚“~', 'warning');
+            Utils.showNotification('⚠️ Você está offline にゃん~', 'warning');
         });
     },
     
@@ -165,15 +173,15 @@ const App = {
 
 function showEasterEgg() {
     const messages = [
-        "ðŸ± NYAN NYAN! ã«ã‚ƒã‚“~",
+        "🐱 NYAN NYAN! にゃん~",
         "",
         "Bem-vindo ao NyanTools!",
-        "Sua caixa de ferramentas kawaii ðŸŽŒ",
+        "Sua caixa de ferramentas kawaii 🎌",
         "",
-        "âš ï¸ AVISO IMPORTANTE âš ï¸",
-        "Em caso de investigaÃ§Ã£o policial, eu declaro que nÃ£o tenho envolvimento com este grupo e nÃ£o sei como estou no mesmo, provavelmente fui inserido por terceiros, declaro que estou disposto a colaborar com as investigaÃ§Ãµes e estou disposto a me apresentar a depoimento se necessÃ¡rio.",
+        "⚠️ AVISO IMPORTANTE ⚠️",
+        "Em caso de investigação policial, eu declaro que não tenho envolvimento com este grupo e não sei como estou no mesmo, provavelmente fui inserido por terceiros, declaro que estou disposto a colaborar com as investigações e estou disposto a me apresentar a depoimento se necessário.",
         "",
-        "Use o NyanTools com responsabilidade! ã«ã‚ƒã‚“~ ðŸ±âœ¨"
+        "Use o NyanTools com responsabilidade! にゃん~ 🐱✨"
     ];
     
     alert(messages.join('\n'));
