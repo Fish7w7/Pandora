@@ -55,30 +55,6 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
 
 ---
 
-## 📸 Screenshots
-
-<div align="center">
-
-### 🎭 Tela de Login Premium
-![Login](./docs/screenshots/login.png)
-*Design glass com gradientes animados*
-
-### 🏠 Dashboard Moderno
-![Dashboard](./docs/screenshots/dashboard.png)
-*Cards interativos com hover effects*
-
-### 🌙 Tema Escuro Implementado
-![Dark Theme](./docs/screenshots/dark-theme.png)
-*Tema escuro completo e legível*
-
-### ⚙️ Sistema de Configurações
-![Settings](./docs/screenshots/settings.png)
-*5 abas de configurações completas*
-
-</div>
-
----
-
 ## 📥 Instalação
 
 ### **Windows (Recomendado)**
