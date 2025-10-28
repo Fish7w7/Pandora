@@ -1,5 +1,5 @@
 const App = {
-    version: '2.3.2',
+    version: '2.4.0',
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
