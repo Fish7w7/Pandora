@@ -20,12 +20,10 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
 ## 📋 Índice
 
 - [✨ Funcionalidades](#-funcionalidades)
-- [📸 Screenshots](#-screenshots)
 - [📥 Instalação](#-instalação)
 - [⚙️ Configuração](#️-configuração)
 - [🛠️ Ferramentas Incluídas](#️-ferramentas-incluídas)
 - [📁 Estrutura do Projeto](#-estrutura-do-projeto)
-- [🔨 Build](#-build)
 - [🎯 Tecnologias](#-tecnologias)
 - [📝 Roadmap](#-roadmap)
 - [🤝 Contribuindo](#-contribuindo)
