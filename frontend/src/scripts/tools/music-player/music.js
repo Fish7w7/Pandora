@@ -6,7 +6,7 @@ const MusicPlayer = {
     currentPlaylist: 'lofi',
     isPlaying: false,
     audio: null, // ⚠️ Agora é GLOBAL (não recriado)
-    volume: 10,
+    volume: 5,
     
     playlists: {
         lofi: {
