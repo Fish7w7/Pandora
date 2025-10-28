@@ -401,6 +401,7 @@ dist/
 
 ## 📝 Roadmap
 
+
 ### **✅ Concluído (v2.4.0)**
 - [x] Sistema de autenticação local
 - [x] 10 ferramentas funcionais
@@ -413,25 +414,33 @@ dist/
 - [x] Build multiplataforma
 - [x] Script de publicação automatizado
 
-### **🚧 Em Desenvolvimento (v2.5.0)**
+### **🚧 Em Desenvolvimento (v2.5.0)** - Previsto: 2-3 meses
 - [ ] 🎨 **Temas personalizáveis** - 8 esquemas de cores funcionais
 - [ ] ⌨️ **Atalhos de teclado** - Ctrl+1-9 para ferramentas
-- [ ] 🔖 **Sistema de favoritos** - Marcar ferramentas preferidas
-- [ ] 📊 **Dashboard de estatísticas** - Tempo de uso, tool mais usado
-- [ ] 📝 **Notas rápidas** - Bloco de notas com markdown
-- [ ] 🔔 **Histórico de notificações** - Ver notificações antigas
-- [ ] 🌐 **Multi-idioma** - Interface em PT, EN, ES
-- [ ] 💾 **Sync na nuvem** - Google Drive/Dropbox
+- [ ] 🔖 **Sistema de favoritos** - Marcar ferramentas no menu
+- [ ] 📊 **Dashboard de estatísticas** - Tempo de uso, ferramenta mais usada
+- [ ] 📝 **Notas rápidas** - Bloco de notas simples com save local
+- [ ] 🔔 **Histórico de notificações** - Ver últimas 10 notificações
+- [ ] 🧮 **Calculadora Científica** - Operações avançadas
+- [ ] 📐 **Conversor de Unidades** - Temperatura, peso, distância, etc
 
-### **🔮 Futuro (v3.0.0)**
-- [ ] ☁️ **Sistema de contas** - Login com Google/GitHub
-- [ ] 🔄 **Sync entre dispositivos** - Dados em nuvem
-- [ ] 👥 **Modo colaborativo** - Compartilhar com amigos
-- [ ] 🤖 **IA com memória** - Conversas persistentes
-- [ ] 🎮 **Loja de plugins** - Comunidade cria ferramentas
-- [ ] 📱 **App mobile** - React Native
-- [ ] 🌍 **Versão web** - PWA no navegador
-- [ ] 🎯 **Workspaces** - Casa, Trabalho, Estudo
+### **🎯 Próximas Versões (v2.6.0 - v2.9.0)**
+- [ ] 🌐 **Multi-idioma UI** - Interface em PT, EN, ES
+- [ ] ✅ **Gerenciador de Tarefas** - To-do list com categorias
+- [ ] 📝 **Editor de Markdown** - Preview em tempo real
+- [ ] 🎨 **Editor de imagens básico** - Crop, resize, filtros
+- [ ] 📊 **Visualizador de CSV/JSON** - Importar e visualizar dados
+- [ ] 🔐 **Gerenciador de senhas** - Vault local criptografado
+- [ ] 📷 **Screenshot tool** - Captura de tela com anotações
+- [ ] 🎤 **Gravador de áudio** - Gravar e salvar áudio
+
+### **🔮 Futuro Distante (v3.0.0+)** - Se houver demanda
+- [ ] 💾 **Backup na nuvem** - Google Drive (opcional)
+- [ ] 🌍 **Versão web** - PWA rodando no navegador
+- [ ] 📱 **App mobile** - Versão Android básica (Cordova/Capacitor)
+- [ ] 🔌 **Sistema de plugins** - Comunidade pode criar ferramentas (JSON config)
+- [ ] 🤖 **IA melhorada** - Histórico persistente de conversas
+- [ ] 🎮 **Mais jogos offline** - Quiz, Memória, 2048, Sudoku
 
 ---
 
