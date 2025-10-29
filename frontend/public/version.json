@@ -1,0 +1,8 @@
+{
+  "version": "${productName}-${version}-${arch}.${ext}",
+  "buildDate": "2025- 1-We",
+  "changelog": [
+    "🆕 Nova versão publicada",
+    "🐛 Correções e melhorias"
+  ]
+}
