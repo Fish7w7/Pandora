@@ -1,3 +1,147 @@
+// ============================================
+// SISTEMA DE TEMAS v2.5.1 にゃん~ - BUGFIX
+// ============================================
+
+function renderThemeSelector() {
+    const currentTheme = Utils.loadData('app_color_theme') || 'purple';
+    
+    const themes = [
+        {
+            id: 'purple',
+            name: 'Roxo Místico',
+            emoji: '💜',
+            gradient: 'from-purple-500 via-pink-500 to-red-500',
+            preview: ['#a855f7', '#ec4899', '#ef4444'],
+            description: 'Vibrante e energético'
+        },
+        {
+            id: 'blue',
+            name: 'Azul Oceano',
+            emoji: '💙',
+            gradient: 'from-blue-500 via-cyan-500 to-purple-500',
+            preview: ['#3b82f6', '#06b6d4', '#8b5cf6'],
+            description: 'Calmo e profissional'
+        },
+        {
+            id: 'green',
+            name: 'Verde Natureza',
+            emoji: '💚',
+            gradient: 'from-green-500 via-teal-500 to-lime-500',
+            preview: ['#10b981', '#14b8a6', '#84cc16'],
+            description: 'Fresco e natural'
+        },
+        {
+            id: 'red',
+            name: 'Vermelho Paixão',
+            emoji: '❤️',
+            gradient: 'from-red-500 via-orange-500 to-pink-500',
+            preview: ['#ef4444', '#f97316', '#ec4899'],
+            description: 'Intenso e poderoso'
+        },
+        {
+            id: 'orange',
+            name: 'Laranja Solar',
+            emoji: '🧡',
+            gradient: 'from-orange-500 via-yellow-500 to-red-500',
+            preview: ['#f97316', '#eab308', '#ef4444'],
+            description: 'Quente e acolhedor'
+        },
+        {
+            id: 'pink',
+            name: 'Rosa Kawaii',
+            emoji: '💖',
+            gradient: 'from-pink-500 via-rose-500 to-purple-500',
+            preview: ['#ec4899', '#f43f5e', '#a855f7'],
+            description: 'Doce e charmoso'
+        },
+        {
+            id: 'teal',
+            name: 'Turquesa Tropical',
+            emoji: '💎',
+            gradient: 'from-teal-500 via-cyan-500 to-green-500',
+            preview: ['#14b8a6', '#06b6d4', '#10b981'],
+            description: 'Refrescante e moderno'
+        },
+        {
+            id: 'indigo',
+            name: 'Índigo Noturno',
+            emoji: '💠',
+            gradient: 'from-indigo-500 via-purple-500 to-blue-500',
+            preview: ['#6366f1', '#8b5cf6', '#3b82f6'],
+            description: 'Elegante e profundo'
+        }
+    ];
+    
+    return `
+        <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <div class="flex items-start gap-4 mb-6">
+                <div class="text-5xl">🎨</div>
+                <div class="flex-1">
+                    <h3 class="text-2xl font-black text-gray-800 mb-2">Tema de Cores</h3>
+                    <p class="text-gray-600 mb-6">Escolha um dos 8 esquemas de cores disponíveis</p>
+                </div>
+            </div>
+            
+            <!-- Preview do tema atual -->
+            <div class="mb-8 p-6 rounded-2xl bg-gradient-to-r ${themes.find(t => t.id === currentTheme).gradient} text-white">
+                <div class="flex items-center gap-4">
+                    <div class="text-6xl">${themes.find(t => t.id === currentTheme).emoji}</div>
+                    <div>
+                        <div class="text-sm font-semibold opacity-90 mb-1">TEMA ATUAL</div>
+                        <div class="text-3xl font-black">${themes.find(t => t.id === currentTheme).name}</div>
+                        <div class="text-sm opacity-90 mt-1">${themes.find(t => t.id === currentTheme).description}</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Grid de temas -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                ${themes.map(theme => `
+                    <button onclick="ThemeManager.applyTheme('${theme.id}')" 
+                            data-theme-card="${theme.id}"
+                            class="relative group overflow-hidden rounded-2xl border-4 ${currentTheme === theme.id ? 'border-gray-800 scale-105' : 'border-gray-200'} transition-all hover:scale-105 hover:shadow-2xl">
+                        
+                        <div class="bg-gradient-to-br ${theme.gradient} p-6 text-white text-center">
+                            <div class="text-5xl mb-3 transform group-hover:scale-110 transition-transform">${theme.emoji}</div>
+                            <div class="font-bold text-lg mb-2">${theme.name}</div>
+                            <div class="flex justify-center gap-1 mb-2">
+                                ${theme.preview.map(color => `
+                                    <div class="w-6 h-6 rounded-full border-2 border-white shadow-lg" style="background-color: ${color}"></div>
+                                `).join('')}
+                            </div>
+                            <div class="text-xs opacity-90">${theme.description}</div>
+                        </div>
+                        
+                        ${currentTheme === theme.id ? `
+                            <div class="absolute top-2 right-2 bg-white text-gray-800 px-3 py-1 rounded-full text-xs font-black shadow-lg flex items-center gap-1">
+                                <span>✓</span>
+                                <span>ATIVO</span>
+                            </div>
+                        ` : ''}
+                        
+                        <div class="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-all"></div>
+                    </button>
+                `).join('')}
+            </div>
+            
+            <div class="mt-8 bg-blue-50 border-2 border-blue-200 rounded-xl p-6">
+                <div class="flex items-start gap-3">
+                    <span class="text-3xl">💡</span>
+                    <div class="flex-1">
+                        <h4 class="font-bold text-blue-900 mb-2">Dicas de Personalização</h4>
+                        <ul class="text-blue-800 text-sm space-y-1">
+                            <li>✨ Os temas funcionam tanto no <strong>modo claro</strong> quanto no <strong>modo escuro</strong></li>
+                            <li>🎨 As cores se aplicam automaticamente a: sidebar, botões, links, ícones e animações</li>
+                            <li>💾 Sua escolha é salva automaticamente e permanece após reiniciar o app</li>
+                            <li>🔄 Troca instantânea - veja a mudança em tempo real!</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+}
+
 // Sistema de Configurações Completo にゃん~
 const Settings = {
     currentTab: 'appearance',
@@ -53,7 +197,7 @@ const Settings = {
     },
     
     init() {
-        // Carregar configurações salvas
+        // Carregar configurações salvas (mas NÃO reinicializar o tema)
         this.loadSettings();
     },
     
@@ -113,49 +257,10 @@ const Settings = {
                             ${theme === 'dark' ? '<div class="absolute top-4 right-4 bg-purple-500 text-white px-3 py-1 rounded-full text-sm font-bold">✓ Ativo</div>' : ''}
                         </button>
                     </div>
-                    
-                    <div class="mt-6 bg-yellow-50 border-2 border-yellow-200 rounded-xl p-4">
-                        <div class="flex items-start gap-3">
-                            <span class="text-2xl">🚧</span>
-                            <div class="flex-1">
-                                <p class="text-yellow-800 font-semibold">Em Desenvolvimento</p>
-                                <p class="text-yellow-700 text-sm">O tema escuro está sendo implementado e estará disponível em breve!</p>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 
                 <!-- Cor de Destaque -->
-                <div class="bg-white rounded-2xl shadow-2xl p-8">
-                    <div class="flex items-start gap-4 mb-6">
-                        <div class="text-5xl">🎨</div>
-                        <div class="flex-1">
-                            <h3 class="text-2xl font-black text-gray-800 mb-2">Cor de Destaque</h3>
-                            <p class="text-gray-600 mb-6">Personalize as cores da interface</p>
-                        </div>
-                    </div>
-                    
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-                        ${this.renderColorOption('purple', '💜', 'Roxo', 'from-purple-500 to-pink-600', accentColor)}
-                        ${this.renderColorOption('blue', '💙', 'Azul', 'from-blue-500 to-cyan-600', accentColor)}
-                        ${this.renderColorOption('green', '💚', 'Verde', 'from-green-500 to-emerald-600', accentColor)}
-                        ${this.renderColorOption('red', '❤️', 'Vermelho', 'from-red-500 to-pink-600', accentColor)}
-                        ${this.renderColorOption('orange', '🧡', 'Laranja', 'from-orange-500 to-yellow-600', accentColor)}
-                        ${this.renderColorOption('pink', '💖', 'Rosa', 'from-pink-500 to-rose-600', accentColor)}
-                        ${this.renderColorOption('teal', '💎', 'Turquesa', 'from-teal-500 to-cyan-600', accentColor)}
-                        ${this.renderColorOption('indigo', '💠', 'Índigo', 'from-indigo-500 to-purple-600', accentColor)}
-                    </div>
-                    
-                    <div class="mt-6 bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
-                        <div class="flex items-start gap-3">
-                            <span class="text-2xl">🚧</span>
-                            <div class="flex-1">
-                                <p class="text-blue-800 font-semibold">Em Desenvolvimento</p>
-                                <p class="text-blue-700 text-sm">As cores personalizadas estarão disponíveis em breve!</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+                ${renderThemeSelector()}
             </div>
         `;
     },
@@ -347,8 +452,7 @@ const Settings = {
         `;
     },
     
-renderAbout() {
-        // Obter o ano atual para o Copyright
+    renderAbout() {
         const currentYear = new Date().getFullYear();
         
         return `
@@ -500,7 +604,6 @@ renderAbout() {
     setAccentColor(color) {
         Utils.saveData('accent_color', color);
         Utils.showNotification(`🎨 Cor de destaque alterada`, 'success');
-        // TODO: Implementar aplicação da cor
         Router.render();
     },
     
@@ -526,7 +629,6 @@ renderAbout() {
                 total += localStorage[key].length + key.length;
             }
         }
-        // Converter bytes para KB
         const kb = (total / 1024).toFixed(2);
         return `${kb} KB`;
     },
@@ -566,11 +668,9 @@ renderAbout() {
                 try {
                     const data = JSON.parse(event.target.result);
                     
-                    // Confirmar antes de sobrescrever
                     const confirmed = confirm('⚠️ Isso irá sobrescrever todos os dados atuais. Continuar?');
                     if (!confirmed) return;
                     
-                    // Importar dados
                     for (let key in data) {
                         localStorage.setItem(key, data[key]);
                     }
@@ -591,7 +691,6 @@ renderAbout() {
         const confirmed = confirm('🧹 Deseja limpar o cache? Configurações serão preservadas.');
         if (!confirmed) return;
         
-        // Remover apenas dados de cache, não configurações
         const keysToRemove = [];
         for (let key in localStorage) {
             if (key.includes('cache') || key.includes('temp')) {
@@ -612,7 +711,6 @@ renderAbout() {
         const doubleConfirm = confirm('🚨 Última chance! Tem certeza absoluta?\n\nEsta ação NÃO PODE ser desfeita!');
         if (!doubleConfirm) return;
         
-        // Limpar tudo
         localStorage.clear();
         
         Utils.showNotification('🗑️ Todos os dados foram apagados! Recarregando...', 'info');
@@ -620,13 +718,145 @@ renderAbout() {
     },
     
     loadSettings() {
-        // Carregar configurações salvas ao iniciar
         const theme = Utils.loadData('app_theme') || 'light';
         const accentColor = Utils.loadData('accent_color') || 'purple';
-        
-        // TODO: Aplicar tema e cores
         console.log('⚙️ Configurações carregadas:', { theme, accentColor });
     }
 };
 
+// ============================================
+// GERENCIADOR DE TEMAS - BUGFIX
+// ============================================
+
+const ThemeManager = {
+    currentTheme: 'purple',
+    
+    init() {
+        const savedTheme = Utils.loadData('app_color_theme');
+        if (savedTheme) {
+            this.currentTheme = savedTheme;
+            this.applyTheme(savedTheme, true);
+        } else {
+            this.applyTheme('purple', true);
+        }
+        console.log('🎨 Tema carregado:', this.currentTheme);
+    },
+    
+// 🔧 BUGFIX: Não recarregar a página, apenas atualizar o visual
+    applyTheme(themeId, silent = false) {
+        const validThemes = ['purple', 'blue', 'green', 'red', 'orange', 'pink', 'teal', 'indigo'];
+        if (!validThemes.includes(themeId)) {
+            console.error('❌ Tema inválido:', themeId);
+            return;
+        }
+        
+        // Atualizar tema ANTES de salvar
+        this.currentTheme = themeId;
+        document.body.setAttribute('data-theme', themeId);
+        Utils.saveData('app_color_theme', themeId);
+        
+        // Forçar aplicação na sidebar
+        setTimeout(() => {
+            const sidebar = document.getElementById('sidebar');
+            if (sidebar) {
+                sidebar.style.backgroundImage = 'linear-gradient(to bottom, var(--theme-primary-dark), var(--theme-primary), var(--theme-secondary))';
+                sidebar.style.background = 'linear-gradient(to bottom, var(--theme-primary-dark), var(--theme-primary), var(--theme-secondary))';
+                console.log('🎨 Sidebar forçada:', themeId);
+            }
+        }, 50);
+        
+        if (!silent) {
+            const themeNames = {
+                purple: '💜 Roxo Místico',
+                blue: '💙 Azul Oceano',
+                green: '💚 Verde Natureza',
+                red: '❤️ Vermelho Paixão',
+                orange: '🧡 Laranja Solar',
+                pink: '💖 Rosa Kawaii',
+                teal: '💎 Turquesa Tropical',
+                indigo: '💠 Índigo Noturno'
+            };
+            
+            Utils.showNotification(`✨ Tema ${themeNames[themeId]} aplicado!`, 'success');
+            
+            // 🔧 FIX: Atualizar IMEDIATAMENTE o preview visual
+            this.updateThemePreviewInstant();
+        }
+        
+        console.log('✅ Tema aplicado:', themeId);
+    },
+    
+    // 🆕 Nova função: Atualizar preview INSTANTÂNEO sem delay
+    updateThemePreviewInstant() {
+        const themes = {
+            purple: { name: 'Roxo Místico', emoji: '💜', description: 'Vibrante e energético', gradient: 'from-purple-500 via-pink-500 to-red-500' },
+            blue: { name: 'Azul Oceano', emoji: '💙', description: 'Calmo e profissional', gradient: 'from-blue-500 via-cyan-500 to-purple-500' },
+            green: { name: 'Verde Natureza', emoji: '💚', description: 'Fresco e natural', gradient: 'from-green-500 via-teal-500 to-lime-500' },
+            red: { name: 'Vermelho Paixão', emoji: '❤️', description: 'Intenso e poderoso', gradient: 'from-red-500 via-orange-500 to-pink-500' },
+            orange: { name: 'Laranja Solar', emoji: '🧡', description: 'Quente e acolhedor', gradient: 'from-orange-500 via-yellow-500 to-red-500' },
+            pink: { name: 'Rosa Kawaii', emoji: '💖', description: 'Doce e charmoso', gradient: 'from-pink-500 via-rose-500 to-purple-500' },
+            teal: { name: 'Turquesa Tropical', emoji: '💎', description: 'Refrescante e moderno', gradient: 'from-teal-500 via-cyan-500 to-green-500' },
+            indigo: { name: 'Índigo Noturno', emoji: '💠', description: 'Elegante e profundo', gradient: 'from-indigo-500 via-purple-500 to-blue-500' }
+        };
+        
+        const currentTheme = themes[this.currentTheme];
+        if (!currentTheme) return;
+        
+        // 1. Atualizar o banner "TEMA ATUAL"
+        const currentBanner = document.querySelector('.mb-8.p-6.rounded-2xl.bg-gradient-to-r');
+        if (currentBanner) {
+            currentBanner.className = `mb-8 p-6 rounded-2xl bg-gradient-to-r ${currentTheme.gradient} text-white`;
+            currentBanner.querySelector('.text-6xl').textContent = currentTheme.emoji;
+            currentBanner.querySelector('.text-3xl.font-black').textContent = currentTheme.name;
+            currentBanner.querySelector('.text-sm.opacity-90.mt-1').textContent = currentTheme.description;
+        }
+        
+        // 2. Atualizar bordas e badges dos cards
+        document.querySelectorAll('[data-theme-card]').forEach(card => {
+            const themeId = card.getAttribute('data-theme-card');
+            const badge = card.querySelector('.absolute.top-2.right-2');
+            
+            if (themeId === this.currentTheme) {
+                // Ativar este card
+                card.classList.add('border-gray-800', 'scale-105');
+                card.classList.remove('border-gray-200');
+                
+                // Adicionar badge se não existir
+                if (!badge) {
+                    card.insertAdjacentHTML('beforeend', `
+                        <div class="absolute top-2 right-2 bg-white text-gray-800 px-3 py-1 rounded-full text-xs font-black shadow-lg flex items-center gap-1">
+                            <span>✓</span>
+                            <span>ATIVO</span>
+                        </div>
+                    `);
+                }
+            } else {
+                // Desativar outros cards
+                card.classList.remove('border-gray-800', 'scale-105');
+                card.classList.add('border-gray-200');
+                
+                // Remover badge se existir
+                if (badge) badge.remove();
+            }
+        });
+        
+        console.log('🎨 Preview atualizado instantaneamente para:', this.currentTheme);
+    },
+};
+
+// ============================================
+// AUTO-INICIALIZAÇÃO
+// ============================================
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => {
+        console.log('🎨 Inicializando ThemeManager via DOMContentLoaded');
+        ThemeManager.init();
+    });
+} else {
+    console.log('🎨 Inicializando ThemeManager imediatamente');
+    ThemeManager.init();
+}
+
+window.ThemeManager = ThemeManager;
 window.Settings = Settings;

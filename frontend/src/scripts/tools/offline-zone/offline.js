@@ -1,8 +1,6 @@
-// Zona Offline - VERSÃO CORRIGIDA E OTIMIZADA
+// Zona Offline - VERSÃO ATUALIZADA COM IA
 const OfflineZone = {
     currentGame: null,
-    ticTacToeBoard: Array(9).fill(null),
-    ticTacToePlayer: 'X',
     
     render() {
         if (this.currentGame === 'tictactoe') {
@@ -36,7 +34,7 @@ const OfflineZone = {
                          onclick="OfflineZone.startGame('tictactoe')">
                         <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">⭕❌</div>
                         <h3 class="text-2xl font-bold mb-2">Jogo da Velha</h3>
-                        <p class="text-blue-100 mb-4">Jogo clássico para 2 jogadores</p>
+                        <p class="text-blue-100 mb-4">2 Jogadores ou vs Mayara 🤖</p>
                         <button class="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
                             <span>▶️</span>
                             <span>Jogar</span>
@@ -55,7 +53,7 @@ const OfflineZone = {
                         </button>
                     </div>
                     
-                    <!-- Termo (NOVO) -->
+                    <!-- Termo -->
                     <div class="group bg-gradient-to-br from-yellow-400 to-orange-500 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 cursor-pointer"
                          onclick="OfflineZone.startGame('termo')">
                         <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🔤</div>
@@ -67,7 +65,7 @@ const OfflineZone = {
                         </button>
                     </div>
                     
-                    <!-- Forca (NOVO) -->
+                    <!-- Forca -->
                     <div class="group bg-gradient-to-br from-indigo-500 to-blue-600 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 cursor-pointer"
                          onclick="OfflineZone.startGame('forca')">
                         <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🎯</div>
@@ -122,32 +120,38 @@ const OfflineZone = {
     
     startGame(game) {
         this.currentGame = game;
+        
         if (game === 'tictactoe') {
-            this.ticTacToeBoard = Array(9).fill(null);
-            this.ticTacToePlayer = 'X';
+            // ✨ NOVO: Reset completo do jogo da velha
+            TicTacToe.gameMode = null;
+            TicTacToe.resetGame();
+            TicTacToe.resetScores();
         }
+        
         if (game === 'snake') {
             MiniGame.resetGame();
         }
+        
         if (game === 'termo') {
             if (typeof Termo !== 'undefined') {
                 Termo.isReady = false;
-                Router.render(); // Renderizar primeiro
-                setTimeout(() => Termo.init(), 100); // Depois inicializar
-                return; // Retornar para não renderizar duas vezes
+                Router.render();
+                setTimeout(() => Termo.init(), 100);
+                return;
             }
         }
+        
         if (game === 'forca') {
             if (typeof Forca !== 'undefined') {
                 Forca.isReady = false;
-                Router.render(); // Renderizar primeiro
-                setTimeout(() => Forca.init(), 100); // Depois inicializar
-                return; // Retornar para não renderizar duas vezes
+                Router.render();
+                setTimeout(() => Forca.init(), 100);
+                return;
             }
         }
+        
         Router.render();
         
-        // Inicializar o jogo específico
         if (game === 'snake') {
             setTimeout(() => {
                 MiniGame.init();
@@ -156,12 +160,9 @@ const OfflineZone = {
     },
     
     renderTicTacToe() {
-        const winner = this.checkTicTacToeWinner();
-        
         return `
-            <div class="max-w-2xl mx-auto">
-                <!-- Header com botão voltar -->
-                <div class="flex items-center justify-between mb-8">
+            <div class="max-w-4xl mx-auto">
+                <div class="flex items-center justify-between mb-6">
                     <h1 class="text-4xl font-black text-gray-800">⭕❌ Jogo da Velha</h1>
                     <button onclick="OfflineZone.backToMenu()" 
                             class="px-6 py-3 bg-gray-200 hover:bg-gray-300 rounded-xl font-bold transition-all flex items-center gap-2">
@@ -169,46 +170,7 @@ const OfflineZone = {
                         <span>Voltar</span>
                     </button>
                 </div>
-                
-                <!-- Game Container -->
-                <div class="bg-white rounded-2xl shadow-2xl p-8">
-                    <!-- Status -->
-                    <div class="text-center mb-8">
-                        ${winner ? `
-                            <div class="space-y-4">
-                                <div class="text-6xl animate-bounce-slow">
-                                    ${winner === 'draw' ? '🤝' : winner === 'X' ? '❌' : '⭕'}
-                                </div>
-                                <h2 class="text-3xl font-bold ${winner === 'draw' ? 'text-yellow-600' : 'text-green-600'}">
-                                    ${winner === 'draw' ? '🤝 Empate!' : (winner === 'X' ? '❌ Jogador X Venceu!' : '⭕ Jogador O Venceu!')}
-                                </h2>
-                                <button onclick="OfflineZone.startGame('tictactoe')" 
-                                        class="px-8 py-4 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-xl font-bold text-lg hover:shadow-xl transform hover:scale-105 transition-all">
-                                    🔄 Jogar Novamente
-                                </button>
-                            </div>
-                        ` : `
-                            <div class="inline-flex items-center gap-3 px-6 py-3 bg-gradient-to-r ${this.ticTacToePlayer === 'X' ? 'from-blue-500 to-cyan-600' : 'from-red-500 to-pink-600'} text-white rounded-xl shadow-lg">
-                                <span class="text-2xl">${this.ticTacToePlayer === 'X' ? '⭕' : '❌'}</span>
-                                <span class="text-xl font-bold">Vez do Jogador ${this.ticTacToePlayer}</span>
-                            </div>
-                        `}
-                    </div>
-                    
-                    <!-- Board -->
-                    <div class="grid grid-cols-3 gap-4 max-w-md mx-auto">
-                        ${this.ticTacToeBoard.map((cell, index) => `
-                            <button 
-                                onclick="OfflineZone.ticTacToeMove(${index})"
-                                class="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 hover:from-blue-100 hover:to-cyan-100 rounded-2xl text-6xl font-bold flex items-center justify-center transition-all transform hover:scale-105 shadow-lg ${winner ? 'cursor-not-allowed opacity-50' : 'cursor-pointer'}"
-                                ${winner ? 'disabled' : ''}>
-                                <span class="${cell === 'X' ? 'text-blue-600' : 'text-red-600'}">
-                                    ${cell === 'X' ? '⭕' : cell === 'O' ? '❌' : ''}
-                                </span>
-                            </button>
-                        `).join('')}
-                    </div>
-                </div>
+                ${TicTacToe.render()}
             </div>
         `;
     },
@@ -259,37 +221,6 @@ const OfflineZone = {
                 ${typeof Forca !== 'undefined' ? Forca.render() : '<p class="text-center text-gray-600">Carregando Forca...</p>'}
             </div>
         `;
-    },
-    
-    ticTacToeMove(index) {
-        if (this.ticTacToeBoard[index] || this.checkTicTacToeWinner()) return;
-        
-        this.ticTacToeBoard[index] = this.ticTacToePlayer;
-        this.ticTacToePlayer = this.ticTacToePlayer === 'X' ? 'O' : 'X';
-        Router.render();
-    },
-    
-    checkTicTacToeWinner() {
-        const lines = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8],
-            [0, 3, 6], [1, 4, 7], [2, 5, 8],
-            [0, 4, 8], [2, 4, 6]
-        ];
-        
-        for (let line of lines) {
-            const [a, b, c] = line;
-            if (this.ticTacToeBoard[a] && 
-                this.ticTacToeBoard[a] === this.ticTacToeBoard[b] && 
-                this.ticTacToeBoard[a] === this.ticTacToeBoard[c]) {
-                return this.ticTacToeBoard[a];
-            }
-        }
-        
-        if (this.ticTacToeBoard.every(cell => cell !== null)) {
-            return 'draw';
-        }
-        
-        return null;
     },
     
     backToMenu() {

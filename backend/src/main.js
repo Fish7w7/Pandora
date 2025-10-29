@@ -3,6 +3,22 @@ const path = require('path');
 const fs = require('fs');
 const https = require('https');
 
+// ============================================
+// 🔧 FIX: DESABILITAR ACELERAÇÃO GPU
+// ============================================
+// Isso resolve os 3 erros "GPU process exited unexpectedly"
+// que causam as piscadas na inicialização
+console.log('🔧 Desabilitando aceleração de hardware...');
+app.disableHardwareAcceleration();
+
+// ============================================
+// 🔧 FIX: FLAGS ADICIONAIS PARA ESTABILIDADE
+// ============================================
+app.commandLine.appendSwitch('disable-gpu');
+app.commandLine.appendSwitch('disable-gpu-compositing');
+app.commandLine.appendSwitch('disable-software-rasterizer');
+app.commandLine.appendSwitch('no-sandbox');
+
 let mainWindow;
 
 function createWindow() {
@@ -27,10 +43,14 @@ function createWindow() {
         webPreferences: {
             nodeIntegration: false,
             contextIsolation: true,
-            preload: hasPreload ? preloadPath : undefined // 🔧 FIX: Só carregar se existir
+            preload: hasPreload ? preloadPath : undefined,
+            // 🔧 FIX: Desabilitar aceleração no renderer também
+            enableBlinkFeatures: '',
+            disableBlinkFeatures: 'Accelerated2dCanvas,AcceleratedSmallCanvases'
         },
         frame: true,
         backgroundColor: '#1a1a2e',
+        // 🔧 FIX: NÃO mostrar até estar 100% pronto
         show: false,
         icon: iconPath,
         title: 'NyanTools にゃん~'
@@ -45,9 +65,13 @@ function createWindow() {
     
     mainWindow.loadFile(indexPath);
 
+    // 🔧 FIX: Mostrar apenas quando TUDO estiver carregado
     mainWindow.once('ready-to-show', () => {
-        mainWindow.show();
-        console.log('✅ NyanTools iniciado com sucesso! にゃん~');
+        // Pequeno delay adicional para garantir que está 100% pronto
+        setTimeout(() => {
+            mainWindow.show();
+            console.log('✅ NyanTools iniciado com sucesso! にゃん~');
+        }, 100);
     });
 
     if (process.env.NODE_ENV === 'development') {
@@ -61,6 +85,13 @@ function createWindow() {
     mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
         console.error('❌ Erro ao carregar:', errorCode, errorDescription);
         console.error('❌ URL tentada:', validatedURL);
+    });
+
+    // 🔧 FIX: Suprimir erros de GPU no console
+    mainWindow.webContents.on('console-message', (event, level, message) => {
+        if (message.includes('GPU') || message.includes('gpu_process_host')) {
+            return; // Ignorar logs de erro da GPU
+        }
     });
 }
 
@@ -267,7 +298,7 @@ ipcMain.handle('open-downloads-folder', async () => {
 // ============================================
 
 app.whenReady().then(() => {
-    console.log('🐱 NyanTools v2.4.0');
+    console.log('🐱 NyanTools v2.5.0');
     console.log('📁 App path:', app.getAppPath());
     console.log('🖥️ Plataforma:', process.platform);
     console.log('📥 Downloads:', app.getPath('downloads'));
@@ -286,6 +317,11 @@ app.on('window-all-closed', () => {
     }
 });
 
+// 🔧 FIX: Suprimir erros não críticos
 process.on('uncaughtException', (error) => {
+    // Ignorar erros de GPU que não afetam o funcionamento
+    if (error.message.includes('GPU') || error.message.includes('gpu_process_host')) {
+        return;
+    }
     console.error('❌ Erro não capturado:', error);
 });

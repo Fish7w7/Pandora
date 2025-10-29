@@ -1,21 +1,23 @@
 const App = {
-    version: '2.4.0',
+    version: '2.5.0',
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
     
     tools: [
-        { id: 'home', name: 'Início', icon: '🏠', description: 'Página inicial' },
-        { id: 'password', name: 'Gerador de Senhas', icon: '🔑', description: 'Crie senhas seguras' },
-        { id: 'weather', name: 'Clima', icon: '🌤️', description: 'Veja a temperatura local' },
-        { id: 'translator', name: 'Tradutor', icon: '🌍', description: 'Traduza textos rapidamente' },
-        { id: 'ai-assistant', name: 'Assistente IA', icon: '🤖', description: 'Perguntas e respostas' },
-        { id: 'mini-game', name: 'Mini Game', icon: '🎮', description: 'Jogue e se divirta' },
-        { id: 'temp-email', name: 'Email Temporário', icon: '📧', description: 'Emails descartáveis' },
-        { id: 'music', name: 'Player de Música', icon: '🎵', description: 'Ouça suas músicas' },
-        { id: 'offline', name: 'Zona Offline', icon: '📶', description: 'Jogos sem internet' },
-        { id: 'settings', name: 'Configurações', icon: '⚙️', description: 'Personalize o app' }
-    ],
+    { id: 'home', name: 'Dashboard', icon: '📊', description: 'Visão geral' }, // ⬅️ MUDOU!
+    { id: 'password', name: 'Gerador de Senhas', icon: '🔑', description: 'Crie senhas seguras' },
+    { id: 'weather', name: 'Clima', icon: '🌤️', description: 'Veja a temperatura local' },
+    { id: 'translator', name: 'Tradutor', icon: '🌍', description: 'Traduza textos rapidamente' },
+    { id: 'ai-assistant', name: 'Assistente IA', icon: '🤖', description: 'Perguntas e respostas' },
+    { id: 'mini-game', name: 'Mini Game', icon: '🎮', description: 'Jogue e se divirta' },
+    { id: 'temp-email', name: 'Email Temporário', icon: '📧', description: 'Emails descartáveis' },
+    { id: 'music', name: 'Player de Música', icon: '🎵', description: 'Ouça suas músicas' },
+    { id: 'notes', name: 'Notas Rápidas', icon: '📝', description: 'Organize suas ideias' }, // ⬅️ NOVO!
+    { id: 'tasks', name: 'Lista de Tarefas', icon: '✅', description: 'Gerencie tarefas' }, // ⬅️ NOVO!
+    { id: 'offline', name: 'Zona Offline', icon: '📶', description: 'Jogos sem internet' },
+    { id: 'settings', name: 'Configurações', icon: '⚙️', description: 'Personalize o app' }
+],
     
     init() {
         console.log('🐱 NyanTools v' + this.version + ' iniciando... にゃん~');
@@ -37,33 +39,27 @@ const App = {
         this.setupGlobalListeners();
     },
     
-    applyThemeOnStart() {
-        // Aplicar tema múltiplas vezes para garantir
-        const applyTheme = () => {
-            const savedTheme = Utils.loadData('app_theme') || 'light';
-            console.log('🎨 Aplicando tema:', savedTheme);
-            
-            if (savedTheme === 'dark') {
-                document.body.classList.add('dark-theme');
-                console.log('✅ Tema escuro aplicado');
-            } else {
-                document.body.classList.remove('dark-theme');
-                console.log('✅ Tema claro aplicado');
-            }
-            
-            // Garantir que o valor está salvo
-            Utils.saveData('app_theme', savedTheme);
-        };
+applyThemeOnStart() {
+    // Aplicar tema claro/escuro
+    const applyTheme = () => {
+        const savedTheme = Utils.loadData('app_theme') || 'light';
+        console.log('🎨 Aplicando tema:', savedTheme);
         
-        // Aplicar AGORA
-        applyTheme();
+        if (savedTheme === 'dark') {
+            document.body.classList.add('dark-theme');
+            console.log('✅ Tema escuro aplicado');
+        } else {
+            document.body.classList.remove('dark-theme');
+            console.log('✅ Tema claro aplicado');
+        }
         
-        // Aplicar novamente após 100ms (garantia)
-        setTimeout(applyTheme, 100);
-        
-        // Aplicar quando a janela carregar completamente
-        window.addEventListener('load', applyTheme);
-    },
+        Utils.saveData('app_theme', savedTheme);
+    };
+    
+    applyTheme();
+    setTimeout(applyTheme, 100);
+    window.addEventListener('load', applyTheme);
+},
     
     hideLoading() {
         const loadingScreen = document.getElementById('loading-screen');

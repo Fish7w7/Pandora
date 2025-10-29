@@ -5,7 +5,8 @@ const Termo = {
         'CARRO', 'FELIZ', 'AMIGO', 'PAPEL', 'TINTA', 'VERDE', 'PRETO',
         'VENTO', 'CHUVA', 'NUVEM', 'PONTE', 'PEIXE', 'TIGRE', 'PORCO',
         'CABRA', 'BURRO', 'ZEBRA', 'PANDA', 'COBRA', 'MOSCA', 'GRILO',
-        'FESTA', 'VINHO', 'LEITE', 'PEIXE'
+        'FESTA', 'VINHO', 'LEITE', 'PIZZA', 'MAGIA', 'RAIVA', 'SABOR',
+        'FORTE', 'CALMA', 'SORTE', 'TRIGO', 'BRAVO', 'PLANO', 'RISCO'
     ],
 
     currentWord: '',
@@ -18,68 +19,65 @@ const Termo = {
     
     render() {
         return `
-            <div class="bg-white rounded-2xl shadow-2xl p-8">
-                <!-- Header -->
-                <div class="text-center mb-8">
-                    <div class="inline-block mb-4">
-                        <div class="text-6xl animate-bounce-slow">🔤</div>
-                    </div>
-                    <h2 class="text-3xl font-black text-gray-800 mb-2">Termo にゃん~</h2>
-                    <p class="text-gray-600">Adivinhe a palavra de 5 letras em ${this.maxAttempts} tentativas!</p>
-                    <div class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-800 rounded-full">
-                        <span>⏰</span>
-                        <span class="font-bold text-sm">${this.getNextWordTimer()}</span>
-                    </div>
+            <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-2xl mx-auto">
+                <!-- Header Compacto -->
+                <div class="text-center mb-6">
+                    <h2 class="text-3xl font-black text-gray-800 mb-1 flex items-center justify-center gap-2">
+                        <span class="text-4xl">🔤</span>
+                        <span>Termo</span>
+                    </h2>
+                    <p class="text-sm text-gray-600">Adivinhe a palavra de 5 letras em ${this.maxAttempts} tentativas</p>
                 </div>
                 
                 ${this.gameOver ? this.renderGameOver() : ''}
                 
-                <!-- Grid de Tentativas -->
-                <div class="max-w-md mx-auto mb-6">
+                <!-- Grid de Tentativas (Compacto) -->
+                <div class="max-w-sm mx-auto mb-4">
                     ${this.renderGuessGrid()}
                 </div>
                 
                 ${!this.gameOver ? `
                     <!-- Input de Palavra -->
-                    <div class="max-w-md mx-auto mb-6">
-                        <div class="flex gap-2">
-                            <input type="text" 
-                                id="termo-input" 
-                                maxlength="5" 
-                                value="${this.currentGuess}"
-                                placeholder="Digite aqui..."
-                                class="flex-1 px-6 py-4 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-4 focus:ring-yellow-200 outline-none transition-all text-center text-2xl font-bold uppercase tracking-widest"
-                                onkeypress="if(event.key === 'Enter') Termo.submitGuess()"
-                                oninput="Termo.updateCurrentGuess(this.value)">
-                            <button onclick="Termo.submitGuess()" 
-                                    class="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all">
-                                ✓ Enviar
-                            </button>
-                        </div>
-                        <p class="text-center text-sm text-gray-500 mt-2">
+                    <div class="max-w-sm mx-auto mb-4">
+                        <input type="text" 
+                            id="termo-input" 
+                            maxlength="5" 
+                            value="${this.currentGuess}"
+                            placeholder="Digite aqui ou use o teclado virtual"
+                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200 outline-none transition-all text-center text-xl font-bold uppercase tracking-widest"
+                            autocomplete="off"
+                            autofocus>
+                        <p class="text-center text-xs text-gray-500 mt-1" id="termo-counter">
                             ${5 - this.currentGuess.length} letra${5 - this.currentGuess.length !== 1 ? 's' : ''} restante${5 - this.currentGuess.length !== 1 ? 's' : ''}
                         </p>
                     </div>
                     
-                    <!-- Teclado Virtual -->
+                    <!-- Botão Enviar -->
+                    <div class="max-w-sm mx-auto mb-4">
+                        <button onclick="Termo.submitGuess()" 
+                                class="w-full px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all">
+                            ✓ Enviar Palavra
+                        </button>
+                    </div>
+                    
+                    <!-- Teclado Virtual Compacto -->
                     ${this.renderKeyboard()}
                 ` : ''}
                 
-                <!-- Legenda -->
-                <div class="mt-8 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-6">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 text-center">📖 Como Jogar</h3>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-green-500 rounded-lg flex items-center justify-center text-white font-bold text-xl">A</div>
-                            <span class="text-sm text-gray-700">Letra correta na posição certa</span>
+                <!-- Legenda Compacta -->
+                <div class="mt-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4">
+                    <div class="flex items-center justify-center gap-4 text-xs">
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-green-500 rounded flex items-center justify-center text-white font-bold">A</div>
+                            <span class="text-gray-700">Certa</span>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-yellow-500 rounded-lg flex items-center justify-center text-white font-bold text-xl">B</div>
-                            <span class="text-sm text-gray-700">Letra correta na posição errada</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-yellow-500 rounded flex items-center justify-center text-white font-bold">B</div>
+                            <span class="text-gray-700">Posição errada</span>
                         </div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-gray-400 rounded-lg flex items-center justify-center text-white font-bold text-xl">C</div>
-                            <span class="text-sm text-gray-700">Letra não está na palavra</span>
+                        <div class="flex items-center gap-2">
+                            <div class="w-8 h-8 bg-gray-400 rounded flex items-center justify-center text-white font-bold">C</div>
+                            <span class="text-gray-700">Não existe</span>
                         </div>
                     </div>
                 </div>
@@ -99,6 +97,73 @@ const Termo = {
         }
         
         console.log('🔤 Palavra do dia:', this.currentWord);
+        
+        // Adicionar listener para teclado físico APÓS renderizar
+        setTimeout(() => this.setupKeyboardListener(), 100);
+        
+        // Flag para indicar que já foi inicializado
+        this.isReady = true;
+    },
+    
+    setupKeyboardListener() {
+        const input = document.getElementById('termo-input');
+        if (!input) return;
+        
+        // Remover listeners antigos se existirem para evitar duplicação
+        const newInput = input.cloneNode(true);
+        input.parentNode.replaceChild(newInput, input);
+        
+        // Listener de input - só atualiza o DOM, NÃO re-renderiza tudo
+        newInput.addEventListener('input', (e) => {
+            const value = e.target.value.toUpperCase().replace(/[^A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞŸ]/g, '').slice(0, 5);
+            this.currentGuess = value;
+            e.target.value = value;
+            
+            // Atualizar apenas o contador e o grid atual
+            this.updateCurrentRow();
+            this.updateCounter();
+        });
+        
+        // Listener para Enter
+        newInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                this.submitGuess();
+            }
+        });
+        
+        newInput.focus();
+    },
+    
+    updateCurrentRow() {
+        const rows = document.querySelectorAll('.grid.grid-cols-5');
+        if (!rows.length) return;
+        
+        const currentRowIndex = this.guesses.length;
+        const currentRow = rows[currentRowIndex];
+        if (!currentRow) return;
+        
+        const cells = currentRow.querySelectorAll('div');
+        for (let i = 0; i < 5; i++) {
+            const letter = this.currentGuess[i] || '';
+            const cell = cells[i];
+            
+            if (letter) {
+                cell.className = 'aspect-square bg-gray-200 border-2 border-gray-400 rounded-lg flex items-center justify-center text-gray-800 font-black text-2xl transition-all scale-110';
+                cell.textContent = letter;
+            } else {
+                cell.className = 'aspect-square bg-white border-2 border-gray-300 rounded-lg flex items-center justify-center text-gray-800 font-black text-2xl transition-all';
+                cell.textContent = '';
+            }
+        }
+    },
+    
+    updateCounter() {
+        const counter = document.getElementById('termo-counter');
+        if (!counter) return;
+        
+        const remaining = 5 - this.currentGuess.length;
+        counter.textContent = `${remaining} letra${remaining !== 1 ? 's' : ''} restante${remaining !== 1 ? 's' : ''}`;
     },
     
     getDailyWord() {
@@ -141,23 +206,23 @@ const Termo = {
         
         // Renderizar tentativas feitas
         for (let i = 0; i < this.guesses.length; i++) {
-            grid += `<div class="grid grid-cols-5 gap-2 mb-2">${this.renderGuessRow(this.guesses[i])}</div>`;
+            grid += `<div class="grid grid-cols-5 gap-1.5 mb-1.5">${this.renderGuessRow(this.guesses[i])}</div>`;
         }
         
         // Renderizar linha atual (se não acabou e ainda tem tentativas)
         if (!this.gameOver && this.guesses.length < this.maxAttempts) {
-            grid += `<div class="grid grid-cols-5 gap-2 mb-2">${this.renderCurrentRow()}</div>`;
+            grid += `<div class="grid grid-cols-5 gap-1.5 mb-1.5">${this.renderCurrentRow()}</div>`;
             
             // Renderizar linhas vazias restantes
             const emptyRows = this.maxAttempts - this.guesses.length - 1;
             for (let i = 0; i < emptyRows; i++) {
-                grid += `<div class="grid grid-cols-5 gap-2 mb-2">${this.renderEmptyRow()}</div>`;
+                grid += `<div class="grid grid-cols-5 gap-1.5 mb-1.5">${this.renderEmptyRow()}</div>`;
             }
         } else {
             // Se o jogo acabou, renderizar linhas vazias restantes
             const emptyRows = this.maxAttempts - this.guesses.length;
             for (let i = 0; i < emptyRows; i++) {
-                grid += `<div class="grid grid-cols-5 gap-2 mb-2">${this.renderEmptyRow()}</div>`;
+                grid += `<div class="grid grid-cols-5 gap-1.5 mb-1.5">${this.renderEmptyRow()}</div>`;
             }
         }
         
@@ -171,7 +236,7 @@ const Termo = {
             else if (letter.status === 'present') bgClass = 'bg-yellow-500';
             
             return `
-                <div class="aspect-square ${bgClass} rounded-lg flex items-center justify-center text-white font-black text-3xl shadow-lg transform transition-all animate-flipIn" style="animation-delay: ${i * 0.1}s">
+                <div class="aspect-square ${bgClass} rounded-lg flex items-center justify-center text-white font-black text-2xl shadow-lg transform transition-all animate-flipIn" style="animation-delay: ${i * 0.1}s">
                     ${letter.letter}
                 </div>
             `;
@@ -183,7 +248,7 @@ const Termo = {
         for (let i = 0; i < 5; i++) {
             const letter = this.currentGuess[i] || '';
             row += `
-                <div class="aspect-square ${letter ? 'bg-gray-200 border-2 border-gray-400' : 'bg-white border-2 border-gray-300'} rounded-lg flex items-center justify-center text-gray-800 font-black text-3xl transition-all ${letter ? 'scale-110' : ''}">
+                <div class="aspect-square ${letter ? 'bg-gray-200 border-2 border-gray-400' : 'bg-white border-2 border-gray-300'} rounded-lg flex items-center justify-center text-gray-800 font-black text-2xl transition-all ${letter ? 'scale-110' : ''}">
                     ${letter}
                 </div>
             `;
@@ -203,11 +268,11 @@ const Termo = {
         const rows = [
             ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
             ['A', 'S', 'D', 'F', 'G', 'H', 'J', 'K', 'L'],
-            ['ENTER', 'Z', 'X', 'C', 'V', 'B', 'N', 'M', '⌫']
+            ['⌫', 'Z', 'X', 'C', 'V', 'B', 'N', 'M']
         ];
         
         return `
-            <div class="max-w-lg mx-auto mt-6">
+            <div class="max-w-lg mx-auto mt-4">
                 ${rows.map(row => `
                     <div class="flex gap-1 mb-1 justify-center">
                         ${row.map(key => {
@@ -217,12 +282,10 @@ const Termo = {
                             else if (status === 'present') bgClass = 'bg-yellow-500 text-white';
                             else if (status === 'absent') bgClass = 'bg-gray-400 text-white';
                             
-                            const isSpecial = key === 'ENTER' || key === '⌫';
-                            
                             return `
                                 <button 
                                     onclick="Termo.handleKeyPress('${key}')"
-                                    class="${isSpecial ? 'px-4' : 'px-3'} py-4 ${bgClass} rounded-lg font-bold text-sm transition-all transform hover:scale-105 active:scale-95 shadow-md">
+                                    class="px-2 py-3 ${bgClass} rounded-lg font-bold text-sm transition-all transform hover:scale-105 active:scale-95 shadow-md min-w-[32px]">
                                     ${key}
                                 </button>
                             `;
@@ -236,56 +299,54 @@ const Termo = {
     renderGameOver() {
         if (this.won) {
             return `
-                <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-8 text-white text-center mb-6 animate-fadeIn">
-                    <div class="text-7xl mb-4 animate-bounce">🎉</div>
-                    <h3 class="text-3xl font-black mb-2">Parabéns! にゃん~</h3>
-                    <p class="text-xl mb-4">Você acertou em ${this.guesses.length}/${this.maxAttempts} tentativas!</p>
-                    <p class="text-2xl font-black mb-4">A palavra era: ${this.currentWord}</p>
-                    <div class="flex gap-3 justify-center">
-                        <button onclick="Termo.shareResult()" 
-                                class="px-6 py-3 bg-white text-green-600 rounded-xl font-bold hover:shadow-xl transition-all">
-                            📋 Copiar Resultado
-                        </button>
-                    </div>
+                <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl p-6 text-white text-center mb-4 animate-fadeIn">
+                    <div class="text-5xl mb-2">🎉</div>
+                    <h3 class="text-2xl font-black mb-1">Parabéns! にゃん~</h3>
+                    <p class="text-lg mb-2">Você acertou em ${this.guesses.length}/${this.maxAttempts} tentativas!</p>
+                    <p class="text-xl font-black mb-3">${this.currentWord}</p>
+                    <button onclick="Termo.shareResult()" 
+                            class="px-5 py-2 bg-white text-green-600 rounded-lg font-bold hover:shadow-xl transition-all text-sm">
+                        📋 Copiar Resultado
+                    </button>
                 </div>
             `;
         } else {
             return `
-                <div class="bg-gradient-to-br from-red-500 to-pink-600 rounded-2xl p-8 text-white text-center mb-6 animate-fadeIn">
-                    <div class="text-7xl mb-4">😿</div>
-                    <h3 class="text-3xl font-black mb-2">Que pena! にゃん~</h3>
-                    <p class="text-xl mb-4">Você não conseguiu dessa vez...</p>
-                    <p class="text-2xl font-black mb-4">A palavra era: <span class="bg-white/20 px-4 py-2 rounded-lg">${this.currentWord}</span></p>
-                    <div class="flex gap-3 justify-center">
-                        <button onclick="Termo.shareResult()" 
-                                class="px-6 py-3 bg-white text-red-600 rounded-xl font-bold hover:shadow-xl transition-all">
-                            📋 Copiar Resultado
-                        </button>
-                    </div>
+                <div class="bg-gradient-to-br from-red-500 to-pink-600 rounded-xl p-6 text-white text-center mb-4 animate-fadeIn">
+                    <div class="text-5xl mb-2">😿</div>
+                    <h3 class="text-2xl font-black mb-1">Que pena! にゃん~</h3>
+                    <p class="text-lg mb-2">Você não conseguiu dessa vez...</p>
+                    <p class="text-xl font-black mb-3 bg-white/20 px-3 py-1 rounded-lg inline-block">${this.currentWord}</p>
+                    <button onclick="Termo.shareResult()" 
+                            class="px-5 py-2 bg-white text-red-600 rounded-lg font-bold hover:shadow-xl transition-all text-sm">
+                        📋 Copiar Resultado
+                    </button>
                 </div>
             `;
         }
-    },
-    
-    updateCurrentGuess(value) {
-        this.currentGuess = value.toUpperCase().replace(/[^A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞŸ]/g, '').slice(0, 5);
-        Router.render();
     },
     
     handleKeyPress(key) {
         if (this.gameOver) return;
         
-        if (key === 'ENTER') {
-            this.submitGuess();
-        } else if (key === '⌫') {
+        const input = document.getElementById('termo-input');
+        
+        if (key === '⌫') {
             this.currentGuess = this.currentGuess.slice(0, -1);
-            Router.render();
         } else {
             if (this.currentGuess.length < 5) {
                 this.currentGuess += key;
-                Router.render();
             }
         }
+        
+        // Atualizar input e UI
+        if (input) {
+            input.value = this.currentGuess;
+            input.focus();
+        }
+        
+        this.updateCurrentRow();
+        this.updateCounter();
     },
     
     submitGuess() {
@@ -306,8 +367,13 @@ const Termo = {
         
         this.guesses.push(guess);
         
-        // Verificar vitória
-        if (this.currentGuess === this.currentWord) {
+        // Verificar vitória ANTES de limpar
+        const won = guess.every(g => g.status === 'correct');
+        
+        // Limpar input
+        this.currentGuess = '';
+        
+        if (won) {
             this.gameOver = true;
             this.won = true;
             Utils.showNotification('🎉 Parabéns! Você acertou! にゃん~', 'success');
@@ -317,12 +383,20 @@ const Termo = {
             Utils.showNotification('😿 Acabaram as tentativas! A palavra era: ' + this.currentWord, 'error');
         }
         
-        this.currentGuess = '';
         this.saveGameState();
+        
+        // SOLUÇÃO DO BUG: Re-configurar o listener após o Router.render()
         Router.render();
+        
+        // Re-adicionar o listener se o jogo ainda não terminou
+        if (!this.gameOver) {
+            setTimeout(() => this.setupKeyboardListener(), 100);
+        }
     },
     
     getKeyStatus(key) {
+        if (key === '⌫') return null;
+        
         let status = null;
         this.guesses.forEach(guess => {
             guess.forEach(g => {

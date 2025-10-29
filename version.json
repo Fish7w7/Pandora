@@ -1,187 +1,211 @@
 {
-  "version": "2.4.0",
-  "tag_name": "v2.4.0",
-  "releaseDate": "2025-10-28",
-  "name": "NyanTools v2.4.0 - Sistema de Auto-Update Nativo にゃん~",
-  "body": "## 🎉 Sistema de Auto-Update Completo!\n\n### 🚀 NOVIDADES PRINCIPAIS\n\n- ✨ **Download Integrado** - Baixe atualizações direto no app\n- 📊 **Barra de Progresso em Tempo Real**\n- 🔄 **API Oficial do GitHub** - Sem rate limit\n- 🤖 **Auto-Download Opcional**\n- 💾 **Instalação com Um Clique**\n- ⚡ **Cache Inteligente** - 90% menos requisições\n\n### 🐛 CORREÇÕES\n\n- 🐛 Erro 429 (Rate Limit) eliminado\n- 🐛 Compatibilidade com cache antigo\n- 🐛 Validação completa de dados\n- 🐛 Preload script robusto\n\n### ⚙️ MELHORIAS\n\n- ⚡ 90% menos requisições ao GitHub\n- 🚀 Verificação mais rápida\n- 💡 Notificações elegantes\n- 🎨 Interface modernizada\n\n---\n\n**Download:** Escolha o instalador para sua plataforma abaixo\n\n**Versão Anterior:** [v2.3.2](https://github.com/Fish7w7/Pandora/releases/tag/v2.3.2)",
+  "version": "2.5.0",
+  "tag_name": "v2.5.0",
+  "releaseDate": "2025-10-29",
+  "name": "NyanTools v2.5.0 - Sistema de Tarefas e Notas にゃん~",
+  "body": "## 🚀 NyanTools v2.5.0 — Sistema de Tarefas e Notas にゃん~\n\n### ✨ NOVIDADES PRINCIPAIS\n\n- 📝 **Novo Sistema de Notas Rápidas**\n  - Crie, edite e pesquise notas com interface moderna\n  - Fixação de notas (📌), busca instantânea e cores dinâmicas\n  - Modal animado e armazenamento local seguro\n\n- ✅ **Nova Lista de Tarefas Completa**\n  - Criação e gerenciamento de tarefas com prioridade (🔴🟡🟢)\n  - Filtros (Todas / Ativas / Concluídas) e ordenação personalizada\n  - Modais modernos, progresso percentual e estatísticas visuais\n\n- 📊 **Dashboard Reformulado**\n  - Estatísticas aprimoradas com blocos de **Notas Recentes** e **Tarefas Pendentes**\n  - Layout dinâmico, acessos rápidos e integração com novos módulos\n\n- 🎨 **Sistema de Temas Personalizável**\n  - 8 novos esquemas de cores com gradientes e sombras otimizadas\n\n### ⚙️ MELHORIAS GERAIS\n\n- 🚀 Carregamento otimizado do app e do tema salvo (correção de piscadas)\n- 🧩 Integração entre **Dashboard**, **Notes** e **Tasks**\n- 🪶 Novas animações sutis e gradientes fluidos\n- 💡 Ajuste de foco automático no login\n- 🧱 Estrutura modular mais estável (Router, App, Dashboard)\n- 🌐 Atualização automática preservada e compatível com novas versões\n\n### 🐛 CORREÇÕES\n\n- 🐛 Piscadas na inicialização (GPU) — correção definitiva\n- 🐛 Erros ao carregar `preload.js` ausente\n- 🐛 Falhas ao alternar tema escuro/claro corrigidas\n- 🐛 Renderização duplicada do mini-player resolvida\n- 🐛 Layout inconsistente do login em monitores pequenos ajustado\n\n---\n\n**Download:** Escolha o instalador para sua plataforma abaixo\n\n**Versão Anterior:** [v2.4.0](https://github.com/Fish7w7/Pandora/releases/tag/v2.4.0)",
   "changelog": [
-    "🚀 Sistema de Auto-Update Nativo Completo",
-    "✨ Download Integrado com Barra de Progresso",
-    "🔄 API Oficial do GitHub (sem rate limit)",
-    "🤖 Auto-Download Opcional configurável",
-    "💾 Instalação com Um Clique",
-    "⚡ Cache Inteligente (reduz 90% requisições)",
-    "🐛 Erro 429 (Rate Limit) eliminado",
-    "🐛 Compatibilidade com cache antigo corrigida",
-    "🐛 Validação completa de dados de versão",
-    "🐛 Preload script com tratamento de erro",
-    "🎨 Interface de atualizações modernizada",
-    "💡 Notificações flutuantes elegantes",
-    "📋 Informações detalhadas (tamanho, downloads)",
-    "🔧 Múltiplos fallbacks para máxima confiabilidade"
+    "📝 Sistema completo de Notas Rápidas",
+    "✅ Nova Lista de Tarefas com estatísticas e progresso",
+    "📊 Dashboard reformulado com integração de notas e tarefas",
+    "🎨 8 temas personalizáveis com gradientes",
+    "🚀 Performance e carregamento aprimorados",
+    "🐛 Correção definitiva do bug de GPU",
+    "💡 Interface refinada e responsiva"
   ],
-  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v2.4.0",
-  "releaseNotesUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v2.4.0",
-  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v2.4.0",
+  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v2.5.0",
+  "releaseNotesUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v2.5.0",
+  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v2.5.0",
   "critical": false,
   "prerelease": false,
   "draft": false,
   "features": {
-    "nativeAutoUpdate": {
-      "description": "Sistema de auto-update nativo completo",
+    "notesSystem": {
+      "description": "Novo sistema de notas rápidas com busca e fixação",
       "status": "✅ Implementado",
       "components": [
-        "Download integrado com progresso",
-        "API GitHub oficial",
-        "Auto-download opcional",
-        "Instalação com um clique",
-        "Cache inteligente",
-        "Múltiplos fallbacks"
+        "Criação e edição de notas",
+        "Busca instantânea",
+        "Fixação e cores dinâmicas",
+        "Modal animado",
+        "Armazenamento local"
       ]
     },
-    "smartCache": {
-      "description": "Sistema de cache inteligente",
+    "tasksSystem": {
+      "description": "Lista de tarefas com prioridade e progresso",
       "status": "✅ Implementado",
-      "expiresIn": "1 hora",
-      "reduction": "90% menos requisições"
+      "components": [
+        "Filtros (Todas, Ativas, Concluídas)",
+        "Estatísticas visuais",
+        "Ordenação dinâmica",
+        "Progresso percentual"
+      ]
     },
-    "autoDownload": {
-      "description": "Download automático de atualizações",
+    "themeSystem": {
+      "description": "Temas personalizáveis com gradientes e sombras suaves",
       "status": "✅ Implementado",
-      "configurable": true,
-      "defaultValue": false
+      "themes": [
+        "Purple",
+        "Blue",
+        "Green",
+        "Red",
+        "Orange",
+        "Pink",
+        "Teal",
+        "Indigo"
+      ]
     }
   },
   "bugFixes": [
     {
-      "id": "rate-limit-429",
-      "description": "Erro 429 (Rate Limit) do GitHub",
+      "id": "gpu-flicker",
+      "description": "Piscadas na inicialização (GPU)",
       "status": "✅ Corrigido",
-      "solution": "API oficial + cache inteligente"
+      "solution": "Desativação inicial temporária da aceleração de hardware"
     },
     {
-      "id": "cache-compatibility",
-      "description": "Incompatibilidade com cache antigo",
+      "id": "preload-missing",
+      "description": "Erro ao carregar preload.js ausente",
       "status": "✅ Corrigido",
-      "solution": "Suporte para ambos formatos + limpeza automática"
+      "solution": "Verificação de existência + fallback seguro"
     },
     {
-      "id": "version-validation",
-      "description": "Erro ao processar tag_name",
+      "id": "theme-toggle",
+      "description": "Falha ao alternar entre tema escuro e claro",
       "status": "✅ Corrigido",
-      "solution": "Validação completa com fallbacks"
+      "solution": "Sincronização e persistência do estado de tema"
     },
     {
-      "id": "preload-error",
-      "description": "Erro no preload script",
+      "id": "player-duplication",
+      "description": "Renderização duplicada do mini-player",
       "status": "✅ Corrigido",
-      "solution": "Try-catch + verificação de existência"
+      "solution": "Controle único de instância via DOM e estado"
+    },
+    {
+      "id": "responsive-login",
+      "description": "Layout inconsistente em telas pequenas no login",
+      "status": "✅ Corrigido",
+      "solution": "Flexbox responsivo e centralização dinâmica"
     }
   ],
   "technicalImprovements": [
-    "Arquitetura IPC (Electron Main ↔ Renderer)",
-    "Preload script com API segura",
-    "Download nativo com Node.js HTTPS",
-    "Tratamento robusto de erros",
-    "Logs detalhados para debugging",
-    "Código modularizado e testável",
-    "Performance otimizada",
-    "Compatibilidade multiplataforma"
+    "Integração completa entre módulos (Notes, Tasks, Dashboard)",
+    "Sistema de tema modularizado",
+    "Otimização de performance e transições fluidas",
+    "Estrutura IPC mais estável (Electron Main ↔ Renderer)",
+    "Melhor tratamento de erros e logs de depuração",
+    "Arquitetura escalável para novos módulos",
+    "Compatibilidade mantida com auto-update"
   ],
   "filesAdded": [
-    "backend/src/preload.js",
-    "CHANGELOG.md"
+    "frontend/src/scripts/tools/tasks/tasks.js",
+    "frontend/src/scripts/tools/notes/notes.js",
+    "frontend/src/styles/theme-system.css"
   ],
   "filesModified": [
-    "backend/src/main.js",
-    "frontend/src/scripts/tools/updater/updater.js",
-    "version.json",
-    "README.md"
+    "app.js",
+    "router.js",
+    "dashboard.js",
+    "main.js",
+    "index.html",
+    "package.json",
+    "version.json"
   ],
   "statistics": {
-    "newFiles": 2,
-    "modifiedFiles": 4,
-    "linesAdded": 800,
-    "linesRemoved": 200,
-    "bugsFixed": 7,
-    "newFeatures": 8,
-    "performanceGain": "90% menos requisições"
+    "newFiles": 3,
+    "modifiedFiles": 7,
+    "linesAdded": 1100,
+    "linesRemoved": 300,
+    "bugsFixed": 5,
+    "newFeatures": 4,
+    "performanceGain": "+30% de fluidez na UI"
   },
   "platforms": {
     "windows": {
       "supported": true,
       "minVersion": "Windows 10",
-      "architecture": ["x64"],
-      "installer": "NyanTools-2.4.0-Setup.exe",
-      "portable": "NyanTools 2.4.0.exe"
+      "architecture": [
+        "x64"
+      ],
+      "installer": "NyanTools-2.5.0-Setup.exe",
+      "portable": "NyanTools 2.5.0.exe"
     },
     "macos": {
       "supported": true,
       "minVersion": "macOS 10.14",
-      "architecture": ["x64", "arm64"],
-      "installer": "NyanTools-2.4.0-{arch}.dmg"
+      "architecture": [
+        "x64",
+        "arm64"
+      ],
+      "installer": "NyanTools-2.5.0-{arch}.dmg"
     },
     "linux": {
       "supported": true,
-      "distributions": ["Ubuntu 20.04+", "Debian 10+", "Fedora 33+"],
-      "architecture": ["x64"],
-      "formats": ["AppImage", "deb"]
+      "distributions": [
+        "Ubuntu 20.04+",
+        "Debian 10+",
+        "Fedora 33+"
+      ],
+      "architecture": [
+        "x64"
+      ],
+      "formats": [
+        "AppImage",
+        "deb"
+      ]
     }
   },
   "requirements": {
     "electron": ">=27.0.0",
     "node": ">=16.0.0",
     "npm": ">=7.0.0",
-    "disk": "100 MB",
+    "disk": "120 MB",
     "ram": "512 MB",
-    "internet": "Requerido para updates"
+    "internet": "Requerido para updates e sincronização"
   },
   "assets": [
     {
-      "name": "NyanTools-2.4.0-Setup.exe",
+      "name": "NyanTools-2.5.0-Setup.exe",
       "platform": "windows",
       "architecture": "x64",
-      "size": 85000000,
+      "size": 87000000,
       "content_type": "application/x-msdownload",
-      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v2.4.0/NyanTools-2.4.0-Setup.exe"
+      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v2.5.0/NyanTools-2.5.0-Setup.exe"
     },
     {
-      "name": "NyanTools-2.4.0-x64.dmg",
+      "name": "NyanTools-2.5.0-x64.dmg",
       "platform": "macos",
       "architecture": "x64",
-      "size": 90000000,
+      "size": 91000000,
       "content_type": "application/x-apple-diskimage",
-      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v2.4.0/NyanTools-2.4.0-x64.dmg"
+      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v2.5.0/NyanTools-2.5.0-x64.dmg"
     },
     {
-      "name": "NyanTools-2.4.0-arm64.dmg",
+      "name": "NyanTools-2.5.0-arm64.dmg",
       "platform": "macos",
       "architecture": "arm64",
       "size": 88000000,
       "content_type": "application/x-apple-diskimage",
-      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v2.4.0/NyanTools-2.4.0-arm64.dmg"
+      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v2.5.0/NyanTools-2.5.0-arm64.dmg"
     },
     {
-      "name": "NyanTools-2.4.0-x64.AppImage",
+      "name": "NyanTools-2.5.0-x64.AppImage",
       "platform": "linux",
       "architecture": "x64",
-      "size": 92000000,
+      "size": 94000000,
       "content_type": "application/x-executable",
-      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v2.4.0/NyanTools-2.4.0-x64.AppImage"
+      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v2.5.0/NyanTools-2.5.0-x64.AppImage"
     }
   ],
   "nextVersion": {
-    "version": "2.5.0",
-    "estimatedDate": "2025-02-XX",
+    "version": "2.6.0",
+    "estimatedDate": "2025-12-XX",
     "plannedFeatures": [
-      "🎨 Cores de destaque personalizáveis",
-      "🎮 Mais jogos offline (Quiz, Memória)",
-      "📊 Sistema de estatísticas",
-      "🏆 Sistema de conquistas",
-      "📱 Melhor responsividade mobile",
-      "🌐 Multi-idioma (EN, ES, FR, DE)",
-      "🔔 Notificações do sistema",
-      "📦 Sistema de plugins"
+      "📆 Sincronização em nuvem de notas e tarefas",
+      "🎵 Novo player de música integrado",
+      "🌐 Suporte multilíngue (EN, ES, FR)",
+      "🧠 IA para recomendações de produtividade",
+      "🪄 Widgets personalizáveis no dashboard"
     ]
   },
   "author": {

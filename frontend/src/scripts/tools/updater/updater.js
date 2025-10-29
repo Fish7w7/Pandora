@@ -4,7 +4,7 @@
 // ============================================
 
 const AutoUpdater = {
-    currentVersion: '2.4.0',
+    currentVersion: '2.5.0',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -208,42 +208,42 @@ const AutoUpdater = {
         `;
     },
     
-    renderChangelog() {
-        const changelog = [
-            {
-                version: '2.4.0',
-                date: '2025-10-28',
-                changes: [
-                    "🚀 Sistema de Auto-Update Nativo Completo",
-                    "✨ Download Integrado com Barra de Progresso",
-                    "🔄 API Oficial do GitHub (sem rate limit)",
-                    "🤖 Auto-Download Opcional configurável",
-                    "💾 Instalação com Um Clique",
-                    "⚡ Cache Inteligente (reduz 90% requisições)",
-                    "🐛 Erro 429 (Rate Limit) eliminado",
-                    "🐛 Compatibilidade com cache antigo corrigida",
-                    "🐛 Validação completa de dados de versão",
-                    "🐛 Preload script com tratamento de erro",
-                    "🎨 Interface de atualizações modernizada",
-                    "💡 Notificações flutuantes elegantes",
-                    "📋 Informações detalhadas (tamanho, downloads)",
-                    "🔧 Múltiplos fallbacks para máxima confiabilidade"
-                ]
-            },
-            {
-                version: '2.3.2',
-                date: '2025-10-26',
-                changes: [
-                    "🎮 NOVOS JOGOS: Termo e Forca totalmente funcionais!",
-                    "⚙️ Sistema de Configurações completo com 5 abas",
-                    "🌙 Tema Escuro implementado e funcional",
-                    "🐛 Bug do Jogo da Velha corrigido (símbolos invertidos)",
-                    "✨ Melhorias de performance e estabilidade",
-                    "💾 Sistema de backup e restore de dados",
-                    "🎨 Interface aprimorada em todos os jogos"
-                ]
-            },
-        ];
+renderChangelog() {
+    const changelog = [
+        {
+            version: '2.5.0',
+            date: '2025-10-29',
+            changes: [
+                "📝 Sistema completo de Notas Rápidas",
+                "✅ Nova Lista de Tarefas com estatísticas e progresso",
+                "📊 Dashboard reformulado com integração de notas e tarefas",
+                "🎨 8 temas personalizáveis com gradientes e sombras suaves",
+                "🚀 Performance e carregamento aprimorados (+30% fluidez)",
+                "🐛 Correção definitiva do bug de GPU (piscadas na inicialização)",
+                "💡 Interface refinada, responsiva e mais leve"
+            ]
+        },
+        {
+            version: '2.4.0',
+            date: '2025-10-28',
+            changes: [
+                "🚀 Sistema de Auto-Update Nativo Completo",
+                "✨ Download Integrado com Barra de Progresso",
+                "🔄 API Oficial do GitHub (sem rate limit)",
+                "🤖 Auto-Download Opcional configurável",
+                "💾 Instalação com Um Clique",
+                "⚡ Cache Inteligente (reduz 90% requisições)",
+                "🐛 Erro 429 (Rate Limit) eliminado",
+                "🐛 Compatibilidade com cache antigo corrigida",
+                "🐛 Validação completa de dados de versão",
+                "🐛 Preload script com tratamento de erro",
+                "🎨 Interface de atualizações modernizada",
+                "💡 Notificações flutuantes elegantes",
+                "📋 Informações detalhadas (tamanho, downloads)",
+                "🔧 Múltiplos fallbacks para máxima confiabilidade"
+            ]
+        }
+    ];
         
         return changelog.map(release => `
             <div class="border-l-4 border-purple-500 pl-6 pb-6">

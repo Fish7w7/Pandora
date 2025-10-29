@@ -56,6 +56,15 @@ const Router = {
                 container.innerHTML = AutoUpdater.render();
                 AutoUpdater.init();
                 break;
+                
+            case 'notes': // ⬅️ NOVO!
+                container.innerHTML = Notes.render();
+                Notes.init();
+                break;
+            case 'tasks': // ⬅️ NOVO!
+                container.innerHTML = Tasks.render();
+                Tasks.init();
+                break;
             default:
                 container.innerHTML = this.renderNotFound();
         }
