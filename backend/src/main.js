@@ -298,7 +298,7 @@ ipcMain.handle('open-downloads-folder', async () => {
 // ============================================
 
 app.whenReady().then(() => {
-    console.log('🐱 NyanTools v2.5.0');
+    console.log('🐱 NyanTools v2.6.0');
     console.log('📁 App path:', app.getAppPath());
     console.log('🖥️ Plataforma:', process.platform);
     console.log('📥 Downloads:', app.getPath('downloads'));

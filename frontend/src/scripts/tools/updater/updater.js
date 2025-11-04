@@ -4,7 +4,7 @@
 // ============================================
 
 const AutoUpdater = {
-    currentVersion: '2.5.0',
+    currentVersion: '2.6.0',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -211,6 +211,24 @@ const AutoUpdater = {
 renderChangelog() {
     const changelog = [
         {
+            version: '2.6.0',
+            date: '2025-11-04',
+            changes: [
+                "✏️ Sistema de edição corrigido — tarefas e notas agora atualizam corretamente",
+                "🔄 Sincronização imediata entre modal e lista principal após salvar",
+                "💾 Persistência confiável dos dados editados com validação de inputs",
+                "🚀 Performance otimizada no sistema de renderização e salvamento",
+                "🎨 Modais com scroll suave e transições mais fluidas",
+                "🔒 Segurança aprimorada no tratamento de dados do usuário",
+                "🐛 Correção crítica do bug que impedia atualização após edição",
+                "🔧 Melhorias de estabilidade e remoção de logs de debug",
+                "📊 Sistema de tarefas: edição de título, descrição e prioridade com sincronização instantânea",
+                "📝 Sistema de notas: edição de título e conteúdo com atualização automática do timestamp",
+                "📌 Cores dinâmicas e status de fixação preservados após edição"
+            ]
+
+        },
+        {
             version: '2.5.0',
             date: '2025-10-29',
             changes: [
@@ -221,26 +239,6 @@ renderChangelog() {
                 "🚀 Performance e carregamento aprimorados (+30% fluidez)",
                 "🐛 Correção definitiva do bug de GPU (piscadas na inicialização)",
                 "💡 Interface refinada, responsiva e mais leve"
-            ]
-        },
-        {
-            version: '2.4.0',
-            date: '2025-10-28',
-            changes: [
-                "🚀 Sistema de Auto-Update Nativo Completo",
-                "✨ Download Integrado com Barra de Progresso",
-                "🔄 API Oficial do GitHub (sem rate limit)",
-                "🤖 Auto-Download Opcional configurável",
-                "💾 Instalação com Um Clique",
-                "⚡ Cache Inteligente (reduz 90% requisições)",
-                "🐛 Erro 429 (Rate Limit) eliminado",
-                "🐛 Compatibilidade com cache antigo corrigida",
-                "🐛 Validação completa de dados de versão",
-                "🐛 Preload script com tratamento de erro",
-                "🎨 Interface de atualizações modernizada",
-                "💡 Notificações flutuantes elegantes",
-                "📋 Informações detalhadas (tamanho, downloads)",
-                "🔧 Múltiplos fallbacks para máxima confiabilidade"
             ]
         }
     ];
