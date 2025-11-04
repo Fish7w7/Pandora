@@ -10,6 +10,12 @@ const Tasks = {
     modalOpen: false,
     currentTask: null,
     
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    },
+    
     render() {
         this.loadTasks();
         const stats = this.getStats();
@@ -172,7 +178,7 @@ const Tasks = {
                     <div class="flex-1">
                         <div class="flex items-start justify-between gap-4 mb-2">
                             <h3 class="text-xl font-bold text-gray-800 ${task.completed ? 'line-through opacity-60' : ''}">
-                                ${task.title}
+                                ${this.escapeHtml(task.title)}
                             </h3>
                             <div class="flex items-center gap-2 flex-shrink-0">
                                 <span class="text-2xl" title="${task.priority} priority">
@@ -193,7 +199,7 @@ const Tasks = {
                         
                         ${task.description ? `
                             <p class="text-gray-700 mb-3 ${task.completed ? 'line-through opacity-60' : ''}">
-                                ${task.description}
+                                ${this.escapeHtml(task.description)}
                             </p>
                         ` : ''}
                         
@@ -220,9 +226,9 @@ const Tasks = {
         const priority = isEdit ? this.currentTask.priority : 'medium';
         
         return `
-            <div id="tasks-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn" onclick="if(event.target.id === 'tasks-modal') Tasks.closeModal()">
-                <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full mx-4 transform animate-scaleIn">
-                    <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-6 rounded-t-3xl text-white">
+            <div id="tasks-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onclick="if(event.target.id === 'tasks-modal') Tasks.closeModal()">
+                <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                    <div class="bg-gradient-to-r from-green-500 to-emerald-600 p-6 rounded-t-3xl text-white sticky top-0 z-10">
                         <div class="flex items-center justify-between">
                             <h2 class="text-3xl font-black">${isEdit ? '✏️ Editar Tarefa' : '📝 Nova Tarefa'}</h2>
                             <button onclick="Tasks.closeModal()" 
@@ -234,12 +240,12 @@ const Tasks = {
                         </div>
                     </div>
                     
-                    <form onsubmit="Tasks.saveTask(event)" class="p-6 space-y-6">
+                    <form onsubmit="Tasks.saveTask(event); return false;" class="p-6 space-y-6">
                         <div>
                             <label class="block text-gray-800 font-bold mb-3 text-lg">📌 Título</label>
                             <input type="text" 
                                    id="task-title"
-                                   value="${title}"
+                                   value="${this.escapeHtml(title)}"
                                    placeholder="Ex: Estudar JavaScript..."
                                    required
                                    class="w-full px-6 py-4 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-200 outline-none transition-all text-lg font-semibold">
@@ -250,7 +256,7 @@ const Tasks = {
                             <textarea id="task-description"
                                       placeholder="Detalhes sobre a tarefa..."
                                       rows="4"
-                                      class="w-full px-6 py-4 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-200 outline-none transition-all text-lg resize-none">${description}</textarea>
+                                      class="w-full px-6 py-4 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-200 outline-none transition-all text-lg resize-none">${this.escapeHtml(description)}</textarea>
                         </div>
                         
                         <div>
@@ -334,9 +340,15 @@ const Tasks = {
     saveTask(event) {
         event.preventDefault();
         
-        const title = document.getElementById('task-title').value.trim();
-        const description = document.getElementById('task-description').value.trim();
-        const priority = document.querySelector('input[name="priority"]:checked').value;
+        const titleInput = document.getElementById('task-title');
+        const descInput = document.getElementById('task-description');
+        const priorityInput = document.querySelector('input[name="priority"]:checked');
+        
+        if (!titleInput || !descInput || !priorityInput) return;
+        
+        const title = titleInput.value.trim();
+        const description = descInput.value.trim();
+        const priority = priorityInput.value;
         
         if (!title) {
             Utils.showNotification('⚠️ Digite um título', 'warning');
@@ -344,9 +356,15 @@ const Tasks = {
         }
         
         if (this.currentTask) {
-            this.currentTask.title = title;
-            this.currentTask.description = description;
-            this.currentTask.priority = priority;
+            const index = this.tasks.findIndex(t => t.id === this.currentTask.id);
+            if (index !== -1) {
+                this.tasks[index] = {
+                    ...this.tasks[index],
+                    title,
+                    description,
+                    priority
+                };
+            }
             Utils.showNotification('✅ Tarefa atualizada! にゃん~', 'success');
         } else {
             const task = {
@@ -470,7 +488,6 @@ const Tasks = {
     init() {
         this.loadTasks();
         this.modalOpen = false;
-        console.log('✅ Tarefas carregadas:', this.tasks.length);
     }
 };
 

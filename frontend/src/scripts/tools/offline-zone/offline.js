@@ -1,4 +1,4 @@
-// Zona Offline - VERSÃO ATUALIZADA COM IA
+// Zona Offline - VERSÃO ATUALIZADA COM FLAPPY BIRD
 const OfflineZone = {
     currentGame: null,
     
@@ -14,6 +14,9 @@ const OfflineZone = {
         }
         if (this.currentGame === 'forca') {
             return this.renderForca();
+        }
+        if (this.currentGame === 'flappy') {
+            return this.renderFlappy();
         }
         
         return `
@@ -77,22 +80,23 @@ const OfflineZone = {
                         </button>
                     </div>
                     
-                    <!-- Quiz (Em Breve) -->
-                    <div class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-6 text-white shadow-xl opacity-60 cursor-not-allowed">
-                        <div class="text-6xl mb-4">❓</div>
-                        <h3 class="text-2xl font-bold mb-2">Quiz</h3>
-                        <p class="text-purple-100 mb-4">Teste seus conhecimentos</p>
-                        <button class="w-full bg-white/20 py-3 rounded-xl font-bold flex items-center justify-center gap-2" disabled>
-                            <span>🚧</span>
-                            <span>Em Breve</span>
+                    <!-- Flappy Bird -->
+                    <div class="group bg-gradient-to-br from-orange-400 to-red-500 rounded-2xl p-6 text-white shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 cursor-pointer"
+                         onclick="OfflineZone.startGame('flappy')">
+                        <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">🐦</div>
+                        <h3 class="text-2xl font-bold mb-2">Flappy Bird</h3>
+                        <p class="text-orange-100 mb-4">O jogo mais viciante de todos!</p>
+                        <button class="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
+                            <span>▶️</span>
+                            <span>Jogar</span>
                         </button>
                     </div>
                     
                     <!-- Jogo da Memória (Em Breve) -->
-                    <div class="bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl p-6 text-white shadow-xl opacity-60 cursor-not-allowed">
+                    <div class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-6 text-white shadow-xl opacity-60 cursor-not-allowed">
                         <div class="text-6xl mb-4">🧠</div>
                         <h3 class="text-2xl font-bold mb-2">Memória</h3>
-                        <p class="text-red-100 mb-4">Encontre os pares</p>
+                        <p class="text-purple-100 mb-4">Encontre os pares</p>
                         <button class="w-full bg-white/20 py-3 rounded-xl font-bold flex items-center justify-center gap-2" disabled>
                             <span>🚧</span>
                             <span>Em Breve</span>
@@ -122,7 +126,6 @@ const OfflineZone = {
         this.currentGame = game;
         
         if (game === 'tictactoe') {
-            // ✨ NOVO: Reset completo do jogo da velha
             TicTacToe.gameMode = null;
             TicTacToe.resetGame();
             TicTacToe.resetScores();
@@ -146,6 +149,14 @@ const OfflineZone = {
                 Forca.isReady = false;
                 Router.render();
                 setTimeout(() => Forca.init(), 100);
+                return;
+            }
+        }
+        
+        if (game === 'flappy') {
+            if (typeof FlappyBird !== 'undefined') {
+                Router.render();
+                setTimeout(() => FlappyBird.init(), 100);
                 return;
             }
         }
@@ -219,6 +230,22 @@ const OfflineZone = {
                     </button>
                 </div>
                 ${typeof Forca !== 'undefined' ? Forca.render() : '<p class="text-center text-gray-600">Carregando Forca...</p>'}
+            </div>
+        `;
+    },
+    
+    renderFlappy() {
+        return `
+            <div class="max-w-4xl mx-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <h1 class="text-4xl font-black text-gray-800">🐦 Flappy Bird</h1>
+                    <button onclick="OfflineZone.backToMenu()" 
+                            class="px-6 py-3 bg-gray-200 hover:bg-gray-300 rounded-xl font-bold transition-all flex items-center gap-2">
+                        <span>⬅️</span>
+                        <span>Voltar</span>
+                    </button>
+                </div>
+                ${typeof FlappyBird !== 'undefined' ? FlappyBird.render() : '<p class="text-center text-gray-600">Carregando Flappy Bird...</p>'}
             </div>
         `;
     },

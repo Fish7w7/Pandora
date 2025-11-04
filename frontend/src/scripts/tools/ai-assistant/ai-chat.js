@@ -1,42 +1,14 @@
-// Assistente IA ESTILIZADO - CORRIGIDO
+// Assistente IA - Com API Key Fixa
 const AIAssistant = {
-    apiKey: '', // Deixe vazio - usuário vai configurar
+    apiKey: 'AIzaSyDMPanwXCIGlXXKdLdMNXDpHNFFLjePbe0', // Cole sua chave do Google Gemini aqui
     conversation: [],
     
     render() {
         return `
             <div class="max-w-5xl mx-auto h-full flex flex-col">
                 <div class="text-center mb-6">
-                    <h1 class="text-5xl font-black text-gray-800 mb-3"> Assistente IA</h1>
+                    <h1 class="text-5xl font-black text-gray-800 mb-3">🤖 Assistente IA</h1>
                     <p class="text-gray-600 text-lg">Converse com inteligência artificial</p>
-                </div>
-                
-                <!-- API Key Configuration -->
-                <div class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-6 text-white shadow-2xl mb-6">
-                    <div class="flex items-start gap-4">
-                        <div class="text-4xl">🔑</div>
-                        <div class="flex-1">
-                            <h3 class="text-xl font-black mb-2">Configure sua API Key</h3>
-                            <p class="text-purple-100 text-sm mb-3">
-                                Cole sua chave do Google Gemini aqui (gratuita):
-                            </p>
-                            <div class="flex gap-2">
-                                <input type="password" id="api-key-input" 
-                                    value="${this.apiKey}"
-                                    class="flex-1 px-4 py-2 rounded-lg text-gray-800 font-mono text-sm"
-                                    placeholder="Cole sua API Key aqui...">
-                                <button onclick="AIAssistant.saveApiKey()" 
-                                    class="px-6 py-2 bg-white text-purple-600 rounded-lg font-bold hover:shadow-xl transition-all">
-                                    💾 Salvar
-                                </button>
-                            </div>
-                            <a href="https://makersuite.google.com/app/apikey" target="_blank" 
-                               class="inline-flex items-center gap-2 mt-3 px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg font-bold text-sm transition-all">
-                                <span>🌐</span>
-                                <span>Obter API Key Grátis</span>
-                            </a>
-                        </div>
-                    </div>
                 </div>
                 
                 <div class="flex-1 bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
@@ -45,7 +17,7 @@ const AIAssistant = {
                         <div class="text-center py-16 text-gray-400">
                             <div class="text-8xl mb-4 animate-bounce-slow">🤖</div>
                             <h3 class="text-2xl font-bold text-gray-700 mb-2">Olá! Como posso ajudar?</h3>
-                            <p class="text-gray-500">Configure sua API Key acima e faça uma pergunta!</p>
+                            <p class="text-gray-500">Faça uma pergunta para começar!</p>
                         </div>
                     </div>
                     
@@ -89,11 +61,8 @@ const AIAssistant = {
     },
     
     init() {
-        // Carregar API key salva
-        const savedKey = Utils.loadData('gemini_api_key');
-        if (savedKey) {
-            this.apiKey = savedKey;
-        }
+        // API Key já está definida no código
+        console.log('✅ API Key Gemini configurada no código');
         
         // Carregar conversa salva
         const saved = Utils.loadData('ai_conversation');
@@ -103,22 +72,9 @@ const AIAssistant = {
         }
     },
     
-    saveApiKey() {
-        const input = document.getElementById('api-key-input');
-        if (!input || !input.value.trim()) {
-            Utils.showNotification('❌ Digite uma API Key válida', 'error');
-            return;
-        }
-        
-        this.apiKey = input.value.trim();
-        Utils.saveData('gemini_api_key', this.apiKey);
-        Utils.showNotification('✅ API Key salva com sucesso!', 'success');
-        Router.render();
-    },
-    
     async sendMessage() {
-        if (!this.apiKey) {
-            Utils.showNotification('⚠️ Configure sua API Key primeiro!', 'warning');
+        if (!this.apiKey || this.apiKey === 'SUA_CHAVE_GEMINI_AQUI') {
+            Utils.showNotification('⚠️ Configure sua API Key no código primeiro!', 'warning');
             return;
         }
         
@@ -137,7 +93,6 @@ const AIAssistant = {
             this.updateLastMessage(response);
         } catch (error) {
             console.error('Erro na API:', error);
-            // Mostrar a mensagem de erro da API para diagnóstico
             this.updateLastMessage(`❌ Erro de Conexão/API: ${error.message}`);
             Utils.showNotification(`❌ Erro na API: ${error.message}`, 'error');
         }
@@ -150,7 +105,6 @@ const AIAssistant = {
             throw new Error('API Key não configurada');
         }
 
-        // Usando o modelo mais estável e padrão para o ambiente
         const MODEL_NAME = 'gemini-2.5-flash-preview-09-2025'; 
         const API_VERSION = 'v1beta';
         
@@ -186,11 +140,10 @@ const AIAssistant = {
             
             if (errorData.error?.message) {
                 if (errorData.error.message.includes('API_KEY_INVALID')) {
-                    errorMsg = 'API Key inválida. Verifique se copiou corretamente.';
+                    errorMsg = 'API Key inválida. Verifique se copiou corretamente no código.';
                 } else if (errorData.error.message.includes('quota')) {
                     errorMsg = 'Cota da API excedida. Tente novamente mais tarde.';
                 } else if (errorData.error.message.includes('not found') || errorData.error.message.includes('is not supported')) {
-                     // Corrigido para mostrar a mensagem de erro padrão da API
                      errorMsg = `Erro no modelo: ${errorData.error.message}`;
                 }
             }
@@ -240,7 +193,7 @@ const AIAssistant = {
                 <div class="text-center py-16 text-gray-400">
                     <div class="text-8xl mb-4 animate-bounce-slow">🤖</div>
                     <h3 class="text-2xl font-bold text-gray-700 mb-2">Olá! Como posso ajudar?</h3>
-                    <p class="text-gray-500">Configure sua API Key acima e faça uma pergunta!</p>
+                    <p class="text-gray-500">Faça uma pergunta para começar!</p>
                 </div>
             `;
             return;
@@ -271,11 +224,11 @@ const AIAssistant = {
     formatMessage(content) {
         // Converter markdown para HTML
         let html = content
-            .replace(/&/g, '&amp;') // Escapa &
-            .replace(/</g, '&lt;') // Escapa HTML
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;');
             
-        // RegEx para blocos de código
+        // Blocos de código
         html = html.replace(/```(\w+)?\n([\s\S]*?)```/g, (match, p1, p2) => {
             const lang = p1 || '';
             const codeContent = p2.trim();
@@ -287,10 +240,10 @@ const AIAssistant = {
         
         // Markdowns inline
         html = html
-            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>') // Negrito
-            .replace(/\*(.*?)\*/g, '<em>$1</em>')     // Itálico
-            .replace(/`([^`]+)`/g, '<code class="px-2 py-1 bg-gray-200 text-gray-800 rounded text-sm">$1</code>') // Código inline
-            .replace(/\n/g, '<br>'); // Novas linhas
+            .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+            .replace(/\*(.*?)\*/g, '<em>$1</em>')
+            .replace(/`([^`]+)`/g, '<code class="px-2 py-1 bg-gray-200 text-gray-800 rounded text-sm">$1</code>')
+            .replace(/\n/g, '<br>');
 
         return html;
     },
@@ -301,7 +254,6 @@ const AIAssistant = {
     },
     
     clearChat() {
-        // Regra do ambiente: Não usar 'confirm()', usar modal customizado (mantendo o comportamento de limpar)
         this.conversation = [];
         Utils.saveData('ai_conversation', []);
         this.renderConversation();

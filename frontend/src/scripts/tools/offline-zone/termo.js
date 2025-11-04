@@ -11,13 +11,21 @@ const Termo = {
 
     currentWord: '',
     guesses: [],
-    currentGuess: '',
+    currentGuess: ['', '', '', '', ''],
     maxAttempts: 6,
     gameOver: false,
     won: false,
     isReady: false,
+    selectedCell: 0,
     
     render() {
+        // Log de debug
+        console.log('🎨 Renderizando Termo:', {
+            guesses: this.guesses.length,
+            gameOver: this.gameOver,
+            won: this.won
+        });
+        
         return `
             <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-2xl mx-auto">
                 <!-- Header Compacto -->
@@ -26,32 +34,17 @@ const Termo = {
                         <span class="text-4xl">🔤</span>
                         <span>Termo</span>
                     </h2>
-                    <p class="text-sm text-gray-600">Adivinhe a palavra de 5 letras em ${this.maxAttempts} tentativas</p>
+                    <p class="text-sm text-gray-600">Clique nos quadradinhos para digitar as letras</p>
                 </div>
                 
                 ${this.gameOver ? this.renderGameOver() : ''}
                 
                 <!-- Grid de Tentativas (Compacto) -->
-                <div class="max-w-sm mx-auto mb-4">
+                <div class="max-w-sm mx-auto mb-4" id="termo-grid">
                     ${this.renderGuessGrid()}
                 </div>
                 
                 ${!this.gameOver ? `
-                    <!-- Input de Palavra -->
-                    <div class="max-w-sm mx-auto mb-4">
-                        <input type="text" 
-                            id="termo-input" 
-                            maxlength="5" 
-                            value="${this.currentGuess}"
-                            placeholder="Digite aqui ou use o teclado virtual"
-                            class="w-full px-4 py-3 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-2 focus:ring-yellow-200 outline-none transition-all text-center text-xl font-bold uppercase tracking-widest"
-                            autocomplete="off"
-                            autofocus>
-                        <p class="text-center text-xs text-gray-500 mt-1" id="termo-counter">
-                            ${5 - this.currentGuess.length} letra${5 - this.currentGuess.length !== 1 ? 's' : ''} restante${5 - this.currentGuess.length !== 1 ? 's' : ''}
-                        </p>
-                    </div>
-                    
                     <!-- Botão Enviar -->
                     <div class="max-w-sm mx-auto mb-4">
                         <button onclick="Termo.submitGuess()" 
@@ -87,83 +80,81 @@ const Termo = {
     
     init() {
         this.currentWord = this.getDailyWord();
-        this.loadGameState();
         
         // Reset se mudou o dia
         const lastPlayed = Utils.loadData('termo_last_played');
         const today = this.getToday();
         if (lastPlayed !== today) {
             this.resetGame();
+        } else {
+            this.loadGameState();
         }
         
         console.log('🔤 Palavra do dia:', this.currentWord);
+        console.log('📊 Tentativas carregadas:', this.guesses.length);
+        console.log('🎮 Estado do jogo:', {
+            gameOver: this.gameOver,
+            won: this.won,
+            guesses: this.guesses
+        });
         
-        // Adicionar listener para teclado físico APÓS renderizar
-        setTimeout(() => this.setupKeyboardListener(), 100);
+        // IMPORTANTE: Forçar re-renderização após carregar estado
+        if (this.guesses.length > 0) {
+            console.log('🔄 Re-renderizando com tentativas anteriores...');
+            setTimeout(() => {
+                Router.render();
+                // Re-adicionar listeners após renderizar
+                if (!this.gameOver) {
+                    setTimeout(() => this.setupKeyboardListener(), 100);
+                }
+            }, 50);
+        } else {
+            // Adicionar listener para teclado físico APÓS renderizar
+            setTimeout(() => {
+                if (!this.gameOver) {
+                    this.setupKeyboardListener();
+                }
+            }, 100);
+        }
         
-        // Flag para indicar que já foi inicializado
         this.isReady = true;
     },
     
     setupKeyboardListener() {
-        const input = document.getElementById('termo-input');
-        if (!input) return;
+        if (this.gameOver) return;
         
-        // Remover listeners antigos se existirem para evitar duplicação
-        const newInput = input.cloneNode(true);
-        input.parentNode.replaceChild(newInput, input);
+        // Remover listeners antigos
+        const oldListener = window.termoKeyListener;
+        if (oldListener) {
+            document.removeEventListener('keydown', oldListener);
+        }
         
-        // Listener de input - só atualiza o DOM, NÃO re-renderiza tudo
-        newInput.addEventListener('input', (e) => {
-            const value = e.target.value.toUpperCase().replace(/[^A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞŸ]/g, '').slice(0, 5);
-            this.currentGuess = value;
-            e.target.value = value;
+        // Criar novo listener
+        const listener = (e) => {
+            if (this.gameOver) return;
             
-            // Atualizar apenas o contador e o grid atual
-            this.updateCurrentRow();
-            this.updateCounter();
-        });
-        
-        // Listener para Enter
-        newInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') {
+            const key = e.key.toUpperCase();
+            
+            // Backspace ou Delete
+            if (e.key === 'Backspace' || e.key === 'Delete') {
+                e.preventDefault();
+                this.handleBackspace();
+            }
+            // Enter
+            else if (e.key === 'Enter') {
                 e.preventDefault();
                 this.submitGuess();
             }
-        });
-        
-        newInput.focus();
-    },
-    
-    updateCurrentRow() {
-        const rows = document.querySelectorAll('.grid.grid-cols-5');
-        if (!rows.length) return;
-        
-        const currentRowIndex = this.guesses.length;
-        const currentRow = rows[currentRowIndex];
-        if (!currentRow) return;
-        
-        const cells = currentRow.querySelectorAll('div');
-        for (let i = 0; i < 5; i++) {
-            const letter = this.currentGuess[i] || '';
-            const cell = cells[i];
-            
-            if (letter) {
-                cell.className = 'aspect-square bg-gray-200 border-2 border-gray-400 rounded-lg flex items-center justify-center text-gray-800 font-black text-2xl transition-all scale-110';
-                cell.textContent = letter;
-            } else {
-                cell.className = 'aspect-square bg-white border-2 border-gray-300 rounded-lg flex items-center justify-center text-gray-800 font-black text-2xl transition-all';
-                cell.textContent = '';
+            // Letras A-Z
+            else if (/^[A-ZÀÁÂÃÄÅÆÇÈÉÊËÌÍÎÏÐÑÒÓÔÕÖØÙÚÛÜÝÞŸ]$/.test(key)) {
+                e.preventDefault();
+                this.handleKeyPress(key);
             }
-        }
-    },
-    
-    updateCounter() {
-        const counter = document.getElementById('termo-counter');
-        if (!counter) return;
+        };
         
-        const remaining = 5 - this.currentGuess.length;
-        counter.textContent = `${remaining} letra${remaining !== 1 ? 's' : ''} restante${remaining !== 1 ? 's' : ''}`;
+        // Salvar referência e adicionar listener
+        window.termoKeyListener = listener;
+        document.addEventListener('keydown', listener);
     },
     
     getDailyWord() {
@@ -188,56 +179,70 @@ const Termo = {
         return hash;
     },
     
-    getNextWordTimer() {
-        const now = new Date();
-        const tomorrow = new Date(now);
-        tomorrow.setDate(tomorrow.getDate() + 1);
-        tomorrow.setHours(0, 0, 0, 0);
-        
-        const diff = tomorrow - now;
-        const hours = Math.floor(diff / 3600000);
-        const minutes = Math.floor((diff % 3600000) / 60000);
-        
-        return `Próxima palavra em ${hours}h ${minutes}min`;
-    },
-    
     renderGuessGrid() {
-        let grid = '';
+        let rows = [];
+        
+        console.log('🎲 Renderizando grid:', {
+            totalGuesses: this.guesses.length,
+            gameOver: this.gameOver,
+            maxAttempts: this.maxAttempts
+        });
         
         // Renderizar tentativas feitas
         for (let i = 0; i < this.guesses.length; i++) {
-            grid += `<div class="grid grid-cols-5 gap-1.5 mb-1.5">${this.renderGuessRow(this.guesses[i])}</div>`;
+            console.log(`  Linha ${i}:`, this.guesses[i]);
+            rows.push(`<div class="grid grid-cols-5 gap-1.5 mb-1.5">${this.renderGuessRow(this.guesses[i])}</div>`);
         }
         
         // Renderizar linha atual (se não acabou e ainda tem tentativas)
         if (!this.gameOver && this.guesses.length < this.maxAttempts) {
-            grid += `<div class="grid grid-cols-5 gap-1.5 mb-1.5">${this.renderCurrentRow()}</div>`;
+            console.log('  Linha atual ativa');
+            rows.push(`<div class="grid grid-cols-5 gap-1.5 mb-1.5" data-current-row="true">${this.renderCurrentRow()}</div>`);
             
             // Renderizar linhas vazias restantes
             const emptyRows = this.maxAttempts - this.guesses.length - 1;
+            console.log(`  Linhas vazias: ${emptyRows}`);
             for (let i = 0; i < emptyRows; i++) {
-                grid += `<div class="grid grid-cols-5 gap-1.5 mb-1.5">${this.renderEmptyRow()}</div>`;
+                rows.push(`<div class="grid grid-cols-5 gap-1.5 mb-1.5">${this.renderEmptyRow()}</div>`);
             }
         } else {
             // Se o jogo acabou, renderizar linhas vazias restantes
             const emptyRows = this.maxAttempts - this.guesses.length;
+            console.log(`  Jogo acabou, linhas vazias: ${emptyRows}`);
             for (let i = 0; i < emptyRows; i++) {
-                grid += `<div class="grid grid-cols-5 gap-1.5 mb-1.5">${this.renderEmptyRow()}</div>`;
+                rows.push(`<div class="grid grid-cols-5 gap-1.5 mb-1.5">${this.renderEmptyRow()}</div>`);
             }
         }
         
-        return grid;
+        return rows.join('');
     },
     
     renderGuessRow(guess) {
-        return guess.map((letter, i) => {
+        return guess.map((item, i) => {
+            // Garantir que item sempre tenha letter e status
+            const letter = item.letter || item;
+            const status = item.status || 'absent';
+            
+            // Definir cores baseado no status - IMPORTANTE: usar inline style com !important
             let bgClass = 'bg-gray-400';
-            if (letter.status === 'correct') bgClass = 'bg-green-500';
-            else if (letter.status === 'present') bgClass = 'bg-yellow-500';
+            let bgColor = '#64748b';
+            let textClass = 'text-white';
+            
+            if (status === 'correct') {
+                bgClass = 'bg-green-500';
+                bgColor = '#10b981';
+                textClass = 'text-white';
+            } else if (status === 'present') {
+                bgClass = 'bg-yellow-500';
+                bgColor = '#eab308';
+                textClass = 'text-white';
+            }
             
             return `
-                <div class="aspect-square ${bgClass} rounded-lg flex items-center justify-center text-white font-black text-2xl shadow-lg transform transition-all animate-flipIn" style="animation-delay: ${i * 0.1}s">
-                    ${letter.letter}
+                <div class="termo-cell aspect-square ${bgClass} ${textClass} rounded-lg flex items-center justify-center font-black text-2xl shadow-lg transform transition-all animate-flipIn" 
+                     data-status="${status}"
+                     style="background-color: ${bgColor} !important; color: white !important; animation-delay: ${i * 0.1}s">
+                    ${letter}
                 </div>
             `;
         }).join('');
@@ -247,8 +252,11 @@ const Termo = {
         let row = '';
         for (let i = 0; i < 5; i++) {
             const letter = this.currentGuess[i] || '';
+            const isSelected = this.selectedCell === i;
+            
             row += `
-                <div class="aspect-square ${letter ? 'bg-gray-200 border-2 border-gray-400' : 'bg-white border-2 border-gray-300'} rounded-lg flex items-center justify-center text-gray-800 font-black text-2xl transition-all ${letter ? 'scale-110' : ''}">
+                <div onclick="Termo.selectCell(${i})" 
+                     class="aspect-square cursor-pointer ${letter ? 'bg-gray-200 border-2 border-gray-400' : 'bg-white border-2'} ${isSelected ? 'border-blue-500 ring-4 ring-blue-200' : 'border-gray-300'} rounded-lg flex items-center justify-center text-gray-800 font-black text-2xl transition-all hover:scale-105 ${letter ? 'scale-110' : ''}">
                     ${letter}
                 </div>
             `;
@@ -282,9 +290,11 @@ const Termo = {
                             else if (status === 'present') bgClass = 'bg-yellow-500 text-white';
                             else if (status === 'absent') bgClass = 'bg-gray-400 text-white';
                             
+                            const action = key === '⌫' ? 'Termo.handleBackspace()' : `Termo.handleKeyPress('${key}')`;
+                            
                             return `
                                 <button 
-                                    onclick="Termo.handleKeyPress('${key}')"
+                                    onclick="${action}"
                                     class="px-2 py-3 ${bgClass} rounded-lg font-bold text-sm transition-all transform hover:scale-105 active:scale-95 shadow-md min-w-[32px]">
                                     ${key}
                                 </button>
@@ -326,52 +336,81 @@ const Termo = {
         }
     },
     
+    selectCell(index) {
+        if (this.gameOver) return;
+        this.selectedCell = index;
+        this.updateCurrentRow();
+    },
+    
     handleKeyPress(key) {
         if (this.gameOver) return;
         
-        const input = document.getElementById('termo-input');
+        // Coloca a letra na posição selecionada
+        this.currentGuess[this.selectedCell] = key;
         
-        if (key === '⌫') {
-            this.currentGuess = this.currentGuess.slice(0, -1);
-        } else {
-            if (this.currentGuess.length < 5) {
-                this.currentGuess += key;
-            }
-        }
-        
-        // Atualizar input e UI
-        if (input) {
-            input.value = this.currentGuess;
-            input.focus();
+        // Avança para próxima célula se não for a última
+        if (this.selectedCell < 4) {
+            this.selectedCell++;
         }
         
         this.updateCurrentRow();
-        this.updateCounter();
+    },
+    
+    handleBackspace() {
+        if (this.gameOver) return;
+        
+        // Se a célula atual está vazia, volta para a anterior
+        if (!this.currentGuess[this.selectedCell] && this.selectedCell > 0) {
+            this.selectedCell--;
+        }
+        
+        // Remove letra da célula atual
+        this.currentGuess[this.selectedCell] = '';
+        
+        this.updateCurrentRow();
+    },
+    
+    updateCurrentRow() {
+        const currentRow = document.querySelector('[data-current-row="true"]');
+        if (!currentRow) return;
+        
+        const cells = currentRow.querySelectorAll('div');
+        for (let i = 0; i < 5; i++) {
+            const letter = this.currentGuess[i] || '';
+            const cell = cells[i];
+            const isSelected = this.selectedCell === i;
+            
+            if (letter) {
+                cell.className = `aspect-square cursor-pointer bg-gray-200 border-2 ${isSelected ? 'border-blue-500 ring-4 ring-blue-200' : 'border-gray-400'} rounded-lg flex items-center justify-center text-gray-800 font-black text-2xl transition-all hover:scale-105 scale-110`;
+                cell.textContent = letter;
+            } else {
+                cell.className = `aspect-square cursor-pointer bg-white border-2 ${isSelected ? 'border-blue-500 ring-4 ring-blue-200' : 'border-gray-300'} rounded-lg flex items-center justify-center text-gray-800 font-black text-2xl transition-all hover:scale-105`;
+                cell.textContent = '';
+            }
+        }
     },
     
     submitGuess() {
-        if (this.currentGuess.length !== 5) {
-            Utils.showNotification('❌ Digite uma palavra de 5 letras', 'error');
+        // Verificar se todas as células estão preenchidas
+        const filledCells = this.currentGuess.filter(letter => letter !== '').length;
+        if (filledCells !== 5) {
+            Utils.showNotification('❌ Preencha todas as 5 letras', 'error');
             return;
         }
         
-        const guess = this.currentGuess.split('').map((letter, i) => {
-            let status = 'absent';
-            if (this.currentWord[i] === letter) {
-                status = 'correct';
-            } else if (this.currentWord.includes(letter)) {
-                status = 'present';
-            }
-            return { letter, status };
-        });
+        const guessWord = this.currentGuess.join('');
+        
+        // CORRIGIDO: Criar array de objetos com letter e status
+        const guess = this.evaluateGuess(guessWord);
         
         this.guesses.push(guess);
         
         // Verificar vitória ANTES de limpar
         const won = guess.every(g => g.status === 'correct');
         
-        // Limpar input
-        this.currentGuess = '';
+        // Limpar input e resetar célula selecionada
+        this.currentGuess = ['', '', '', '', ''];
+        this.selectedCell = 0;
         
         if (won) {
             this.gameOver = true;
@@ -384,8 +423,6 @@ const Termo = {
         }
         
         this.saveGameState();
-        
-        // SOLUÇÃO DO BUG: Re-configurar o listener após o Router.render()
         Router.render();
         
         // Re-adicionar o listener se o jogo ainda não terminou
@@ -394,15 +431,54 @@ const Termo = {
         }
     },
     
+    evaluateGuess(guessWord) {
+        const guess = [];
+        const wordArray = this.currentWord.split('');
+        const guessArray = guessWord.split('');
+        
+        // Primeiro, marcar todas as corretas
+        const usedIndices = new Set();
+        for (let i = 0; i < 5; i++) {
+            if (guessArray[i] === wordArray[i]) {
+                guess[i] = { letter: guessArray[i], status: 'correct' };
+                usedIndices.add(i);
+            }
+        }
+        
+        // Depois, marcar as presentes (posição errada)
+        for (let i = 0; i < 5; i++) {
+            if (guess[i]) continue; // Já marcada como correct
+            
+            let found = false;
+            for (let j = 0; j < 5; j++) {
+                if (!usedIndices.has(j) && guessArray[i] === wordArray[j]) {
+                    guess[i] = { letter: guessArray[i], status: 'present' };
+                    usedIndices.add(j);
+                    found = true;
+                    break;
+                }
+            }
+            
+            if (!found) {
+                guess[i] = { letter: guessArray[i], status: 'absent' };
+            }
+        }
+        
+        return guess;
+    },
+    
     getKeyStatus(key) {
         if (key === '⌫') return null;
         
         let status = null;
         this.guesses.forEach(guess => {
             guess.forEach(g => {
-                if (g.letter === key) {
-                    if (g.status === 'correct') status = 'correct';
-                    else if (g.status === 'present' && status !== 'correct') status = 'present';
+                const letter = g.letter || g;
+                const itemStatus = g.status || 'absent';
+                
+                if (letter === key) {
+                    if (itemStatus === 'correct') status = 'correct';
+                    else if (itemStatus === 'present' && status !== 'correct') status = 'present';
                     else if (status === null) status = 'absent';
                 }
             });
@@ -416,8 +492,9 @@ const Termo = {
         
         this.guesses.forEach(guess => {
             guess.forEach(g => {
-                if (g.status === 'correct') text += '🟩';
-                else if (g.status === 'present') text += '🟨';
+                const status = g.status || 'absent';
+                if (status === 'correct') text += '🟩';
+                else if (status === 'present') text += '🟨';
                 else text += '⬜';
             });
             text += '\n';
@@ -440,21 +517,56 @@ const Termo = {
     
     loadGameState() {
         const state = Utils.loadData('termo_state');
+        console.log('📂 Carregando estado salvo:', state);
+        
         if (state && state.currentWord === this.currentWord) {
-            this.guesses = state.guesses || [];
+            // IMPORTANTE: Normalizar formato antigo para novo formato
+            this.guesses = (state.guesses || []).map(guess => {
+                return guess.map(item => {
+                    // Se já está no formato correto, retornar
+                    if (item && typeof item === 'object' && item.letter && item.status) {
+                        return item;
+                    }
+                    // Se está no formato antigo (apenas string), converter
+                    if (typeof item === 'string') {
+                        return { letter: item, status: 'absent' };
+                    }
+                    // Fallback
+                    return { letter: '', status: 'absent' };
+                });
+            });
+            
             this.gameOver = state.gameOver || false;
             this.won = state.won || false;
+            
+            // Garantir que currentGuess seja sempre um array
+            this.currentGuess = ['', '', '', '', ''];
+            this.selectedCell = 0;
+            
+            console.log('✅ Estado carregado com sucesso:', {
+                guesses: this.guesses.length,
+                gameOver: this.gameOver,
+                won: this.won
+            });
         } else {
+            console.log('⚠️ Nenhum estado válido encontrado, resetando...');
             this.resetGame();
         }
     },
     
     resetGame() {
         this.guesses = [];
-        this.currentGuess = '';
+        this.currentGuess = ['', '', '', '', ''];
+        this.selectedCell = 0;
         this.gameOver = false;
         this.won = false;
         this.saveGameState();
+        
+        // Forçar re-renderização
+        if (typeof Router !== 'undefined') {
+            Router.render();
+            setTimeout(() => this.init(), 100);
+        }
     }
 };
 

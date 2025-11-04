@@ -1,13 +1,17 @@
-
 // SISTEMA DE NOTAS RÁPIDAS - NyanTools にゃん~
 // Com modais customizados
-
 
 const Notes = {
     notes: [],
     currentNote: null,
     searchQuery: '',
     modalOpen: false,
+    
+    escapeHtml(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+    },
     
     render() {
         this.loadNotes();
@@ -32,7 +36,7 @@ const Notes = {
                         <div class="flex-1">
                             <input type="text" 
                                    id="notes-search"
-                                   value="${this.searchQuery}"
+                                   value="${this.escapeHtml(this.searchQuery)}"
                                    placeholder="🔍 Buscar notas..."
                                    oninput="Notes.search(this.value)"
                                    class="w-full px-6 py-4 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-4 focus:ring-yellow-200 outline-none transition-all text-lg">
@@ -86,7 +90,7 @@ const Notes = {
                     ${!this.searchQuery ? `
                         <button onclick="Notes.openCreateModal()" 
                                 class="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all">
-                            ✍️ Criar Primeira Nota
+                            ✏️ Criar Primeira Nota
                         </button>
                     ` : ''}
                 </div>
@@ -138,10 +142,10 @@ const Notes = {
                 
                 <!-- Conteúdo -->
                 <h3 class="font-bold text-xl text-gray-800 mb-2 line-clamp-2">
-                    ${note.title || 'Sem título'}
+                    ${this.escapeHtml(note.title) || 'Sem título'}
                 </h3>
                 <p class="text-gray-700 text-sm line-clamp-4 mb-4">
-                    ${note.content}
+                    ${this.escapeHtml(note.content)}
                 </p>
                 
                 <!-- Rodapé -->
@@ -165,10 +169,10 @@ const Notes = {
         const content = isEdit ? this.currentNote.content : '';
         
         return `
-            <div id="notes-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn" onclick="if(event.target.id === 'notes-modal') Notes.closeModal()">
-                <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full mx-4 transform animate-scaleIn">
+            <div id="notes-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onclick="if(event.target.id === 'notes-modal') Notes.closeModal()">
+                <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                     <!-- Header -->
-                    <div class="bg-gradient-to-r from-yellow-500 to-orange-600 p-6 rounded-t-3xl text-white">
+                    <div class="bg-gradient-to-r from-yellow-500 to-orange-600 p-6 rounded-t-3xl text-white sticky top-0 z-10">
                         <div class="flex items-center justify-between">
                             <h2 class="text-3xl font-black">${isEdit ? '✏️ Editar Nota' : '📝 Nova Nota'}</h2>
                             <button onclick="Notes.closeModal()" 
@@ -181,13 +185,13 @@ const Notes = {
                     </div>
                     
                     <!-- Form -->
-                    <form onsubmit="Notes.saveNote(event)" class="p-6 space-y-6">
+                    <form onsubmit="Notes.saveNote(event); return false;" class="p-6 space-y-6">
                         <!-- Título -->
                         <div>
                             <label class="block text-gray-800 font-bold mb-3 text-lg">📌 Título</label>
                             <input type="text" 
                                    id="note-title"
-                                   value="${title}"
+                                   value="${this.escapeHtml(title)}"
                                    placeholder="Digite o título da nota..."
                                    required
                                    class="w-full px-6 py-4 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-4 focus:ring-yellow-200 outline-none transition-all text-lg font-semibold">
@@ -195,12 +199,12 @@ const Notes = {
                         
                         <!-- Conteúdo -->
                         <div>
-                            <label class="block text-gray-800 font-bold mb-3 text-lg">✍️ Conteúdo</label>
+                            <label class="block text-gray-800 font-bold mb-3 text-lg">✏️ Conteúdo</label>
                             <textarea id="note-content"
                                       placeholder="Digite o conteúdo da nota..."
                                       required
                                       rows="8"
-                                      class="w-full px-6 py-4 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-4 focus:ring-yellow-200 outline-none transition-all text-lg resize-none">${content}</textarea>
+                                      class="w-full px-6 py-4 border-2 border-gray-300 rounded-xl focus:border-yellow-500 focus:ring-4 focus:ring-yellow-200 outline-none transition-all text-lg resize-none">${this.escapeHtml(content)}</textarea>
                         </div>
                         
                         <!-- Botões -->
@@ -246,8 +250,13 @@ const Notes = {
     saveNote(event) {
         event.preventDefault();
         
-        const title = document.getElementById('note-title').value.trim();
-        const content = document.getElementById('note-content').value.trim();
+        const titleInput = document.getElementById('note-title');
+        const contentInput = document.getElementById('note-content');
+        
+        if (!titleInput || !contentInput) return;
+        
+        const title = titleInput.value.trim();
+        const content = contentInput.value.trim();
         
         if (!title || !content) {
             Utils.showNotification('⚠️ Preencha todos os campos', 'warning');
@@ -255,13 +264,17 @@ const Notes = {
         }
         
         if (this.currentNote) {
-            // Editar nota existente
-            this.currentNote.title = title;
-            this.currentNote.content = content;
-            this.currentNote.updated = Date.now();
+            const index = this.notes.findIndex(n => n.id === this.currentNote.id);
+            if (index !== -1) {
+                this.notes[index] = {
+                    ...this.notes[index],
+                    title,
+                    content,
+                    updated: Date.now()
+                };
+            }
             Utils.showNotification('✅ Nota atualizada! にゃん~', 'success');
         } else {
-            // Criar nova nota
             const note = {
                 id: Utils.generateId(),
                 title,
