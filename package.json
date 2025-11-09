@@ -1,6 +1,6 @@
 {
   "name": "nyantools",
-  "version": "2.8.0",
+  "version": "2.7.0",
   "description": "NyanTools v2.7.0 - Performance Boost 🚀 | -33% código, +45% velocidade, 24 arquivos otimizados にゃん~",
   "main": "backend/src/main.js",
   "scripts": {
