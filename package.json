@@ -1,7 +1,7 @@
 {
   "name": "nyantools",
-  "version": "2.5.0",
-  "description": "NyanTools - Your purr-fect toolkit にゃん~ | Agora com Tema Escuro e Novos Jogos!",
+  "version": "2.8.0",
+  "description": "NyanTools v2.7.0 - Performance Boost 🚀 | -33% código, +45% velocidade, 24 arquivos otimizados にゃん~",
   "main": "backend/src/main.js",
   "scripts": {
     "start": "electron .",
@@ -24,10 +24,26 @@
     "forca",
     "hangman",
     "dark-theme",
-    "offline-games"
+    "offline-games",
+    "optimized",
+    "performance",
+    "mini-player",
+    "music-streaming"
   ],
-  "author": "Fish7w7",
+  "author": {
+    "name": "Fish7w7",
+    "email": "kik73261@gmail.com",
+    "url": "https://github.com/Fish7w7"
+  },
   "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Fish7w7/Pandora.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Fish7w7/Pandora/issues"
+  },
+  "homepage": "https://github.com/Fish7w7/Pandora#readme",
   "devDependencies": {
     "cross-env": "^7.0.3",
     "electron": "^27.0.0",
@@ -44,6 +60,9 @@
       "frontend/**/*",
       "package.json"
     ],
+    "extraMetadata": {
+      "main": "backend/src/main.js"
+    },
     "win": {
       "target": [
         {
@@ -60,14 +79,28 @@
         }
       ],
       "icon": "frontend/public/assets/icons/icon.ico",
-      "artifactName": "${productName}-${version}-Setup.${ext}"
+      "artifactName": "${productName}-${version}-Setup.${ext}",
+      "requestedExecutionLevel": "asInvoker",
+      "publisherName": "Fish7w7"
     },
     "nsis": {
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
-      "shortcutName": "NyanTools"
+      "shortcutName": "NyanTools",
+      "installerIcon": "frontend/public/assets/icons/icon.ico",
+      "uninstallerIcon": "frontend/public/assets/icons/icon.ico",
+      "installerHeader": "frontend/public/assets/icons/icon.ico",
+      "installerSidebar": "frontend/public/assets/icons/icon.ico",
+      "deleteAppDataOnUninstall": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "displayLanguageSelector": false,
+      "language": "2070"
+    },
+    "portable": {
+      "artifactName": "${productName} ${version}.${ext}"
     },
     "mac": {
       "target": [
@@ -81,7 +114,27 @@
       ],
       "icon": "frontend/public/assets/icons/icon.icns",
       "category": "public.app-category.utilities",
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "entitlements": "build/entitlements.mac.plist",
+      "entitlementsInherit": "build/entitlements.mac.plist"
+    },
+    "dmg": {
+      "contents": [
+        {
+          "x": 130,
+          "y": 220
+        },
+        {
+          "x": 410,
+          "y": 220,
+          "type": "link",
+          "path": "/Applications"
+        }
+      ],
+      "title": "${productName} ${version}",
+      "backgroundColor": "#ffffff"
     },
     "linux": {
       "target": [
@@ -100,7 +153,29 @@
       ],
       "icon": "frontend/public/assets/icons/icon.png",
       "category": "Utility",
-      "artifactName": "${productName}-${version}-${arch}.${ext}"
+      "artifactName": "${productName}-${version}-${arch}.${ext}",
+      "description": "NyanTools - Your purr-fect toolkit にゃん~",
+      "vendor": "Fish7w7",
+      "maintainer": "Fish7w7 <kik73261@gmail.com>",
+      "synopsis": "Utilities toolkit with games, AI, music player and more"
+    },
+    "appImage": {
+      "license": "LICENSE"
+    },
+    "deb": {
+      "depends": [
+        "gconf2",
+        "gconf-service",
+        "libnotify4",
+        "libappindicator1",
+        "libxtst6",
+        "libnss3"
+      ],
+      "priority": "optional"
     }
+  },
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=7.0.0"
   }
 }

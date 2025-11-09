@@ -1,6 +1,6 @@
 // ============================================
 // DASHBOARD INICIAL - NyanTools にゃん~
-// Sistema completo com estatísticas e widgets
+// Sistema otimizado com estatísticas e widgets
 // ============================================
 
 const Dashboard = {
@@ -13,66 +13,57 @@ const Dashboard = {
         pendingTasks: []
     },
     
+    // Configurações de cartões
+    cardConfigs: {
+        tools: { icon: '🛠️', label: 'Ferramentas', gradient: 'from-blue-500 to-cyan-600' },
+        games: { icon: '🎮', label: 'Jogos Ativos', gradient: 'from-purple-500 to-pink-600' },
+        theme: { icon: '🎨', label: 'Tema', gradient: 'from-green-500 to-emerald-600' },
+        status: { icon: null, label: 'Status', gradient: 'from-orange-500 to-red-600' }
+    },
+    
+    // Mensagens de saudação por hora
+    greetings: {
+        morning: 'Bom dia',
+        afternoon: 'Boa tarde',
+        evening: 'Boa noite'
+    },
+    
     render() {
         this.loadStats();
-        const greeting = this.getGreeting();
-        const currentTheme = Utils.loadData('app_color_theme') || 'purple';
         
         return `
             <div class="max-w-7xl mx-auto">
-                <!-- Header Premium com Saudação -->
-                <div class="relative mb-8 overflow-hidden">
-                    <div class="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 blur-3xl opacity-20 -z-10"></div>
-                    <div class="bg-gradient-to-br from-purple-600 via-pink-600 to-red-600 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
-                        <!-- Partículas decorativas -->
-                        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
-                        <div class="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -ml-32 -mb-32"></div>
-                        
-                        <div class="relative flex items-center justify-between">
-                            <div class="flex items-center gap-6">
-                                <div class="text-8xl animate-bounce-slow">🐱</div>
-                                <div>
-                                    <h1 class="text-5xl font-black mb-2">${greeting}!</h1>
-                                    <p class="text-2xl text-purple-100 font-semibold">Bem-vindo de volta, ${App.user.username}! にゃん~</p>
-                                    <p class="text-purple-200 mt-2">${this.getCurrentDateTime()}</p>
-                                </div>
+                ${this.renderHeader()}
+                ${this.renderStatsCards()}
+                ${this.renderMainGrid()}
+                ${this.renderSecondGrid()}
+                ${this.renderInfoCards()}
+            </div>
+        `;
+    },
+    
+    renderHeader() {
+        const greeting = this.getGreeting();
+        
+        return `
+            <div class="relative mb-8 overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 blur-3xl opacity-20 -z-10"></div>
+                <div class="bg-gradient-to-br from-purple-600 via-pink-600 to-red-600 rounded-3xl p-8 text-white shadow-2xl relative overflow-hidden">
+                    <!-- Partículas decorativas -->
+                    <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -mr-32 -mt-32"></div>
+                    <div class="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full blur-3xl -ml-32 -mb-32"></div>
+                    
+                    <div class="relative flex items-center justify-between">
+                        <div class="flex items-center gap-6">
+                            <div class="text-8xl animate-bounce-slow">🐱</div>
+                            <div>
+                                <h1 class="text-5xl font-black mb-2">${greeting}!</h1>
+                                <p class="text-2xl text-purple-100 font-semibold">Bem-vindo de volta, ${App.user.username}! にゃん~</p>
+                                <p class="text-purple-200 mt-2">${this.getCurrentDateTime()}</p>
                             </div>
-                            <div class="hidden md:block text-6xl opacity-50">✨</div>
                         </div>
+                        <div class="hidden md:block text-6xl opacity-50">✨</div>
                     </div>
-                </div>
-                
-                <!-- Cards de Estatísticas -->
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                    ${this.renderStatsCards()}
-                </div>
-                
-                <!-- Grid Principal -->
-                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-                    <!-- Acesso Rápido -->
-                    <div class="lg:col-span-2">
-                        ${this.renderQuickAccess()}
-                    </div>
-                    
-                    <!-- Clima Widget -->
-                    <div>
-                        ${this.renderWeatherWidget()}
-                    </div>
-                </div>
-                
-                <!-- Segunda Linha -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                    <!-- Notas Recentes -->
-                    ${this.renderRecentNotes()}
-                    
-                    <!-- Tarefas Pendentes -->
-                    ${this.renderPendingTasks()}
-                </div>
-                
-                <!-- Dicas e Novidades -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    ${this.renderTipsCard()}
-                    ${this.renderWhatsNew()}
                 </div>
             </div>
         `;
@@ -80,56 +71,48 @@ const Dashboard = {
     
     renderStatsCards() {
         const tools = App.tools.filter(t => t.id !== 'home');
-        const gamesPlayed = (Utils.loadData('termo_state') ? 1 : 0) + 
-                           (Utils.loadData('forca_state') ? 1 : 0);
+        const gamesPlayed = this.getGamesPlayed();
+        const themeName = this.getThemeName();
+        const statusIcon = App.isOnline ? '🟢' : '🔴';
+        const statusText = App.isOnline ? 'Online' : 'Offline';
+        
+        const cards = [
+            { key: 'tools', value: tools.length, badge: 'Disponível' },
+            { key: 'games', value: gamesPlayed, badge: 'Offline' },
+            { key: 'theme', value: themeName, badge: 'Tema', customClass: 'text-2xl' },
+            { key: 'status', value: statusText, badge: 'Status', icon: statusIcon, customClass: 'text-2xl' }
+        ];
         
         return `
-            <!-- Total de Ferramentas -->
-            <div class="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl p-6 text-white shadow-xl transform hover:scale-105 transition-all">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="text-5xl">🛠️</div>
-                    <div class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold">
-                        Disponível
-                    </div>
-                </div>
-                <div class="text-4xl font-black mb-1">${tools.length}</div>
-                <div class="text-blue-100 font-semibold">Ferramentas</div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                ${cards.map(card => this.renderStatCard(card)).join('')}
             </div>
-            
-            <!-- Jogos Jogados -->
-            <div class="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-6 text-white shadow-xl transform hover:scale-105 transition-all">
+        `;
+    },
+    
+    renderStatCard({ key, value, badge, icon, customClass }) {
+        const config = this.cardConfigs[key];
+        const displayIcon = icon || config.icon;
+        
+        return `
+            <div class="bg-gradient-to-br ${config.gradient} rounded-2xl p-6 text-white shadow-xl transform hover:scale-105 transition-all">
                 <div class="flex items-center justify-between mb-4">
-                    <div class="text-5xl">🎮</div>
+                    <div class="text-5xl">${displayIcon}</div>
                     <div class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold">
-                        Offline
+                        ${badge}
                     </div>
                 </div>
-                <div class="text-4xl font-black mb-1">${gamesPlayed}</div>
-                <div class="text-purple-100 font-semibold">Jogos Ativos</div>
+                <div class="text-4xl font-black mb-1 ${customClass || ''}">${value}</div>
+                <div class="text-sm font-semibold opacity-90">${config.label}</div>
             </div>
-            
-            <!-- Tema Atual -->
-            <div class="bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl p-6 text-white shadow-xl transform hover:scale-105 transition-all">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="text-5xl">🎨</div>
-                    <div class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold">
-                        Tema
-                    </div>
-                </div>
-                <div class="text-2xl font-black mb-1 capitalize">${this.getThemeName()}</div>
-                <div class="text-green-100 font-semibold">Personalizado</div>
-            </div>
-            
-            <!-- Status Online -->
-            <div class="bg-gradient-to-br from-orange-500 to-red-600 rounded-2xl p-6 text-white shadow-xl transform hover:scale-105 transition-all">
-                <div class="flex items-center justify-between mb-4">
-                    <div class="text-5xl">${App.isOnline ? '🟢' : '🔴'}</div>
-                    <div class="bg-white/20 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold">
-                        Status
-                    </div>
-                </div>
-                <div class="text-2xl font-black mb-1">${App.isOnline ? 'Online' : 'Offline'}</div>
-                <div class="text-orange-100 font-semibold">Conexão</div>
+        `;
+    },
+    
+    renderMainGrid() {
+        return `
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+                <div class="lg:col-span-2">${this.renderQuickAccess()}</div>
+                <div>${this.renderWeatherWidget()}</div>
             </div>
         `;
     },
@@ -151,14 +134,7 @@ const Dashboard = {
                 </div>
                 
                 <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    ${favorites.map(tool => `
-                        <button onclick="Router.navigate('${tool.id}')" 
-                                class="group bg-gradient-to-br from-gray-50 to-gray-100 hover:from-purple-50 hover:to-pink-50 rounded-2xl p-6 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all text-center border-2 border-gray-200 hover:border-purple-300">
-                            <div class="text-5xl mb-3 group-hover:scale-110 transition-transform">${tool.icon}</div>
-                            <div class="font-bold text-gray-800 mb-1">${tool.name}</div>
-                            <div class="text-xs text-gray-600">${tool.description}</div>
-                        </button>
-                    `).join('')}
+                    ${favorites.map(tool => this.renderToolCard(tool)).join('')}
                 </div>
                 
                 <div class="mt-6 pt-6 border-t-2 border-gray-200">
@@ -171,10 +147,21 @@ const Dashboard = {
         `;
     },
     
+    renderToolCard(tool) {
+        return `
+            <button onclick="Router.navigate('${tool.id}')" 
+                    class="group bg-gradient-to-br from-gray-50 to-gray-100 hover:from-purple-50 hover:to-pink-50 rounded-2xl p-6 shadow-lg hover:shadow-xl transform hover:scale-105 transition-all text-center border-2 border-gray-200 hover:border-purple-300">
+                <div class="text-5xl mb-3 group-hover:scale-110 transition-transform">${tool.icon}</div>
+                <div class="font-bold text-gray-800 mb-1">${tool.name}</div>
+                <div class="text-xs text-gray-600">${tool.description}</div>
+            </button>
+        `;
+    },
+    
     renderWeatherWidget() {
         const apiKey = Utils.loadData('weather_api_key');
         
-        if (!apiKey || !apiKey.key) {
+        if (!apiKey?.key) {
             return `
                 <div class="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl p-8 text-white shadow-2xl h-full flex flex-col justify-center">
                     <div class="text-center">
@@ -212,6 +199,15 @@ const Dashboard = {
         `;
     },
     
+    renderSecondGrid() {
+        return `
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                ${this.renderRecentNotes()}
+                ${this.renderPendingTasks()}
+            </div>
+        `;
+    },
+    
     renderRecentNotes() {
         const notes = Utils.loadData('notes') || [];
         const recentNotes = notes.slice(-3).reverse();
@@ -229,37 +225,48 @@ const Dashboard = {
                     </button>
                 </div>
                 
-                ${recentNotes.length > 0 ? `
-                    <div class="space-y-3">
-                        ${recentNotes.map((note, i) => `
-                            <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-4 border-2 border-yellow-200 hover:border-yellow-400 transition-all transform hover:scale-102">
-                                <div class="flex items-start justify-between gap-3">
-                                    <div class="flex-1">
-                                        <div class="font-bold text-gray-800 mb-1 line-clamp-1">${note.title || 'Sem título'}</div>
-                                        <div class="text-sm text-gray-600 line-clamp-2">${note.content}</div>
-                                    </div>
-                                    <div class="text-2xl">${i === 0 ? '📌' : '📄'}</div>
-                                </div>
-                                <div class="flex items-center justify-between mt-3 pt-3 border-t border-yellow-200">
-                                    <span class="text-xs text-gray-500">${Utils.formatDate(note.created)}</span>
-                                    <button onclick="Router.navigate('notes')" 
-                                            class="text-xs text-yellow-700 hover:text-yellow-900 font-bold">
-                                        Abrir →
-                                    </button>
-                                </div>
+                ${recentNotes.length > 0 
+                    ? this.renderNotesList(recentNotes) 
+                    : this.renderEmptyNotes()
+                }
+            </div>
+        `;
+    },
+    
+    renderNotesList(notes) {
+        return `
+            <div class="space-y-3">
+                ${notes.map((note, i) => `
+                    <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-xl p-4 border-2 border-yellow-200 hover:border-yellow-400 transition-all transform hover:scale-102">
+                        <div class="flex items-start justify-between gap-3">
+                            <div class="flex-1">
+                                <div class="font-bold text-gray-800 mb-1 line-clamp-1">${note.title || 'Sem título'}</div>
+                                <div class="text-sm text-gray-600 line-clamp-2">${note.content}</div>
                             </div>
-                        `).join('')}
+                            <div class="text-2xl">${i === 0 ? '📌' : '📄'}</div>
+                        </div>
+                        <div class="flex items-center justify-between mt-3 pt-3 border-t border-yellow-200">
+                            <span class="text-xs text-gray-500">${Utils.formatDate(note.created)}</span>
+                            <button onclick="Router.navigate('notes')" 
+                                    class="text-xs text-yellow-700 hover:text-yellow-900 font-bold">
+                                Abrir →
+                            </button>
+                        </div>
                     </div>
-                ` : `
-                    <div class="text-center py-12">
-                        <div class="text-7xl mb-4 opacity-50">📝</div>
-                        <p class="text-gray-500 mb-4">Nenhuma nota ainda</p>
-                        <button onclick="Router.navigate('notes')" 
-                                class="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-xl font-bold hover:shadow-xl transform hover:scale-105 transition-all">
-                            ✍️ Criar Primeira Nota
-                        </button>
-                    </div>
-                `}
+                `).join('')}
+            </div>
+        `;
+    },
+    
+    renderEmptyNotes() {
+        return `
+            <div class="text-center py-12">
+                <div class="text-7xl mb-4 opacity-50">📝</div>
+                <p class="text-gray-500 mb-4">Nenhuma nota ainda</p>
+                <button onclick="Router.navigate('notes')" 
+                        class="px-6 py-3 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-xl font-bold hover:shadow-xl transform hover:scale-105 transition-all">
+                    ✏️ Criar Primeira Nota
+                </button>
             </div>
         `;
     },
@@ -281,40 +288,60 @@ const Dashboard = {
                     </button>
                 </div>
                 
-                ${pendingTasks.length > 0 ? `
-                    <div class="space-y-3">
-                        ${pendingTasks.map(task => `
-                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border-2 border-green-200 hover:border-green-400 transition-all">
-                                <div class="flex items-start gap-3">
-                                    <input type="checkbox" 
-                                           onchange="Dashboard.toggleTask('${task.id}')"
-                                           class="w-5 h-5 mt-1 accent-green-600 cursor-pointer">
-                                    <div class="flex-1">
-                                        <div class="font-bold text-gray-800 mb-1">${task.title}</div>
-                                        ${task.description ? `<div class="text-sm text-gray-600">${task.description}</div>` : ''}
-                                    </div>
-                                    <div class="text-2xl">${this.getPriorityEmoji(task.priority)}</div>
-                                </div>
+                ${pendingTasks.length > 0 
+                    ? this.renderTasksList(pendingTasks) 
+                    : this.renderEmptyTasks()
+                }
+            </div>
+        `;
+    },
+    
+    renderTasksList(tasks) {
+        return `
+            <div class="space-y-3">
+                ${tasks.map(task => `
+                    <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-xl p-4 border-2 border-green-200 hover:border-green-400 transition-all">
+                        <div class="flex items-start gap-3">
+                            <input type="checkbox" 
+                                   onchange="Dashboard.toggleTask('${task.id}')"
+                                   class="w-5 h-5 mt-1 accent-green-600 cursor-pointer">
+                            <div class="flex-1">
+                                <div class="font-bold text-gray-800 mb-1">${task.title}</div>
+                                ${task.description ? `<div class="text-sm text-gray-600">${task.description}</div>` : ''}
                             </div>
-                        `).join('')}
+                            <div class="text-2xl">${this.getPriorityEmoji(task.priority)}</div>
+                        </div>
                     </div>
-                ` : `
-                    <div class="text-center py-12">
-                        <div class="text-7xl mb-4 opacity-50">✅</div>
-                        <p class="text-gray-500 mb-4">Nenhuma tarefa pendente!</p>
-                        <button onclick="Router.navigate('tasks')" 
-                                class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold hover:shadow-xl transform hover:scale-105 transition-all">
-                            📋 Criar Primeira Tarefa
-                        </button>
-                    </div>
-                `}
+                `).join('')}
+            </div>
+        `;
+    },
+    
+    renderEmptyTasks() {
+        return `
+            <div class="text-center py-12">
+                <div class="text-7xl mb-4 opacity-50">✅</div>
+                <p class="text-gray-500 mb-4">Nenhuma tarefa pendente!</p>
+                <button onclick="Router.navigate('tasks')" 
+                        class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold hover:shadow-xl transform hover:scale-105 transition-all">
+                    📋 Criar Primeira Tarefa
+                </button>
+            </div>
+        `;
+    },
+    
+    renderInfoCards() {
+        return `
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                ${this.renderTipsCard()}
+                ${this.renderWhatsNew()}
             </div>
         `;
     },
     
     renderTipsCard() {
         const tips = [
-            { icon: '🔑', text: 'Use o Gerador de Senhas para criar senhas super seguras!' },
+            { icon: '🔐', text: 'Use o Gerador de Senhas para criar senhas super seguras!' },
             { icon: '🎮', text: 'Jogue Termo e Forca offline - nova palavra todo dia!' },
             { icon: '🎵', text: 'O Player de Música toca em segundo plano!' },
             { icon: '🌍', text: 'O Tradutor funciona em 12+ idiomas diferentes!' },
@@ -373,9 +400,9 @@ const Dashboard = {
     
     getGreeting() {
         const hour = new Date().getHours();
-        if (hour < 12) return 'Bom dia';
-        if (hour < 18) return 'Boa tarde';
-        return 'Boa noite';
+        if (hour < 12) return this.greetings.morning;
+        if (hour < 18) return this.greetings.afternoon;
+        return this.greetings.evening;
     },
     
     getCurrentDateTime() {
@@ -395,17 +422,16 @@ const Dashboard = {
     
     getThemeName() {
         const themeNames = {
-            purple: 'Roxo',
-            blue: 'Azul',
-            green: 'Verde',
-            red: 'Vermelho',
-            orange: 'Laranja',
-            pink: 'Rosa',
-            teal: 'Turquesa',
-            indigo: 'Índigo'
+            purple: 'Roxo', blue: 'Azul', green: 'Verde', red: 'Vermelho',
+            orange: 'Laranja', pink: 'Rosa', teal: 'Turquesa', indigo: 'Índigo'
         };
         const theme = Utils.loadData('app_color_theme') || 'purple';
         return themeNames[theme] || 'Padrão';
+    },
+    
+    getGamesPlayed() {
+        return (Utils.loadData('termo_state') ? 1 : 0) + 
+               (Utils.loadData('forca_state') ? 1 : 0);
     },
     
     getFavoriteTools() {
@@ -413,25 +439,17 @@ const Dashboard = {
         if (saved && Array.isArray(saved)) {
             return saved.map(id => App.tools.find(t => t.id === id)).filter(Boolean);
         }
-        
-        // Padrão: 6 primeiras ferramentas (exceto home)
         return App.tools.filter(t => t.id !== 'home').slice(0, 6);
     },
     
     getPriorityEmoji(priority) {
-        const emojis = {
-            high: '🔴',
-            medium: '🟡',
-            low: '🟢'
-        };
+        const emojis = { high: '🔴', medium: '🟡', low: '🟢' };
         return emojis[priority] || '⚪';
     },
     
     loadStats() {
         this.stats.totalUses = Utils.loadData('total_app_uses') || 0;
         this.stats.lastAccess = Utils.loadData('last_access');
-        
-        // Incrementar contador de usos
         this.stats.totalUses++;
         Utils.saveData('total_app_uses', this.stats.totalUses);
         Utils.saveData('last_access', Date.now());
@@ -444,7 +462,6 @@ const Dashboard = {
     
     customizeFavorites() {
         Utils.showNotification('⚙️ Personalização em breve! にゃん~', 'info');
-        // TODO: Implementar modal de seleção de favoritos
     },
     
     toggleTask(taskId) {

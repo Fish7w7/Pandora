@@ -1,94 +1,97 @@
+/* ========================================
+   APP.JS OPTIMIZED v2.7.0
+   Core da Aplicação Otimizado
+   ======================================== */
+
 const App = {
-    version: '2.5.0',
+    version: '2.7.0',
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
     
+    // Lista de ferramentas
     tools: [
-    { id: 'home', name: 'Dashboard', icon: '📊', description: 'Visão geral' }, // ⬅️ MUDOU!
-    { id: 'password', name: 'Gerador de Senhas', icon: '🔑', description: 'Crie senhas seguras' },
-    { id: 'weather', name: 'Clima', icon: '🌤️', description: 'Veja a temperatura local' },
-    { id: 'translator', name: 'Tradutor', icon: '🌍', description: 'Traduza textos rapidamente' },
-    { id: 'ai-assistant', name: 'Assistente IA', icon: '🤖', description: 'Perguntas e respostas' },
-    { id: 'mini-game', name: 'Mini Game', icon: '🎮', description: 'Jogue e se divirta' },
-    { id: 'temp-email', name: 'Email Temporário', icon: '📧', description: 'Emails descartáveis' },
-    { id: 'music', name: 'Player de Música', icon: '🎵', description: 'Ouça suas músicas' },
-    { id: 'notes', name: 'Notas Rápidas', icon: '📝', description: 'Organize suas ideias' }, // ⬅️ NOVO!
-    { id: 'tasks', name: 'Lista de Tarefas', icon: '✅', description: 'Gerencie tarefas' }, // ⬅️ NOVO!
-    { id: 'offline', name: 'Zona Offline', icon: '📶', description: 'Jogos sem internet' },
-    { id: 'settings', name: 'Configurações', icon: '⚙️', description: 'Personalize o app' }
-],
+        { id: 'home', name: 'Dashboard', icon: '📊', description: 'Visão geral' },
+        { id: 'password', name: 'Gerador de Senhas', icon: '🔐', description: 'Crie senhas seguras' },
+        { id: 'weather', name: 'Clima', icon: '🌤️', description: 'Veja a temperatura local' },
+        { id: 'translator', name: 'Tradutor', icon: '🌍', description: 'Traduza textos rapidamente' },
+        { id: 'ai-assistant', name: 'Assistente IA', icon: '🤖', description: 'Perguntas e respostas' },
+        { id: 'mini-game', name: 'Mini Game', icon: '🎮', description: 'Jogue e se divirta' },
+        { id: 'temp-email', name: 'Email Temporário', icon: '📧', description: 'Emails descartáveis' },
+        { id: 'music', name: 'Player de Música', icon: '🎵', description: 'Ouça suas músicas' },
+        { id: 'notes', name: 'Notas Rápidas', icon: '📝', description: 'Organize suas ideias' },
+        { id: 'tasks', name: 'Lista de Tarefas', icon: '✅', description: 'Gerencie tarefas' },
+        { id: 'offline', name: 'Zona Offline', icon: '📶', description: 'Jogos sem internet' },
+        { id: 'settings', name: 'Configurações', icon: '⚙️', description: 'Personalize o app' }
+    ],
     
+    // Inicialização principal
     init() {
-        console.log('🐱 NyanTools v' + this.version + ' iniciando... にゃん~');
+        console.log(`🐱 NyanTools v${this.version} iniciando... にゃん~`);
         
-        // 🔧 FIX BUG 1: Aplicar tema salvo ANTES de mostrar o app
+        // Aplicar tema antes de mostrar
         this.applyThemeOnStart();
         
+        // Delay para loading screen
         setTimeout(() => {
             this.hideLoading();
             this.checkAuth();
             
-            if (typeof AutoUpdater !== 'undefined' && AutoUpdater.getAutoCheckSetting()) {
-                setTimeout(() => {
-                    AutoUpdater.checkForUpdates(true);
-                }, 3000);
+            // Auto-update check (se habilitado)
+            if (window.AutoUpdater?.getAutoCheckSetting?.()) {
+                setTimeout(() => AutoUpdater.checkForUpdates(true), 3000);
             }
         }, 2500);
         
+        // Listeners globais
         this.setupGlobalListeners();
     },
     
-applyThemeOnStart() {
-    // Aplicar tema claro/escuro
-    const applyTheme = () => {
-        const savedTheme = Utils.loadData('app_theme') || 'light';
-        console.log('🎨 Aplicando tema:', savedTheme);
+    // Aplicar tema ao iniciar (otimizado)
+    applyThemeOnStart() {
+        const applyTheme = () => {
+            const savedTheme = window.Utils?.loadData('app_theme') || 'light';
+            console.log('🎨 Aplicando tema:', savedTheme);
+            
+            document.body.classList.toggle('dark-theme', savedTheme === 'dark');
+            
+            if (window.Utils?.saveData) {
+                window.Utils.saveData('app_theme', savedTheme);
+            }
+        };
         
-        if (savedTheme === 'dark') {
-            document.body.classList.add('dark-theme');
-            console.log('✅ Tema escuro aplicado');
-        } else {
-            document.body.classList.remove('dark-theme');
-            console.log('✅ Tema claro aplicado');
-        }
-        
-        Utils.saveData('app_theme', savedTheme);
-    };
+        applyTheme();
+        setTimeout(applyTheme, 100);
+        window.addEventListener('load', applyTheme, { once: true });
+    },
     
-    applyTheme();
-    setTimeout(applyTheme, 100);
-    window.addEventListener('load', applyTheme);
-},
-    
+    // Esconder loading
     hideLoading() {
         const loadingScreen = document.getElementById('loading-screen');
+        if (!loadingScreen) return;
+        
         loadingScreen.style.opacity = '0';
-        setTimeout(() => {
-            loadingScreen.style.display = 'none';
-        }, 500);
+        setTimeout(() => loadingScreen.style.display = 'none', 500);
     },
     
+    // Verificar autenticação
     checkAuth() {
         const savedUser = Auth.getStoredUser();
-        if (savedUser) {
-            this.user = savedUser;
-            this.showMainApp();
-        } else {
-            this.showLogin();
-        }
+        savedUser ? this.showMainApp(savedUser) : this.showLogin();
     },
     
+    // Mostrar tela de login
     showLogin() {
-        document.getElementById('login-screen').classList.remove('hidden');
+        const loginScreen = document.getElementById('login-screen');
+        if (!loginScreen) return;
         
-        // 🔧 FIX: Chamar setupLoginForm após mostrar a tela
+        loginScreen.classList.remove('hidden');
+        
+        // Setup do formulário e foco
         setTimeout(() => {
             if (typeof window.setupLoginForm === 'function') {
                 window.setupLoginForm();
                 console.log('🔧 setupLoginForm() chamado');
-            } else {
-                console.error('❌ setupLoginForm não encontrado!');
             }
             
             const usernameInput = document.getElementById('login-username');
@@ -99,17 +102,27 @@ applyThemeOnStart() {
         }, 300);
     },
     
-    showMainApp() {
-        document.getElementById('login-screen').classList.add('hidden');
-        document.getElementById('main-app').classList.remove('hidden');
-        document.getElementById('user-display').textContent = this.user.username;
+    // Mostrar app principal
+    showMainApp(user = this.user) {
+        this.user = user;
+        
+        const loginScreen = document.getElementById('login-screen');
+        const mainApp = document.getElementById('main-app');
+        const userDisplay = document.getElementById('user-display');
+        
+        if (loginScreen) loginScreen.classList.add('hidden');
+        if (mainApp) mainApp.classList.remove('hidden');
+        if (userDisplay) userDisplay.textContent = user.username;
         
         this.renderNavMenu();
         Router.navigate('home');
     },
     
+    // Renderizar menu de navegação (otimizado)
     renderNavMenu() {
         const navMenu = document.getElementById('nav-menu');
+        if (!navMenu) return;
+        
         navMenu.innerHTML = this.tools.map(tool => `
             <div class="nav-item flex items-center p-3 mb-2 rounded-lg cursor-pointer ${this.currentTool === tool.id ? 'active' : ''}"
                  data-tool="${tool.id}"
@@ -123,50 +136,64 @@ applyThemeOnStart() {
         `).join('');
     },
     
+    // Atualizar navegação ativa
     updateActiveNav(toolId) {
         this.currentTool = toolId;
+        
         document.querySelectorAll('.nav-item').forEach(item => {
-            if (item.dataset.tool === toolId) {
-                item.classList.add('active');
-            } else {
-                item.classList.remove('active');
-            }
+            item.classList.toggle('active', item.dataset.tool === toolId);
         });
     },
     
+    // Listeners globais (otimizado)
     setupGlobalListeners() {
-        document.getElementById('logout-btn')?.addEventListener('click', () => {
-            if (confirm('Deseja realmente sair? にゃん~')) {
-                Auth.logout();
-                
-                // 🔧 FIX: Recarregar a página de forma limpa
-                console.log('🚪 Fazendo logout e limpando estado...');
-                
-                // Limpar formulário antes de recarregar
-                const loginForm = document.getElementById('login-form');
-                if (loginForm) loginForm.reset();
-                
-                // Recarregar página
-                location.reload();
-            }
-        });
+        // Logout
+        const logoutBtn = document.getElementById('logout-btn');
+        if (logoutBtn) {
+            logoutBtn.addEventListener('click', () => this.handleLogout());
+        }
         
-        window.addEventListener('online', () => {
-            this.isOnline = true;
-            Utils.showNotification('✅ Conexão restaurada! にゃん~', 'success');
-        });
-        
-        window.addEventListener('offline', () => {
-            this.isOnline = false;
-            Utils.showNotification('⚠️ Você está offline にゃん~', 'warning');
-        });
+        // Status de conexão
+        window.addEventListener('online', () => this.handleConnectionChange(true));
+        window.addEventListener('offline', () => this.handleConnectionChange(false));
     },
     
+    // Handler de logout (otimizado)
+    handleLogout() {
+        if (!confirm('Deseja realmente sair? にゃん~')) return;
+        
+        console.log('🚪 Fazendo logout...');
+        Auth.logout();
+        
+        // Limpar formulário
+        const loginForm = document.getElementById('login-form');
+        if (loginForm) loginForm.reset();
+        
+        // Recarregar página
+        location.reload();
+    },
+    
+    // Handler de mudança de conexão
+    handleConnectionChange(isOnline) {
+        this.isOnline = isOnline;
+        
+        if (window.Utils?.showNotification) {
+            const message = isOnline 
+                ? '✅ Conexão restaurada! にゃん~' 
+                : '⚠️ Você está offline にゃん~';
+            const type = isOnline ? 'success' : 'warning';
+            
+            window.Utils.showNotification(message, type);
+        }
+    },
+    
+    // Obter tool por ID
     getTool(toolId) {
         return this.tools.find(t => t.id === toolId);
     }
 };
 
+// Easter Egg (otimizado)
 function showEasterEgg() {
     const messages = [
         "🐱 NYAN NYAN! にゃん~",
@@ -182,14 +209,16 @@ function showEasterEgg() {
     
     alert(messages.join('\n'));
     
-    document.getElementById('sidebar').classList.add('shake');
-    setTimeout(() => {
-        document.getElementById('sidebar').classList.remove('shake');
-    }, 500);
+    const sidebar = document.getElementById('sidebar');
+    if (sidebar) {
+        sidebar.classList.add('shake');
+        setTimeout(() => sidebar.classList.remove('shake'), 500);
+    }
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-    App.init();
-});
+// Inicialização
+document.addEventListener('DOMContentLoaded', () => App.init());
 
+// Exports
 window.App = App;
+window.showEasterEgg = showEasterEgg;

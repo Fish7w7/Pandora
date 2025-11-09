@@ -1,5 +1,10 @@
-// Gerador de Senhas ESTILIZADO
+// ============================================
+// GERADOR DE SENHAS ULTRA OTIMIZADO
+// Performance maximizada + features completas
+// ============================================
+
 const PasswordGenerator = {
+    // Configurações
     config: {
         length: 16,
         uppercase: true,
@@ -8,224 +13,618 @@ const PasswordGenerator = {
         symbols: true
     },
     
-    generatedPassword: '',
+    // Estado
+    state: {
+        currentPassword: '',
+        history: [],
+        maxHistory: 10
+    },
     
+    // Cache de elementos DOM
+    cache: {},
+    
+    // Conjuntos de caracteres (imutáveis)
+    CHAR_SETS: Object.freeze({
+        uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+        lowercase: 'abcdefghijklmnopqrstuvwxyz',
+        numbers: '0123456789',
+        symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
+    }),
+    
+    // Configurações de força (imutáveis)
+    STRENGTH: Object.freeze({
+        veryStrong: { min: 80, emoji: '🟢', label: 'Muito Forte', color: 'green', gradient: 'from-green-500 to-emerald-600' },
+        strong: { min: 60, emoji: '🔵', label: 'Forte', color: 'blue', gradient: 'from-blue-500 to-cyan-600' },
+        medium: { min: 40, emoji: '🟡', label: 'Média', color: 'yellow', gradient: 'from-yellow-500 to-orange-600' },
+        weak: { min: 0, emoji: '🔴', label: 'Fraca', color: 'red', gradient: 'from-red-500 to-pink-600' }
+    }),
+    
+    // Templates HTML otimizados
+    templates: {
+        checkboxOption(opt) {
+            const badgeColors = {
+                blue: 'bg-blue-600',
+                green: 'bg-green-600',
+                purple: 'bg-purple-600',
+                orange: 'bg-orange-600'
+            };
+            
+            const borderColors = {
+                blue: 'peer-checked:border-blue-600',
+                green: 'peer-checked:border-green-600',
+                purple: 'peer-checked:border-purple-600',
+                orange: 'peer-checked:border-orange-600'
+            };
+            
+            const bgColors = {
+                blue: 'peer-checked:from-blue-50 peer-checked:to-blue-100',
+                green: 'peer-checked:from-green-50 peer-checked:to-green-100',
+                purple: 'peer-checked:from-purple-50 peer-checked:to-purple-100',
+                orange: 'peer-checked:from-orange-50 peer-checked:to-orange-100'
+            };
+            
+            return `
+                <label class="group relative overflow-hidden cursor-pointer block">
+                    <input type="checkbox" id="${opt.id}" ${opt.checked ? 'checked' : ''} class="peer sr-only">
+                    
+                    <!-- Card principal -->
+                    <div class="relative flex items-center gap-4 p-6 bg-white border-4 border-gray-300 ${borderColors[opt.color]} peer-checked:bg-gradient-to-br ${bgColors[opt.color]} rounded-2xl transition-all hover:shadow-xl peer-checked:shadow-2xl">
+                        
+                        <!-- Ícone -->
+                        <div class="text-5xl">${opt.icon}</div>
+                        
+                        <!-- Conteúdo -->
+                        <div class="flex-1">
+                            <div class="font-black text-xl text-gray-800 mb-1">${opt.label}</div>
+                            <div class="text-sm text-gray-600 mb-2">${opt.desc}</div>
+                            <div class="font-mono font-bold text-gray-500 text-lg">${opt.example}</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Badge ATIVO -->
+                    <div class="absolute top-6 right-6 ${badgeColors[opt.color]} text-white text-xs font-black px-3 py-1.5 rounded-full shadow-lg opacity-0 peer-checked:opacity-100 transition-all pointer-events-none z-10">
+                        ✓ ATIVO
+                    </div>
+                </label>
+            `;
+        },
+        
+        historyItem(item, index, strengthInfo) {
+            return `
+                <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 border-2 border-gray-200 hover:border-gray-300 transition-all">
+                    <div class="flex items-center gap-4">
+                        <div class="text-3xl">${strengthInfo.emoji}</div>
+                        <code class="flex-1 font-mono font-bold text-gray-800 break-all text-sm">${item.password}</code>
+                        <button onclick="PasswordGenerator.copyFromHistory(${index})" 
+                                class="px-4 py-2 bg-gradient-to-r from-blue-500 to-cyan-600 text-white rounded-lg font-bold hover:shadow-lg transform hover:scale-105 transition-all">
+                            📋
+                        </button>
+                    </div>
+                    <div class="flex items-center justify-between mt-3 pt-3 border-t-2 border-gray-200">
+                        <span class="text-sm font-bold text-${strengthInfo.color}-700">${strengthInfo.label}</span>
+                        <span class="text-xs text-gray-500">${item.date}</span>
+                    </div>
+                </div>
+            `;
+        }
+    },
+    
+    // Renderização principal
     render() {
         return `
-            <div class="max-w-3xl mx-auto">
-                <div class="text-center mb-8">
-                    <h1 class="text-5xl font-black text-gray-800 mb-3">🔑 Gerador de Senhas</h1>
-                    <p class="text-gray-600 text-lg">Crie senhas fortes e seguras em segundos</p>
+            <div class="max-w-4xl mx-auto">
+                ${this.renderHeader()}
+                ${this.renderMainCard()}
+                ${this.renderHistory()}
+                ${this.renderTips()}
+            </div>
+        `;
+    },
+    
+    renderHeader() {
+        return `
+            <div class="text-center mb-8">
+                <div class="inline-block mb-4">
+                    <div class="relative">
+                        <div class="absolute inset-0 bg-gradient-to-r from-blue-500 to-cyan-600 rounded-full blur-xl opacity-50"></div>
+                        <div class="relative text-7xl animate-bounce-slow">🔐</div>
+                    </div>
                 </div>
-                
-                <div class="bg-white rounded-2xl shadow-2xl p-8 mb-6">
-                    <div class="card-header text-center mb-6">
-                        <div class="inline-flex items-center gap-2 bg-blue-50 px-4 py-2 rounded-full">
-                            <span class="text-blue-600">⚙️</span>
-                            <span class="text-blue-900 font-bold">Configurações</span>
+                <h1 class="text-5xl font-black mb-3 bg-gradient-to-r from-blue-600 via-cyan-600 to-purple-600 bg-clip-text text-transparent">
+                    Gerador de Senhas
+                </h1>
+                <p class="text-gray-600 text-lg font-semibold">Crie senhas ultra-seguras にゃん~</p>
+            </div>
+        `;
+    },
+    
+    renderMainCard() {
+        const strengthInfo = this.getStrengthInfo(this.calculateStrength());
+        
+        return `
+            <div class="relative mb-8">
+                <div class="absolute inset-0 bg-gradient-to-br from-blue-500 via-purple-500 to-pink-500 rounded-3xl blur-2xl opacity-20"></div>
+                <div class="relative bg-white rounded-3xl shadow-2xl p-8 border-2 border-gray-100">
+                    
+                    <!-- Header -->
+                    <div class="text-center mb-6">
+                        <div class="inline-flex items-center gap-2 bg-gradient-to-r from-blue-50 to-cyan-50 px-6 py-3 rounded-full border-2 border-blue-200">
+                            <span class="text-2xl">⚙️</span>
+                            <span class="text-blue-900 font-black text-lg">Configurações</span>
                         </div>
                     </div>
                     
                     <!-- Length Slider -->
                     <div class="mb-8">
-                        <div class="flex justify-between items-center mb-3">
-                            <label class="text-gray-700 font-bold text-lg">Comprimento</label>
-                            <div class="bg-gradient-to-r from-blue-500 to-cyan-600 text-white px-4 py-2 rounded-lg font-black text-xl shadow-lg">
+                        <div class="flex justify-between items-center mb-4">
+                            <label class="text-gray-800 font-black text-xl">Comprimento</label>
+                            <div class="bg-gradient-to-r ${strengthInfo.gradient} text-white px-6 py-3 rounded-xl font-black text-2xl shadow-lg">
                                 <span id="length-display">${this.config.length}</span>
                             </div>
                         </div>
+                        
                         <input type="range" id="password-length" min="8" max="64" value="${this.config.length}" 
-                            class="w-full h-3 bg-gray-200 rounded-lg appearance-none cursor-pointer slider">
-                        <div class="flex justify-between text-xs text-gray-500 mt-1">
-                            <span>Fraca (8)</span>
-                            <span>Média (16)</span>
-                            <span>Forte (32)</span>
-                            <span>Muito Forte (64)</span>
+                            class="w-full h-4 bg-gradient-to-r from-gray-200 via-gray-300 to-gray-400 rounded-full appearance-none cursor-pointer slider shadow-inner">
+                        
+                        <div class="flex justify-between text-sm font-bold text-gray-600 mt-3">
+                            <span>🔴 Fraca (8)</span>
+                            <span>🟡 Média (16)</span>
+                            <span>🔵 Forte (32)</span>
+                            <span>🟢 Ultra (64)</span>
                         </div>
                     </div>
                     
-                    <!-- Checkboxes Grid -->
-                    <div class="grid grid-cols-2 gap-4 mb-8">
-                        <label class="flex items-center gap-3 p-4 bg-gradient-to-br from-blue-50 to-cyan-50 border-2 border-blue-200 rounded-xl cursor-pointer hover:border-blue-400 transition-all group">
-                            <input type="checkbox" id="uppercase" ${this.config.uppercase ? 'checked' : ''} class="w-6 h-6 accent-blue-600">
-                            <div>
-                                <span class="font-bold text-gray-800 block">Maiúsculas</span>
-                                <span class="text-xs text-gray-600">A-Z</span>
-                            </div>
-                        </label>
-                        <label class="flex items-center gap-3 p-4 bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl cursor-pointer hover:border-green-400 transition-all group">
-                            <input type="checkbox" id="lowercase" ${this.config.lowercase ? 'checked' : ''} class="w-6 h-6 accent-green-600">
-                            <div>
-                                <span class="font-bold text-gray-800 block">Minúsculas</span>
-                                <span class="text-xs text-gray-600">a-z</span>
-                            </div>
-                        </label>
-                        <label class="flex items-center gap-3 p-4 bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-xl cursor-pointer hover:border-purple-400 transition-all group">
-                            <input type="checkbox" id="numbers" ${this.config.numbers ? 'checked' : ''} class="w-6 h-6 accent-purple-600">
-                            <div>
-                                <span class="font-bold text-gray-800 block">Números</span>
-                                <span class="text-xs text-gray-600">0-9</span>
-                            </div>
-                        </label>
-                        <label class="flex items-center gap-3 p-4 bg-gradient-to-br from-orange-50 to-red-50 border-2 border-orange-200 rounded-xl cursor-pointer hover:border-orange-400 transition-all group">
-                            <input type="checkbox" id="symbols" ${this.config.symbols ? 'checked' : ''} class="w-6 h-6 accent-orange-600">
-                            <div>
-                                <span class="font-bold text-gray-800 block">Símbolos</span>
-                                <span class="text-xs text-gray-600">!@#$%</span>
-                            </div>
-                        </label>
+                    <!-- Checkboxes -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+                        ${this.renderCheckboxes()}
                     </div>
                     
                     <!-- Generate Button -->
                     <button onclick="PasswordGenerator.generate()" 
-                            class="w-full bg-gradient-to-r from-blue-600 to-cyan-600 text-white py-5 rounded-xl font-bold text-xl shadow-lg hover:shadow-2xl transform hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-3 mb-6">
-                        <span class="text-3xl">🎲</span>
-                        <span>Gerar Senha Segura</span>
+                            class="group w-full bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white py-6 rounded-2xl font-black text-2xl shadow-2xl hover:shadow-pink-500/50 transform hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-4 mb-8 relative overflow-hidden">
+                        <div class="absolute inset-0 bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                        <span class="relative text-4xl">🎲</span>
+                        <span class="relative">Gerar Senha Segura</span>
+                        <span class="relative text-2xl">✨</span>
                     </button>
                     
-                    <!-- Password Result -->
-                    <div id="password-result" class="hidden animate-fadeIn">
-                        <div class="bg-gradient-to-br from-green-50 to-emerald-50 border-3 border-green-300 rounded-2xl p-6 shadow-inner">
-                            <div class="flex items-center justify-between mb-4">
-                                <code class="text-2xl font-mono font-bold text-gray-800 break-all flex-1 select-all" id="generated-password"></code>
-                                <button onclick="PasswordGenerator.copy()" 
-                                        class="ml-4 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold hover:shadow-xl transform hover:scale-110 active:scale-95 transition-all flex items-center gap-2 shrink-0">
-                                    <span>📋</span>
-                                    <span>Copiar</span>
-                                </button>
-                            </div>
-                            <div class="flex items-center justify-between">
-                                <div id="password-strength" class="font-bold text-lg"></div>
-                                <button onclick="PasswordGenerator.generate()" 
-                                        class="text-blue-600 hover:text-blue-800 font-semibold flex items-center gap-1 transition-colors">
-                                    <span>🔄</span>
-                                    <span>Gerar Nova</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Tips Card -->
-                <div class="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl p-8 text-white shadow-2xl">
-                    <div class="flex items-start gap-4">
-                        <div class="text-5xl">💡</div>
-                        <div>
-                            <h3 class="text-2xl font-black mb-4">Dicas de Segurança</h3>
-                            <ul class="space-y-2 text-blue-50">
-                                <li class="flex items-center gap-2">
-                                    <span class="text-xl">✓</span>
-                                    <span>Use senhas diferentes para cada site</span>
-                                </li>
-                                <li class="flex items-center gap-2">
-                                    <span class="text-xl">✓</span>
-                                    <span>Senhas com 16+ caracteres são mais seguras</span>
-                                </li>
-                                <li class="flex items-center gap-2">
-                                    <span class="text-xl">✓</span>
-                                    <span>Inclua todos os tipos de caracteres</span>
-                                </li>
-                                <li class="flex items-center gap-2">
-                                    <span class="text-xl">✓</span>
-                                    <span>Nunca compartilhe suas senhas</span>
-                                </li>
-                                <li class="flex items-center gap-2">
-                                    <span class="text-xl">✓</span>
-                                    <span>Use um gerenciador de senhas</span>
-                                </li>
-                            </ul>
-                        </div>
+                    <!-- Result -->
+                    <div id="password-result" class="hidden">
+                        ${this.renderResult()}
                     </div>
                 </div>
             </div>
         `;
     },
     
+    renderCheckboxes() {
+        const options = [
+            { id: 'uppercase', label: 'Maiúsculas', desc: 'A-Z', example: 'ABCD', color: 'blue', checked: this.config.uppercase, icon: '🔠' },
+            { id: 'lowercase', label: 'Minúsculas', desc: 'a-z', example: 'abcd', color: 'green', checked: this.config.lowercase, icon: '🔡' },
+            { id: 'numbers', label: 'Números', desc: '0-9', example: '1234', color: 'purple', checked: this.config.numbers, icon: '🔢' },
+            { id: 'symbols', label: 'Símbolos', desc: '!@#$%', example: '!@#$', color: 'orange', checked: this.config.symbols, icon: '🔣' }
+        ];
+        
+        return options.map(opt => this.templates.checkboxOption(opt)).join('');
+    },
+    
+    renderResult() {
+        return `
+            <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 mb-6 shadow-inner border-2 border-gray-700">
+                <div class="flex items-center justify-between mb-4 flex-wrap gap-4">
+                    <code class="text-2xl md:text-3xl font-mono font-black text-green-400 break-all flex-1 select-all tracking-wider" id="generated-password"></code>
+                    <button onclick="PasswordGenerator.copy()" 
+                            class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-black shadow-xl hover:shadow-2xl transform hover:scale-110 active:scale-95 transition-all flex items-center gap-2">
+                        <span class="text-xl">📋</span>
+                        <span>Copiar</span>
+                    </button>
+                </div>
+                
+                <div class="flex items-center justify-between mb-4">
+                    <div id="password-strength" class="font-black text-xl"></div>
+                    <button onclick="PasswordGenerator.generate()" 
+                            class="text-cyan-400 hover:text-cyan-300 font-bold flex items-center gap-2">
+                        <span>🔄</span>
+                        <span>Nova</span>
+                    </button>
+                </div>
+                
+                <div id="strength-meter" class="bg-gray-700 rounded-full h-6 overflow-hidden shadow-inner"></div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <button onclick="PasswordGenerator.saveToHistory()" 
+                        class="px-4 py-3 bg-gradient-to-r from-purple-500 to-pink-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all flex items-center justify-center gap-2">
+                    <span class="text-xl">💾</span>
+                    <span>Salvar</span>
+                </button>
+                
+                <button onclick="PasswordGenerator.analyzePassword()" 
+                        class="px-4 py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all flex items-center justify-center gap-2">
+                    <span class="text-xl">🔍</span>
+                    <span>Analisar</span>
+                </button>
+            </div>
+        `;
+    },
+    
+    renderHistory() {
+        if (this.state.history.length === 0) return '';
+        
+        const historyItems = this.state.history.map((item, i) => {
+            const info = this.getStrengthInfo(item.strength);
+            return this.templates.historyItem(item, i, info);
+        }).join('');
+        
+        return `
+            <div class="bg-white rounded-3xl shadow-2xl p-8 mb-8 border-2 border-gray-100">
+                <div class="flex items-center justify-between mb-6 flex-wrap gap-4">
+                    <h2 class="text-2xl md:text-3xl font-black text-gray-800 flex items-center gap-3">
+                        <span class="text-4xl">📜</span>
+                        <span>Histórico</span>
+                        <span class="text-lg font-normal text-gray-500">(${this.state.history.length})</span>
+                    </h2>
+                    <button onclick="PasswordGenerator.clearHistory()" 
+                            class="px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 rounded-xl font-bold transition-all">
+                        🗑️ Limpar
+                    </button>
+                </div>
+                
+                <div class="space-y-3">
+                    ${historyItems}
+                </div>
+            </div>
+        `;
+    },
+    
+    renderTips() {
+        const tips = [
+            { icon: '🔐', title: 'Senhas Únicas', desc: 'Uma senha diferente por conta' },
+            { icon: '📏', title: 'Comprimento', desc: 'Mínimo 16 caracteres' },
+            { icon: '🔠', title: 'Variedade', desc: 'Misture tipos de caracteres' },
+            { icon: '🚫', title: 'Evite Padrões', desc: 'Sem dados pessoais' },
+            { icon: '💾', title: 'Gerenciador', desc: 'Use um gerenciador confiável' },
+            { icon: '🔄', title: 'Atualize', desc: 'Mude regularmente' }
+        ];
+        
+        return `
+            <div class="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-3xl p-8 text-white shadow-2xl">
+                <div class="flex items-start gap-4 mb-6">
+                    <div class="text-6xl">💡</div>
+                    <div>
+                        <h3 class="text-3xl font-black mb-2">Dicas de Segurança</h3>
+                        <p class="text-blue-100 text-lg">Proteja suas contas にゃん~</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    ${tips.map(tip => `
+                        <div class="bg-white/10 backdrop-blur-sm rounded-xl p-4 hover:bg-white/20 transition-all">
+                            <div class="text-4xl mb-2">${tip.icon}</div>
+                            <div class="font-bold text-lg mb-1">${tip.title}</div>
+                            <div class="text-sm text-blue-100">${tip.desc}</div>
+                        </div>
+                    `).join('')}
+                </div>
+            </div>
+        `;
+    },
+    
+    // Inicialização
     init() {
-        // Listener para o slider de comprimento
-        document.getElementById('password-length')?.addEventListener('input', (e) => {
-            this.config.length = parseInt(e.target.value);
-            document.getElementById('length-display').textContent = this.config.length;
+        this.loadHistory();
+        this.cacheElements();
+        this.attachListeners();
+    },
+    
+    cacheElements() {
+        this.cache = {
+            lengthSlider: document.getElementById('password-length'),
+            lengthDisplay: document.getElementById('length-display'),
+            uppercase: document.getElementById('uppercase'),
+            lowercase: document.getElementById('lowercase'),
+            numbers: document.getElementById('numbers'),
+            symbols: document.getElementById('symbols'),
+            result: document.getElementById('password-result'),
+            password: document.getElementById('generated-password'),
+            strength: document.getElementById('password-strength'),
+            meter: document.getElementById('strength-meter')
+        };
+    },
+    
+    attachListeners() {
+        // Slider otimizado com requestAnimationFrame
+        let rafId = null;
+        this.cache.lengthSlider?.addEventListener('input', (e) => {
+            if (rafId) cancelAnimationFrame(rafId);
+            rafId = requestAnimationFrame(() => {
+                this.config.length = parseInt(e.target.value);
+                if (this.cache.lengthDisplay) {
+                    this.cache.lengthDisplay.textContent = this.config.length;
+                }
+            });
         });
         
-        // Listeners para checkboxes
+        // Checkboxes com event delegation no change
         ['uppercase', 'lowercase', 'numbers', 'symbols'].forEach(id => {
-            document.getElementById(id)?.addEventListener('change', (e) => {
-                this.config[id] = e.target.checked;
-            });
+            const checkbox = this.cache[id];
+            if (checkbox) {
+                // Remove listeners antigos
+                checkbox.replaceWith(checkbox.cloneNode(true));
+                
+                // Pega referência atualizada
+                const newCheckbox = document.getElementById(id);
+                
+                if (newCheckbox) {
+                    newCheckbox.addEventListener('change', (e) => {
+                        this.config[id] = e.target.checked;
+                        console.log(`${id}: ${e.target.checked}`); // Debug
+                    });
+                    
+                    // Atualiza cache
+                    this.cache[id] = newCheckbox;
+                }
+            }
         });
     },
     
+    // Geração de senha com crypto API
     generate() {
-        const chars = {
-            uppercase: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
-            lowercase: 'abcdefghijklmnopqrstuvwxyz',
-            numbers: '0123456789',
-            symbols: '!@#$%^&*()_+-=[]{}|;:,.<>?'
-        };
+        const chars = this.buildCharset();
         
-        let availableChars = '';
-        Object.keys(this.config).forEach(key => {
-            if (this.config[key] && chars[key]) {
-                availableChars += chars[key];
-            }
-        });
-        
-        if (!availableChars) {
-            availableChars = chars.lowercase;
-            Utils.showNotification('⚠️ Selecione ao menos um tipo de caractere', 'warning');
+        if (!chars) {
+            this.config.lowercase = true;
+            if (this.cache.lowercase) this.cache.lowercase.checked = true;
+            Utils.showNotification('⚠️ Selecione ao menos um tipo', 'warning');
+            return this.generate();
         }
         
-        let password = '';
-        for (let i = 0; i < this.config.length; i++) {
-            password += availableChars.charAt(Math.floor(Math.random() * availableChars.length));
-        }
-        
-        this.generatedPassword = password;
+        this.state.currentPassword = this.generateSecurePassword(chars);
         this.displayPassword();
+        Utils.showNotification('✅ Senha gerada!', 'success');
+    },
+    
+    buildCharset() {
+        return Object.keys(this.CHAR_SETS)
+            .filter(key => this.config[key])
+            .map(key => this.CHAR_SETS[key])
+            .join('');
+    },
+    
+    generateSecurePassword(chars) {
+        const length = this.config.length;
+        const array = new Uint32Array(length);
+        
+        // Usa crypto API para segurança máxima
+        crypto.getRandomValues(array);
+        
+        return Array.from(array, num => chars[num % chars.length]).join('');
     },
     
     displayPassword() {
-        const resultDiv = document.getElementById('password-result');
-        resultDiv.classList.remove('hidden');
-        document.getElementById('generated-password').textContent = this.generatedPassword;
-        
-        // Calcular força da senha
-        const strength = this.calculateStrength();
-        const strengthEl = document.getElementById('password-strength');
-        
-        if (strength >= 80) {
-            strengthEl.innerHTML = '<span class="flex items-center gap-2"><span class="text-2xl">🟢</span><span class="text-green-700">Muito Forte</span></span>';
-        } else if (strength >= 60) {
-            strengthEl.innerHTML = '<span class="flex items-center gap-2"><span class="text-2xl">🔵</span><span class="text-blue-700">Forte</span></span>';
-        } else if (strength >= 40) {
-            strengthEl.innerHTML = '<span class="flex items-center gap-2"><span class="text-2xl">🟡</span><span class="text-yellow-700">Média</span></span>';
-        } else {
-            strengthEl.innerHTML = '<span class="flex items-center gap-2"><span class="text-2xl">🔴</span><span class="text-red-700">Fraca</span></span>';
+        this.cache.result?.classList.remove('hidden');
+        if (this.cache.password) {
+            this.cache.password.textContent = this.state.currentPassword;
         }
         
-        // Scroll suave até o resultado
-        resultDiv.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        this.updateStrength();
+        
+        setTimeout(() => {
+            this.cache.result?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }, 100);
+    },
+    
+    updateStrength() {
+        const strength = this.calculateStrength();
+        const info = this.getStrengthInfo(strength);
+        
+        // Atualiza display
+        if (this.cache.strength) {
+            this.cache.strength.innerHTML = `
+                <span class="flex items-center gap-2">
+                    <span class="text-3xl">${info.emoji}</span>
+                    <span class="text-${info.color}-400">${info.label}</span>
+                    <span class="text-gray-400">(${strength})</span>
+                </span>
+            `;
+        }
+        
+        // Atualiza meter
+        if (this.cache.meter) {
+            this.cache.meter.innerHTML = `
+                <div class="bg-gradient-to-r ${info.gradient} h-full transition-all duration-1000 flex items-center justify-end px-3" 
+                     style="width: ${strength}%">
+                    <span class="text-white font-bold text-sm">${strength}%</span>
+                </div>
+            `;
+        }
     },
     
     calculateStrength() {
-        let strength = 0;
+        let score = Math.min(this.config.length * 2, 40);
         
-        // Comprimento
-        strength += Math.min(this.config.length * 2, 40);
+        const types = ['uppercase', 'lowercase', 'numbers', 'symbols'];
+        score += types.filter(t => this.config[t]).length * 15;
         
-        // Variedade de caracteres
-        if (this.config.uppercase) strength += 15;
-        if (this.config.lowercase) strength += 15;
-        if (this.config.numbers) strength += 15;
-        if (this.config.symbols) strength += 15;
-        
-        return Math.min(strength, 100);
+        return Math.min(score, 100);
     },
     
+    getStrengthInfo(strength) {
+        return Object.values(this.STRENGTH).find(s => strength >= s.min);
+    },
+    
+    // Ações
     copy() {
-        Utils.copyToClipboard(this.generatedPassword);
+        if (!this.state.currentPassword) {
+            Utils?.showNotification('❌ Nenhuma senha gerada', 'error');
+            return;
+        }
+        
+        // Tenta usar a API moderna primeiro
+        navigator.clipboard.writeText(this.state.currentPassword).then(() => {
+            Utils?.showNotification('📋 Senha copiada!', 'success');
+        }).catch(() => {
+            // Fallback para método compatível com navegadores antigos
+            const textarea = document.createElement('textarea');
+            textarea.value = this.state.currentPassword;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            try {
+                document.execCommand('copy');
+                Utils?.showNotification('📋 Senha copiada!', 'success');
+            } catch (err) {
+                Utils?.showNotification('❌ Erro ao copiar', 'error');
+            }
+            document.body.removeChild(textarea);
+        });
+    },
+    
+    saveToHistory() {
+        if (!this.state.currentPassword) {
+            Utils.showNotification('⚠️ Gere uma senha primeiro', 'warning');
+            return;
+        }
+        
+        const item = {
+            password: this.state.currentPassword,
+            strength: this.calculateStrength(),
+            date: new Date().toLocaleString('pt-BR', { 
+                day: '2-digit', 
+                month: '2-digit', 
+                hour: '2-digit', 
+                minute: '2-digit' 
+            })
+        };
+        
+        this.state.history.unshift(item);
+        
+        if (this.state.history.length > this.state.maxHistory) {
+            this.state.history.pop();
+        }
+        
+        this.saveHistoryToStorage();
+        Utils.showNotification('💾 Salva no histórico!', 'success');
+        Router.render();
+    },
+    
+    copyFromHistory(index) {
+        const item = this.state.history[index];
+        if (item && item.password) {
+            // Copia para o clipboard
+            navigator.clipboard.writeText(item.password).then(() => {
+                Utils?.showNotification('📋 Senha copiada do histórico!', 'success');
+            }).catch(() => {
+                // Fallback para método antigo
+                const textarea = document.createElement('textarea');
+                textarea.value = item.password;
+                textarea.style.position = 'fixed';
+                textarea.style.opacity = '0';
+                document.body.appendChild(textarea);
+                textarea.select();
+                try {
+                    document.execCommand('copy');
+                    Utils?.showNotification('📋 Senha copiada do histórico!', 'success');
+                } catch (err) {
+                    Utils?.showNotification('❌ Erro ao copiar', 'error');
+                }
+                document.body.removeChild(textarea);
+            });
+        } else {
+            Utils?.showNotification('❌ Senha não encontrada', 'error');
+        }
+    },
+    
+    clearHistory() {
+        if (!confirm('🗑️ Limpar todo o histórico?')) return;
+        
+        this.state.history = [];
+        this.saveHistoryToStorage();
+        Utils.showNotification('🗑️ Histórico limpo!', 'info');
+        Router.render();
+    },
+    
+    analyzePassword() {
+        const strength = this.calculateStrength();
+        const info = this.getStrengthInfo(strength);
+        
+        const types = {
+            uppercase: this.config.uppercase,
+            lowercase: this.config.lowercase,
+            numbers: this.config.numbers,
+            symbols: this.config.symbols
+        };
+        
+        const enabledTypes = Object.values(types).filter(Boolean).length;
+        
+        const message = `
+🔍 ANÁLISE DA SENHA
+
+${info.emoji} Força: ${info.label} (${strength}/100)
+
+📊 Composição:
+• Comprimento: ${this.config.length} caracteres
+• Maiúsculas: ${types.uppercase ? '✅' : '❌'}
+• Minúsculas: ${types.lowercase ? '✅' : '❌'}
+• Números: ${types.numbers ? '✅' : '❌'}
+• Símbolos: ${types.symbols ? '✅' : '❌'}
+
+💡 Variedade: ${enabledTypes}/4 tipos
+
+⏱️ Tempo estimado para quebrar:
+${this.estimateCrackTime()}
+
+${this.getRecommendations(strength, enabledTypes)}
+        `.trim();
+        
+        alert(message);
+    },
+    
+    estimateCrackTime() {
+        const length = this.config.length;
+        const types = ['uppercase', 'lowercase', 'numbers', 'symbols'];
+        const enabledTypes = types.filter(t => this.config[t]).length;
+        
+        if (length < 8) return '⚠️ Segundos a minutos (MUITO FRACA)';
+        if (length < 12 && enabledTypes < 3) return '⚠️ Minutos a horas (FRACA)';
+        if (length < 16) return '🟡 Dias a semanas (MÉDIA)';
+        if (length < 20) return '🔵 Anos (FORTE)';
+        return '🟢 Milhões de anos (MUITO FORTE)';
+    },
+    
+    getRecommendations(strength, types) {
+        const recs = [];
+        
+        if (strength < 60) recs.push('• Aumente o comprimento para 16+');
+        if (types < 4) recs.push('• Ative todos os tipos de caracteres');
+        if (this.config.length < 16) recs.push('• Use no mínimo 16 caracteres');
+        
+        return recs.length > 0 
+            ? `\n🎯 Recomendações:\n${recs.join('\n')}`
+            : '\n✅ Excelente! Senha muito segura!';
+    },
+    
+    // Persistência
+    loadHistory() {
+        try {
+            const saved = localStorage.getItem('password_history');
+            if (saved) {
+                this.state.history = JSON.parse(saved);
+            }
+        } catch (e) {
+            console.error('Erro ao carregar histórico:', e);
+        }
+    },
+    
+    saveHistoryToStorage() {
+        try {
+            localStorage.setItem('password_history', JSON.stringify(this.state.history));
+        } catch (e) {
+            console.error('Erro ao salvar histórico:', e);
+        }
     }
 };
 
+// Export global
 window.PasswordGenerator = PasswordGenerator;

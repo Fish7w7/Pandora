@@ -1,38 +1,51 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
 const path = require('path');
-const fs = require('fs');
+const fs = require('fs').promises;
+const fsSync = require('fs');
 const https = require('https');
 
 // ============================================
-// 🔧 FIX: DESABILITAR ACELERAÇÃO GPU
+// 🔧 OTIMIZAÇÃO: GPU E PERFORMANCE
 // ============================================
-// Isso resolve os 3 erros "GPU process exited unexpectedly"
-// que causam as piscadas na inicialização
-console.log('🔧 Desabilitando aceleração de hardware...');
+console.log('🔧 Aplicando otimizações de performance...');
+
+// Desabilitar aceleração de hardware para estabilidade
 app.disableHardwareAcceleration();
 
-// ============================================
-// 🔧 FIX: FLAGS ADICIONAIS PARA ESTABILIDADE
-// ============================================
-app.commandLine.appendSwitch('disable-gpu');
-app.commandLine.appendSwitch('disable-gpu-compositing');
-app.commandLine.appendSwitch('disable-software-rasterizer');
-app.commandLine.appendSwitch('no-sandbox');
+// Flags otimizadas para melhor desempenho
+const performanceFlags = [
+    'disable-gpu',
+    'disable-gpu-compositing',
+    'disable-software-rasterizer',
+    'no-sandbox',
+    'disable-dev-shm-usage',
+    'disable-setuid-sandbox',
+    'disable-background-timer-throttling',
+    'disable-backgrounding-occluded-windows',
+    'disable-renderer-backgrounding'
+];
 
-let mainWindow;
+performanceFlags.forEach(flag => app.commandLine.appendSwitch(flag));
 
+// ============================================
+// 🎯 CACHE E CONFIGURAÇÕES
+// ============================================
+let mainWindow = null;
+let isQuitting = false;
+
+// Cache para ícones
+const iconCache = new Map();
+
+// ============================================
+// 🪟 CRIAÇÃO DA JANELA (OTIMIZADA)
+// ============================================
 function createWindow() {
     const iconPath = getIconPath();
-    
-    // 🔧 FIX: Verificar se preload.js existe
     const preloadPath = path.join(__dirname, 'preload.js');
-    const hasPreload = require('fs').existsSync(preloadPath);
+    const hasPreload = fsSync.existsSync(preloadPath);
     
     if (!hasPreload) {
-        console.warn('⚠️ preload.js não encontrado em:', preloadPath);
-        console.log('⚠️ Continuando sem API nativa de atualização');
-    } else {
-        console.log('✅ preload.js encontrado em:', preloadPath);
+        console.warn('⚠️ preload.js não encontrado - API nativa desabilitada');
     }
     
     mainWindow = new BrowserWindow({
@@ -44,13 +57,15 @@ function createWindow() {
             nodeIntegration: false,
             contextIsolation: true,
             preload: hasPreload ? preloadPath : undefined,
-            // 🔧 FIX: Desabilitar aceleração no renderer também
             enableBlinkFeatures: '',
-            disableBlinkFeatures: 'Accelerated2dCanvas,AcceleratedSmallCanvases'
+            disableBlinkFeatures: 'Accelerated2dCanvas,AcceleratedSmallCanvases',
+            // Otimizações adicionais
+            spellcheck: false,
+            backgroundThrottling: false,
+            offscreen: false
         },
         frame: true,
         backgroundColor: '#1a1a2e',
-        // 🔧 FIX: NÃO mostrar até estar 100% pronto
         show: false,
         icon: iconPath,
         title: 'NyanTools にゃん~'
@@ -58,89 +73,141 @@ function createWindow() {
 
     const indexPath = path.join(__dirname, '../../frontend/public/index.html');
     
-    console.log('🐱 NyanTools iniciando... にゃん~');
-    console.log('📂 Diretório atual:', __dirname);
-    console.log('📄 Carregando aplicação de:', indexPath);
-    console.log('🎨 Ícone carregado de:', iconPath);
+    console.log('🐱 NyanTools v2.7.0 (Performance Update)');
+    console.log('📂 Diretório:', __dirname);
+    console.log('📄 Carregando:', indexPath);
     
     mainWindow.loadFile(indexPath);
 
-    // 🔧 FIX: Mostrar apenas quando TUDO estiver carregado
+    // Mostrar janela quando pronta (com delay mínimo)
     mainWindow.once('ready-to-show', () => {
-        // Pequeno delay adicional para garantir que está 100% pronto
         setTimeout(() => {
-            mainWindow.show();
-            console.log('✅ NyanTools iniciado com sucesso! にゃん~');
-        }, 100);
+            if (!mainWindow?.isDestroyed()) {
+                mainWindow.show();
+                console.log('✅ NyanTools iniciado! にゃん~');
+            }
+        }, 50); // Reduzido de 100ms para 50ms
     });
 
+    // DevTools apenas em desenvolvimento
     if (process.env.NODE_ENV === 'development') {
-        mainWindow.webContents.openDevTools();
+        mainWindow.webContents.openDevTools({ mode: 'detach' });
     }
 
     mainWindow.on('closed', () => {
         mainWindow = null;
     });
     
-    mainWindow.webContents.on('did-fail-load', (event, errorCode, errorDescription, validatedURL) => {
-        console.error('❌ Erro ao carregar:', errorCode, errorDescription);
-        console.error('❌ URL tentada:', validatedURL);
-    });
-
-    // 🔧 FIX: Suprimir erros de GPU no console
-    mainWindow.webContents.on('console-message', (event, level, message) => {
-        if (message.includes('GPU') || message.includes('gpu_process_host')) {
-            return; // Ignorar logs de erro da GPU
+    mainWindow.on('close', (e) => {
+        if (!isQuitting) {
+            // Permitir que a janela feche normalmente
         }
     });
-}
-
-function getIconPath() {
-    const iconsDir = path.join(__dirname, '../../frontend/public/assets/icons');
     
-    if (process.platform === 'win32') {
-        return path.join(iconsDir, 'icon.ico');
-    } else if (process.platform === 'darwin') {
-        return path.join(iconsDir, 'icon.icns');
-    } else {
-        return path.join(iconsDir, 'icon.png');
-    }
+    // Filtrar logs desnecessários
+    mainWindow.webContents.on('console-message', (event, level, message) => {
+        if (message.includes('GPU') || 
+            message.includes('gpu_process_host') ||
+            message.includes('DevTools')) {
+            return;
+        }
+    });
+
+    // Otimização de memória: limpar cache periodicamente
+    setInterval(() => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.session.clearCache();
+        }
+    }, 600000); // A cada 10 minutos
 }
 
 // ============================================
-// 🆕 SISTEMA DE AUTO-UPDATE NATIVO
+// 🎨 GERENCIAMENTO DE ÍCONES (CACHED)
+// ============================================
+function getIconPath() {
+    const platform = process.platform;
+    
+    if (iconCache.has(platform)) {
+        return iconCache.get(platform);
+    }
+    
+    const iconsDir = path.join(__dirname, '../../frontend/public/assets/icons');
+    let iconPath;
+    
+    switch (platform) {
+        case 'win32':
+            iconPath = path.join(iconsDir, 'icon.ico');
+            break;
+        case 'darwin':
+            iconPath = path.join(iconsDir, 'icon.icns');
+            break;
+        default:
+            iconPath = path.join(iconsDir, 'icon.png');
+    }
+    
+    iconCache.set(platform, iconPath);
+    return iconPath;
+}
+
+// ============================================
+// 🔄 SISTEMA DE AUTO-UPDATE (OTIMIZADO)
 // ============================================
 
-// IPC: Verificar atualizações
+// Rate limiting para evitar requests excessivos
+let lastUpdateCheck = 0;
+const UPDATE_CHECK_COOLDOWN = 300000; // 5 minutos
+
 ipcMain.handle('check-for-updates', async () => {
     try {
+        const now = Date.now();
+        
+        // Rate limiting
+        if (now - lastUpdateCheck < UPDATE_CHECK_COOLDOWN) {
+            return {
+                success: false,
+                error: 'Aguarde alguns minutos antes de verificar novamente'
+            };
+        }
+        
+        lastUpdateCheck = now;
+        
         console.log('🔍 Verificando atualizações...');
         
-        const response = await fetch('https://api.github.com/repos/Fish7w7/Pandora/releases/latest');
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10s timeout
+        
+        const response = await fetch(
+            'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
+            { 
+                signal: controller.signal,
+                headers: {
+                    'User-Agent': 'NyanTools-Updater',
+                    'Accept': 'application/vnd.github.v3+json'
+                }
+            }
+        );
+        
+        clearTimeout(timeoutId);
         
         if (!response.ok) {
-            throw new Error(`Erro HTTP ${response.status}`);
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
         }
         
         const data = await response.json();
+        console.log('✅ Versão disponível:', data.tag_name);
         
-        console.log('✅ Versão mais recente:', data.tag_name);
-        
-        return {
-            success: true,
-            data: data
-        };
+        return { success: true, data };
         
     } catch (error) {
-        console.error('❌ Erro ao verificar atualizações:', error);
+        console.error('❌ Erro ao verificar atualizações:', error.message);
         return {
             success: false,
-            error: error.message
+            error: error.name === 'AbortError' ? 'Timeout na requisição' : error.message
         };
     }
 });
 
-// IPC: Baixar atualização
+// Download otimizado com throttling de progresso
 ipcMain.handle('download-update', async (event, downloadUrl, fileName) => {
     try {
         console.log('📥 Iniciando download:', fileName);
@@ -149,159 +216,142 @@ ipcMain.handle('download-update', async (event, downloadUrl, fileName) => {
         const filePath = path.join(downloadsPath, fileName);
         
         return new Promise((resolve, reject) => {
-            const file = fs.createWriteStream(filePath);
+            const file = fsSync.createWriteStream(filePath);
+            let lastProgressUpdate = 0;
+            const PROGRESS_THROTTLE = 100; // Atualizar a cada 100ms no máximo
             
-            https.get(downloadUrl, (response) => {
-                if (response.statusCode === 302 || response.statusCode === 301) {
-                    // Seguir redirecionamento
-                    https.get(response.headers.location, (redirectResponse) => {
-                        const totalBytes = parseInt(redirectResponse.headers['content-length'], 10);
-                        let downloadedBytes = 0;
-                        
-                        redirectResponse.pipe(file);
-                        
-                        redirectResponse.on('data', (chunk) => {
-                            downloadedBytes += chunk.length;
-                            const progress = Math.round((downloadedBytes / totalBytes) * 100);
-                            
-                            // Enviar progresso para o frontend
-                            mainWindow.webContents.send('download-progress', {
-                                progress: progress,
-                                downloadedBytes: downloadedBytes,
-                                totalBytes: totalBytes
-                            });
-                            
-                            console.log(`📊 Progresso: ${progress}%`);
-                        });
-                        
-                        redirectResponse.on('end', () => {
-                            file.end();
-                            console.log('✅ Download concluído:', filePath);
-                            resolve({
-                                success: true,
-                                filePath: filePath
-                            });
-                        });
-                        
-                        redirectResponse.on('error', (error) => {
-                            file.close();
-                            fs.unlinkSync(filePath);
-                            reject(error);
-                        });
-                    }).on('error', reject);
-                } else {
-                    const totalBytes = parseInt(response.headers['content-length'], 10);
-                    let downloadedBytes = 0;
+            const handleResponse = (response) => {
+                const totalBytes = parseInt(response.headers['content-length'], 10);
+                let downloadedBytes = 0;
+                
+                response.pipe(file);
+                
+                response.on('data', (chunk) => {
+                    downloadedBytes += chunk.length;
+                    const now = Date.now();
                     
-                    response.pipe(file);
-                    
-                    response.on('data', (chunk) => {
-                        downloadedBytes += chunk.length;
+                    // Throttling de progresso para melhor performance
+                    if (now - lastProgressUpdate >= PROGRESS_THROTTLE) {
                         const progress = Math.round((downloadedBytes / totalBytes) * 100);
                         
-                        mainWindow.webContents.send('download-progress', {
-                            progress: progress,
-                            downloadedBytes: downloadedBytes,
-                            totalBytes: totalBytes
-                        });
+                        if (mainWindow && !mainWindow.isDestroyed()) {
+                            mainWindow.webContents.send('download-progress', {
+                                progress,
+                                downloadedBytes,
+                                totalBytes
+                            });
+                        }
                         
-                        console.log(`📊 Progresso: ${progress}%`);
-                    });
+                        lastProgressUpdate = now;
+                    }
+                });
+                
+                response.on('end', () => {
+                    file.end();
+                    console.log('✅ Download concluído:', filePath);
                     
-                    response.on('end', () => {
-                        file.end();
-                        console.log('✅ Download concluído:', filePath);
-                        resolve({
-                            success: true,
-                            filePath: filePath
+                    // Enviar progresso final
+                    if (mainWindow && !mainWindow.isDestroyed()) {
+                        mainWindow.webContents.send('download-progress', {
+                            progress: 100,
+                            downloadedBytes: totalBytes,
+                            totalBytes
                         });
-                    });
+                    }
                     
-                    response.on('error', (error) => {
-                        file.close();
-                        fs.unlinkSync(filePath);
-                        reject(error);
-                    });
+                    resolve({ success: true, filePath });
+                });
+                
+                response.on('error', (error) => {
+                    file.close();
+                    fsSync.existsSync(filePath) && fsSync.unlinkSync(filePath);
+                    reject(error);
+                });
+            };
+            
+            https.get(downloadUrl, (response) => {
+                // Seguir redirecionamentos
+                if (response.statusCode === 302 || response.statusCode === 301) {
+                    https.get(response.headers.location, handleResponse)
+                        .on('error', (error) => {
+                            file.close();
+                            fsSync.existsSync(filePath) && fsSync.unlinkSync(filePath);
+                            reject(error);
+                        });
+                } else {
+                    handleResponse(response);
                 }
             }).on('error', (error) => {
                 file.close();
-                fs.unlinkSync(filePath);
+                fsSync.existsSync(filePath) && fsSync.unlinkSync(filePath);
                 reject(error);
             });
         });
         
     } catch (error) {
-        console.error('❌ Erro no download:', error);
-        return {
-            success: false,
-            error: error.message
-        };
+        console.error('❌ Erro no download:', error.message);
+        return { success: false, error: error.message };
     }
 });
 
-// IPC: Instalar atualização
+// Instalação de atualização
 ipcMain.handle('install-update', async (event, filePath) => {
     try {
-        console.log('🔧 Instalando atualização:', filePath);
+        // Verificar se arquivo existe
+        if (!fsSync.existsSync(filePath)) {
+            throw new Error('Arquivo de atualização não encontrado');
+        }
         
-        // Mostrar diálogo de confirmação
+        console.log('🔧 Preparando instalação:', filePath);
+        
         const result = await dialog.showMessageBox(mainWindow, {
             type: 'question',
             buttons: ['Instalar Agora', 'Cancelar'],
             defaultId: 0,
             title: 'Instalar Atualização',
-            message: 'A atualização foi baixada com sucesso!',
+            message: 'Atualização baixada com sucesso!',
             detail: 'Deseja instalar agora? O aplicativo será fechado durante a instalação.',
             icon: getIconPath()
         });
         
         if (result.response === 0) {
-            // Usuário clicou em "Instalar Agora"
-            const { shell } = require('electron');
-            
-            // Abrir o instalador
+            isQuitting = true;
             await shell.openPath(filePath);
             
-            // Fechar o app após 2 segundos
-            setTimeout(() => {
-                app.quit();
-            }, 2000);
-            
+            setTimeout(() => app.quit(), 1500);
             return { success: true };
-        } else {
-            return { success: false, cancelled: true };
         }
         
+        return { success: false, cancelled: true };
+        
     } catch (error) {
-        console.error('❌ Erro ao instalar:', error);
-        return {
-            success: false,
-            error: error.message
-        };
+        console.error('❌ Erro ao instalar:', error.message);
+        return { success: false, error: error.message };
     }
 });
 
-// IPC: Abrir pasta de downloads
+// Abrir pasta de downloads
 ipcMain.handle('open-downloads-folder', async () => {
     try {
-        const { shell } = require('electron');
         const downloadsPath = app.getPath('downloads');
         await shell.openPath(downloadsPath);
         return { success: true };
     } catch (error) {
+        console.error('❌ Erro ao abrir pasta:', error.message);
         return { success: false, error: error.message };
     }
 });
 
 // ============================================
-// APP LIFECYCLE
+// 🚀 LIFECYCLE DO APP
 // ============================================
 
 app.whenReady().then(() => {
-    console.log('🐱 NyanTools v2.5.0');
-    console.log('📁 App path:', app.getAppPath());
+    console.log('🐱 NyanTools v2.7.0 - Performance Update');
+    console.log('📂 App path:', app.getAppPath());
     console.log('🖥️ Plataforma:', process.platform);
     console.log('📥 Downloads:', app.getPath('downloads'));
+    
     createWindow();
 
     app.on('activate', () => {
@@ -313,15 +363,25 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') {
+        isQuitting = true;
         app.quit();
     }
 });
 
-// 🔧 FIX: Suprimir erros não críticos
+app.on('before-quit', () => {
+    isQuitting = true;
+});
+
+// Tratamento de erros não críticos
 process.on('uncaughtException', (error) => {
-    // Ignorar erros de GPU que não afetam o funcionamento
-    if (error.message.includes('GPU') || error.message.includes('gpu_process_host')) {
+    if (error.message.includes('GPU') || 
+        error.message.includes('gpu_process_host') ||
+        error.message.includes('ECONNRESET')) {
         return;
     }
-    console.error('❌ Erro não capturado:', error);
+    console.error('❌ Erro não capturado:', error.message);
+});
+
+process.on('unhandledRejection', (reason) => {
+    console.error('❌ Promise rejeitada:', reason);
 });

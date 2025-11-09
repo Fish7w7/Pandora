@@ -1,41 +1,49 @@
-// Utilitários Globais
+// ============================================
+// 🛠️ UTILITÁRIOS GLOBAIS - NyanTools にゃん~
+// Versão Otimizada v2.0
+// ============================================
+
 const Utils = {
-    copyToClipboard(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            this.showNotification('✅ Copiado!', 'success');
-        }).catch(() => {
-            this.showNotification('❌ Erro ao copiar', 'error');
-        });
+    // Configurações de notificação
+    notificationConfig: {
+        success: { bg: 'from-green-400 to-emerald-500', icon: '✔', iconBg: 'bg-white/30' },
+        error: { bg: 'from-red-400 to-pink-500', icon: '✕', iconBg: 'bg-white/30' },
+        warning: { bg: 'from-amber-400 to-orange-500', icon: '!', iconBg: 'bg-white/30' },
+        info: { bg: 'from-blue-400 to-cyan-500', icon: 'i', iconBg: 'bg-white/30' }
     },
     
+    // ============================================
+    // CLIPBOARD
+    // ============================================
+    
+    copyToClipboard(text) {
+        navigator.clipboard.writeText(text)
+            .then(() => this.showNotification('✅ Copiado!', 'success'))
+            .catch(() => this.showNotification('❌ Erro ao copiar', 'error'));
+    },
+    
+    // ============================================
+    // NOTIFICAÇÕES
+    // ============================================
+    
     showNotification(message, type = 'info') {
-        const config = {
-            success: {
-                bg: 'from-green-400 to-emerald-500',
-                icon: '✓',
-                iconBg: 'bg-white/30'
-            },
-            error: {
-                bg: 'from-red-400 to-pink-500',
-                icon: '✕',
-                iconBg: 'bg-white/30'
-            },
-            warning: {
-                bg: 'from-amber-400 to-orange-500',
-                icon: '!',
-                iconBg: 'bg-white/30'
-            },
-            info: {
-                bg: 'from-blue-400 to-cyan-500',
-                icon: 'i',
-                iconBg: 'bg-white/30'
-            }
-        };
+        const config = this.notificationConfig[type];
+        if (!config) {
+            console.error('Tipo de notificação inválido:', type);
+            return;
+        }
         
-        const { bg, icon, iconBg } = config[type];
+        const container = this.getNotificationContainer();
+        const notification = this.createNotification(message, config);
         
-        // Criar container de notificações se não existir
+        container.appendChild(notification);
+        this.animateNotificationIn(notification);
+        this.scheduleNotificationRemoval(notification, container);
+    },
+    
+    getNotificationContainer() {
         let container = document.getElementById('notifications-container');
+        
         if (!container) {
             container = document.createElement('div');
             container.id = 'notifications-container';
@@ -44,32 +52,35 @@ const Utils = {
             document.body.appendChild(container);
         }
         
-        // Criar notificação
+        return container;
+    },
+    
+    createNotification(message, config) {
         const notification = document.createElement('div');
-        notification.className = `pointer-events-auto transform transition-all duration-300`;
+        notification.className = 'pointer-events-auto transform transition-all duration-300';
         notification.style.opacity = '0';
         notification.style.transform = 'translateX(100%)';
         
-        notification.innerHTML = `
+        notification.innerHTML = this.renderNotification(message, config);
+        
+        return notification;
+    },
+    
+    renderNotification(message, config) {
+        return `
             <div class="relative group">
-                <!-- Glow effect -->
-                <div class="absolute -inset-0.5 bg-gradient-to-r ${bg} rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
+                <div class="absolute -inset-0.5 bg-gradient-to-r ${config.bg} rounded-xl blur opacity-30 group-hover:opacity-50 transition duration-300"></div>
                 
-                <!-- Card principal -->
-                <div class="relative bg-gradient-to-r ${bg} rounded-xl shadow-xl overflow-hidden">
-                    <!-- Conteúdo -->
+                <div class="relative bg-gradient-to-r ${config.bg} rounded-xl shadow-xl overflow-hidden">
                     <div class="flex items-center gap-3 p-3 pr-10">
-                        <!-- Ícone -->
-                        <div class="${iconBg} backdrop-blur-sm rounded-lg w-7 h-7 flex items-center justify-center flex-shrink-0">
-                            <span class="text-white text-sm font-black">${icon}</span>
+                        <div class="${config.iconBg} backdrop-blur-sm rounded-lg w-7 h-7 flex items-center justify-center flex-shrink-0">
+                            <span class="text-white text-sm font-black">${config.icon}</span>
                         </div>
                         
-                        <!-- Mensagem -->
                         <p class="text-white font-semibold text-sm leading-tight flex-1">
                             ${message}
                         </p>
                         
-                        <!-- Botão fechar -->
                         <button onclick="this.closest('.pointer-events-auto').style.opacity='0'; this.closest('.pointer-events-auto').style.transform='translateX(100%)'; setTimeout(() => this.closest('.pointer-events-auto').remove(), 300);" 
                                 class="absolute top-2 right-2 w-6 h-6 flex items-center justify-center rounded-lg hover:bg-white/20 transition-all group/btn">
                             <svg class="w-3.5 h-3.5 text-white group-hover/btn:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -78,36 +89,39 @@ const Utils = {
                         </button>
                     </div>
                     
-                    <!-- Barra de progresso -->
                     <div class="h-0.5 bg-white/20 relative overflow-hidden">
                         <div class="absolute inset-0 bg-white/40 animate-progress"></div>
                     </div>
                 </div>
             </div>
         `;
-        
-        container.appendChild(notification);
-        
-        // Animar entrada
+    },
+    
+    animateNotificationIn(notification) {
         requestAnimationFrame(() => {
             notification.style.opacity = '1';
             notification.style.transform = 'translateX(0)';
         });
-        
-        // Auto-remover após 4 segundos
+    },
+    
+    scheduleNotificationRemoval(notification, container) {
         setTimeout(() => {
             notification.style.opacity = '0';
             notification.style.transform = 'translateX(100%)';
+            
             setTimeout(() => {
                 notification.remove();
                 
-                // Remover container se vazio
                 if (container.children.length === 0) {
                     container.remove();
                 }
             }, 300);
         }, 4000);
     },
+    
+    // ============================================
+    // DATA & TIME
+    // ============================================
     
     formatDate(date) {
         return new Date(date).toLocaleDateString('pt-BR', {
@@ -119,9 +133,27 @@ const Utils = {
         });
     },
     
-    generateId() {
-        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    formatTime(seconds) {
+        if (isNaN(seconds)) return '0:00';
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
     },
+    
+    formatDuration(ms) {
+        const seconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(seconds / 60);
+        const hours = Math.floor(minutes / 60);
+        
+        if (hours > 0) {
+            return `${hours}h ${minutes % 60}m`;
+        }
+        return `${minutes}m ${seconds % 60}s`;
+    },
+    
+    // ============================================
+    // LOCAL STORAGE
+    // ============================================
     
     saveData(key, data) {
         try {
@@ -129,6 +161,7 @@ const Utils = {
             return true;
         } catch (e) {
             console.error('Erro ao salvar:', e);
+            this.showNotification('❌ Erro ao salvar dados', 'error');
             return false;
         }
     },
@@ -142,6 +175,50 @@ const Utils = {
             return null;
         }
     },
+    
+    removeData(key) {
+        try {
+            localStorage.removeItem(key);
+            return true;
+        } catch (e) {
+            console.error('Erro ao remover:', e);
+            return false;
+        }
+    },
+    
+    clearAllData() {
+        try {
+            localStorage.clear();
+            return true;
+        } catch (e) {
+            console.error('Erro ao limpar:', e);
+            return false;
+        }
+    },
+    
+    getStorageSize() {
+        let total = 0;
+        for (let key in localStorage) {
+            if (localStorage.hasOwnProperty(key)) {
+                total += localStorage[key].length + key.length;
+            }
+        }
+        return total;
+    },
+    
+    getStorageSizeFormatted() {
+        const bytes = this.getStorageSize();
+        const kb = (bytes / 1024).toFixed(2);
+        
+        if (kb < 1024) return `${kb} KB`;
+        
+        const mb = (kb / 1024).toFixed(2);
+        return `${mb} MB`;
+    },
+    
+    // ============================================
+    // API & FETCH
+    // ============================================
     
     async fetchAPI(url, options = {}) {
         try {
@@ -164,6 +241,85 @@ const Utils = {
         }
     },
     
+    async fetchWithTimeout(url, options = {}, timeout = 10000) {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), timeout);
+        
+        try {
+            const response = await fetch(url, {
+                ...options,
+                signal: controller.signal
+            });
+            
+            clearTimeout(timeoutId);
+            return response;
+        } catch (error) {
+            clearTimeout(timeoutId);
+            
+            if (error.name === 'AbortError') {
+                throw new Error('Request timeout');
+            }
+            throw error;
+        }
+    },
+    
+    // ============================================
+    // STRING UTILITIES
+    // ============================================
+    
+    truncate(text, length = 50) {
+        if (!text) return '';
+        return text.length > length ? text.substring(0, length) + '...' : text;
+    },
+    
+    capitalize(text) {
+        if (!text) return '';
+        return text.charAt(0).toUpperCase() + text.slice(1).toLowerCase();
+    },
+    
+    slugify(text) {
+        if (!text) return '';
+        return text
+            .toString()
+            .toLowerCase()
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .replace(/[^\w\s-]/g, '')
+            .replace(/[\s_-]+/g, '-')
+            .replace(/^-+|-+$/g, '');
+    },
+    
+    escapeHTML(text) {
+        const map = {
+            '&': '&amp;',
+            '<': '&lt;',
+            '>': '&gt;',
+            '"': '&quot;',
+            "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, m => map[m]);
+    },
+    
+    // ============================================
+    // ID GENERATION
+    // ============================================
+    
+    generateId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    },
+    
+    generateUUID() {
+        return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+            const r = Math.random() * 16 | 0;
+            const v = c === 'x' ? r : (r & 0x3 | 0x8);
+            return v.toString(16);
+        });
+    },
+    
+    // ============================================
+    // PERFORMANCE
+    // ============================================
+    
     debounce(func, wait) {
         let timeout;
         return function executedFunction(...args) {
@@ -176,8 +332,130 @@ const Utils = {
         };
     },
     
-    truncate(text, length = 50) {
-        return text.length > length ? text.substring(0, length) + '...' : text;
+    throttle(func, limit) {
+        let inThrottle;
+        return function(...args) {
+            if (!inThrottle) {
+                func.apply(this, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        };
+    },
+    
+    sleep(ms) {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    },
+    
+    // ============================================
+    // VALIDATION
+    // ============================================
+    
+    isValidEmail(email) {
+        const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return regex.test(email);
+    },
+    
+    isValidURL(url) {
+        try {
+            new URL(url);
+            return true;
+        } catch {
+            return false;
+        }
+    },
+    
+    isValidJSON(str) {
+        try {
+            JSON.parse(str);
+            return true;
+        } catch {
+            return false;
+        }
+    },
+    
+    // ============================================
+    // ARRAY UTILITIES
+    // ============================================
+    
+    shuffle(array) {
+        const shuffled = [...array];
+        for (let i = shuffled.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+        }
+        return shuffled;
+    },
+    
+    unique(array) {
+        return [...new Set(array)];
+    },
+    
+    chunk(array, size) {
+        const chunks = [];
+        for (let i = 0; i < array.length; i += size) {
+            chunks.push(array.slice(i, i + size));
+        }
+        return chunks;
+    },
+    
+    // ============================================
+    // NUMBER UTILITIES
+    // ============================================
+    
+    randomInt(min, max) {
+        return Math.floor(Math.random() * (max - min + 1)) + min;
+    },
+    
+    clamp(value, min, max) {
+        return Math.min(Math.max(value, min), max);
+    },
+    
+    formatNumber(num) {
+        return new Intl.NumberFormat('pt-BR').format(num);
+    },
+    
+    formatCurrency(value) {
+        return new Intl.NumberFormat('pt-BR', {
+            style: 'currency',
+            currency: 'BRL'
+        }).format(value);
+    },
+    
+    // ============================================
+    // DOM UTILITIES
+    // ============================================
+    
+    createElement(tag, attributes = {}, children = []) {
+        const element = document.createElement(tag);
+        
+        Object.entries(attributes).forEach(([key, value]) => {
+            if (key === 'className') {
+                element.className = value;
+            } else if (key === 'dataset') {
+                Object.entries(value).forEach(([dataKey, dataValue]) => {
+                    element.dataset[dataKey] = dataValue;
+                });
+            } else {
+                element.setAttribute(key, value);
+            }
+        });
+        
+        children.forEach(child => {
+            if (typeof child === 'string') {
+                element.appendChild(document.createTextNode(child));
+            } else {
+                element.appendChild(child);
+            }
+        });
+        
+        return element;
+    },
+    
+    removeElement(element) {
+        if (element && element.parentNode) {
+            element.parentNode.removeChild(element);
+        }
     }
 };
 

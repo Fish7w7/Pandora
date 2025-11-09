@@ -1,29 +1,37 @@
-// Sistema de Autenticação - CORRIGIDO
+/* ========================================
+   AUTH.JS OPTIMIZED v2.7.0
+   Sistema de Autenticação Otimizado
+   ======================================== */
+
 const Auth = {
     storageKey: 'toolbox_user',
     
-    // Fazer login
+    // Login com validação
     login(username, password) {
-        // Validações
-        if (!username || !password) {
-            return { success: false, error: 'Preencha todos os campos' };
-        }
+        // Validações consolidadas
+        const errors = this.validate(username, password);
+        if (errors) return { success: false, error: errors };
         
-        if (password.length < 4) {
-            return { success: false, error: 'Senha muito curta (mínimo 4 caracteres)' };
-        }
-        
-        // Criar objeto de usuário
+        // Criar e salvar usuário
         const user = {
-            username: username,
-            loginDate: new Date().toISOString(),
+            username: username.trim(),
+            loginDate: Date.now(),
             sessionId: this.generateSessionId()
         };
         
-        // Salvar no localStorage
         this.saveUser(user);
-        
         return { success: true, user };
+    },
+    
+    // Validação consolidada
+    validate(username, password) {
+        if (!username?.trim() || !password?.trim()) {
+            return 'Preencha todos os campos';
+        }
+        if (password.length < 4) {
+            return 'Senha muito curta (mínimo 4 caracteres)';
+        }
+        return null;
     },
     
     // Logout
@@ -31,29 +39,37 @@ const Auth = {
         localStorage.removeItem(this.storageKey);
     },
     
-    // Salvar usuário
+    // Salvar/Obter usuário (otimizado)
     saveUser(user) {
-        localStorage.setItem(this.storageKey, JSON.stringify(user));
+        try {
+            localStorage.setItem(this.storageKey, JSON.stringify(user));
+        } catch (e) {
+            console.error('❌ Erro ao salvar usuário:', e);
+        }
     },
     
-    // Obter usuário salvo
     getStoredUser() {
-        const stored = localStorage.getItem(this.storageKey);
-        return stored ? JSON.parse(stored) : null;
+        try {
+            const stored = localStorage.getItem(this.storageKey);
+            return stored ? JSON.parse(stored) : null;
+        } catch (e) {
+            console.error('❌ Erro ao obter usuário:', e);
+            return null;
+        }
     },
     
-    // Gerar ID de sessão
+    // Gerar session ID otimizado
     generateSessionId() {
-        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        return `session_${Date.now()}_${Math.random().toString(36).slice(2, 11)}`;
     },
     
-    // Verificar se está logado
+    // Verificar login
     isLoggedIn() {
-        return this.getStoredUser() !== null;
+        return !!this.getStoredUser();
     }
 };
 
-// 🔧 FIX: Configurar formulário de login
+// Setup do formulário de login (otimizado)
 function setupLoginForm() {
     const loginForm = document.getElementById('login-form');
     
@@ -64,19 +80,19 @@ function setupLoginForm() {
     
     console.log('🔧 Configurando formulário de login...');
     
-    // Remover listeners antigos (evitar duplicação)
+    // Remover listeners antigos clonando o elemento
     const newForm = loginForm.cloneNode(true);
     loginForm.parentNode.replaceChild(newForm, loginForm);
     
-    // Adicionar novo listener
-    newForm.addEventListener('submit', (e) => {
+    // Handler do formulário
+    const handleSubmit = (e) => {
         e.preventDefault();
         
-        const username = document.getElementById('login-username').value.trim();
-        const password = document.getElementById('login-password').value.trim();
+        const username = document.getElementById('login-username')?.value.trim();
+        const password = document.getElementById('login-password')?.value.trim();
         const errorDiv = document.getElementById('login-error');
         
-        console.log('🔑 Tentando login:', username);
+        console.log('🔐 Tentando login:', username);
         
         const result = Auth.login(username, password);
         
@@ -86,40 +102,41 @@ function setupLoginForm() {
             App.showMainApp();
         } else {
             console.log('❌ Login falhou:', result.error);
-            errorDiv.classList.remove('hidden');
-            errorDiv.querySelector('p').textContent = result.error;
-            
-            // Esconder erro após 3 segundos
-            setTimeout(() => {
-                errorDiv.classList.add('hidden');
-            }, 3000);
+            showLoginError(errorDiv, result.error);
+        }
+    };
+    
+    // Adicionar listener
+    newForm.addEventListener('submit', handleSubmit);
+    
+    // Habilitar inputs
+    ['login-username', 'login-password'].forEach(id => {
+        const input = document.getElementById(id);
+        if (input) {
+            input.disabled = false;
+            input.readOnly = false;
+            input.value = '';
         }
     });
     
-    // Garantir que inputs estejam habilitados
-    const usernameInput = document.getElementById('login-username');
-    const passwordInput = document.getElementById('login-password');
-    
-    if (usernameInput) {
-        usernameInput.disabled = false;
-        usernameInput.readOnly = false;
-        usernameInput.value = ''; // Limpar valor
-    }
-    
-    if (passwordInput) {
-        passwordInput.disabled = false;
-        passwordInput.readOnly = false;
-        passwordInput.value = ''; // Limpar valor
-    }
-    
-    console.log('✅ Formulário de login configurado com sucesso!');
+    console.log('✅ Formulário configurado!');
 }
 
-//Chamar setup quando o DOM carregar
-document.addEventListener('DOMContentLoaded', () => {
-    setupLoginForm();
-});
+// Mostrar erro de login (otimizado)
+function showLoginError(errorDiv, message) {
+    if (!errorDiv) return;
+    
+    errorDiv.classList.remove('hidden');
+    const errorText = errorDiv.querySelector('p');
+    if (errorText) errorText.textContent = message;
+    
+    // Auto-hide após 3s
+    setTimeout(() => errorDiv.classList.add('hidden'), 3000);
+}
 
-//Exportar função para poder chamar manualmente
-window.setupLoginForm = setupLoginForm;
+// Inicialização
+document.addEventListener('DOMContentLoaded', setupLoginForm);
+
+// Exports
 window.Auth = Auth;
+window.setupLoginForm = setupLoginForm;

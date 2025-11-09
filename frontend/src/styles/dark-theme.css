@@ -1,33 +1,137 @@
 /* ========================================
-   TEMA ESCURO - NyanTools にゃん~
-   VERSÃO 4.0 - ABORDAGEM INVERTIDA
+   FIX CRÍTICO PARA TERMO - DARK THEME
    ======================================== */
 
-:root {
-    --dark-bg-primary: #0f172a;
-    --dark-bg-secondary: #1e293b;
-    --dark-bg-tertiary: #334155;
-    --dark-text-primary: #f1f5f9;
-    --dark-text-secondary: #cbd5e1;
-    --dark-text-muted: #94a3b8;
-    --dark-border: #475569;
+/* TERMO - Cores do jogo NÃO devem ser sobrescritas */
+
+/* Células VERDES (corretas) - SEMPRE verde vibrante */
+body.dark-theme .bg-green-500 {
+    background-color: #10b981 !important;
+    color: white !important;
+    filter: brightness(1.2) !important;
 }
 
-/* ===== BASE ===== */
+/* Células AMARELAS (posição errada) - SEMPRE amarelo vibrante */
+body.dark-theme .bg-yellow-500 {
+    background-color: #eab308 !important;
+    color: white !important;
+    filter: brightness(1.1) !important;
+}
+
+/* Células CINZAS (ausentes) - cinza médio escuro */
+body.dark-theme .bg-gray-400 {
+    background-color: #64748b !important;
+    color: white !important;
+}
+
+/* Células vazias e input - fundo escuro */
+body.dark-theme .aspect-square.bg-white {
+    background-color: var(--dark-bg-tertiary) !important;
+    border-color: var(--dark-border-light) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+/* Células sendo digitadas - fundo claro escuro */
+body.dark-theme .aspect-square.bg-gray-200 {
+    background-color: var(--dark-bg-elevated) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+/* Teclado - teclas com status */
+body.dark-theme button.bg-green-500 {
+    background-color: #10b981 !important;
+    color: white !important;
+    filter: brightness(1.2) !important;
+}
+
+body.dark-theme button.bg-yellow-500 {
+    background-color: #eab308 !important;
+    color: white !important;
+    filter: brightness(1.1) !important;
+}
+
+body.dark-theme button.bg-gray-400 {
+    background-color: #64748b !important;
+    color: white !important;
+}
+
+/* Teclas não usadas */
+body.dark-theme button.bg-gray-200 {
+    background-color: var(--dark-bg-elevated) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+body.dark-theme button.bg-gray-200:hover {
+    background-color: var(--dark-bg-tertiary) !important;
+}
+
+/* Legenda - mantém cores vibrantes */
+body.dark-theme .bg-gradient-to-br.from-gray-50.to-gray-100 {
+    background: linear-gradient(to bottom right, var(--dark-bg-tertiary), var(--dark-bg-elevated)) !important;
+}
+
+/* IMPORTANTE: Garante que cores do jogo não sejam sobrescritas por outros estilos */
+body.dark-theme [class*="aspect-square"].bg-green-500,
+body.dark-theme [class*="aspect-square"].bg-yellow-500,
+body.dark-theme [class*="aspect-square"].bg-gray-400 {
+    border: none !important;
+}
+
+/* Border quando selecionado */
+body.dark-theme .aspect-square.border-blue-500 {
+    border-color: #3b82f6 !important;
+}
+
+body.dark-theme .aspect-square.ring-blue-200 {
+    --tw-ring-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+:root {
+    /* Paleta Dark Moderna */
+    --dark-bg-app: #0a0a0f;
+    --dark-bg-primary: #13131a;
+    --dark-bg-secondary: #1c1c24;
+    --dark-bg-tertiary: #25252e;
+    --dark-bg-elevated: #2d2d38;
+    
+    /* Textos */
+    --dark-text-primary: #ffffff;
+    --dark-text-secondary: #e2e8f0;
+    --dark-text-muted: #94a3b8;
+    --dark-text-disabled: #64748b;
+    
+    /* Bordas e Divisores */
+    --dark-border: #2d2d38;
+    --dark-border-light: #3a3a45;
+    
+    /* Overlays e Transparências */
+    --dark-overlay: rgba(0, 0, 0, 0.6);
+    --dark-glass: rgba(255, 255, 255, 0.03);
+}
+
+/* ===== BASE DO TEMA ESCURO ===== */
 body.dark-theme {
-    background-color: var(--dark-bg-primary);
+    background-color: var(--dark-bg-app);
     color: var(--dark-text-primary);
 }
 
-body.dark-theme #sidebar {
-    background: linear-gradient(to bottom, #1e1b4b, #312e81, #4c1d95);
-}
-
 body.dark-theme main {
-    background-color: var(--dark-bg-primary);
+    background-color: var(--dark-bg-app);
 }
 
-/* ===== TÍTULOS ===== */
+/* ===== SIDEBAR DARK ===== */
+body.dark-theme #sidebar {
+    background: linear-gradient(
+        to bottom,
+        rgba(30, 27, 75, 0.95),
+        rgba(49, 46, 129, 0.95),
+        rgba(76, 29, 149, 0.95)
+    );
+    backdrop-filter: blur(10px);
+    border-right: 1px solid var(--dark-border);
+}
+
+/* ===== TIPOGRAFIA ===== */
 body.dark-theme h1,
 body.dark-theme h2,
 body.dark-theme h3,
@@ -37,293 +141,889 @@ body.dark-theme h6 {
     color: var(--dark-text-primary);
 }
 
-/* ===== TEXTO GERAL ===== */
 body.dark-theme p,
+body.dark-theme span,
 body.dark-theme label {
     color: var(--dark-text-secondary);
 }
 
-/* ===== CARDS E CONTAINERS NEUTROS ===== */
-body.dark-theme .bg-white,
+/* ===== CARDS E CONTAINERS ===== */
+body.dark-theme .bg-white {
+    background-color: var(--dark-bg-secondary) !important;
+    color: var(--dark-text-primary) !important;
+    border: 1px solid var(--dark-border);
+}
+
 body.dark-theme .bg-gray-50,
-body.dark-theme .bg-gray-100,
+body.dark-theme .bg-gray-100 {
+    background-color: var(--dark-bg-tertiary) !important;
+    color: var(--dark-text-secondary) !important;
+}
+
 body.dark-theme .bg-gray-200 {
-    background-color: var(--dark-bg-secondary);
-    color: var(--dark-text-primary);
+    background-color: var(--dark-bg-elevated) !important;
+    color: var(--dark-text-secondary) !important;
 }
 
-/* ===== ESTRATÉGIA NOVA: INVERTER FUNDOS COLORIDOS CLAROS ===== */
-
-/* VERDE CLARO → VERDE ESCURO */
-body.dark-theme .bg-green-50,
-body.dark-theme .bg-green-100 {
-    background-color: #064e3b !important;
-    color: #d1fae5 !important;
-    border-color: #065f46 !important;
-}
-body.dark-theme .bg-green-50 *,
-body.dark-theme .bg-green-100 * {
-    color: #d1fae5 !important;
-}
-
-/* VERDE MÉDIO - manter */
-body.dark-theme .bg-green-500 {
-    background-color: #22c55e;
-    color: white;
-}
-
-/* AMARELO CLARO → AMARELO ESCURO */
-body.dark-theme .bg-yellow-50,
-body.dark-theme .bg-yellow-100 {
-    background-color: #713f12 !important;
-    color: #fef3c7 !important;
-    border-color: #92400e !important;
-}
-body.dark-theme .bg-yellow-50 *,
-body.dark-theme .bg-yellow-100 * {
-    color: #fef3c7 !important;
-}
-body.dark-theme .bg-yellow-500 {
-    background-color: #eab308;
-    color: #000000;
-}
-
-/* LARANJA CLARO → LARANJA ESCURO */
-body.dark-theme .bg-orange-50,
-body.dark-theme .bg-orange-100 {
-    background-color: #7c2d12 !important;
-    color: #fed7aa !important;
-    border-color: #9a3412 !important;
-}
-body.dark-theme .bg-orange-50 *,
-body.dark-theme .bg-orange-100 * {
-    color: #fed7aa !important;
-}
-
-/* VERMELHO CLARO → VERMELHO ESCURO */
-body.dark-theme .bg-red-50,
-body.dark-theme .bg-red-100 {
-    background-color: #7f1d1d !important;
-    color: #fecaca !important;
-    border-color: #991b1b !important;
-}
-body.dark-theme .bg-red-50 *,
-body.dark-theme .bg-red-100 * {
-    color: #fecaca !important;
-}
-
-/* AZUL CLARO → AZUL ESCURO */
-body.dark-theme .bg-blue-50,
-body.dark-theme .bg-blue-100 {
-    background-color: #1e3a8a !important;
-    color: #dbeafe !important;
-    border-color: #1e40af !important;
-}
-body.dark-theme .bg-blue-50 *,
-body.dark-theme .bg-blue-100 * {
-    color: #dbeafe !important;
-}
-
-/* ROXO CLARO → ROXO ESCURO */
-body.dark-theme .bg-purple-50,
-body.dark-theme .bg-purple-100 {
-    background-color: #581c87 !important;
-    color: #f3e8ff !important;
-    border-color: #6b21a8 !important;
-}
-body.dark-theme .bg-purple-50 *,
-body.dark-theme .bg-purple-100 * {
-    color: #f3e8ff !important;
-}
-
-/* ÍNDIGO CLARO → ÍNDIGO ESCURO */
-body.dark-theme .bg-indigo-50,
-body.dark-theme .bg-indigo-100 {
-    background-color: #312e81 !important;
-    color: #e0e7ff !important;
-    border-color: #3730a3 !important;
-}
-body.dark-theme .bg-indigo-50 *,
-body.dark-theme .bg-indigo-100 * {
-    color: #e0e7ff !important;
-}
-
-/* ===== GRADIENTES COLORIDOS → VERSÕES ESCURAS ===== */
-body.dark-theme .bg-gradient-to-br[class*="from-green"] {
-    background: linear-gradient(to bottom right, #064e3b, #065f46) !important;
-    color: #d1fae5 !important;
-}
-body.dark-theme .bg-gradient-to-br[class*="from-green"] * {
-    color: #d1fae5 !important;
-}
-
-body.dark-theme .bg-gradient-to-br[class*="from-blue"] {
-    background: linear-gradient(to bottom right, #1e3a8a, #1e40af) !important;
-    color: #dbeafe !important;
-}
-body.dark-theme .bg-gradient-to-br[class*="from-blue"] * {
-    color: #dbeafe !important;
-}
-
-body.dark-theme .bg-gradient-to-br[class*="from-cyan"] {
-    background: linear-gradient(to bottom right, #164e63, #155e75) !important;
-    color: #cffafe !important;
-}
-body.dark-theme .bg-gradient-to-br[class*="from-cyan"] * {
-    color: #cffafe !important;
-}
-
-body.dark-theme .bg-gradient-to-br[class*="from-emerald"] {
-    background: linear-gradient(to bottom right, #064e3b, #065f46) !important;
-    color: #d1fae5 !important;
-}
-body.dark-theme .bg-gradient-to-br[class*="from-emerald"] * {
-    color: #d1fae5 !important;
-}
-
-body.dark-theme .bg-gradient-to-br[class*="from-yellow"] {
-    background: linear-gradient(to bottom right, #713f12, #854d0e) !important;
-    color: #fef3c7 !important;
-}
-body.dark-theme .bg-gradient-to-br[class*="from-yellow"] * {
-    color: #fef3c7 !important;
-}
-
-body.dark-theme .bg-gradient-to-br[class*="from-orange"] {
-    background: linear-gradient(to bottom right, #7c2d12, #9a3412) !important;
-    color: #fed7aa !important;
-}
-body.dark-theme .bg-gradient-to-br[class*="from-orange"] * {
-    color: #fed7aa !important;
-}
-
-body.dark-theme .bg-gradient-to-br.from-white.to-gray-100 {
-    background: linear-gradient(to bottom right, var(--dark-bg-secondary), var(--dark-bg-tertiary));
-    color: var(--dark-text-primary);
-}
-
-body.dark-theme .bg-gradient-to-br.from-gray-50 {
-    background: var(--dark-bg-secondary);
-    color: var(--dark-text-secondary);
-}
-
-/* ===== INPUTS E TEXTAREAS ===== */
-body.dark-theme input:not([class*="bg-"]),
-body.dark-theme textarea:not([class*="bg-"]),
+/* ===== INPUTS E FORMS ===== */
+body.dark-theme input:not([type="checkbox"]):not([type="radio"]),
+body.dark-theme textarea,
 body.dark-theme select {
-    background-color: var(--dark-bg-tertiary);
-    color: var(--dark-text-primary);
-    border-color: var(--dark-border);
+    background-color: var(--dark-bg-tertiary) !important;
+    color: var(--dark-text-primary) !important;
+    border-color: var(--dark-border-light) !important;
 }
 
 body.dark-theme input::placeholder,
 body.dark-theme textarea::placeholder {
     color: var(--dark-text-muted);
+    opacity: 0.7;
 }
 
-/* Placeholders para textareas coloridas */
-body.dark-theme textarea[class*="bg-blue"]::placeholder,
-body.dark-theme input[class*="bg-blue"]::placeholder {
-    color: #93c5fd !important;
-    opacity: 0.8;
-}
-
-body.dark-theme textarea[class*="bg-green"]::placeholder,
-body.dark-theme input[class*="bg-green"]::placeholder {
-    color: #86efac !important;
-    opacity: 0.8;
-}
-
-body.dark-theme textarea[class*="bg-yellow"]::placeholder,
-body.dark-theme input[class*="bg-yellow"]::placeholder {
-    color: #fde047 !important;
-    opacity: 0.8;
+body.dark-theme input:focus,
+body.dark-theme textarea:focus,
+body.dark-theme select:focus {
+    background-color: var(--dark-bg-elevated) !important;
+    border-color: var(--theme-primary, #a855f7) !important;
+    box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.15) !important;
 }
 
 /* ===== BOTÕES ===== */
 body.dark-theme button.bg-gray-200,
 body.dark-theme button.bg-gray-300 {
-    background-color: var(--dark-bg-tertiary);
-    color: var(--dark-text-primary);
+    background-color: var(--dark-bg-elevated) !important;
+    color: var(--dark-text-primary) !important;
+    border: 1px solid var(--dark-border-light);
 }
 
-body.dark-theme button[class*="bg-indigo"],
+body.dark-theme button.bg-gray-200:hover,
+body.dark-theme button.bg-gray-300:hover {
+    background-color: var(--dark-bg-tertiary) !important;
+    border-color: var(--theme-primary, #a855f7);
+}
+
+/* Botões coloridos mantém suas cores vibrantes */
 body.dark-theme button[class*="bg-blue"],
 body.dark-theme button[class*="bg-green"],
 body.dark-theme button[class*="bg-red"],
 body.dark-theme button[class*="bg-purple"],
 body.dark-theme button[class*="bg-gradient"] {
-    color: white;
+    filter: brightness(1.1) saturate(1.2);
 }
 
-/* ===== CORES DE TEXTO ===== */
+/* ===== BACKGROUNDS COLORIDOS - MODO DARK ===== */
+
+/* Verde */
+body.dark-theme .bg-green-50 {
+    background-color: rgba(16, 185, 129, 0.1) !important;
+    color: #6ee7b7 !important;
+    border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+body.dark-theme .bg-green-100 {
+    background-color: rgba(16, 185, 129, 0.15) !important;
+    color: #86efac !important;
+    border-color: rgba(16, 185, 129, 0.4) !important;
+}
+
+/* Azul */
+body.dark-theme .bg-blue-50 {
+    background-color: rgba(59, 130, 246, 0.1) !important;
+    color: #93c5fd !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+body.dark-theme .bg-blue-100 {
+    background-color: rgba(59, 130, 246, 0.15) !important;
+    color: #bfdbfe !important;
+    border-color: rgba(59, 130, 246, 0.4) !important;
+}
+
+/* Amarelo */
+body.dark-theme .bg-yellow-50 {
+    background-color: rgba(234, 179, 8, 0.1) !important;
+    color: #fde047 !important;
+    border-color: rgba(234, 179, 8, 0.3) !important;
+}
+
+body.dark-theme .bg-yellow-100 {
+    background-color: rgba(234, 179, 8, 0.15) !important;
+    color: #fef08a !important;
+    border-color: rgba(234, 179, 8, 0.4) !important;
+}
+
+/* Vermelho */
+body.dark-theme .bg-red-50 {
+    background-color: rgba(239, 68, 68, 0.1) !important;
+    color: #fca5a5 !important;
+    border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+body.dark-theme .bg-red-100 {
+    background-color: rgba(239, 68, 68, 0.15) !important;
+    color: #fecaca !important;
+    border-color: rgba(239, 68, 68, 0.4) !important;
+}
+
+/* Roxo */
+body.dark-theme .bg-purple-50 {
+    background-color: rgba(168, 85, 247, 0.1) !important;
+    color: #d8b4fe !important;
+    border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+body.dark-theme .bg-purple-100 {
+    background-color: rgba(168, 85, 247, 0.15) !important;
+    color: #e9d5ff !important;
+    border-color: rgba(168, 85, 247, 0.4) !important;
+}
+
+/* Laranja */
+body.dark-theme .bg-orange-50 {
+    background-color: rgba(249, 115, 22, 0.1) !important;
+    color: #fdba74 !important;
+    border-color: rgba(249, 115, 22, 0.3) !important;
+}
+
+body.dark-theme .bg-orange-100 {
+    background-color: rgba(249, 115, 22, 0.15) !important;
+    color: #fed7aa !important;
+    border-color: rgba(249, 115, 22, 0.4) !important;
+}
+
+/* ===== GRADIENTES DARK ===== */
+body.dark-theme .bg-gradient-to-br,
+body.dark-theme .bg-gradient-to-r {
+    filter: brightness(0.9) saturate(1.1);
+}
+
+/* Gradientes específicos para clima */
+body.dark-theme .bg-gradient-to-br.from-blue-500 {
+    background: linear-gradient(to bottom right, #1e40af, #0ea5e9) !important;
+}
+
+body.dark-theme .bg-gradient-to-br.from-yellow-400 {
+    background: linear-gradient(to bottom right, #ca8a04, #f59e0b) !important;
+}
+
+body.dark-theme .bg-gradient-to-br.from-red-500 {
+    background: linear-gradient(to bottom right, #dc2626, #f97316) !important;
+}
+
+body.dark-theme .bg-gradient-to-br.from-green-400 {
+    background: linear-gradient(to bottom right, #059669, #10b981) !important;
+}
+
+/* ===== TEXTO COLORIDO ===== */
 body.dark-theme .text-gray-800,
 body.dark-theme .text-gray-700,
 body.dark-theme .text-gray-600 {
-    color: var(--dark-text-secondary);
+    color: var(--dark-text-secondary) !important;
 }
 
-body.dark-theme .text-green-800 { color: #86efac; }
-body.dark-theme .text-blue-800 { color: #93c5fd; }
-body.dark-theme .text-yellow-800 { color: #fde047; }
-body.dark-theme .text-red-700,
-body.dark-theme .text-red-800 { color: #fca5a5; }
-
-/* ===== TERMO - CORES DO JOGO ===== */
-body.dark-theme .bg-gray-400 {
-    background-color: #64748b;
-    color: white;
+body.dark-theme .text-gray-500 {
+    color: var(--dark-text-muted) !important;
 }
 
-/* ===== CARDS DE FERRAMENTAS ===== */
-body.dark-theme .tool-card {
-    background-color: var(--dark-bg-secondary);
-    border: 1px solid var(--dark-border);
-    transition: all 0.3s ease;
-}
-
-body.dark-theme .tool-card:hover {
-    background-color: var(--dark-bg-tertiary);
-}
+body.dark-theme .text-green-800 { color: #86efac !important; }
+body.dark-theme .text-blue-800 { color: #93c5fd !important; }
+body.dark-theme .text-yellow-800 { color: #fde047 !important; }
+body.dark-theme .text-red-800 { color: #fca5a5 !important; }
+body.dark-theme .text-purple-800 { color: #d8b4fe !important; }
 
 /* ===== BORDAS ===== */
 body.dark-theme .border-gray-200,
 body.dark-theme .border-gray-300 {
-    border-color: var(--dark-border);
+    border-color: var(--dark-border) !important;
 }
 
-/* ===== SOMBRAS ===== */
-body.dark-theme .shadow-lg,
-body.dark-theme .shadow-xl,
+body.dark-theme .border-gray-400 {
+    border-color: var(--dark-border-light) !important;
+}
+
+/* ===== SOMBRAS APRIMORADAS ===== */
+body.dark-theme .shadow-lg {
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.7), 
+                0 8px 10px -6px rgba(0, 0, 0, 0.6) !important;
+}
+
+body.dark-theme .shadow-xl {
+    box-shadow: 0 20px 35px -5px rgba(0, 0, 0, 0.8), 
+                0 10px 15px -3px rgba(0, 0, 0, 0.7) !important;
+}
+
 body.dark-theme .shadow-2xl {
-    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9) !important;
 }
 
-/* ===== SCROLLBAR ===== */
+/* ===== HOVER EFFECTS ===== */
+body.dark-theme .tool-card:hover {
+    background-color: var(--dark-bg-elevated) !important;
+    border-color: var(--theme-primary, #a855f7) !important;
+    box-shadow: 0 10px 40px -5px rgba(168, 85, 247, 0.3) !important;
+}
+
+/* ===== SCROLLBAR DARK ===== */
 body.dark-theme ::-webkit-scrollbar {
-    width: 12px;
+    width: 10px;
+    height: 10px;
 }
 
 body.dark-theme ::-webkit-scrollbar-track {
-    background: var(--dark-bg-secondary);
+    background: var(--dark-bg-primary);
 }
 
 body.dark-theme ::-webkit-scrollbar-thumb {
-    background: var(--dark-border);
-    border-radius: 6px;
+    background: var(--dark-bg-elevated);
+    border-radius: 5px;
+    border: 2px solid var(--dark-bg-primary);
 }
 
 body.dark-theme ::-webkit-scrollbar-thumb:hover {
-    background: #64748b;
+    background: var(--dark-border-light);
 }
 
-/* ===== TRANSIÇÕES ===== */
+/* ===== NOTIFICAÇÕES DARK ===== */
+body.dark-theme #notifications-container > div {
+    background: var(--dark-bg-secondary) !important;
+    border: 1px solid var(--dark-border-light);
+    backdrop-filter: blur(20px);
+}
+
+/* ===== CLIMA - ADAPTAÇÕES ESPECIAIS ===== */
+body.dark-theme #weather-result .bg-white\/10,
+body.dark-theme #weather-result .bg-white\/20 {
+    background-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body.dark-theme #weather-result .bg-white\/5 {
+    background-color: rgba(255, 255, 255, 0.05) !important;
+}
+
+/* ===== TERMO - JOGO ===== */
+body.dark-theme .bg-gray-400 {
+    background-color: #475569 !important;
+    color: white !important;
+}
+
+body.dark-theme .bg-yellow-500 {
+    background-color: #eab308 !important;
+    filter: brightness(1.1);
+}
+
+body.dark-theme .bg-green-500 {
+    background-color: #10b981 !important;
+    filter: brightness(1.2);
+}
+
+/* ===== GLASS EFFECT DARK ===== */
+body.dark-theme .glass,
+body.dark-theme .glass-effect {
+    background: rgba(255, 255, 255, 0.03) !important;
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ===== PLACEHOLDER COLORS ===== */
+body.dark-theme input[class*="bg-blue"]::placeholder {
+    color: #93c5fd !important;
+    opacity: 0.6;
+}
+
+body.dark-theme textarea[class*="bg-blue"]::placeholder {
+    color: #93c5fd !important;
+    opacity: 0.6;
+}
+
+/* ===== LINKS ===== */
+body.dark-theme a {
+    color: var(--theme-primary, #a855f7);
+}
+
+body.dark-theme a:hover {
+    color: var(--theme-primary-light, #c084fc);
+}
+
+/* ===== TABELAS ===== */
+body.dark-theme table {
+    border-color: var(--dark-border);
+}
+
+body.dark-theme th {
+    background-color: var(--dark-bg-tertiary);
+    color: var(--dark-text-primary);
+}
+
+body.dark-theme td {
+    border-color: var(--dark-border);
+    color: var(--dark-text-secondary);
+}
+
+body.dark-theme tr:hover {
+    background-color: var(--dark-bg-elevated);
+}
+
+/* ===== CÓDIGO E PRE ===== */
+body.dark-theme pre,
+body.dark-theme code {
+    background-color: var(--dark-bg-primary) !important;
+    color: #e2e8f0;
+    border: 1px solid var(--dark-border);
+}
+
+/* ===== MODAIS E DIALOGS ===== */
+body.dark-theme [role="dialog"],
+body.dark-theme .modal {
+    background-color: var(--dark-bg-secondary);
+    border: 1px solid var(--dark-border-light);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
+}
+
+/* ===== BADGES E TAGS ===== */
+body.dark-theme .badge,
+body.dark-theme .tag {
+    background-color: var(--dark-bg-elevated);
+    color: var(--dark-text-primary);
+    border: 1px solid var(--dark-border-light);
+}
+
+/* ===== PROGRESS BARS ===== */
+body.dark-theme progress {
+    background-color: var(--dark-bg-tertiary);
+}
+
+body.dark-theme progress::-webkit-progress-bar {
+    background-color: var(--dark-bg-tertiary);
+}
+
+/* ===== HR DIVIDERS ===== */
+body.dark-theme hr {
+    border-color: var(--dark-border);
+    opacity: 0.5;
+}
+
+/* ===== SELEÇÃO DE TEXTO ===== */
+body.dark-theme ::selection {
+    background-color: rgba(168, 85, 247, 0.3);
+    color: var(--dark-text-primary);
+}
+
+/* ===== TRANSIÇÕES SUAVES ===== */
 body.dark-theme * {
-    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 200ms;
 }
 
 body.dark-theme button,
 body.dark-theme input,
 body.dark-theme textarea {
-    transition: all 0.2s ease;
+    transition-duration: 150ms;
+}
+
+/* ===== RESPONSIVIDADE ===== */
+@media (max-width: 768px) {
+    body.dark-theme #sidebar {
+        background: linear-gradient(
+            to bottom,
+            rgba(30, 27, 75, 0.98),
+            rgba(49, 46, 129, 0.98),
+            rgba(76, 29, 149, 0.98)
+        );
+    }
+}
+
+/* ===== ESTADOS DE DISABLED ===== */
+body.dark-theme input:disabled,
+body.dark-theme button:disabled,
+body.dark-theme textarea:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background-color: var(--dark-bg-primary) !important;
+    color: var(--dark-text-disabled) !important;
+}
+
+/* ===== FOCUS VISIBLE ===== */
+body.dark-theme *:focus-visible {
+    outline: 2px solid var(--theme-primary, #a855f7);
+    outline-offset: 2px;
+}
+
+/* ===== TRADUTOR - ADAPTAÇÕES ESPECIAIS DARK ===== */
+
+/* Container principal do tradutor */
+body.dark-theme [class*="max-w-7xl"] {
+    color: var(--dark-text-primary);
+}
+
+/* Header do tradutor */
+body.dark-theme .text-gray-600 {
+    color: var(--dark-text-secondary) !important;
+}
+
+/* Cards brancos com glass effect */
+body.dark-theme .bg-white\/90 {
+    background-color: rgba(28, 28, 36, 0.95) !important;
+    backdrop-filter: blur(20px);
+    border-color: var(--dark-border-light) !important;
+}
+
+body.dark-theme .backdrop-blur-xl {
+    backdrop-filter: blur(20px);
+}
+
+/* Selects de idioma - backgrounds coloridos escuros */
+body.dark-theme .bg-gradient-to-br.from-blue-50 {
+    background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.15), rgba(6, 182, 212, 0.15)) !important;
+}
+
+body.dark-theme .bg-gradient-to-br.from-green-50 {
+    background: linear-gradient(to bottom right, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15)) !important;
+}
+
+body.dark-theme select.from-blue-50,
+body.dark-theme select.from-green-50 {
+    color: var(--dark-text-primary) !important;
+    border-color: var(--dark-border-light) !important;
+}
+
+/* Textareas com backgrounds coloridos */
+body.dark-theme textarea.from-blue-50 {
+    background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.12), rgba(6, 182, 212, 0.12)) !important;
+    color: var(--dark-text-primary) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+body.dark-theme textarea.from-green-50 {
+    background: linear-gradient(to bottom right, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.12)) !important;
+    color: var(--dark-text-primary) !important;
+    border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+/* Placeholders das textareas */
+body.dark-theme textarea.from-blue-50::placeholder,
+body.dark-theme textarea.from-green-50::placeholder {
+    color: var(--dark-text-muted) !important;
+    opacity: 0.6;
+}
+
+/* Focus states */
+body.dark-theme select:focus,
+body.dark-theme textarea:focus {
+    border-color: var(--theme-primary, #60a5fa) !important;
+    box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.2) !important;
+}
+
+/* Labels e títulos */
+body.dark-theme label.text-gray-800 {
+    color: var(--dark-text-primary) !important;
+}
+
+body.dark-theme label span:not([class*="bg-gradient"]) {
+    color: var(--dark-text-primary) !important;
+}
+
+/* Ícones de bandeiras mantém backgrounds vibrantes */
+body.dark-theme .bg-gradient-to-br[class*="from-"] {
+    filter: brightness(1.15) saturate(1.1);
+}
+
+/* Contadores de caracteres */
+body.dark-theme .bg-blue-600,
+body.dark-theme .bg-green-600 {
+    filter: brightness(1.2);
+}
+
+/* Status de tradução */
+body.dark-theme #translation-status .text-blue-600 { color: #60a5fa !important; }
+body.dark-theme #translation-status .text-green-600 { color: #34d399 !important; }
+body.dark-theme #translation-status .text-yellow-600 { color: #fbbf24 !important; }
+body.dark-theme #translation-status .text-red-600 { color: #f87171 !important; }
+
+/* Botões mantém cores vibrantes */
+body.dark-theme button[class*="bg-gradient-to-r"] {
+    filter: brightness(1.1) saturate(1.15);
+}
+
+body.dark-theme button:hover[class*="bg-gradient-to-r"] {
+    filter: brightness(1.2) saturate(1.2);
+}
+
+/* Card de informações */
+body.dark-theme .bg-gradient-to-br.from-blue-600.via-purple-600 {
+    background: linear-gradient(to bottom right, #1e40af, #7c3aed, #db2777) !important;
+}
+
+body.dark-theme .bg-white\/20 {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* Bordas dos inputs com borda-3 */
+body.dark-theme .border-3 {
+    border-width: 2px;
+}
+
+body.dark-theme .border-blue-200,
+body.dark-theme .border-blue-300 {
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+body.dark-theme .border-green-200,
+body.dark-theme .border-green-300 {
+    border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+/* Efeitos de glow/blur reduzidos no dark */
+body.dark-theme .blur-3xl { opacity: 0.1 !important; }
+body.dark-theme .blur-2xl { opacity: 0.12 !important; }
+body.dark-theme .blur-xl { opacity: 0.15 !important; }
+
+/* Sombras internas */
+body.dark-theme .shadow-inner {
+    box-shadow: inset 0 2px 4px 0 rgba(0, 0, 0, 0.3) !important;
+}
+
+/* ========================================
+   PÁGINAS ESPECÍFICAS - DARK ADAPTATIONS
+   ======================================== */
+
+/* GERADOR DE SENHAS */
+body.dark-theme .slider {
+    background-color: var(--dark-bg-elevated) !important;
+}
+
+body.dark-theme input[type="range"]::-webkit-slider-thumb {
+    background-color: var(--theme-primary, #a855f7);
+}
+
+body.dark-theme input[type="checkbox"] {
+    accent-color: var(--theme-primary, #a855f7);
+}
+
+/* AI CHAT */
+body.dark-theme #chat-container .text-gray-400 {
+    color: var(--dark-text-muted) !important;
+}
+
+body.dark-theme #chat-container .text-gray-700 {
+    color: var(--dark-text-primary) !important;
+}
+
+body.dark-theme #chat-container .text-gray-500 {
+    color: var(--dark-text-secondary) !important;
+}
+
+body.dark-theme #chat-container {
+    background: linear-gradient(to bottom right, var(--dark-bg-primary), rgba(59, 130, 246, 0.08)) !important;
+}
+
+body.dark-theme #chat-container .bg-gradient-to-br {
+    background: linear-gradient(to bottom right, var(--dark-bg-primary), rgba(59, 130, 246, 0.08)) !important;
+}
+
+/* FORCA */
+body.dark-theme svg line,
+body.dark-theme svg circle {
+    stroke: currentColor;
+}
+
+body.dark-theme .text-green-700 {
+    color: #86efac !important;
+}
+
+body.dark-theme .text-yellow-700 {
+    color: #fde047 !important;
+}
+
+body.dark-theme .text-red-700 {
+    color: #fca5a5 !important;
+}
+
+body.dark-theme .text-blue-700 {
+    color: #93c5fd !important;
+}
+
+body.dark-theme .text-orange-700 {
+    color: #fdba74 !important;
+}
+
+/* Dica da forca */
+body.dark-theme .bg-gradient-to-br.from-blue-50.to-cyan-50 {
+    background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.12), rgba(6, 182, 212, 0.12)) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+/* TERMO */
+body.dark-theme #termo-input {
+    background-color: var(--dark-bg-tertiary) !important;
+    color: var(--dark-text-primary) !important;
+    border-color: var(--dark-border-light) !important;
+}
+
+body.dark-theme #termo-input::placeholder {
+    color: var(--dark-text-muted) !important;
+}
+
+body.dark-theme #termo-counter {
+    color: var(--dark-text-muted) !important;
+}
+
+body.dark-theme .aspect-square.bg-white {
+    background-color: var(--dark-bg-tertiary) !important;
+    border-color: var(--dark-border-light) !important;
+}
+
+body.dark-theme .aspect-square.bg-gray-200 {
+    background-color: var(--dark-bg-elevated) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+/* CONFIGURAÇÕES */
+body.dark-theme .border-purple-500 {
+    border-color: var(--theme-primary, #a855f7) !important;
+}
+
+body.dark-theme svg {
+    color: var(--dark-text-muted);
+}
+
+/* Cards de opções */
+body.dark-theme .bg-gradient-to-br.from-green-50.to-emerald-50 {
+    background: linear-gradient(to bottom right, rgba(16, 185, 129, 0.12), rgba(5, 150, 105, 0.12)) !important;
+}
+
+body.dark-theme .bg-gradient-to-br.from-blue-50.to-cyan-50 {
+    background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.12), rgba(6, 182, 212, 0.12)) !important;
+}
+
+body.dark-theme .bg-gradient-to-br.from-yellow-50.to-orange-50 {
+    background: linear-gradient(to bottom right, rgba(234, 179, 8, 0.12), rgba(249, 115, 22, 0.12)) !important;
+}
+
+body.dark-theme .bg-gradient-to-br.from-red-50.to-pink-50 {
+    background: linear-gradient(to bottom right, rgba(239, 68, 68, 0.12), rgba(236, 72, 153, 0.12)) !important;
+}
+
+body.dark-theme .bg-gradient-to-br.from-purple-50.to-pink-50 {
+    background: linear-gradient(to bottom right, rgba(168, 85, 247, 0.12), rgba(236, 72, 153, 0.12)) !important;
+}
+
+/* Texto cinza claro em backgrounds escuros */
+body.dark-theme .text-gray-300 {
+    color: var(--dark-text-secondary) !important;
+}
+
+body.dark-theme .text-gray-400 {
+    color: var(--dark-text-muted) !important;
+}
+
+/* Cards brancos de configuração */
+body.dark-theme button[class*="from-white"] {
+    background: linear-gradient(to bottom right, var(--dark-bg-tertiary), var(--dark-bg-elevated)) !important;
+}
+
+body.dark-theme button[class*="from-gray-800"] {
+    background: linear-gradient(to bottom right, #0a0a0f, #13131a) !important;
+}
+
+/* Checkboxes coloridos no gerador de senhas */
+body.dark-theme label[class*="from-blue-50"] {
+    background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.15), rgba(6, 182, 212, 0.15)) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+body.dark-theme label[class*="from-green-50"] {
+    background: linear-gradient(to bottom right, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15)) !important;
+    border-color: rgba(16, 185, 129, 0.3) !important;
+}
+
+body.dark-theme label[class*="from-purple-50"] {
+    background: linear-gradient(to bottom right, rgba(168, 85, 247, 0.15), rgba(236, 72, 153, 0.15)) !important;
+    border-color: rgba(168, 85, 247, 0.3) !important;
+}
+
+body.dark-theme label[class*="from-orange-50"] {
+    background: linear-gradient(to bottom right, rgba(249, 115, 22, 0.15), rgba(239, 68, 68, 0.15)) !important;
+    border-color: rgba(249, 115, 22, 0.3) !important;
+}
+
+/* ========================================
+   FIXES CRÍTICOS PARA PÁGINAS ESPECÍFICAS
+   ======================================== */
+
+/* FORCA - Card da dica (problema crítico) */
+body.dark-theme .bg-gradient-to-br.from-blue-50.to-cyan-50,
+body.dark-theme div[class*="from-blue-50"][class*="to-cyan-50"] {
+    background: linear-gradient(to bottom right, rgba(59, 130, 246, 0.12), rgba(6, 182, 212, 0.12)) !important;
+    border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+/* FORCA - Card de instruções roxo */
+body.dark-theme .bg-gradient-to-br.from-purple-50.to-pink-50,
+body.dark-theme div[class*="from-purple-50"][class*="to-pink-50"] {
+    background: linear-gradient(to bottom right, rgba(168, 85, 247, 0.12), rgba(236, 72, 153, 0.12)) !important;
+}
+
+body.dark-theme .text-purple-800,
+body.dark-theme .text-purple-900 {
+    color: #d8b4fe !important;
+}
+
+/* TERMO - Grid de letras */
+body.dark-theme .aspect-square {
+    background-color: var(--dark-bg-tertiary) !important;
+    border-color: var(--dark-border-light) !important;
+}
+
+body.dark-theme .bg-white.border-2 {
+    background-color: var(--dark-bg-tertiary) !important;
+    border-color: var(--dark-border-light) !important;
+}
+
+/* TERMO - Legenda */
+body.dark-theme .bg-gradient-to-br.from-gray-50.to-gray-100,
+body.dark-theme div[class*="from-gray-50"][class*="to-gray-100"] {
+    background: linear-gradient(to bottom right, var(--dark-bg-tertiary), var(--dark-bg-elevated)) !important;
+}
+
+/* CONFIGURAÇÕES - Card do tema claro (sol) */
+body.dark-theme button[class*="from-white"][class*="to-gray-100"],
+body.dark-theme .bg-gradient-to-br.from-white.to-gray-100 {
+    background: linear-gradient(to bottom right, var(--dark-bg-tertiary), var(--dark-bg-elevated)) !important;
+}
+
+/* CONFIGURAÇÕES - Card do tema escuro (lua) */
+body.dark-theme button[class*="from-gray-800"][class*="to-gray-900"],
+body.dark-theme .bg-gradient-to-br.from-gray-800.to-gray-900 {
+    background: linear-gradient(to bottom right, #0a0a0f, #13131a) !important;
+}
+
+/* CONFIGURAÇÕES - Border ativo do card selecionado */
+body.dark-theme .border-4.border-purple-500 {
+    border-color: var(--theme-primary, #a855f7) !important;
+}
+
+/* FORCA - Badge do timer */
+body.dark-theme .bg-indigo-100 {
+    background-color: rgba(99, 102, 241, 0.15) !important;
+    color: #c7d2fe !important;
+}
+
+body.dark-theme .text-indigo-800 {
+    color: #c7d2fe !important;
+}
+
+/* ========================================
+   TERMO - FIX DEFINITIVO DE CORES
+   Prioridade máxima sobre dark theme
+   ======================================== */
+
+/* Células do jogo - Verde (corretas) */
+.termo-cell[data-status="correct"],
+body.dark-theme .termo-cell[data-status="correct"] {
+    background-color: #10b981 !important;
+    color: white !important;
+}
+
+/* Células do jogo - Amarelo (posição errada) */
+.termo-cell[data-status="present"],
+body.dark-theme .termo-cell[data-status="present"] {
+    background-color: #eab308 !important;
+    color: white !important;
+}
+
+/* Células do jogo - Cinza (ausentes) */
+.termo-cell[data-status="absent"],
+body.dark-theme .termo-cell[data-status="absent"] {
+    background-color: #64748b !important;
+    color: white !important;
+}
+
+/* Teclado - teclas corretas */
+body.dark-theme button.bg-green-500,
+body button.bg-green-500 {
+    background-color: #10b981 !important;
+    color: white !important;
+}
+
+/* Teclado - teclas em posição errada */
+body.dark-theme button.bg-yellow-500,
+body button.bg-yellow-500 {
+    background-color: #eab308 !important;
+    color: white !important;
+}
+
+/* Teclado - teclas ausentes */
+body.dark-theme button.bg-gray-400,
+body button.bg-gray-400 {
+    background-color: #64748b !important;
+    color: white !important;
+}
+
+/* Garantir que aspect-square com bg-green-500 sempre seja verde */
+body.dark-theme .aspect-square.bg-green-500,
+body .aspect-square.bg-green-500 {
+    background-color: #10b981 !important;
+    color: white !important;
+}
+
+/* Garantir que aspect-square com bg-yellow-500 sempre seja amarelo */
+body.dark-theme .aspect-square.bg-yellow-500,
+body .aspect-square.bg-yellow-500 {
+    background-color: #eab308 !important;
+    color: white !important;
+}
+
+/* Garantir que aspect-square com bg-gray-400 sempre seja cinza */
+body.dark-theme .aspect-square.bg-gray-400,
+body .aspect-square.bg-gray-400 {
+    background-color: #64748b !important;
+    color: white !important;
+}
+
+/* Células vazias - fundo dark */
+body.dark-theme .aspect-square.bg-white:not([data-status]) {
+    background-color: var(--dark-bg-tertiary, #25252e) !important;
+    border-color: var(--dark-border-light, #3a3a45) !important;
+}
+
+/* Células sendo digitadas - fundo dark claro */
+body.dark-theme .aspect-square.bg-gray-200:not([data-status]) {
+    background-color: var(--dark-bg-elevated, #2d2d38) !important;
+    color: var(--dark-text-primary, #ffffff) !important;
+}
+
+/* Remover qualquer filter que possa estar sendo aplicado */
+body.dark-theme .termo-cell,
+body.dark-theme .aspect-square[data-status] {
+    filter: none !important;
+}
+
+/* Garantir que a animação não afete as cores */
+@keyframes flipIn {
+    from {
+        transform: rotateX(-90deg);
+        opacity: 0;
+    }
+    to {
+        transform: rotateX(0);
+        opacity: 1;
+    }
+}
+
+.animate-flipIn {
+    animation: flipIn 0.3s ease-out forwards;
+}
+
+/* Override específico para tema escuro - MÁXIMA PRIORIDADE */
+body.dark-theme .termo-cell[data-status="correct"] {
+    background: #10b981 !important;
+}
+
+body.dark-theme .termo-cell[data-status="present"] {
+    background: #eab308 !important;
+}
+
+body.dark-theme .termo-cell[data-status="absent"] {
+    background: #64748b !important;
 }
