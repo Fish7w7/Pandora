@@ -193,6 +193,7 @@ const AIAssistant = {
         if (!container) return;
         
         if (this.conversation.length === 0) {
+
             container.innerHTML = this.renderEmptyState();
             return;
         }

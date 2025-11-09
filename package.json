@@ -1,7 +1,7 @@
 {
   "name": "nyantools",
-  "version": "2.7.0",
-  "description": "NyanTools v2.7.0 - Performance Boost 🚀 | -33% código, +45% velocidade, 24 arquivos otimizados にゃん~",
+  "version": "2.5.0",
+  "description": "NyanTools - Your purr-fect toolkit にゃん~ | Agora com Tema Escuro e Novos Jogos!",
   "main": "backend/src/main.js",
   "scripts": {
     "start": "electron .",

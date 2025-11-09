@@ -1,3 +1,4 @@
+
 // SISTEMA DE NOTAS RÁPIDAS - Otimizado にゃん~
 const Notes = {
     notes: [],

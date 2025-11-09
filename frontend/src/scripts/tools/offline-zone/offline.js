@@ -2,7 +2,6 @@
 // 📶 ZONA OFFLINE - NyanTools にゃん~
 // Versão Otimizada v2.0
 // ============================================
-
 const OfflineZone = {
     currentGame: null,
     
@@ -60,6 +59,9 @@ const OfflineZone = {
     render() {
         if (this.currentGame) {
             return this.renderGame();
+        }
+        if (this.currentGame === 'flappy') {
+            return this.renderFlappy();
         }
         
         return `
@@ -246,6 +248,22 @@ const OfflineZone = {
         
         const initializer = initializers[game];
         if (initializer) initializer();
+    },
+    
+    renderFlappy() {
+        return `
+            <div class="max-w-4xl mx-auto">
+                <div class="flex items-center justify-between mb-6">
+                    <h1 class="text-4xl font-black text-gray-800">🐦 Flappy Bird</h1>
+                    <button onclick="OfflineZone.backToMenu()" 
+                            class="px-6 py-3 bg-gray-200 hover:bg-gray-300 rounded-xl font-bold transition-all flex items-center gap-2">
+                        <span>⬅️</span>
+                        <span>Voltar</span>
+                    </button>
+                </div>
+                ${typeof FlappyBird !== 'undefined' ? FlappyBird.render() : '<p class="text-center text-gray-600">Carregando Flappy Bird...</p>'}
+            </div>
+        `;
     },
     
     backToMenu() {
