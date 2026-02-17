@@ -1,172 +1,107 @@
 {
-  "version": "2.7.0",
-  "tag_name": "v2.7.0",
-  "releaseDate": "2025-11-09",
-  "name": "NyanTools v2.7.0 - Performance Boost 🚀 | -33% código にゃん~",
-  "body": "## 🚀 NyanTools v2.7.0 — Performance Boost にゃん~\n\n### ⚡ OTIMIZAÇÃO MASSIVA\n\n**24 arquivos otimizados** com **-33% de código total** e **+45% de velocidade**!\n\n- 🎯 **6.820 → 4.600 linhas** (-2.220 linhas, -33%)\n- 🚀 **Performance 45% melhor** (CSS otimizado)\n- ✨ **Zero breaking changes** - tudo funciona perfeitamente\n- 🧹 **Zero código duplicado** - 100% limpo\n\n### 📦 ARQUIVOS OTIMIZADOS (24 TOTAL)\n\n#### **Backend (2 arquivos)**\n- ✅ `main.js` - Sistema principal otimizado\n- ✅ `preload.js` - Bridge Electron otimizado\n\n#### **Frontend Core (5 arquivos)**\n- ✅ `auth.js` - 130→95 linhas (-27%)\n- ✅ `router.js` - 145→120 linhas (-17%)\n- ✅ `app.js` - 180→155 linhas (-14%)\n- ✅ `updater.js` - 780→420 linhas (-46%)\n- ✅ `settings.js` - 650→580 linhas (-11%)\n\n#### **CSS (4 arquivos - MAIOR GANHO)**\n- ✅ `animations.css` - 570→280 linhas (-51%)\n- ✅ `dark-theme.css` - 890→380 linhas (-57% 🏆)\n- ✅ `main.css` - 430→220 linhas (-49%)\n- ✅ `theme-system.css` - 380→200 linhas (-47%)\n\n#### **Tools (13 arquivos)**\n- ✅ `flappy-bird.js` - 627→550 linhas (-12%)\n- ✅ `forca.js` - 450→380 linhas (-16%)\n- ✅ `termo.js` - 380→320 linhas (-16%)\n- ✅ `tictactoe.js` - 380→420 linhas (+11% mas muito mais organizado)\n- ✅ `offline.js` - 150→180 linhas (+20% mas modular)\n- ✅ `music.js` - 350→420 linhas (+20% + mini player)\n- ✅ `helpers.js` - 130→280 linhas (+115% + 40 funções)\n- ✅ `ai-chat.js` - Otimizado\n- ✅ `dashboard.js` - Otimizado\n- ✅ `game.js` - Otimizado\n- ✅ `notes.js` - Otimizado\n- ✅ `password.js` - Otimizado\n- ✅ `weather.js` - Otimizado\n\n### 🎵 MINI PLAYER FIXADO\n\n- ✅ **Aparece automaticamente** ao sair da aba Music\n- ✅ **Desaparece** ao voltar para Music\n- ✅ **Sincronização total** (play, pause, progress, volume)\n- ✅ **Botão \"Abrir Player\"** para voltar à aba\n- ✅ **Funciona em TODAS as abas**\n\n### 🛠️ HELPERS.JS ULTRA-COMPLETO\n\n**40 funções organizadas** em 10 categorias:\n- 📋 Clipboard (1 função)\n- 🔔 Notificações (6 funções)\n- 📅 Data/Time (3 funções)\n- 💾 Local Storage (6 funções)\n- 🌐 API & Fetch (2 funções)\n- 📝 String Utilities (4 funções)\n- 🔑 ID Generation (2 funções)\n- ⚡ Performance (3 funções)\n- ✔️ Validation (3 funções)\n- 📦 Array/Number/DOM (10 funções)\n\n### 📊 RESULTADOS DA OTIMIZAÇÃO\n\n| Categoria | Antes | Depois | Redução |\n|-----------|-------|--------|---------|\n| **CSS Total** | 2.270 | 1.080 | **-52%** |\n| **JS Core** | 455 | 370 | **-19%** |\n| **JS Tools** | 4.095 | 3.150 | **-23%** |\n| **TOTAL** | **6.820** | **4.600** | **-33%** |\n\n### ✨ PADRÕES APLICADOS\n\n#### **JavaScript:**\n- ✅ Optional chaining (`?.`) em TUDO\n- ✅ Mapas de dados centralizados\n- ✅ Métodos pequenos (máx 30 linhas)\n- ✅ Try-catch em operações críticas\n- ✅ Separação de responsabilidades\n- ✅ Zero código duplicado\n\n#### **CSS:**\n- ✅ GPU acceleration\n- ✅ Seletores agrupados\n- ✅ Remoção de duplicatas\n- ✅ Media queries para reduced motion\n- ✅ CSS Variables para reutilização\n\n### 🎯 BENEFÍCIOS\n\n- 🚀 **45% mais rápido** no carregamento\n- 💾 **-80 KB** de tamanho total\n- 🧹 **100% código limpo** sem duplicação\n- 📖 **Infinitamente mais legível**\n- 🔧 **Muito mais fácil de manter**\n- ✅ **Zero breaking changes**\n\n---\n\n**Download:** Escolha o instalador para sua plataforma abaixo\n\n**Versão Anterior:** [v2.6.0](https://github.com/Fish7w7/Pandora/releases/tag/v2.6.0)",
+  "version": "2.7.1",
+  "tag_name": "v2.7.1",
+  "releaseDate": "2026-02-17",
+  "name": "NyanTools v2.7.1 - Security & Bug Fixes にゃん~",
+  "body": "## 🔒 NyanTools v2.7.1 – Security & Bug Fixes にゃん~\n\n### 🔒 SEGURANÇA\n\n- **API Keys removidas do código-fonte** — Gemini (`ai-chat.js`) e OpenWeather (`weather.js`) não ficam mais hardcoded.\n- As chaves agora são configuradas pelo usuário diretamente na interface e salvas no `localStorage`.\n- Interface com campo de senha, indicador verde de configurada e botão de remoção.\n\n### 🐛 BUG FIXES\n\n- **`termo.js`** — Função `evaluateGuess` estava definida duas vezes no mesmo arquivo, causando comportamento imprevisível. A duplicata foi removida.\n- **`tictactoe.js`** — Aspas misturadas na notificação de vitória (backtick + aspas simples) causavam erro silencioso. Corrigido para template literal correto.\n- **`version.json`** — Encoding quebrado (UTF-8 lido como Latin-1) corrompendo todos os emojis e acentos. Arquivo reescrito com UTF-8 correto.\n\n### ⚡ PERFORMANCE\n\n- **`main.js`** — `setInterval` de limpeza de cache chamava `clearCache()` de forma síncrona, podendo travar o processo principal. Agora usa `async/await` com `try/catch` para não bloquear.\n\n---\n\n**Versão Anterior:** [v2.7.0](https://github.com/Fish7w7/Pandora/releases/tag/v2.7.0)",
   "changelog": [
-    "⚡ OTIMIZAÇÃO MASSIVA: -33% de código total (-2.220 linhas)",
-    "🚀 Performance 45% melhor no carregamento (CSS otimizado)",
-    "🎵 Mini Player fixado e sincronizado em todas as abas",
-    "🛠️ Helpers.js ultra-completo com 40 funções organizadas",
-    "📦 24 arquivos otimizados com zero breaking changes",
-    "✨ CSS: -52% total (animations -51%, dark-theme -57%)",
-    "🧹 Zero código duplicado em todos os arquivos",
-    "📖 Código infinitamente mais legível e organizado",
-    "🔧 Separação de responsabilidades extrema",
-    "✅ Optional chaining e try-catch em tudo"
+    "🔒 SEGURANÇA: API Keys do Gemini e OpenWeather removidas do código-fonte",
+    "🔒 API Keys agora configuradas pelo usuário via interface (localStorage)",
+    "🐛 termo.js: função evaluateGuess duplicada removida",
+    "🐛 tictactoe.js: aspas quebradas na notificação de vitória corrigidas",
+    "🔧 version.json: encoding UTF-8 corrigido (emojis e acentos quebrados)",
+    "⚡ main.js: clearCache agora assíncrono com async/await e try/catch"
   ],
-  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v2.7.0",
-  "releaseNotesUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v2.7.0",
-  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v2.7.0",
+  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v2.7.1",
+  "releaseNotesUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v2.7.1",
+  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v2.7.1",
   "critical": true,
   "prerelease": false,
   "draft": false,
   "features": {
-    "massiveOptimization": {
-      "description": "Otimização completa de 24 arquivos com -33% de código",
-      "status": "✅ Concluído",
-      "impact": {
-        "codeReduction": "-2.220 linhas (-33%)",
-        "performanceGain": "+45% velocidade",
-        "sizeReduction": "-80 KB",
-        "filesOptimized": 24
-      }
-    },
-    "miniPlayer": {
-      "description": "Mini player flutuante e sincronizado para música",
+    "apiKeySecurity": {
+      "description": "API Keys configuradas pelo usuário via interface, sem hardcode no código",
       "status": "✅ Implementado",
-      "features": [
-        "Aparece automaticamente fora da aba Music",
-        "Sincronização total de controles",
-        "Botão para abrir player completo",
-        "Funciona em todas as abas"
-      ]
-    },
-    "helpersUltra": {
-      "description": "Sistema de utilitários completo com 40 funções",
-      "status": "✅ Expandido",
-      "categories": [
-        "Clipboard", "Notificações", "Data/Time", "Storage",
-        "API/Fetch", "Strings", "IDs", "Performance",
-        "Validação", "Array/Number/DOM"
-      ]
-    }
-  },
-  "optimizationDetails": {
-    "backend": {
-      "files": 2,
-      "techniques": [
-        "Throttling de eventos",
-        "Cache de ícones",
-        "Rate limiting",
-        "Validação consolidada"
-      ]
-    },
-    "frontendCore": {
-      "files": 5,
-      "linesReduced": "-19%",
-      "techniques": [
-        "Métodos separados",
-        "Mapas ao invés de switch",
-        "Optional chaining",
-        "Try-catch consolidado"
-      ]
-    },
-    "css": {
-      "files": 4,
-      "linesReduced": "-52%",
-      "techniques": [
-        "GPU acceleration",
-        "Seletores agrupados",
-        "Duplicatas removidas",
-        "Media queries otimizadas"
-      ]
-    },
-    "tools": {
-      "files": 13,
-      "linesReduced": "-23%",
-      "techniques": [
-        "Render modular",
-        "Configurações centralizadas",
-        "Métodos pequenos",
-        "Zero duplicação"
-      ]
+      "files": ["ai-chat.js", "weather.js"]
     }
   },
   "bugFixes": [
     {
-      "id": "mini-player-visibility",
-      "description": "Mini player não aparecia ao sair da aba Music",
+      "id": "evaluateguess-duplicate",
+      "description": "Função evaluateGuess definida duas vezes em termo.js",
       "status": "✅ Corrigido",
-      "solution": "Sistema updateMiniPlayer() com verificação de rota"
+      "file": "termo.js",
+      "solution": "Segunda definição duplicada removida"
     },
     {
-      "id": "performance-css",
-      "description": "Animações pesadas causando lag",
+      "id": "tictactoe-notification-quotes",
+      "description": "Aspas misturadas (backtick + aspas simples) na notificação de vitória",
       "status": "✅ Corrigido",
-      "solution": "GPU acceleration e reduced motion media queries"
+      "file": "tictactoe.js",
+      "solution": "Template literal corrigido para sintaxe consistente"
+    },
+    {
+      "id": "version-json-encoding",
+      "description": "Encoding quebrado corrompendo emojis e acentos no version.json",
+      "status": "✅ Corrigido",
+      "file": "version.json",
+      "solution": "Arquivo reescrito com UTF-8 correto"
     }
   ],
-  "technicalImprovements": [
-    "Separação extrema de responsabilidades",
-    "Optional chaining em 100% das verificações",
-    "Try-catch em todas operações críticas",
-    "Métodos máx 30 linhas cada",
-    "Zero código duplicado em nenhum arquivo",
-    "Mapas de configuração centralizados",
-    "Render modular em todos os componentes"
+  "securityFixes": [
+    {
+      "id": "gemini-api-key-exposed",
+      "severity": "high",
+      "description": "API Key do Gemini hardcoded em ai-chat.js — visível no DevTools",
+      "status": "✅ Corrigido",
+      "file": "ai-chat.js",
+      "solution": "Chave removida do código; usuário configura via interface e é salva no localStorage"
+    },
+    {
+      "id": "openweather-api-key-exposed",
+      "severity": "high",
+      "description": "API Key do OpenWeather hardcoded em weather.js — visível no DevTools",
+      "status": "✅ Corrigido",
+      "file": "weather.js",
+      "solution": "Chave removida do código; usuário configura via interface e é salva no localStorage"
+    }
+  ],
+  "performanceImprovements": [
+    {
+      "id": "clearcache-async",
+      "description": "setInterval chamava clearCache() de forma síncrona, travando o processo principal",
+      "status": "✅ Corrigido",
+      "file": "main.js",
+      "solution": "Convertido para async/await com try/catch para não bloquear"
+    }
   ],
   "filesModified": [
     "backend/src/main.js",
-    "backend/src/preload.js",
-    "frontend/src/scripts/core/auth.js",
-    "frontend/src/scripts/core/router.js",
-    "frontend/src/scripts/core/app.js",
-    "frontend/src/scripts/tools/updater/updater.js",
-    "frontend/src/scripts/tools/settings/settings.js",
-    "frontend/src/styles/animations.css",
-    "frontend/src/styles/dark-theme.css",
-    "frontend/src/styles/main.css",
-    "frontend/src/styles/theme-system.css",
-    "frontend/src/scripts/tools/flappy-bird/flappy-bird.js",
-    "frontend/src/scripts/tools/forca/forca.js",
+    "frontend/src/scripts/tools/ai-assistant/ai-chat.js",
+    "frontend/src/scripts/tools/weather/weather.js",
     "frontend/src/scripts/tools/termo/termo.js",
     "frontend/src/scripts/tools/tictactoe/tictactoe.js",
-    "frontend/src/scripts/tools/offline/offline.js",
-    "frontend/src/scripts/tools/music-player/music.js",
-    "frontend/src/scripts/utils/helpers.js",
-    "frontend/src/scripts/tools/ai-assistant/ai-chat.js",
-    "frontend/src/scripts/tools/dashboard/dashboard.js",
-    "frontend/src/scripts/tools/mini-game/game.js",
-    "frontend/src/scripts/tools/notes/notes.js",
-    "frontend/src/scripts/tools/password-generator/password.js",
-    "frontend/src/scripts/tools/weather/weather.js"
+    "version.json"
   ],
   "statistics": {
-    "filesOptimized": 24,
-    "totalLinesBefore": 6820,
-    "totalLinesAfter": 4600,
-    "linesRemoved": 2220,
-    "reductionPercentage": 33,
-    "performanceGain": "45%",
-    "sizeReduction": "80 KB",
-    "bugsFixed": 2,
-    "newFeatures": 3
+    "filesModified": 6,
+    "securityFixes": 2,
+    "bugsFixed": 3,
+    "performanceImprovements": 1
   },
   "platforms": {
     "windows": {
       "supported": true,
       "minVersion": "Windows 10",
       "architecture": ["x64"],
-      "installer": "NyanTools-2.7.0-Setup.exe",
-      "portable": "NyanTools 2.7.0.exe"
+      "installer": "NyanTools-2.7.1-Setup.exe",
+      "portable": "NyanTools 2.7.1.exe"
     },
     "macos": {
       "supported": true,
       "minVersion": "macOS 10.14",
       "architecture": ["x64", "arm64"],
-      "installer": "NyanTools-2.7.0-{arch}.dmg"
+      "installer": "NyanTools-2.7.1-{arch}.dmg"
     },
     "linux": {
       "supported": true,
@@ -185,41 +120,41 @@
   },
   "assets": [
     {
-      "name": "NyanTools-2.7.0-Setup.exe",
+      "name": "NyanTools-2.7.1-Setup.exe",
       "platform": "windows",
       "architecture": "x64",
       "size": 87000000,
       "content_type": "application/x-msdownload",
-      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v2.7.0/NyanTools-2.7.0-Setup.exe"
+      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v2.7.1/NyanTools-2.7.1-Setup.exe"
     },
     {
-      "name": "NyanTools-2.7.0-x64.dmg",
+      "name": "NyanTools-2.7.1-x64.dmg",
       "platform": "macos",
       "architecture": "x64",
       "size": 90500000,
       "content_type": "application/x-apple-diskimage",
-      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v2.7.0/NyanTools-2.7.0-x64.dmg"
+      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v2.7.1/NyanTools-2.7.1-x64.dmg"
     },
     {
-      "name": "NyanTools-2.7.0-arm64.dmg",
+      "name": "NyanTools-2.7.1-arm64.dmg",
       "platform": "macos",
       "architecture": "arm64",
       "size": 88000000,
       "content_type": "application/x-apple-diskimage",
-      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v2.7.0/NyanTools-2.7.0-arm64.dmg"
+      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v2.7.1/NyanTools-2.7.1-arm64.dmg"
     },
     {
-      "name": "NyanTools-2.7.0-x64.AppImage",
+      "name": "NyanTools-2.7.1-x64.AppImage",
       "platform": "linux",
       "architecture": "x64",
       "size": 94000000,
       "content_type": "application/x-executable",
-      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v2.7.0/NyanTools-2.7.0-x64.AppImage"
+      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v2.7.1/NyanTools-2.7.1-x64.AppImage"
     }
   ],
   "nextVersion": {
     "version": "2.8.0",
-    "estimatedDate": "2026-02-XX",
+    "estimatedDate": "2026-03-XX",
     "plannedFeatures": [
       "🎨 8 Esquemas de cores totalmente funcionais",
       "⌨️ Atalhos de teclado globais",
@@ -227,6 +162,11 @@
       "📝 Sistema de notas avançado com categorias",
       "🔒 Vault de senhas criptografado"
     ]
+  },
+  "previousVersion": {
+    "version": "2.7.0",
+    "tag": "v2.7.0",
+    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v2.7.0"
   },
   "author": {
     "name": "Fish7w7",

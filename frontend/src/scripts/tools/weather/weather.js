@@ -1,6 +1,11 @@
 // Sistema de Clima Otimizado - OpenWeatherMap にゃん~
 const Weather = {
-    apiKey: 'c8b0c386f6c2130d908776f271837805',
+    get apiKey() {
+        return Utils.loadData('openweather_api_key') || '';
+    },
+    set apiKey(value) {
+        if (value) Utils.saveData('openweather_api_key', value);
+    },
     currentWeather: null,
     forecast: null,
     
@@ -15,6 +20,7 @@ const Weather = {
         return `
             <div class="max-w-5xl mx-auto">
                 ${this.renderHeader()}
+                ${this.renderApiKeyConfig()}
                 ${this.renderSearchCard()}
                 ${this.renderLoading()}
                 ${this.renderResult()}
@@ -29,6 +35,62 @@ const Weather = {
                 <p class="text-gray-600 text-sm">Veja a temperatura e condições climáticas em tempo real</p>
             </div>
         `;
+    },
+
+    renderApiKeyConfig() {
+        const hasKey = !!this.apiKey;
+        if (hasKey) {
+            return `
+                <div class="bg-green-50 border-2 border-green-300 rounded-xl p-3 mb-3 flex items-center justify-between">
+                    <div class="flex items-center gap-2 text-green-800">
+                        <span>✅</span>
+                        <span class="font-semibold text-sm">API Key do OpenWeather configurada</span>
+                    </div>
+                    <button onclick="Weather.clearApiKey()" 
+                            class="text-xs text-red-600 hover:text-red-800 font-semibold px-3 py-1 border border-red-300 rounded-lg hover:bg-red-50 transition-all">
+                        🗑️ Remover Key
+                    </button>
+                </div>
+            `;
+        }
+        return `
+            <div class="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-4 mb-3">
+                <div class="flex items-center gap-2 text-yellow-800 mb-3">
+                    <span>⚠️</span>
+                    <span class="font-bold">Configure sua API Key do OpenWeather</span>
+                </div>
+                <p class="text-yellow-700 text-sm mb-3">
+                    Acesse <a href="https://openweathermap.org/api" target="_blank" class="underline font-semibold">openweathermap.org</a> para obter sua chave gratuita.
+                </p>
+                <div class="flex gap-2">
+                    <input type="password" id="weather-apikey-input" 
+                        class="flex-1 px-4 py-2 border-2 border-yellow-300 rounded-xl focus:border-yellow-500 outline-none text-sm"
+                        placeholder="Cole sua API Key aqui...">
+                    <button onclick="Weather.saveApiKey()" 
+                            class="px-5 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl font-bold text-sm transition-all">
+                        Salvar
+                    </button>
+                </div>
+            </div>
+        `;
+    },
+
+    saveApiKey() {
+        const input = document.getElementById('weather-apikey-input');
+        const key = input?.value.trim();
+        if (!key) {
+            Utils.showNotification('❌ Digite uma API Key válida', 'error');
+            return;
+        }
+        this.apiKey = key;
+        Utils.showNotification('✅ API Key salva com sucesso!', 'success');
+        Router?.render();
+    },
+
+    clearApiKey() {
+        Utils.saveData('openweather_api_key', '');
+        Utils.showNotification('🗑️ API Key removida', 'info');
+        Router?.render();
     },
     
     renderSearchCard() {
@@ -112,7 +174,7 @@ const Weather = {
     },
     
     init() {
-        console.log('✅ API Key configurada');
+        console.log('✅ Weather inicializado');
     },
     
     async searchCity() {
@@ -137,8 +199,8 @@ const Weather = {
     },
     
     validateApiKey() {
-        if (!this.apiKey || this.apiKey === 'SUA_CHAVE_OPENWEATHER_AQUI') {
-            Utils.showNotification('⚠️ Configure sua API Key no código primeiro!', 'warning');
+        if (!this.apiKey) {
+            Utils.showNotification('⚠️ Configure sua API Key primeiro!', 'warning');
             return false;
         }
         return true;
@@ -155,7 +217,6 @@ const Weather = {
         
         this.currentWeather = await currentResponse.json();
         
-        // Buscar previsão
         const forecastUrl = `${this.urls.forecast}?q=${encodeURIComponent(city)}&appid=${this.apiKey}&units=metric&lang=pt_br`;
         const forecastResponse = await fetch(forecastUrl);
         

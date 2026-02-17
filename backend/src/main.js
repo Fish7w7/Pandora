@@ -73,7 +73,7 @@ function createWindow() {
 
     const indexPath = path.join(__dirname, '../../frontend/public/index.html');
     
-    console.log('🐱 NyanTools v2.7.0 (Performance Update)');
+    console.log('🐱 NyanTools v2.7.1 (Performance Update)');
     console.log('📂 Diretório:', __dirname);
     console.log('📄 Carregando:', indexPath);
     
@@ -113,10 +113,15 @@ function createWindow() {
         }
     });
 
-    // Otimização de memória: limpar cache periodicamente
-    setInterval(() => {
+    // Performance: limpar cache periodicamente de forma assíncrona e segura
+    setInterval(async () => {
         if (mainWindow && !mainWindow.isDestroyed()) {
-            mainWindow.webContents.session.clearCache();
+            try {
+                await mainWindow.webContents.session.clearCache();
+                console.log('🧹 Cache limpo');
+            } catch (err) {
+                // Ignora erros silenciosos (janela pode ter sido destruída)
+            }
         }
     }, 600000); // A cada 10 minutos
 }
@@ -347,7 +352,7 @@ ipcMain.handle('open-downloads-folder', async () => {
 // ============================================
 
 app.whenReady().then(() => {
-    console.log('🐱 NyanTools v2.7.0 - Performance Update');
+    console.log('🐱 NyanTools v2.7.1 - Performance Update');
     console.log('📂 App path:', app.getAppPath());
     console.log('🖥️ Plataforma:', process.platform);
     console.log('📥 Downloads:', app.getPath('downloads'));

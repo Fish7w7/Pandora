@@ -1,8 +1,11 @@
 {
-  "version": "${productName}-${version}-${arch}.${ext}",
-  "buildDate": "2025- 1-Su",
+  "version": "2.7.1",
+  "buildDate": "2026-02-17",
   "changelog": [
-    "🆕 Nova versão publicada",
-    "🐛 Correções e melhorias"
+    "🔒 API Keys do Gemini e OpenWeather removidas do código-fonte",
+    "🐛 termo.js: função evaluateGuess duplicada removida",
+    "🐛 tictactoe.js: aspas quebradas na notificação de vitória corrigidas",
+    "🔧 version.json: encoding UTF-8 corrigido",
+    "⚡ main.js: clearCache agora assíncrono com async/await"
   ]
 }

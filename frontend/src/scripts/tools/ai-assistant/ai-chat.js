@@ -1,6 +1,11 @@
 // Assistente IA - Otimizado v2.0
 const AIAssistant = {
-    apiKey: 'AIzaSyDMPanwXCIGlXXKdLdMNXDpHNFFLjePbe0',
+    get apiKey() {
+        return Utils.loadData('gemini_api_key') || '';
+    },
+    set apiKey(value) {
+        if (value) Utils.saveData('gemini_api_key', value);
+    },
     conversation: [],
     
     // Configurações do modelo
@@ -23,13 +28,13 @@ const AIAssistant = {
                     <p class="text-gray-600 text-lg">Converse com inteligência artificial</p>
                 </div>
                 
+                ${this.renderApiKeyConfig()}
+                
                 <div class="flex-1 bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-                    <!-- Chat Container -->
                     <div id="chat-container" class="flex-1 overflow-y-auto p-6 bg-gradient-to-br from-gray-50 to-blue-50" style="max-height: 500px;">
                         ${this.renderConversation()}
                     </div>
                     
-                    <!-- Input Area -->
                     <div class="border-t-2 border-gray-200 p-6 bg-white">
                         <div class="flex gap-3 mb-4">
                             <input type="text" id="chat-input" 
@@ -43,7 +48,6 @@ const AIAssistant = {
                             </button>
                         </div>
                         
-                        <!-- Quick Actions -->
                         <div class="flex flex-wrap gap-2">
                             ${this.renderQuickActions()}
                         </div>
@@ -51,6 +55,62 @@ const AIAssistant = {
                 </div>
             </div>
         `;
+    },
+
+    renderApiKeyConfig() {
+        const hasKey = !!this.apiKey;
+        if (hasKey) {
+            return `
+                <div class="bg-green-50 border-2 border-green-300 rounded-xl p-3 mb-4 flex items-center justify-between">
+                    <div class="flex items-center gap-2 text-green-800">
+                        <span>✅</span>
+                        <span class="font-semibold text-sm">API Key do Gemini configurada</span>
+                    </div>
+                    <button onclick="AIAssistant.clearApiKey()" 
+                            class="text-xs text-red-600 hover:text-red-800 font-semibold px-3 py-1 border border-red-300 rounded-lg hover:bg-red-50 transition-all">
+                        🗑️ Remover Key
+                    </button>
+                </div>
+            `;
+        }
+        return `
+            <div class="bg-yellow-50 border-2 border-yellow-300 rounded-xl p-4 mb-4">
+                <div class="flex items-center gap-2 text-yellow-800 mb-3">
+                    <span>⚠️</span>
+                    <span class="font-bold">Configure sua API Key do Gemini</span>
+                </div>
+                <p class="text-yellow-700 text-sm mb-3">
+                    Acesse <a href="https://aistudio.google.com/app/apikey" target="_blank" class="underline font-semibold">aistudio.google.com</a> para obter sua chave gratuita.
+                </p>
+                <div class="flex gap-2">
+                    <input type="password" id="apikey-input" 
+                        class="flex-1 px-4 py-2 border-2 border-yellow-300 rounded-xl focus:border-yellow-500 outline-none text-sm"
+                        placeholder="Cole sua API Key aqui...">
+                    <button onclick="AIAssistant.saveApiKey()" 
+                            class="px-5 py-2 bg-yellow-500 hover:bg-yellow-600 text-white rounded-xl font-bold text-sm transition-all">
+                        Salvar
+                    </button>
+                </div>
+            </div>
+        `;
+    },
+
+    saveApiKey() {
+        const input = document.getElementById('apikey-input');
+        const key = input?.value.trim();
+        if (!key) {
+            Utils.showNotification('❌ Digite uma API Key válida', 'error');
+            return;
+        }
+        this.apiKey = key;
+        Utils.showNotification('✅ API Key salva com sucesso!', 'success');
+        Router?.render();
+    },
+
+    clearApiKey() {
+        Utils.saveData('gemini_api_key', '');
+        Utils.showNotification('🗑️ API Key removida', 'info');
+        Router?.render();
     },
     
     renderQuickActions() {
@@ -76,7 +136,7 @@ const AIAssistant = {
     },
     
     init() {
-        console.log('✅ API Key Gemini configurada');
+        console.log('✅ AIAssistant inicializado');
         this.loadConversation();
     },
     
@@ -114,8 +174,8 @@ const AIAssistant = {
     },
     
     validateApiKey() {
-        if (!this.apiKey || this.apiKey === 'SUA_CHAVE_GEMINI_AQUI') {
-            Utils.showNotification('⚠️ Configure sua API Key no código primeiro!', 'warning');
+        if (!this.apiKey) {
+            Utils.showNotification('⚠️ Configure sua API Key primeiro!', 'warning');
             return false;
         }
         return true;
@@ -193,7 +253,6 @@ const AIAssistant = {
         if (!container) return;
         
         if (this.conversation.length === 0) {
-
             container.innerHTML = this.renderEmptyState();
             return;
         }
@@ -240,12 +299,10 @@ const AIAssistant = {
             .replace(/&/g, '&amp;')
             .replace(/</g, '&lt;')
             .replace(/>/g, '&gt;')
-            // Code blocks
             .replace(/```(\w+)?\n([\s\S]*?)```/g, (_, lang, code) => `
                 <pre class="bg-gray-800 text-white p-4 rounded-lg overflow-x-auto mt-2 mb-2">
                     <code class="language-${lang || ''}" style="white-space: pre-wrap;">${code.trim()}</code>
                 </pre>`)
-            // Inline markdown
             .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
             .replace(/\*(.*?)\*/g, '<em>$1</em>')
             .replace(/`([^`]+)`/g, '<code class="px-2 py-1 bg-gray-200 text-gray-800 rounded text-sm">$1</code>')

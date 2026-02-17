@@ -511,7 +511,7 @@ const Settings = {
                     <h2 class="text-5xl font-black">NyanTools にゃん~</h2>
                     <p class="text-purple-100 text-xl mt-2 mb-6">Sua caixa de ferramentas purr-feita!</p>
                     <div class="inline-block bg-white/30 backdrop-blur-sm text-white text-lg font-black px-6 py-2 rounded-full shadow-lg">
-                        Versão ${App?.version || '2.7.0'}
+                        Versão ${App?.version || '2.7.1'}
                     </div>
                 </div>
             </div>

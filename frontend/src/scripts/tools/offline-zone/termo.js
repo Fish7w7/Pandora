@@ -462,42 +462,6 @@ const Termo = {
         return colors[status] || colors.absent;
     },
     
-    evaluateGuess(guessWord) {
-        const guess = [];
-        const wordArray = this.currentWord.split('');
-        const guessArray = guessWord.split('');
-        
-        // Primeiro, marcar todas as corretas
-        const usedIndices = new Set();
-        for (let i = 0; i < 5; i++) {
-            if (guessArray[i] === wordArray[i]) {
-                guess[i] = { letter: guessArray[i], status: 'correct' };
-                usedIndices.add(i);
-            }
-        }
-        
-        // Depois, marcar as presentes (posição errada)
-        for (let i = 0; i < 5; i++) {
-            if (guess[i]) continue; // Já marcada como correct
-            
-            let found = false;
-            for (let j = 0; j < 5; j++) {
-                if (!usedIndices.has(j) && guessArray[i] === wordArray[j]) {
-                    guess[i] = { letter: guessArray[i], status: 'present' };
-                    usedIndices.add(j);
-                    found = true;
-                    break;
-                }
-            }
-            
-            if (!found) {
-                guess[i] = { letter: guessArray[i], status: 'absent' };
-            }
-        }
-        
-        return guess;
-    },
-    
     getKeyStatus(key) {
         if (key === '⌫') return null;
         

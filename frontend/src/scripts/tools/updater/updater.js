@@ -4,7 +4,7 @@
    ======================================== */
 
 const AutoUpdater = {
-    currentVersion: '2.7.0',
+    currentVersion: '2.7.1',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -16,6 +16,18 @@ const AutoUpdater = {
     
     // Changelog consolidado
     changelog: [
+        {
+            version: '2.7.1',
+            date: '2026-02-17',
+            changes: [
+                "🔒 Segurança: API Keys do Gemini e OpenWeather removidas do código-fonte",
+                "🔒 API Keys agora configuradas pelo usuário via interface (localStorage)",
+                "🐛 termo.js: função evaluateGuess duplicada removida",
+                "🐛 tictactoe.js: aspas quebradas na notificação de vitória corrigidas",
+                "🔧 version.json: encoding UTF-8 corrigido",
+                "⚡ main.js: clearCache agora assíncrono com async/await e try/catch"
+            ]
+        },
         {
             version: '2.7.0',
             date: '2025-11-06',
@@ -29,17 +41,6 @@ const AutoUpdater = {
                 "📱 Mobile: Desabilita animações caras automaticamente"
             ]
         },
-        {
-            version: '2.6.0',
-            date: '2025-11-04',
-            changes: [
-                "✏️ Sistema de edição corrigido",
-                "🔄 Sincronização imediata entre modal e lista",
-                "💾 Persistência confiável dos dados editados",
-                "🚀 Performance otimizada no salvamento",
-                "🎨 Modais com scroll suave"
-            ]
-        }
     ],
     
     render() {

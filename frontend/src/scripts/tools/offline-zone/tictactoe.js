@@ -1,7 +1,5 @@
-// ============================================
-// ❌⭕ JOGO DA VELHA - NyanTools にゃん~
+// JOGO DA VELHA - NyanTools にゃん~
 // Versão Otimizada v2.0
-// ============================================
 
 const TicTacToe = {
     // Estado do jogo
@@ -530,7 +528,7 @@ const TicTacToe = {
         } else {
             this.scores[winner]++;
             const emoji = winner === 'X' ? '❌' : '⭕';
-            Utils.showNotification?.(`${emoji} Vitória! にゃん~', 'success'`);
+            Utils.showNotification?.(`${emoji} Vitória! にゃん~`, 'success');
         }
     },
     

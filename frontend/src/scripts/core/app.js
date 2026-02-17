@@ -4,7 +4,7 @@
    ======================================== */
 
 const App = {
-    version: '2.7.0',
+    version: '2.7.1',
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
