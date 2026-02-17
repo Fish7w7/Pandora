@@ -1,15 +1,11 @@
-// ============================================
 // PRELOAD SCRIPT - Ponte Electron ↔ Frontend
 // Versão Otimizada v2.7.0
-// ============================================
 
 const { contextBridge, ipcRenderer } = require('electron');
 
 console.log('🔧 Preload script iniciando (v2.7.0)...');
 
-// ============================================
-// 🎯 VALIDAÇÃO E SANITIZAÇÃO
-// ============================================
+// VALIDAÇÃO E SANITIZAÇÃO
 
 /**
  * Valida URL para segurança
@@ -55,9 +51,7 @@ function isValidFilePath(filePath) {
     return true;
 }
 
-// ============================================
-// 🔐 API SEGURA E OTIMIZADA
-// ============================================
+//  API SEGURA E OTIMIZADA
 
 try {
     contextBridge.exposeInMainWorld('electronAPI', {
@@ -235,9 +229,7 @@ try {
     }
 }
 
-// ============================================
 // 🧹 CLEANUP NA DESCARGA
-// ============================================
 
 window.addEventListener('beforeunload', () => {
     // Remover todos os listeners ao fechar

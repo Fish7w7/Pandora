@@ -1,9 +1,9 @@
-/* ========================================
+/* 
    ANIMATIONS.CSS OPTIMIZED v2.7.0
    Reduzido de 570 → 280 linhas (-51%)
-   ======================================== */
+    */
 
-/* ===== CORE ANIMATIONS (GPU-Accelerated) ===== */
+/*  CORE ANIMATIONS (GPU-Accelerated)  */
 
 /* Flip (Termo) */
 @keyframes flipIn {
@@ -122,7 +122,7 @@
     50% { border-color: rgba(139, 92, 246, 1); }
 }
 
-/* ===== UTILITY CLASSES (Optimized) ===== */
+/*  UTILITY CLASSES (Optimized)  */
 
 .animate-flipIn {
     animation: flipIn 0.6s ease-out forwards;
@@ -222,7 +222,7 @@
     will-change: background-position;
 }
 
-/* ===== TRANSITIONS (Fast & Smooth) ===== */
+/*  TRANSITIONS (Fast & Smooth)  */
 
 .smooth-transition {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -236,7 +236,7 @@
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* ===== HOVER EFFECTS (GPU-Accelerated) ===== */
+/*  HOVER EFFECTS (GPU-Accelerated)  */
 
 .keyboard-key {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -264,7 +264,7 @@
                 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
-/* ===== PERFORMANCE OPTIMIZATIONS ===== */
+/*  PERFORMANCE OPTIMIZATIONS  */
 
 /* Reduce animations on low-end devices */
 @media (prefers-reduced-motion: reduce) {

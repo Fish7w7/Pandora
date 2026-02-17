@@ -1,7 +1,7 @@
-/* ========================================
+/* 
    UPDATER.JS OPTIMIZED v2.7.0
    Reduzido de 780 → 420 linhas (-46%)
-   ======================================== */
+    */
 
 const AutoUpdater = {
     currentVersion: '2.7.1',

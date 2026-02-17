@@ -1,8 +1,8 @@
-/* ========================================
+/* 
    THEME-SYSTEM.CSS OPTIMIZED v2.7.0
    Reduzido de 380 → 200 linhas (-47%)
    8 Temas Completos にゃん~
-   ======================================== */
+    */
 
 :root {
     --theme-primary: #a855f7;
@@ -19,7 +19,7 @@
     --theme-glow: rgba(168, 85, 247, 0.5);
 }
 
-/* ===== 8 THEME VARIATIONS ===== */
+/*  8 THEME VARIATIONS  */
 
 /* Purple (Default) */
 body[data-theme="purple"] {
@@ -85,7 +85,7 @@ body[data-theme="indigo"] {
     --theme-shadow: rgba(99, 102, 241, 0.3); --theme-glow: rgba(99, 102, 241, 0.5);
 }
 
-/* ===== THEME APPLICATION ===== */
+/*  THEME APPLICATION  */
 
 /* Sidebar */
 body #sidebar {
@@ -188,12 +188,12 @@ progress::-moz-progress-bar {
     background: linear-gradient(to bottom right, var(--theme-primary), var(--theme-secondary)) !important;
 }
 
-/* ===== SMOOTH TRANSITIONS ===== */
+/*  SMOOTH TRANSITIONS  */
 body {
     transition: --theme-primary 0.5s ease, --theme-secondary 0.5s ease, background-color 0.5s ease;
 }
 
-/* ===== DARK THEME COMPATIBILITY ===== */
+/*  DARK THEME COMPATIBILITY  */
 body.dark-theme[data-theme] {
     background-color: var(--dark-bg-primary);
 }

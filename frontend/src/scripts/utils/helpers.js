@@ -1,7 +1,5 @@
-// ============================================
 // 🛠️ UTILITÁRIOS GLOBAIS - NyanTools にゃん~
 // Versão Otimizada v2.0
-// ============================================
 
 const Utils = {
     // Configurações de notificação
@@ -12,9 +10,9 @@ const Utils = {
         info: { bg: 'from-blue-400 to-cyan-500', icon: 'i', iconBg: 'bg-white/30' }
     },
     
-    // ============================================
+    
     // CLIPBOARD
-    // ============================================
+    
     
     copyToClipboard(text) {
         navigator.clipboard.writeText(text)
@@ -22,9 +20,9 @@ const Utils = {
             .catch(() => this.showNotification('❌ Erro ao copiar', 'error'));
     },
     
-    // ============================================
+    
     // NOTIFICAÇÕES
-    // ============================================
+    
     
     showNotification(message, type = 'info') {
         const config = this.notificationConfig[type];
@@ -119,9 +117,9 @@ const Utils = {
         }, 4000);
     },
     
-    // ============================================
+    
     // DATA & TIME
-    // ============================================
+    
     
     formatDate(date) {
         return new Date(date).toLocaleDateString('pt-BR', {
@@ -151,9 +149,9 @@ const Utils = {
         return `${minutes}m ${seconds % 60}s`;
     },
     
-    // ============================================
+    
     // LOCAL STORAGE
-    // ============================================
+    
     
     saveData(key, data) {
         try {
@@ -216,9 +214,9 @@ const Utils = {
         return `${mb} MB`;
     },
     
-    // ============================================
+    
     // API & FETCH
-    // ============================================
+    
     
     async fetchAPI(url, options = {}) {
         try {
@@ -263,9 +261,9 @@ const Utils = {
         }
     },
     
-    // ============================================
+    
     // STRING UTILITIES
-    // ============================================
+    
     
     truncate(text, length = 50) {
         if (!text) return '';
@@ -300,9 +298,9 @@ const Utils = {
         return text.replace(/[&<>"']/g, m => map[m]);
     },
     
-    // ============================================
+    
     // ID GENERATION
-    // ============================================
+    
     
     generateId() {
         return Date.now().toString(36) + Math.random().toString(36).substr(2);
@@ -316,9 +314,9 @@ const Utils = {
         });
     },
     
-    // ============================================
+    
     // PERFORMANCE
-    // ============================================
+    
     
     debounce(func, wait) {
         let timeout;
@@ -347,9 +345,9 @@ const Utils = {
         return new Promise(resolve => setTimeout(resolve, ms));
     },
     
-    // ============================================
+    
     // VALIDATION
-    // ============================================
+    
     
     isValidEmail(email) {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -374,9 +372,9 @@ const Utils = {
         }
     },
     
-    // ============================================
+    
     // ARRAY UTILITIES
-    // ============================================
+    
     
     shuffle(array) {
         const shuffled = [...array];
@@ -399,9 +397,9 @@ const Utils = {
         return chunks;
     },
     
-    // ============================================
+    
     // NUMBER UTILITIES
-    // ============================================
+    
     
     randomInt(min, max) {
         return Math.floor(Math.random() * (max - min + 1)) + min;
@@ -422,9 +420,9 @@ const Utils = {
         }).format(value);
     },
     
-    // ============================================
+    
     // DOM UTILITIES
-    // ============================================
+    
     
     createElement(tag, attributes = {}, children = []) {
         const element = document.createElement(tag);

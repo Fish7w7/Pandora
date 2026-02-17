@@ -1,0 +1,258 @@
+/* 
+   DENSITY FIX v2.7.1
+   Reduz zoom excessivo e melhora densidade
+  */
+
+/* Email Temporário - Cards de serviços */
+#temp-email .bg-gradient-to-br.from-blue-500,
+body #temp-email .bg-gradient-to-br {
+    padding: 1.25rem !important;
+}
+
+#temp-email h1.text-5xl {
+    font-size: 2rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+#temp-email .text-gray-600 {
+    font-size: 0.875rem !important;
+    margin-bottom: 1rem !important;
+}
+
+#temp-email h2.text-3xl,
+#temp-email h2.text-4xl {
+    font-size: 1.5rem !important;
+    margin-bottom: 0.75rem !important;
+}
+
+#temp-email .text-lg {
+    font-size: 0.938rem !important;
+}
+
+/* Cards de opções - menor padding */
+#temp-email .bg-white.rounded-2xl {
+    padding: 1.5rem !important;
+}
+
+#temp-email .space-y-6 > div {
+    margin-bottom: 1rem !important;
+}
+
+/* Player de Música - compactar tudo */
+#music-player h1.text-5xl,
+body #music-player h1 {
+    font-size: 2rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+#music-player .text-7xl {
+    font-size: 3rem !important;
+}
+
+#music-player .text-6xl {
+    font-size: 2.5rem !important;
+}
+
+/* Player card central menor */
+#music-player > div > div.bg-gradient-to-br {
+    padding: 1.5rem !important;
+    max-height: 400px !important;
+}
+
+/* Controles do player menores */
+#music-player button.text-4xl,
+#music-player button.text-5xl {
+    font-size: 2rem !important;
+}
+
+#music-player .space-y-3 {
+    gap: 0.75rem !important;
+    margin-top: 1rem !important;
+}
+
+#music-player .space-y-3 > * + * {
+    margin-top: 0 !important;
+}
+
+/* Lista de músicas */
+#music-player .space-y-2 {
+    gap: 0.5rem !important;
+}
+
+#music-player .space-y-2 > * + * {
+    margin-top: 0 !important;
+}
+
+/* Gerador de Senhas */
+#password-generator h1 {
+    font-size: 2.5rem !important;
+    margin-bottom: 0.75rem !important;
+}
+
+#password-generator .text-7xl {
+    font-size: 3.5rem !important;
+}
+
+#password-generator .text-lg {
+    font-size: 0.938rem !important;
+}
+
+/* Seção de configurações */
+#password-generator .bg-gradient-to-br.from-blue-50 {
+    padding: 1.25rem !important;
+}
+
+/* Option cards */
+#password-generator label.bg-gradient-to-br {
+    padding: 0.875rem !important;
+}
+
+#password-generator label .text-xl {
+    font-size: 0.938rem !important;
+}
+
+#password-generator label .text-sm {
+    font-size: 0.813rem !important;
+}
+
+/* Display da senha */
+#password-generator code#generated-password {
+    font-size: 1.25rem !important;
+    padding: 1.25rem !important;
+}
+
+/* Grid de opções */
+#password-generator .grid.gap-4,
+#password-generator .grid.gap-6 {
+    gap: 0.875rem !important;
+}
+
+/* Mini Game */
+#mini-game-container h1 {
+    font-size: 2rem !important;
+    margin-bottom: 0.75rem !important;
+}
+
+#mini-game-container .text-lg {
+    font-size: 0.938rem !important;
+}
+
+#game-canvas {
+    max-height: 450px !important;
+}
+
+/* Configurações */
+#settings h1 {
+    font-size: 2rem !important;
+    margin-bottom: 0.75rem !important;
+}
+
+#settings .text-6xl {
+    font-size: 2.5rem !important;
+}
+
+/* Tabs */
+#settings [role="tablist"] button {
+    padding: 0.625rem 1.25rem !important;
+    font-size: 0.875rem !important;
+}
+
+/* Cards de tema */
+#settings .bg-gradient-to-br.from-white,
+#settings .bg-gradient-to-br.from-gray-800 {
+    padding: 1.5rem !important;
+}
+
+#settings .text-6xl.mb-3 {
+    font-size: 2rem !important;
+    margin-bottom: 0.75rem !important;
+}
+
+/* Tecnologias em 4 colunas */
+#settings .grid.grid-cols-2.md\\:grid-cols-3 {
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 0.75rem !important;
+}
+
+#settings .grid.grid-cols-2.md\\:grid-cols-3 > div {
+    padding: 0.75rem !important;
+}
+
+/* Notas */
+#notes-list {
+    gap: 1rem !important;
+}
+
+/*  AJUSTES GLOBAIS  */
+
+/* Títulos principais */
+body main h1.text-5xl,
+body main h1.text-6xl {
+    font-size: 2rem !important;
+    margin-bottom: 0.75rem !important;
+}
+
+body main .text-7xl {
+    font-size: 3rem !important;
+}
+
+/* Parágrafos e descrições */
+body main p.text-lg {
+    font-size: 0.938rem !important;
+}
+
+/* Espaçamento entre seções */
+body main .space-y-8 > * + * {
+    margin-top: 1.25rem !important;
+}
+
+body main .space-y-6 > * + * {
+    margin-top: 1rem !important;
+}
+
+body main .mb-8 {
+    margin-bottom: 1.25rem !important;
+}
+
+body main .mb-6 {
+    margin-bottom: 1rem !important;
+}
+
+/* Containers principais */
+body main > div {
+    padding-top: 1.5rem !important;
+    padding-bottom: 1.5rem !important;
+}
+
+/* Cards */
+body main .rounded-2xl,
+body main .rounded-3xl {
+    padding: 1.5rem !important;
+}
+
+/*  LAYOUT RESPONSIVO  */
+@media (min-width: 1920px) {
+    .max-w-7xl {
+        max-width: 100rem !important;
+    }
+}
+
+/*  LINE HEIGHT  */
+h1, h2, h3 {
+    line-height: 1.2 !important;
+}
+
+p {
+    line-height: 1.5 !important;
+}
+
+/* SCROLLBAR */
+::-webkit-scrollbar {
+    width: 6px !important;
+    height: 6px !important;
+}
+
+/*  ALTERNATIVA: ZOOM GLOBAL  */   
+body main {
+    zoom: 0.85;
+}

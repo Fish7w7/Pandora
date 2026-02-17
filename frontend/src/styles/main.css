@@ -1,9 +1,9 @@
-/* ========================================
+/* 
    MAIN.CSS OPTIMIZED v2.7.0
    Reduzido de 430 → 220 linhas (-49%)
-   ======================================== */
+    */
 
-/* ===== LOADING ANIMATION ===== */
+/*  LOADING ANIMATION  */
 .loader {
     width: 80px;
     height: 80px;
@@ -18,7 +18,7 @@
     to { transform: rotate(360deg); }
 }
 
-/* ===== FLOATING ANIMATIONS ===== */
+/*  FLOATING ANIMATIONS  */
 @keyframes float {
     0%, 100% { transform: translateY(0) translateX(0); opacity: 0.2; }
     50% { transform: translateY(-20px) translateX(10px); opacity: 0.4; }
@@ -38,7 +38,7 @@
     50% { transform: translateY(-10px); }
 }
 
-/* ===== TOOL CARDS ===== */
+/*  TOOL CARDS  */
 .tool-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
     will-change: transform;
@@ -49,7 +49,7 @@
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
 }
 
-/* ===== NAV MENU ===== */
+/*  NAV MENU  */
 .nav-item {
     transition: background-color 0.2s ease;
 }
@@ -63,7 +63,7 @@
     border-left: 4px solid white;
 }
 
-/* ===== SCROLLBAR ===== */
+/*  SCROLLBAR  */
 ::-webkit-scrollbar { width: 8px; }
 ::-webkit-scrollbar-track { background: #f1f1f1; }
 ::-webkit-scrollbar-thumb {
@@ -72,7 +72,7 @@
 }
 ::-webkit-scrollbar-thumb:hover { background: #555; }
 
-/* ===== UTILITY CLASSES ===== */
+/*  UTILITY CLASSES  */
 .glass {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
@@ -83,7 +83,7 @@
     box-shadow: 0 0 20px rgba(99, 102, 241, 0.5);
 }
 
-/* ===== BUTTONS ===== */
+/*  BUTTONS  */
 .btn-primary {
     background-color: #2563eb;
     color: white;
@@ -130,7 +130,7 @@
     background-color: #dc2626;
 }
 
-/* ===== INPUTS ===== */
+/*  INPUTS  */
 .input-field {
     width: 100%;
     padding: 0.75rem 1rem;
@@ -146,7 +146,7 @@
     box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
-/* ===== CARDS ===== */
+/*  CARDS  */
 .card {
     background-color: white;
     border-radius: 0.75rem;
@@ -161,7 +161,7 @@
     margin-bottom: 1rem;
 }
 
-/* ===== NOTIFICATIONS SYSTEM ===== */
+/*  NOTIFICATIONS SYSTEM  */
 #notifications-container {
     position: fixed;
     top: 1rem;
@@ -191,7 +191,7 @@
     transform: scale(1.02);
 }
 
-/* ===== LOGIN PREMIUM EFFECTS ===== */
+/*  LOGIN PREMIUM EFFECTS  */
 .glass-effect {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(20px);
@@ -225,7 +225,7 @@ input:focus {
     transition: all 0.3s ease;
 }
 
-/* ===== MINI PLAYER ===== */
+/*  MINI PLAYER  */
 @keyframes slideInUp {
     from { transform: translateY(100px) scale(0.8); opacity: 0; }
     to { transform: translateY(0) scale(1); opacity: 1; }
@@ -258,7 +258,7 @@ input:focus {
     transform: scale(0.95);
 }
 
-/* ===== RESPONSIVE ===== */
+/*  RESPONSIVE  */
 @media (max-width: 768px) {
     #sidebar {
         width: 200px;

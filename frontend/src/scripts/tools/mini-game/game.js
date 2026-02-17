@@ -10,6 +10,7 @@ const MiniGame = {
     highScore: 0,
     gameLoop: null,
     isPlaying: false,
+    isPaused: false,
     
     // Configurações do jogo
     config: {
@@ -19,38 +20,63 @@ const MiniGame = {
         initialSnakeLength: 3
     },
     
-    // Cores do jogo
+    // Cores do jogo (tema dark otimizado)
     colors: {
-        background: '#1a1a2e',
-        grid: 'rgba(255, 255, 255, 0.05)',
-        snakeHead: '#4ade80',
-        snakeBody: '#22c55e',
-        food: '#ef4444'
+        background: '#0f172a',
+        grid: 'rgba(148, 163, 184, 0.1)',
+        snakeHead: '#10b981',
+        snakeBody: '#059669',
+        snakeBodyGradient: '#047857',
+        food: '#ef4444',
+        foodGlow: 'rgba(239, 68, 68, 0.5)'
     },
     
     render() {
         this.highScore = Utils.loadData('snake_highscore') || 0;
         
         return `
-            <div class="bg-white rounded-2xl shadow-2xl p-8">
+            <div class="max-w-3xl mx-auto">
+                ${this.renderHeader()}
+                ${this.renderGameContainer()}
+                ${this.renderStats()}
+            </div>
+        `;
+    },
+    
+    renderHeader() {
+        return `
+            <div class="text-center mb-4">
+                <div class="inline-flex items-center gap-3 mb-2">
+                    <div class="text-4xl">🐍</div>
+                    <h1 class="text-3xl font-black bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                        Cobrinha にゃん~
+                    </h1>
+                </div>
+                <p class="text-gray-600 text-sm">Use as setas do teclado ou clique nos botões</p>
+            </div>
+        `;
+    },
+    
+    renderGameContainer() {
+        return `
+            <div class="bg-white rounded-2xl shadow-xl p-4 mb-4">
                 ${this.renderScoreDisplay()}
                 ${this.renderCanvas()}
                 ${this.renderControls()}
-                ${this.renderKeyboardHint()}
             </div>
         `;
     },
     
     renderScoreDisplay() {
         return `
-            <div class="flex justify-between items-center mb-6">
-                <div class="bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl shadow-lg">
-                    <div class="text-sm font-semibold opacity-90">Pontuação</div>
-                    <div class="text-3xl font-black" id="score">0</div>
+            <div class="flex justify-between items-center mb-4 gap-3">
+                <div class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-3 rounded-xl shadow-md">
+                    <div class="text-xs font-semibold opacity-90">Pontuação</div>
+                    <div class="text-2xl font-black" id="score">0</div>
                 </div>
-                <div class="bg-gradient-to-r from-yellow-500 to-orange-600 text-white px-6 py-3 rounded-xl shadow-lg">
-                    <div class="text-sm font-semibold opacity-90">🏆 Recorde</div>
-                    <div class="text-3xl font-black">${this.highScore}</div>
+                <div class="flex-1 bg-gradient-to-r from-orange-500 to-amber-600 text-white px-4 py-3 rounded-xl shadow-md">
+                    <div class="text-xs font-semibold opacity-90">🏆 Recorde</div>
+                    <div class="text-2xl font-black">${this.highScore}</div>
                 </div>
             </div>
         `;
@@ -58,57 +84,56 @@ const MiniGame = {
     
     renderCanvas() {
         return `
-            <div class="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-4 shadow-inner mb-6">
+            <div class="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl p-3 shadow-inner mb-4">
                 <canvas id="game-canvas" width="400" height="400" 
-                        class="mx-auto rounded-xl shadow-2xl"
-                        style="image-rendering: pixelated; image-rendering: crisp-edges;">
+                        class="mx-auto rounded-lg shadow-2xl border border-slate-700"
+                        style="image-rendering: pixelated; image-rendering: crisp-edges; display: block;">
                 </canvas>
+                <div id="game-overlay" class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl hidden">
+                    <div class="text-center text-white">
+                        <div class="text-6xl mb-4">⏸️</div>
+                        <div class="text-2xl font-bold">Pausado</div>
+                        <div class="text-sm mt-2 opacity-75">Pressione Iniciar para continuar</div>
+                    </div>
+                </div>
             </div>
         `;
     },
     
     renderControls() {
         return `
-            <div class="flex gap-3 mb-6">
+            <div class="grid grid-cols-2 gap-3 mb-4">
                 <button onclick="MiniGame.startGame()" id="start-btn"
-                        class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold text-lg hover:shadow-xl transform hover:scale-105 transition-all flex items-center justify-center gap-2">
-                    <span>▶️</span>
+                        class="bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <span class="text-xl">▶️</span>
                     <span>Iniciar</span>
                 </button>
-                <button onclick="MiniGame.pauseGame()"
-                        class="flex-1 bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-4 rounded-xl font-bold text-lg hover:shadow-xl transform hover:scale-105 transition-all flex items-center justify-center gap-2">
-                    <span>⏸️</span>
+                <button onclick="MiniGame.pauseGame()" id="pause-btn"
+                        class="bg-gradient-to-r from-orange-500 to-amber-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transform hover:scale-105 active:scale-95 transition-all flex items-center justify-center gap-2">
+                    <span class="text-xl">⏸️</span>
                     <span>Pausar</span>
                 </button>
             </div>
-        `;
-    },
-    
-    renderKeyboardHint() {
-        return `
-            <div class="bg-gray-100 rounded-xl p-6">
-                <h3 class="text-center font-bold text-gray-700 mb-4">⌨️ Controles</h3>
-                <div class="grid grid-cols-3 gap-2 max-w-xs mx-auto">
-                    ${this.renderArrowButton('', 1)}
-                    ${this.renderArrowButton('up', 1)}
-                    ${this.renderArrowButton('', 1)}
-                    ${this.renderArrowButton('left', 2)}
-                    ${this.renderArrowButton('', 2)}
-                    ${this.renderArrowButton('right', 2)}
-                    ${this.renderArrowButton('', 3)}
-                    ${this.renderArrowButton('down', 3)}
-                    ${this.renderArrowButton('', 3)}
+            
+            <div class="grid grid-cols-3 gap-2 max-w-xs mx-auto">
+                <div></div>
+                ${this.renderArrowButton('up')}
+                <div></div>
+                ${this.renderArrowButton('left')}
+                <div class="flex items-center justify-center">
+                    <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400 text-xs font-bold">
+                        WASD
+                    </div>
                 </div>
-                <p class="text-center text-sm text-gray-600 mt-4">
-                    Use as setas do teclado ou clique nos botões
-                </p>
+                ${this.renderArrowButton('right')}
+                <div></div>
+                ${this.renderArrowButton('down')}
+                <div></div>
             </div>
         `;
     },
     
-    renderArrowButton(direction, row) {
-        if (!direction) return '<div></div>';
-        
+    renderArrowButton(direction) {
         const arrows = {
             up: '⬆️',
             down: '⬇️',
@@ -116,11 +141,34 @@ const MiniGame = {
             right: '➡️'
         };
         
+        const keys = {
+            up: 'W/↑',
+            down: 'S/↓',
+            left: 'A/←',
+            right: 'D/→'
+        };
+        
         return `
             <button onclick="MiniGame.changeDirection('${direction}')"
-                    class="bg-white border-2 border-gray-300 hover:border-green-500 py-3 rounded-lg font-bold text-2xl transition-all transform hover:scale-110 active:scale-95">
-                ${arrows[direction]}
+                    class="bg-white border-2 border-gray-200 hover:border-green-500 hover:bg-green-50 py-3 rounded-lg transition-all transform hover:scale-110 active:scale-95 group"
+                    title="${keys[direction]}">
+                <div class="text-2xl">${arrows[direction]}</div>
+                <div class="text-xs text-gray-400 group-hover:text-green-600 font-semibold">${keys[direction]}</div>
             </button>
+        `;
+    },
+    
+    renderStats() {
+        return `
+            <div class="bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 rounded-xl shadow-xl p-4 text-white">
+                <div class="flex items-center justify-between text-sm">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xl">💡</span>
+                        <span class="font-semibold">Dica:</span>
+                    </div>
+                    <span class="opacity-90">Coma as maçãs vermelhas para crescer!</span>
+                </div>
+            </div>
         `;
     },
     
@@ -137,18 +185,44 @@ const MiniGame = {
     
     setupKeyboardListeners() {
         document.addEventListener('keydown', (e) => {
-            if (!this.isPlaying) return;
+            if (!this.isPlaying || this.isPaused) {
+                // Espaço ou Enter inicia/continua o jogo
+                if (e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    if (!this.isPlaying) {
+                        this.startGame();
+                    } else if (this.isPaused) {
+                        this.resumeGame();
+                    }
+                    return;
+                }
+                return;
+            }
             
             const keyMap = {
                 'ArrowUp': 'up',
                 'ArrowDown': 'down',
                 'ArrowLeft': 'left',
-                'ArrowRight': 'right'
+                'ArrowRight': 'right',
+                'w': 'up',
+                'W': 'up',
+                's': 'down',
+                'S': 'down',
+                'a': 'left',
+                'A': 'left',
+                'd': 'right',
+                'D': 'right'
             };
             
             if (keyMap[e.key]) {
                 e.preventDefault();
                 this.changeDirection(keyMap[e.key]);
+            }
+            
+            // P ou Espaço pausa o jogo
+            if (e.key === 'p' || e.key === 'P' || e.key === ' ') {
+                e.preventDefault();
+                this.pauseGame();
             }
         });
     },
@@ -162,30 +236,74 @@ const MiniGame = {
         this.direction = 'right';
         this.nextDirection = 'right';
         this.score = 0;
+        this.isPaused = false;
         this.spawnFood();
         this.updateScore();
+        this.hideOverlay();
     },
     
     startGame() {
-        if (this.isPlaying) return;
+        if (this.isPlaying && !this.isPaused) {
+            // Se já está jogando, reinicia
+            this.pauseGame();
+            this.resetGame();
+        }
         
-        this.resetGame();
         this.isPlaying = true;
+        this.isPaused = false;
+        this.hideOverlay();
+        
+        if (this.gameLoop) {
+            clearInterval(this.gameLoop);
+        }
         
         this.gameLoop = setInterval(() => {
-            this.update();
-            this.draw();
+            if (!this.isPaused) {
+                this.update();
+                this.draw();
+            }
         }, this.config.speed);
         
-        document.getElementById('start-btn').textContent = '🔄 Reiniciar';
+        const startBtn = document.getElementById('start-btn');
+        if (startBtn) {
+            startBtn.innerHTML = '<span class="text-xl">🔄</span><span>Reiniciar</span>';
+        }
     },
     
     pauseGame() {
-        this.isPlaying = false;
-        if (this.gameLoop) {
-            clearInterval(this.gameLoop);
-            this.gameLoop = null;
+        if (!this.isPlaying) return;
+        
+        this.isPaused = !this.isPaused;
+        
+        if (this.isPaused) {
+            this.showOverlay();
+        } else {
+            this.hideOverlay();
         }
+        
+        const pauseBtn = document.getElementById('pause-btn');
+        if (pauseBtn) {
+            if (this.isPaused) {
+                pauseBtn.innerHTML = '<span class="text-xl">▶️</span><span>Continuar</span>';
+            } else {
+                pauseBtn.innerHTML = '<span class="text-xl">⏸️</span><span>Pausar</span>';
+            }
+        }
+    },
+    
+    resumeGame() {
+        this.isPaused = false;
+        this.hideOverlay();
+    },
+    
+    showOverlay() {
+        const overlay = document.getElementById('game-overlay');
+        if (overlay) overlay.classList.remove('hidden');
+    },
+    
+    hideOverlay() {
+        const overlay = document.getElementById('game-overlay');
+        if (overlay) overlay.classList.add('hidden');
     },
     
     update() {
@@ -203,6 +321,18 @@ const MiniGame = {
             this.score += 10;
             this.updateScore();
             this.spawnFood();
+            
+            // Aumenta velocidade gradualmente
+            if (this.score % 50 === 0 && this.config.speed > 50) {
+                clearInterval(this.gameLoop);
+                this.config.speed -= 5;
+                this.gameLoop = setInterval(() => {
+                    if (!this.isPaused) {
+                        this.update();
+                        this.draw();
+                    }
+                }, this.config.speed);
+            }
         } else {
             this.snake.pop();
         }
@@ -239,8 +369,8 @@ const MiniGame = {
         
         this.drawBackground();
         this.drawGrid();
-        this.drawSnake();
         this.drawFood();
+        this.drawSnake();
     },
     
     drawBackground() {
@@ -267,35 +397,78 @@ const MiniGame = {
     
     drawSnake() {
         this.snake.forEach((segment, index) => {
-            if (index === 0) {
-                this.ctx.shadowBlur = 10;
-                this.ctx.shadowColor = this.colors.snakeHead;
-                this.ctx.fillStyle = this.colors.snakeHead;
-            } else {
-                this.ctx.shadowBlur = 0;
-                this.ctx.fillStyle = this.colors.snakeBody;
-            }
+            const isHead = index === 0;
+            const x = segment.x * this.config.cellSize;
+            const y = segment.y * this.config.cellSize;
             
-            this.ctx.fillRect(
-                segment.x * this.config.cellSize + 2, 
-                segment.y * this.config.cellSize + 2, 
-                16, 16
-            );
+            if (isHead) {
+                // Cabeça com gradiente e brilho
+                const gradient = this.ctx.createRadialGradient(
+                    x + 10, y + 10, 2,
+                    x + 10, y + 10, 10
+                );
+                gradient.addColorStop(0, '#34d399');
+                gradient.addColorStop(1, this.colors.snakeHead);
+                
+                this.ctx.shadowBlur = 15;
+                this.ctx.shadowColor = this.colors.snakeHead;
+                this.ctx.fillStyle = gradient;
+                this.ctx.fillRect(x + 1, y + 1, 18, 18);
+                
+                // Olhos da cobrinha
+                this.ctx.shadowBlur = 0;
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.fillRect(x + 5, y + 6, 3, 3);
+                this.ctx.fillRect(x + 12, y + 6, 3, 3);
+                this.ctx.fillStyle = '#000000';
+                this.ctx.fillRect(x + 6, y + 7, 2, 2);
+                this.ctx.fillRect(x + 13, y + 7, 2, 2);
+            } else {
+                // Corpo com gradiente baseado na posição
+                const ratio = index / this.snake.length;
+                this.ctx.shadowBlur = 5;
+                this.ctx.shadowColor = this.colors.snakeBody;
+                
+                const gradient = this.ctx.createLinearGradient(x, y, x + 20, y + 20);
+                gradient.addColorStop(0, this.colors.snakeBody);
+                gradient.addColorStop(1, this.colors.snakeBodyGradient);
+                
+                this.ctx.fillStyle = gradient;
+                this.ctx.globalAlpha = 1 - (ratio * 0.3);
+                this.ctx.fillRect(x + 2, y + 2, 16, 16);
+                this.ctx.globalAlpha = 1;
+            }
         });
+        
+        this.ctx.shadowBlur = 0;
     },
     
     drawFood() {
-        this.ctx.shadowBlur = 15;
-        this.ctx.shadowColor = this.colors.food;
+        const x = this.food.x * this.config.cellSize + 10;
+        const y = this.food.y * this.config.cellSize + 10;
+        
+        // Maçã com brilho pulsante
+        const pulseSize = Math.sin(Date.now() / 200) * 2 + 8;
+        
+        this.ctx.shadowBlur = 20;
+        this.ctx.shadowColor = this.colors.foodGlow;
+        
+        // Corpo da maçã
         this.ctx.fillStyle = this.colors.food;
         this.ctx.beginPath();
-        this.ctx.arc(
-            this.food.x * this.config.cellSize + 10,
-            this.food.y * this.config.cellSize + 10,
-            8, 0, Math.PI * 2
-        );
+        this.ctx.arc(x, y, pulseSize, 0, Math.PI * 2);
         this.ctx.fill();
+        
+        // Reflexo
         this.ctx.shadowBlur = 0;
+        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
+        this.ctx.beginPath();
+        this.ctx.arc(x - 2, y - 2, 3, 0, Math.PI * 2);
+        this.ctx.fill();
+        
+        // Folhinha
+        this.ctx.fillStyle = '#10b981';
+        this.ctx.fillRect(x - 1, y - pulseSize - 2, 2, 3);
     },
     
     spawnFood() {
@@ -324,14 +497,31 @@ const MiniGame = {
     },
     
     gameOver() {
-        this.pauseGame();
+        this.isPlaying = false;
+        this.isPaused = false;
+        
+        if (this.gameLoop) {
+            clearInterval(this.gameLoop);
+            this.gameLoop = null;
+        }
+        
+        // IMPORTANTE: esconder overlay antes de mostrar notificação
+        this.hideOverlay();
         
         if (this.score > this.highScore) {
             this.highScore = this.score;
             Utils.saveData('snake_highscore', this.highScore);
-            Utils.showNotification('🎉 Novo recorde: ' + this.score + ' pontos!', 'success');
+            Utils.showNotification('🎉 Novo recorde: ' + this.score + ' pontos! にゃん~', 'success');
         } else {
             Utils.showNotification('💀 Game Over! Pontuação: ' + this.score, 'error');
+        }
+        
+        // Reset da velocidade
+        this.config.speed = 100;
+        
+        const startBtn = document.getElementById('start-btn');
+        if (startBtn) {
+            startBtn.innerHTML = '<span class="text-xl">▶️</span><span>Iniciar</span>';
         }
     }
 };

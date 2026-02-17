@@ -4,9 +4,8 @@ const fs = require('fs').promises;
 const fsSync = require('fs');
 const https = require('https');
 
-// ============================================
-// 🔧 OTIMIZAÇÃO: GPU E PERFORMANCE
-// ============================================
+// OTIMIZAÇÃO: GPU E PERFORMANCE
+
 console.log('🔧 Aplicando otimizações de performance...');
 
 // Desabilitar aceleração de hardware para estabilidade
@@ -27,18 +26,15 @@ const performanceFlags = [
 
 performanceFlags.forEach(flag => app.commandLine.appendSwitch(flag));
 
-// ============================================
-// 🎯 CACHE E CONFIGURAÇÕES
-// ============================================
+// CACHE E CONFIGURAÇÕES
+
 let mainWindow = null;
 let isQuitting = false;
 
 // Cache para ícones
 const iconCache = new Map();
 
-// ============================================
-// 🪟 CRIAÇÃO DA JANELA (OTIMIZADA)
-// ============================================
+// CRIAÇÃO DA JANELA (OTIMIZADA)
 function createWindow() {
     const iconPath = getIconPath();
     const preloadPath = path.join(__dirname, 'preload.js');
@@ -126,9 +122,8 @@ function createWindow() {
     }, 600000); // A cada 10 minutos
 }
 
-// ============================================
-// 🎨 GERENCIAMENTO DE ÍCONES (CACHED)
-// ============================================
+// GERENCIAMENTO DE ÍCONES (CACHED)
+
 function getIconPath() {
     const platform = process.platform;
     
@@ -154,9 +149,7 @@ function getIconPath() {
     return iconPath;
 }
 
-// ============================================
-// 🔄 SISTEMA DE AUTO-UPDATE (OTIMIZADO)
-// ============================================
+// SISTEMA DE AUTO-UPDATE (OTIMIZADO)
 
 // Rate limiting para evitar requests excessivos
 let lastUpdateCheck = 0;
@@ -347,9 +340,7 @@ ipcMain.handle('open-downloads-folder', async () => {
     }
 });
 
-// ============================================
-// 🚀 LIFECYCLE DO APP
-// ============================================
+// LIFECYCLE DO APP
 
 app.whenReady().then(() => {
     console.log('🐱 NyanTools v2.7.1 - Performance Update');
