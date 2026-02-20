@@ -457,20 +457,22 @@ const Settings = {
                         <p class="text-gray-400 mt-1 mb-4">にゃん~ Sua caixa de ferramentas purr-feita!</p>
                         <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm font-bold">
                             <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                            Versão ${App?.version || '3.0.0'}
+                            Versão ${App?.version || '2.7.1'}
                         </div>
                     </div>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                    <!-- Desenvolvedor -->
+                    <!-- Desenvolvedores -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                        <h3 class="font-black text-gray-800 mb-4 flex items-center gap-2"><span>👤</span> Desenvolvedor</h3>
+                        <h3 class="font-black text-gray-800 mb-4 flex items-center gap-2"><span>👥</span> Desenvolvedores</h3>
                         <div class="space-y-3">
+
+                            <!-- Fish7w7 -->
                             <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                                 <span class="text-2xl">👨‍💻</span>
                                 <div>
-                                    <div class="font-bold text-gray-800">Fish7w7</div>
+                                    <div class="font-bold text-gray-800">Gabriel</div>
                                     <div class="text-xs text-gray-500">Desenvolvedor Principal</div>
                                 </div>
                             </div>
@@ -494,6 +496,32 @@ const Settings = {
                                     <div class="text-xs text-gray-500">kik73261@gmail.com</div>
                                 </div>
                             </a>
+
+                            <!-- Divisor -->
+                            <div class="flex items-center gap-3 py-1">
+                                <div class="flex-1 h-px bg-gray-100"></div>
+                                <div class="flex-1 h-px bg-gray-100"></div>
+                            </div>
+
+                            <!-- Clara -->
+                            <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                                <span class="text-2xl">👩‍💻</span>
+                                <div>
+                                    <div class="font-bold text-gray-800">Clara</div>
+                                    <div class="text-xs text-gray-500">Desenvolvedora Principal</div>
+                                </div>
+                            </div>
+                            <a href="mailto:clara.mendes@proton.me"
+                               class="flex items-center gap-3 p-3 bg-gray-50 hover:bg-gray-100 rounded-xl transition-all">
+                                <svg class="w-6 h-6 text-gray-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+                                </svg>
+                                <div>
+                                    <div class="font-bold text-gray-800 text-sm">Email</div>
+                                    <div class="text-xs text-gray-500">clara.mendes@proton.me</div>
+                                </div>
+                            </a>
+
                         </div>
                     </div>
 
