@@ -1,7 +1,9 @@
-/* 
-   DENSITY FIX v2.7.1
+/* ========================================
+   DENSITY FIX v2.7.1 - SELETORES ESPECÍFICOS
    Reduz zoom excessivo e melhora densidade
-  */
+   ======================================== */
+
+/* ===== FORÇA APLICAÇÃO COM !important ===== */
 
 /* Email Temporário - Cards de serviços */
 #temp-email .bg-gradient-to-br.from-blue-500,
@@ -183,7 +185,7 @@ body #music-player h1 {
     gap: 1rem !important;
 }
 
-/*  AJUSTES GLOBAIS  */
+/* ===== AJUSTES GLOBAIS ===== */
 
 /* Títulos principais */
 body main h1.text-5xl,
@@ -230,14 +232,14 @@ body main .rounded-3xl {
     padding: 1.5rem !important;
 }
 
-/*  LAYOUT RESPONSIVO  */
+/* ===== LAYOUT RESPONSIVO ===== */
 @media (min-width: 1920px) {
     .max-w-7xl {
         max-width: 100rem !important;
     }
 }
 
-/*  LINE HEIGHT  */
+/* ===== LINE HEIGHT ===== */
 h1, h2, h3 {
     line-height: 1.2 !important;
 }
@@ -246,13 +248,16 @@ p {
     line-height: 1.5 !important;
 }
 
-/* SCROLLBAR */
+/* ===== SCROLLBAR ===== */
 ::-webkit-scrollbar {
     width: 6px !important;
     height: 6px !important;
 }
 
-/*  ALTERNATIVA: ZOOM GLOBAL  */   
+/* ===== ALTERNATIVA: ZOOM GLOBAL ===== */
+/* Se os ajustes específicos não funcionarem bem,
+   descomente a linha abaixo para zoom uniforme */
+   
 body main {
     zoom: 0.85;
 }

@@ -1,11 +1,19 @@
 {
-  "version": "2.7.1",
-  "buildDate": "2026-02-17",
+  "version": "3.0.0",
+  "buildDate": "2026-02-20",
   "changelog": [
-    "🔒 API Keys do Gemini e OpenWeather removidas do código-fonte",
-    "🐛 termo.js: função evaluateGuess duplicada removida",
-    "🐛 tictactoe.js: aspas quebradas na notificação de vitória corrigidas",
-    "🔧 version.json: encoding UTF-8 corrigido",
-    "⚡ main.js: clearCache agora assíncrono com async/await"
+    "🚀 MAJOR: Redesign completo com breaking changes",
+    "📊 NOVO: Dashboard com tracking e estatísticas",
+    "🎮 NOVO: Jogo 2048 com dark mode completo",
+    "⌨️ NOVO: Atalhos de teclado globais (Ctrl+1-9)",
+    "🎨 Settings.js reescrito v3.0 (tipografia Syne/DM Sans)",
+    "🎨 Updater.js reescrito v3.0 (timeline vertical)",
+    "🎨 Preload.js reescrito v3.0 (-22% código)",
+    "🎨 Loading screen com animação glow pulsante",
+    "🎨 Login screen com glassmorphism + orbs flutuantes",
+    "🐛 Flappy Bird: spam de game over corrigido",
+    "🐛 Dashboard: calendário usa data completa (YYYY-MM-DD)",
+    "🐛 Termo: salva melhor tentativa em termo_best",
+    "🐛 2048: tiles 2 e 4 visíveis no dark mode"
   ]
 }

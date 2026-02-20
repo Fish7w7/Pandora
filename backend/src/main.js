@@ -69,7 +69,7 @@ function createWindow() {
 
     const indexPath = path.join(__dirname, '../../frontend/public/index.html');
     
-    console.log('🐱 NyanTools v2.7.1 (Performance Update)');
+    console.log('🐱 NyanTools v3.0.0 (Phoenix Update)');
     console.log('📂 Diretório:', __dirname);
     console.log('📄 Carregando:', indexPath);
     
@@ -343,7 +343,7 @@ ipcMain.handle('open-downloads-folder', async () => {
 // LIFECYCLE DO APP
 
 app.whenReady().then(() => {
-    console.log('🐱 NyanTools v2.7.1 - Performance Update');
+    console.log('🐱 NyanTools v3.0.0 - Phoenix Update');
     console.log('📂 App path:', app.getAppPath());
     console.log('🖥️ Plataforma:', process.platform);
     console.log('📥 Downloads:', app.getPath('downloads'));

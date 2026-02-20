@@ -42,6 +42,13 @@ const OfflineZone = {
             gradient: 'from-orange-400 to-red-500',
             shadow: 'hover:shadow-orange-500/50'
         },
+        game2048: {
+            name: '2048',
+            icon: '🔢',
+            desc: 'Una os números e chegue ao 2048!',
+            gradient: 'from-purple-500 to-violet-600',
+            shadow: 'hover:shadow-purple-500/50'
+        },
         memory: {
             name: 'Memória',
             icon: '🧠',
@@ -180,7 +187,8 @@ const OfflineZone = {
             snake: () => MiniGame?.render() || this.renderLoading('Cobrinha'),
             termo: () => Termo?.render() || this.renderLoading('Termo'),
             forca: () => Forca?.render() || this.renderLoading('Forca'),
-            flappy: () => FlappyBird?.render() || this.renderLoading('Flappy Bird')
+            flappy: () => FlappyBird?.render() || this.renderLoading('Flappy Bird'),
+            game2048: () => Game2048?.render() || this.renderLoading('2048')
         };
         
         const renderer = renderers[this.currentGame];
@@ -212,6 +220,8 @@ const OfflineZone = {
             setTimeout(() => MiniGame?.init(), 100);
         } else if (game === 'flappy') {
             setTimeout(() => FlappyBird?.init(), 100);
+        } else if (game === 'game2048') {
+            setTimeout(() => Game2048?.init(), 100);
         }
     },
     
@@ -243,6 +253,12 @@ const OfflineZone = {
             },
             flappy: () => {
                 // Inicializado no post-render
+            },
+            game2048: () => {
+                if (Game2048) {
+                    Game2048.loadGameState();
+                    setTimeout(() => Game2048.init(), 100);
+                }
             }
         };
         

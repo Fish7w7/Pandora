@@ -1,8 +1,10 @@
-/* 
+/* ========================================
    DARK-THEME.CSS v2.7.1
- */
+   ======================================== */
 
-/*  VARIÁVEIS - DEFINIDAS PRIMEIRO  */
+/* ===== VARIÁVEIS - DEFINIDAS PRIMEIRO ===== */
+/* CORREÇÃO: :root movido para o topo — variáveis precisam existir
+   antes de serem usadas nas regras abaixo */
 :root {
     --dark-bg-app:      #0a0a0f;
     --dark-bg-primary:  #13131a;
@@ -22,7 +24,7 @@
     --dark-glass:   rgba(255, 255, 255, 0.03);
 }
 
-/*  BASE  */
+/* ===== BASE ===== */
 body.dark-theme {
     background-color: var(--dark-bg-app);
     color: var(--dark-text-primary);
@@ -32,7 +34,7 @@ body.dark-theme main {
     background-color: var(--dark-bg-app);
 }
 
-/*  SIDEBAR  */
+/* ===== SIDEBAR ===== */
 body.dark-theme #sidebar {
     background: linear-gradient(
         to bottom,
@@ -55,7 +57,7 @@ body.dark-theme #sidebar {
     }
 }
 
-/*  TIPOGRAFIA  */
+/* ===== TIPOGRAFIA ===== */
 body.dark-theme h1,
 body.dark-theme h2,
 body.dark-theme h3,
@@ -103,7 +105,7 @@ body.dark-theme .text-purple-900 { color: #d8b4fe !important; }
 body.dark-theme .text-orange-700 { color: #fdba74 !important; }
 body.dark-theme .text-indigo-800 { color: #c7d2fe !important; }
 
-/*  CARDS E CONTAINERS  */
+/* ===== CARDS E CONTAINERS ===== */
 body.dark-theme .bg-white {
     background-color: var(--dark-bg-secondary) !important;
     color: var(--dark-text-primary) !important;
@@ -121,7 +123,7 @@ body.dark-theme .bg-gray-200 {
     color: var(--dark-text-secondary) !important;
 }
 
-/*  INPUTS E FORMS  */
+/* ===== INPUTS E FORMS ===== */
 body.dark-theme input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
 body.dark-theme textarea,
 body.dark-theme select {
@@ -152,7 +154,7 @@ body.dark-theme input[type="checkbox"] {
     accent-color: var(--theme-primary, #a855f7);
 }
 
-/*  BOTÕES NEUTROS  */
+/* ===== BOTÕES NEUTROS ===== */
 body.dark-theme button.bg-gray-200,
 body.dark-theme button.bg-gray-300 {
     background-color: var(--dark-bg-elevated) !important;
@@ -177,7 +179,7 @@ body.dark-theme button[class*="bg-gradient-to-br"]:hover {
     filter: brightness(1.15) saturate(1.2);
 }
 
-/*  BACKGROUNDS COLORIDOS (tints)  */
+/* ===== BACKGROUNDS COLORIDOS (tints) ===== */
 body.dark-theme .bg-green-50  { background-color: rgba(16, 185, 129, 0.10) !important; color: #6ee7b7 !important; border-color: rgba(16, 185, 129, 0.3) !important; }
 body.dark-theme .bg-green-100 { background-color: rgba(16, 185, 129, 0.15) !important; color: #86efac !important; border-color: rgba(16, 185, 129, 0.4) !important; }
 body.dark-theme .bg-blue-50   { background-color: rgba(59, 130, 246, 0.10) !important; color: #93c5fd !important; border-color: rgba(59, 130, 246, 0.3) !important; }
@@ -192,7 +194,7 @@ body.dark-theme .bg-orange-50  { background-color: rgba(249, 115, 22, 0.10) !imp
 body.dark-theme .bg-orange-100 { background-color: rgba(249, 115, 22, 0.15) !important; color: #fed7aa !important; border-color: rgba(249, 115, 22, 0.4) !important; }
 body.dark-theme .bg-indigo-100 { background-color: rgba(99, 102, 241, 0.15) !important; color: #c7d2fe !important; }
 
-/*  GRADIENTES ESPECÍFICOS (clima, jogos)  */
+/* ===== GRADIENTES ESPECÍFICOS (clima, jogos) ===== */
 /* CORREÇÃO: removido o filter global em .bg-gradient-to-br / .bg-gradient-to-r
    que escurecia tudo. Agora só os gradientes de tint claro são convertidos */
 
@@ -246,7 +248,7 @@ body.dark-theme label[class*="from-green-50"]  { background: linear-gradient(to 
 body.dark-theme label[class*="from-purple-50"] { background: linear-gradient(to bottom right, rgba(168,85,247,0.15), rgba(236,72,153,0.15)) !important; border-color: rgba(168,85,247,0.3) !important; }
 body.dark-theme label[class*="from-orange-50"] { background: linear-gradient(to bottom right, rgba(249,115,22,0.15), rgba(239,68,68,0.15)) !important; border-color: rgba(249,115,22,0.3) !important; }
 
-/*  BORDAS  */
+/* ===== BORDAS ===== */
 body.dark-theme .border-gray-200,
 body.dark-theme .border-gray-300 { border-color: var(--dark-border) !important; }
 body.dark-theme .border-gray-400  { border-color: var(--dark-border-light) !important; }
@@ -257,20 +259,20 @@ body.dark-theme .border-green-300 { border-color: rgba(16,185,129,0.3) !importan
 body.dark-theme .border-purple-500 { border-color: var(--theme-primary, #a855f7) !important; }
 body.dark-theme .border-4.border-purple-500 { border-color: var(--theme-primary, #a855f7) !important; }
 
-/*  SOMBRAS  */
+/* ===== SOMBRAS ===== */
 body.dark-theme .shadow-lg  { box-shadow: 0 10px 25px -5px rgba(0,0,0,0.7), 0 8px 10px -6px rgba(0,0,0,0.6) !important; }
 body.dark-theme .shadow-xl  { box-shadow: 0 20px 35px -5px rgba(0,0,0,0.8), 0 10px 15px -3px rgba(0,0,0,0.7) !important; }
 body.dark-theme .shadow-2xl { box-shadow: 0 25px 50px -12px rgba(0,0,0,0.9) !important; }
 body.dark-theme .shadow-inner { box-shadow: inset 0 2px 4px 0 rgba(0,0,0,0.3) !important; }
 
-/*  HOVER NOS TOOL CARDS  */
+/* ===== HOVER NOS TOOL CARDS ===== */
 body.dark-theme .tool-card:hover {
     background-color: var(--dark-bg-elevated) !important;
     border-color: var(--theme-primary, #a855f7) !important;
     box-shadow: 0 10px 40px -5px rgba(168, 85, 247, 0.3) !important;
 }
 
-/*  GLASS EFFECT  */
+/* ===== GLASS EFFECT ===== */
 body.dark-theme .glass,
 body.dark-theme .glass-effect {
     background: rgba(255,255,255,0.03) !important;
@@ -293,7 +295,7 @@ body.dark-theme .blur-3xl { opacity: 0.10 !important; }
 body.dark-theme .blur-2xl { opacity: 0.12 !important; }
 body.dark-theme .blur-xl  { opacity: 0.15 !important; }
 
-/*  NOTIFICAÇÕES  */
+/* ===== NOTIFICAÇÕES ===== */
 body.dark-theme #notifications-container > div {
     background: var(--dark-bg-secondary) !important;
     border: 1px solid var(--dark-border-light);
@@ -301,7 +303,7 @@ body.dark-theme #notifications-container > div {
     color: var(--dark-text-primary) !important;
 }
 
-/*  SCROLLBAR  */
+/* ===== SCROLLBAR ===== */
 body.dark-theme ::-webkit-scrollbar       { width: 10px; height: 10px; }
 body.dark-theme ::-webkit-scrollbar-track { background: var(--dark-bg-primary); }
 body.dark-theme ::-webkit-scrollbar-thumb {
@@ -311,17 +313,17 @@ body.dark-theme ::-webkit-scrollbar-thumb {
 }
 body.dark-theme ::-webkit-scrollbar-thumb:hover { background: var(--dark-border-light); }
 
-/*  LINKS  */
+/* ===== LINKS ===== */
 body.dark-theme a       { color: var(--theme-primary, #a855f7); }
 body.dark-theme a:hover { color: var(--theme-primary-light, #c084fc); }
 
-/*  TABELAS  */
+/* ===== TABELAS ===== */
 body.dark-theme table { border-color: var(--dark-border); }
 body.dark-theme th    { background-color: var(--dark-bg-tertiary); color: var(--dark-text-primary); }
 body.dark-theme td    { border-color: var(--dark-border); color: var(--dark-text-secondary); }
 body.dark-theme tr:hover { background-color: var(--dark-bg-elevated); }
 
-/*  CÓDIGO  */
+/* ===== CÓDIGO ===== */
 body.dark-theme pre,
 body.dark-theme code {
     background-color: var(--dark-bg-primary) !important;
@@ -329,7 +331,7 @@ body.dark-theme code {
     border: 1px solid var(--dark-border);
 }
 
-/*  MODAIS  */
+/* ===== MODAIS ===== */
 body.dark-theme [role="dialog"],
 body.dark-theme .modal {
     background-color: var(--dark-bg-secondary);
@@ -337,16 +339,16 @@ body.dark-theme .modal {
     box-shadow: 0 25px 50px -12px rgba(0,0,0,0.9);
 }
 
-/*  HR  */
+/* ===== HR ===== */
 body.dark-theme hr { border-color: var(--dark-border); opacity: 0.5; }
 
-/*  SELEÇÃO DE TEXTO  */
+/* ===== SELEÇÃO DE TEXTO ===== */
 body.dark-theme ::selection {
     background-color: rgba(168, 85, 247, 0.3);
     color: var(--dark-text-primary);
 }
 
-/*  DISABLED  */
+/* ===== DISABLED ===== */
 body.dark-theme input:disabled,
 body.dark-theme button:disabled,
 body.dark-theme textarea:disabled {
@@ -356,13 +358,13 @@ body.dark-theme textarea:disabled {
     color: var(--dark-text-disabled) !important;
 }
 
-/*  FOCUS  */
+/* ===== FOCUS ===== */
 body.dark-theme *:focus-visible {
     outline: 2px solid var(--theme-primary, #a855f7);
     outline-offset: 2px;
 }
 
-/*  SVG  */
+/* ===== SVG ===== */
 body.dark-theme svg { color: var(--dark-text-muted); }
 body.dark-theme svg line,
 body.dark-theme svg circle { stroke: currentColor; }
@@ -383,11 +385,11 @@ body.dark-theme .tool-card {
                 color            200ms cubic-bezier(0.4,0,0.2,1);
 }
 
-/* 
+/* ========================================
    MÓDULOS ESPECÍFICOS
-    */
+   ======================================== */
 
-/*  AI CHAT  */
+/* ===== AI CHAT ===== */
 body.dark-theme #chat-container {
     background: linear-gradient(to bottom right, var(--dark-bg-primary), rgba(59,130,246,0.08)) !important;
 }
@@ -403,7 +405,7 @@ body.dark-theme #chat-container .bg-white.border-2 {
     color: var(--dark-text-primary) !important;
 }
 
-/*  CLIMA  */
+/* ===== CLIMA ===== */
 body.dark-theme #weather-result .bg-white\/10,
 body.dark-theme #weather-result .bg-white\/20 { background-color: rgba(255,255,255,0.08) !important; }
 body.dark-theme #weather-result .bg-white\/5  { background-color: rgba(255,255,255,0.05) !important; }
@@ -414,18 +416,18 @@ body.dark-theme #translation-status .text-green-600  { color: #34d399 !important
 body.dark-theme #translation-status .text-yellow-600 { color: #fbbf24 !important; }
 body.dark-theme #translation-status .text-red-600    { color: #f87171 !important; }
 
-/*  GERADOR DE SENHAS  */
+/* ===== GERADOR DE SENHAS ===== */
 body.dark-theme input[type="range"]::-webkit-slider-thumb {
     background-color: var(--theme-primary, #a855f7);
 }
 
-/*  CONFIGURAÇÕES  */
+/* ===== CONFIGURAÇÕES ===== */
 body.dark-theme .border-3 { border-width: 2px; }
 
-/* 
+/* ========================================
    TERMO E FORCA — CORES DOS JOGOS
    MÁXIMA PRIORIDADE — NUNCA ALTERAR
-    */
+   ======================================== */
 
 /* Células com data-status são os resultados do Termo.
    Esses seletores têm a maior especificidade do arquivo
@@ -500,9 +502,9 @@ body.dark-theme .bg-gradient-to-br.from-purple-50.to-pink-50 {
 }
 
 
-/* 
+/* ========================================
    NOTAS — CARDS COLORIDOS
-    */
+   ======================================== */
 
 /* Texto dentro dos cards de nota no dark */
 body.dark-theme .note-card .note-title {
@@ -544,9 +546,9 @@ body.dark-theme .note-card[data-color="red"] {
     border-color: #dc2626 !important;
 }
 
-/* 
+/* ========================================
    TECNOLOGIAS (Sobre) — CARDS
-    */
+   ======================================== */
 
 body.dark-theme .tech-card {
     background-color: var(--dark-bg-tertiary) !important;
@@ -568,9 +570,9 @@ body.dark-theme .tech-card .tech-card-sub {
     color: var(--dark-text-muted) !important;
 }
 
-/* 
+/* ========================================
    GERADOR DE SENHAS — CARDS DE OPÇÃO
-    */
+   ======================================== */
 
 body.dark-theme .option-card {
     background-color: var(--dark-bg-tertiary) !important;
@@ -595,11 +597,11 @@ body.dark-theme input:checked ~ .option-card {
     background: var(--dark-bg-elevated) !important;
 }
 
-/* 
+/* ========================================
    FIXES v2.7.1 — NOTES, PASSWORD, SETTINGS
-    */
+   ======================================== */
 
-/*  NOTAS RÁPIDAS 
+/* ===== NOTAS RÁPIDAS =====
    Cards usam from-yellow-100/green-100/blue-100 etc com text-gray-800.
    No dark, o fundo vira rgba(0.15) mas o texto ficava da cor do tint.
    Solução: forçar texto escuro legível dentro de qualquer card de nota */
@@ -651,7 +653,7 @@ body.dark-theme .bg-gradient-to-br[class*="-100"] .border-gray-300 {
     border-color: var(--dark-border-light) !important;
 }
 
-/*  GERADOR DE SENHAS 
+/* ===== GERADOR DE SENHAS =====
    peer-checked: é uma pseudo-classe do Tailwind que não é pegas
    pelos seletores normais de dark theme. Solução: sobrescrever
    diretamente os backgrounds e textos dos option cards */
@@ -706,7 +708,7 @@ body.dark-theme #password-history code {
     border: none !important;
 }
 
-/*  SETTINGS — CARDS DE TECNOLOGIAS 
+/* ===== SETTINGS — CARDS DE TECNOLOGIAS =====
    Cards usam bg-${color}-50 dinâmico. O cyan-50 não estava coberto.
    Cobrindo todos os -50 que podem aparecer nos tech cards */
 
@@ -732,6 +734,8 @@ body.dark-theme [class*="bg-"][class*="-50"] .text-xs {
     color: var(--dark-text-muted) !important;
 }
 
+/* ===== SETTINGS — BADGE "v2.x" EM CARDS DE TECNOLOGIAS =====
+   bg-white com text-gray-800 dentro dos cards coloridos */
 body.dark-theme .bg-white.text-gray-800 {
     background-color: var(--dark-bg-elevated) !important;
     color: var(--dark-text-primary) !important;

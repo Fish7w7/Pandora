@@ -1,14 +1,14 @@
 /* ========================================
-   ROUTER.JS OPTIMIZED v2.7.0
-   Sistema de Roteamento Otimizado
+   ROUTER.JS v3.0.0
+   Sistema de Roteamento com Dashboard e 2048
    ======================================== */
 
 const Router = {
     currentRoute: 'home',
     
-    // Mapa de rotas (otimizado - sem switch gigante)
+    // Mapa de rotas (otimizado - com Dashboard e 2048)
     routes: {
-        'home': null, // Home é especial
+        'home': null, // Home é especial (Dashboard)
         'password': 'PasswordGenerator',
         'weather': 'Weather',
         'translator': 'Translator',
@@ -27,6 +27,11 @@ const Router = {
     navigate(toolId) {
         this.currentRoute = toolId;
         App.updateActiveNav(toolId);
+        
+        if (window.Dashboard && toolId !== 'home') {
+            Dashboard.trackToolAccess(toolId);
+        }
+        
         this.render();
     },
     
@@ -38,9 +43,16 @@ const Router = {
         container.innerHTML = '';
         container.classList.add('fade-in');
         
-        // Home é especial
         if (this.currentRoute === 'home') {
-            container.innerHTML = this.renderHome();
+            if (window.Dashboard) {
+                container.innerHTML = window.Dashboard.render();
+                if (window.Dashboard.init) {
+                    setTimeout(() => window.Dashboard.init(), 100);
+                }
+            } else {
+                // Fallback para home antiga se Dashboard não existir
+                container.innerHTML = this.renderHome();
+            }
             return;
         }
         
@@ -77,7 +89,7 @@ const Router = {
         }
     },
     
-    // Renderizar Home
+    // Renderizar Home (fallback se Dashboard não existir)
     renderHome() {
         const tools = App.tools.filter(t => t.id !== 'home');
         const username = App.user?.username || 'Usuário';
@@ -127,8 +139,9 @@ const Router = {
                     <div>
                         <h3 class="text-2xl font-bold mb-2">💡 Dica do Dia にゃん~</h3>
                         <p>Use o <strong>Gerador de Senhas</strong> para criar senhas seguras e únicas para cada site! 🔐✨</p>
-                        <p class="mt-2 text-sm text-purple-100">Novo: Jogue <strong>Termo</strong> e <strong>Forca</strong> na Zona Offline! 🎮</p>
+                        <p class="mt-2 text-sm text-purple-100">Novo na v3.0.0: Jogue <strong>2048</strong> na Zona Offline! 🎮</p>
                         <p class="mt-2 text-sm text-purple-100">🎵 <strong>Música em background!</strong> Inicie uma música e continue navegando nas outras abas!</p>
+                        <p class="mt-2 text-sm text-purple-100">⌨️ <strong>Atalhos de teclado!</strong> Pressione Ctrl+/ para ver todos os comandos!</p>
                     </div>
                 </div>
             </div>

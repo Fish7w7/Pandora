@@ -1,6 +1,6 @@
 {
   "name": "nyantools",
-  "version": "2.7.1",
+  "version": "3.0.0",
   "description": "NyanTools - Your purr-fect toolkit にゃん~ | Agora com Tema Escuro e Novos Jogos!",
   "main": "backend/src/main.js",
   "scripts": {

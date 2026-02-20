@@ -1,237 +1,183 @@
-// PRELOAD SCRIPT - Ponte Electron ↔ Frontend
-// Versão Otimizada v2.7.0
+// ============================================
+// PRELOAD.JS — Ponte segura Electron ↔ Frontend
+// NyanTools にゃん~ v3.0
+// ============================================
 
 const { contextBridge, ipcRenderer } = require('electron');
 
-console.log('🔧 Preload script iniciando (v2.7.0)...');
-
-// VALIDAÇÃO E SANITIZAÇÃO
+// ============================================
+// VALIDAÇÕES DE SEGURANÇA
+// ============================================
 
 /**
- * Valida URL para segurança
+ * Aceita apenas URLs HTTPS do GitHub
  */
 function isValidUrl(url) {
     try {
-        const parsed = new URL(url);
-        return parsed.protocol === 'https:' && parsed.hostname.includes('github');
+        const { protocol, hostname } = new URL(url);
+        return protocol === 'https:' && (
+            hostname === 'github.com' ||
+            hostname === 'objects.githubusercontent.com' ||
+            hostname.endsWith('.github.com')
+        );
     } catch {
         return false;
     }
 }
 
 /**
- * Valida nome de arquivo para segurança
+ * Aceita apenas extensões de instalador conhecidas, sem path traversal
  */
 function isValidFileName(fileName) {
-    if (typeof fileName !== 'string' || fileName.length === 0) return false;
-    if (fileName.length > 255) return false;
-    
-    // Prevenir path traversal
-    if (fileName.includes('..') || fileName.includes('/') || fileName.includes('\\')) {
-        return false;
-    }
-    
-    // Permitir apenas extensões seguras
-    const validExtensions = ['.exe', '.dmg', '.AppImage', '.deb', '.rpm'];
-    return validExtensions.some(ext => fileName.toLowerCase().endsWith(ext));
+    if (typeof fileName !== 'string' || fileName.length === 0 || fileName.length > 255) return false;
+    if (/[/\\.]\./.test(fileName)) return false; // path traversal
+    const validExts = ['.exe', '.dmg', '.AppImage', '.deb', '.rpm'];
+    return validExts.some(ext => fileName.toLowerCase().endsWith(ext));
 }
 
 /**
- * Valida caminho de arquivo
+ * Verifica que o caminho não contém path traversal malicioso
  */
 function isValidFilePath(filePath) {
     if (typeof filePath !== 'string' || filePath.length === 0) return false;
-    
-    // Prevenir path traversal malicioso
-    const normalized = filePath.replace(/\\/g, '/');
-    if (normalized.includes('../') || normalized.includes('/../')) {
-        return false;
-    }
-    
-    return true;
+    return !filePath.replace(/\\/g, '/').includes('/../');
 }
 
-//  API SEGURA E OTIMIZADA
+// ============================================
+// THROTTLE UTILITÁRIO
+// ============================================
+
+/**
+ * Throttle genérico — evita flood de callbacks
+ * Sempre deixa passar 0% e 100%
+ */
+function throttle(fn, ms = 100) {
+    let last = 0;
+    return (event, data) => {
+        const now = Date.now();
+        if (data?.progress === 0 || data?.progress === 100 || now - last >= ms) {
+            fn(data);
+            last = now;
+        }
+    };
+}
+
+// ============================================
+// IPC HELPER — wrapper seguro com try/catch
+// ============================================
+
+async function invoke(channel, ...args) {
+    try {
+        return await ipcRenderer.invoke(channel, ...args);
+    } catch (error) {
+        console.error(`❌ IPC "${channel}" falhou:`, error.message);
+        return { success: false, error: 'Falha na comunicação com o processo principal' };
+    }
+}
+
+// ============================================
+// API EXPOSTA AO FRONTEND
+// ============================================
 
 try {
     contextBridge.exposeInMainWorld('electronAPI', {
+
+        /** Versão do preload */
+        version: '3.0.0',
+
+        /** Indica que o preload carregou com sucesso */
+        isReady: true,
+
         /**
-         * Verificar atualizações disponíveis
+         * Verifica se há atualizações disponíveis no GitHub
          * @returns {Promise<{success: boolean, data?: object, error?: string}>}
          */
-        checkForUpdates: async () => {
-            try {
-                const result = await ipcRenderer.invoke('check-for-updates');
-                return result;
-            } catch (error) {
-                console.error('❌ Erro ao verificar atualizações:', error);
-                return {
-                    success: false,
-                    error: 'Falha na comunicação com o processo principal'
-                };
-            }
-        },
-        
+        checkForUpdates: () => invoke('check-for-updates'),
+
         /**
-         * Baixar atualização
-         * @param {string} downloadUrl - URL do arquivo
-         * @param {string} fileName - Nome do arquivo
+         * Inicia o download de um arquivo de atualização
+         * @param {string} downloadUrl  URL HTTPS do instalador
+         * @param {string} fileName     Nome do arquivo (ex: NyanTools-2.8.0.exe)
          * @returns {Promise<{success: boolean, filePath?: string, error?: string}>}
          */
         downloadUpdate: async (downloadUrl, fileName) => {
-            // Validação de segurança
             if (!isValidUrl(downloadUrl)) {
-                console.error('❌ URL inválida:', downloadUrl);
-                return {
-                    success: false,
-                    error: 'URL inválida ou insegura'
-                };
+                console.warn('⚠️ downloadUpdate: URL rejeitada —', downloadUrl);
+                return { success: false, error: 'URL inválida ou não permitida' };
             }
-            
             if (!isValidFileName(fileName)) {
-                console.error('❌ Nome de arquivo inválido:', fileName);
-                return {
-                    success: false,
-                    error: 'Nome de arquivo inválido'
-                };
+                console.warn('⚠️ downloadUpdate: nome de arquivo rejeitado —', fileName);
+                return { success: false, error: 'Nome de arquivo inválido' };
             }
-            
-            try {
-                const result = await ipcRenderer.invoke('download-update', downloadUrl, fileName);
-                return result;
-            } catch (error) {
-                console.error('❌ Erro ao baixar atualização:', error);
-                return {
-                    success: false,
-                    error: 'Falha no download'
-                };
-            }
+            return invoke('download-update', downloadUrl, fileName);
         },
-        
+
         /**
-         * Instalar atualização
-         * @param {string} filePath - Caminho do arquivo baixado
+         * Instala um arquivo de atualização já baixado
+         * @param {string} filePath  Caminho absoluto do instalador
          * @returns {Promise<{success: boolean, cancelled?: boolean, error?: string}>}
          */
         installUpdate: async (filePath) => {
-            // Validação de segurança
             if (!isValidFilePath(filePath)) {
-                console.error('❌ Caminho de arquivo inválido:', filePath);
-                return {
-                    success: false,
-                    error: 'Caminho de arquivo inválido'
-                };
+                console.warn('⚠️ installUpdate: caminho rejeitado —', filePath);
+                return { success: false, error: 'Caminho de arquivo inválido' };
             }
-            
-            try {
-                const result = await ipcRenderer.invoke('install-update', filePath);
-                return result;
-            } catch (error) {
-                console.error('❌ Erro ao instalar atualização:', error);
-                return {
-                    success: false,
-                    error: 'Falha na instalação'
-                };
-            }
+            return invoke('install-update', filePath);
         },
-        
+
         /**
-         * Abrir pasta de downloads
+         * Abre a pasta de downloads do sistema
          * @returns {Promise<{success: boolean, error?: string}>}
          */
-        openDownloadsFolder: async () => {
-            try {
-                const result = await ipcRenderer.invoke('open-downloads-folder');
-                return result;
-            } catch (error) {
-                console.error('❌ Erro ao abrir pasta:', error);
-                return {
-                    success: false,
-                    error: 'Falha ao abrir pasta'
-                };
-            }
-        },
-        
+        openDownloadsFolder: () => invoke('open-downloads-folder'),
+
         /**
-         * Listener para progresso de download
-         * @param {Function} callback - Função callback para receber atualizações
-         * @returns {Function} Função para remover o listener
+         * Registra um listener de progresso de download com throttle automático.
+         * @param {function} callback  Recebe { progress, downloadedBytes, totalBytes }
+         * @returns {function} Chame para cancelar o listener
          */
         onDownloadProgress: (callback) => {
             if (typeof callback !== 'function') {
-                console.error('❌ Callback deve ser uma função');
+                console.error('❌ onDownloadProgress: callback deve ser uma função');
                 return () => {};
             }
-            
-            // Throttling do callback para melhor performance
-            let lastCall = 0;
-            const throttleMs = 100; // Máximo de 10 updates por segundo
-            
-            const throttledCallback = (event, data) => {
-                const now = Date.now();
-                
-                // Sempre processar 0% e 100%
-                if (data.progress === 0 || data.progress === 100) {
-                    callback(data);
-                    lastCall = now;
-                    return;
-                }
-                
-                // Throttle para valores intermediários
-                if (now - lastCall >= throttleMs) {
-                    callback(data);
-                    lastCall = now;
-                }
-            };
-            
-            ipcRenderer.on('download-progress', throttledCallback);
-            
-            // Retornar função de cleanup
-            return () => {
-                ipcRenderer.removeListener('download-progress', throttledCallback);
-            };
+
+            const throttled = throttle(callback, 100);
+            ipcRenderer.on('download-progress', throttled);
+
+            // Retorna cleanup function
+            return () => ipcRenderer.removeListener('download-progress', throttled);
         },
-        
+
         /**
-         * Remover todos os listeners de progresso (legacy)
-         * @deprecated Use o retorno de onDownloadProgress() para remover
+         * Remove todos os listeners de progresso de download.
+         * @deprecated Use o retorno de onDownloadProgress() para remover pontualmente.
          */
         removeDownloadProgressListener: () => {
             ipcRenderer.removeAllListeners('download-progress');
-        },
-        
-        /**
-         * Informações da versão
-         */
-        version: '2.7.0',
-        
-        /**
-         * Status da API
-         */
-        isReady: true
+        }
     });
 
-    console.log('✅ Preload script carregado com sucesso!');
-    console.log('✅ API Electron v2.7.0 exposta e protegida');
-    
+    console.log('✅ [Preload v3.0] API exposta com sucesso');
+
 } catch (error) {
-    console.error('❌ ERRO CRÍTICO no preload script:', error);
-    
-    // Expor API mínima em caso de erro
+    // Falha crítica: expõe API mínima para o frontend não quebrar completamente
+    console.error('❌ [Preload] ERRO CRÍTICO:', error);
     try {
         contextBridge.exposeInMainWorld('electronAPI', {
             isReady: false,
-            error: error.message,
-            version: '2.7.0-fallback'
+            version: '3.0.0-fallback',
+            error: error.message
         });
     } catch (fallbackError) {
-        console.error('❌ Falha ao expor API de fallback:', fallbackError);
+        console.error('❌ [Preload] Falha ao expor API de fallback:', fallbackError);
     }
 }
 
-// 🧹 CLEANUP NA DESCARGA
+// ============================================
+// CLEANUP
+// ============================================
 
 window.addEventListener('beforeunload', () => {
-    // Remover todos os listeners ao fechar
     ipcRenderer.removeAllListeners('download-progress');
 });

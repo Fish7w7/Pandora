@@ -1,10 +1,10 @@
 /* ========================================
-   APP.JS OPTIMIZED v2.7.0
-   Core da Aplicação Otimizado
+   APP.JS  v3.0.0
+   Core da Aplicação com Dashboard e Tracking
    ======================================== */
 
 const App = {
-    version: '2.7.1',
+    version: '3.0.0', 
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
@@ -12,7 +12,7 @@ const App = {
     // Lista de ferramentas
     tools: [
         { id: 'home', name: 'Dashboard', icon: '📊', description: 'Visão geral' },
-        { id: 'password', name: 'Gerador de Senhas', icon: '🔐', description: 'Crie senhas seguras' },
+        { id: 'password', name: 'Gerador de Senhas', icon: '🔑', description: 'Crie senhas seguras' },
         { id: 'weather', name: 'Clima', icon: '🌤️', description: 'Veja a temperatura local' },
         { id: 'translator', name: 'Tradutor', icon: '🌍', description: 'Traduza textos rapidamente' },
         { id: 'ai-assistant', name: 'Assistente IA', icon: '🤖', description: 'Perguntas e respostas' },
@@ -115,7 +115,51 @@ const App = {
         if (userDisplay) userDisplay.textContent = user.username;
         
         this.renderNavMenu();
-        Router.navigate('home');
+        Router.navigate('home');       
+        this.initNewSystems();
+    },
+    
+    initNewSystems() {
+        // Inicializar Dashboard
+        if (window.Dashboard) {
+            console.log('📊 Inicializando Dashboard...');
+            Dashboard.init();
+        } else {
+            console.warn('⚠️ Dashboard não encontrado');
+        }
+        
+        // Inicializar Atalhos de Teclado
+        if (window.KeyboardShortcuts) {
+            console.log('⌨️ Inicializando Atalhos de Teclado...');
+            KeyboardShortcuts.init();
+        } else {
+            console.warn('⚠️ KeyboardShortcuts não encontrado');
+        }
+        
+        // Iniciar tracking de atividade
+        this.startActivityTracking();
+    },
+    
+    startActivityTracking() {
+        console.log('⏱️ Iniciando tracking de atividade...');
+        
+        // Atualizar a cada minuto
+        setInterval(() => {
+            if (window.Dashboard) {
+                const today = new Date().toISOString().split('T')[0];
+                const dayOfWeek = new Date().getDay();
+                
+                Dashboard.stats.totalTime++;
+                Dashboard.stats.weeklyActivity[dayOfWeek] = 
+                    (Dashboard.stats.weeklyActivity[dayOfWeek] || 0) + 1;
+                
+                // Salvar a cada 5 minutos
+                if (Dashboard.stats.totalTime % 5 === 0) {
+                    Dashboard.saveStats();
+                    console.log('💾 Stats salvas:', Dashboard.stats.totalTime, 'minutos');
+                }
+            }
+        }, 60000); // 1 minuto
     },
     
     // Renderizar menu de navegação (otimizado)

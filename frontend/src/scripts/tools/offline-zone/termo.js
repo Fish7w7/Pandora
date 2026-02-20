@@ -376,6 +376,12 @@ const Termo = {
         if (won) {
             this.gameOver = true;
             this.won = true;
+            // Salvar recorde: menor número de tentativas é melhor
+            const attempts = this.guesses.length;
+            const currentBest = Utils.loadData('termo_best');
+            if (!currentBest || attempts < currentBest) {
+                Utils.saveData('termo_best', attempts);
+            }
             Utils.showNotification?.('🎉 Parabéns! Você acertou! にゃん~', 'success');
         } else if (this.guesses.length >= this.maxAttempts) {
             this.gameOver = true;
