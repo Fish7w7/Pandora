@@ -1,233 +1,112 @@
 {
-  "version": "3.0.0",
-  "tag_name": "v3.0.0",
-  "releaseDate": "2026-02-20",
-  "name": "NyanTools v3.0.0 - Phoenix にゃん~",
-  "body": "## 🚀 NyanTools v3.0.0 – Phoenix にゃん~\n\n**MAJOR UPDATE:** Redesign completo com breaking changes.\n\n### ⚠️ BREAKING CHANGES\n\n- **Sistema de tracking reformulado:** `weeklyActivity` (0-6) → `dailyActivity` (YYYY-MM-DD)\n- **Settings.js reescrito v3.0:** Nova estrutura de UI e métodos privados\n- **Updater.js reescrito v3.0:** Nova API de changelog\n- **Preload.js reescrito v3.0:** Métodos internos refatorados\n- **Chaves de localStorage alteradas:** `2048_highscore` → `game_2048_highscore`, `termo_stats` → `termo_best`\n\n### 🎯 PRINCIPAIS NOVIDADES\n\n#### 📊 Dashboard Completo (NOVO)\n- Tracking inteligente de uso (tempo, ferramentas, streak)\n- Gráfico semanal animado + calendário 30 dias\n- Recordes dos jogos: Cobrinha, Termo, 2048, Flappy\n- Stats de produtividade (notas, tarefas)\n\n#### 🎮 Jogo 2048 (NOVO)\n- Grid 4x4 com animações suaves\n- Sistema de undo (até 10 movimentos)\n- Dark mode totalmente compatível\n- Highscore e estatísticas persistentes\n\n#### ⌨️ Atalhos de Teclado (NOVO)\n- Ctrl+1-9 para navegação rápida\n- Ctrl+/ para modal de ajuda\n- Feedback visual + tracking integrado\n\n### 🎨 REDESIGN COMPLETO\n\n- **Loading Screen:** Fundo dark + animação de glow pulsante\n- **Login Screen:** Glassmorphism + orbs flutuantes\n- **Settings v3.0:** Tipografia Syne/DM Sans + tabs estilo iOS\n- **Updater v3.0:** Timeline vertical + hero card\n- **Preload v3.0:** Código reduzido em 22%\n\n### 🐛 BUG FIXES\n\n- ✅ Flappy Bird: spam de game over corrigido\n- ✅ Dashboard: calendário usa data completa (YYYY-MM-DD)\n- ✅ Termo: salva melhor tentativa corretamente\n- ✅ 2048: tiles visíveis no dark mode\n\n---\n\n**Versão Anterior:** [v2.7.1](https://github.com/Fish7w7/Pandora/releases/tag/v2.7.1)\n**Codename:** Phoenix 🔥",
+  "version": "3.0.1",
+  "tag_name": "v3.0.1",
+  "releaseDate": "2026-02-21",
+  "name": "NyanTools v3.0.1 - Phoenix Patch にゃん~",
+  "body": "## 🐛 NyanTools v3.0.1 – Phoenix Patch にゃん~\n\n**PATCH:** Correções de bugs críticos reportados após o lançamento da v3.0.0.\n\n### 🐛 BUG FIXES\n\n#### 🐍 Mini Game (Cobrinha)\n- **Spam de Game Over corrigido:** `startGame()` agora chama `resetGame()` incondicionalmente ao reiniciar, evitando o ciclo infinito de notificações de morte causado pela cobrinha permanecer na posição de colisão após o fim de partida.\n- Reset de velocidade e botões garantidos ao reiniciar no meio de uma partida.\n\n#### 📊 Dashboard\n- **Bug de logout corrigido:** Tela de login não fica mais desalinhada/sobreposta pela sidebar após deslogar.\n- `setInterval` de tracking agora é limpo corretamente no logout.\n- Guard adicionado no `Router.render()` para impedir renderização sem usuário autenticado.\n- `renderHeader()` agora usa `App.user.username` em vez de `Utils.loadData('current_user')`.\n\n#### 📝 Notas\n- Dark mode completo implementado em todos os elementos.\n- Ordenação por pins corrigida (`sortNotes()` chamado após criar/editar).\n- Formatação de data corrigida — exibe ano quando a nota tem mais de 7 dias.\n\n#### ✅ Tarefas\n- Dark mode completo implementado em todos os elementos.\n- **Bug crítico de Tailwind corrigido:** Classes dinâmicas como `peer-checked:border-${p.color}-500` substituídas por classes fixas por prioridade (Tailwind não compila classes geradas dinamicamente).\n- Prioridade padrão \"média\" adicionada ao modal de criação.\n\n#### 🎨 Layout\n- **Conflito Tailwind vs CSS customizado corrigido:** `#main-app` agora usa `display: none` por padrão no CSS e classe `.visible` para exibir, eliminando o conflito com a classe `hidden` do Tailwind que causava vazamento da sidebar.\n\n---\n\n**Versão Anterior:** [v3.0.0](https://github.com/Fish7w7/Pandora/releases/tag/v3.0.0)\n**Codename:** Phoenix 🔥",
   "changelog": [
-    "🚀 MAJOR: Redesign completo com breaking changes",
-    "📊 NOVO: Dashboard com tracking e estatísticas",
-    "🎮 NOVO: Jogo 2048 com dark mode",
-    "⌨️ NOVO: Atalhos de teclado globais (Ctrl+1-9)",
-    "🎨 Settings.js reescrito v3.0 (Syne/DM Sans)",
-    "🎨 Updater.js reescrito v3.0 (timeline vertical)",
-    "🎨 Preload.js reescrito v3.0 (-22% código)",
-    "🎨 Loading screen: animação glow pulsante",
-    "🎨 Login screen: glassmorphism + orbs",
-    "🐛 Flappy Bird: spam de game over corrigido",
-    "🐛 Dashboard: calendário agora usa YYYY-MM-DD",
-    "🐛 Termo: salva melhor tentativa (termo_best)",
-    "🐛 2048: tiles 2 e 4 visíveis no dark mode"
+    "🐛 Cobrinha: spam de game over ao reiniciar corrigido",
+    "🐛 Dashboard: bug de logout com tela desalinhada corrigido",
+    "🐛 Dashboard: setInterval de tracking limpo corretamente no logout",
+    "🐛 Notas: dark mode completo implementado",
+    "🐛 Notas: ordenação por pins corrigida",
+    "🐛 Notas: formatação de data com ano corrigida",
+    "🐛 Tarefas: dark mode completo implementado",
+    "🐛 Tarefas: classes dinâmicas de Tailwind substituídas por classes fixas",
+    "🐛 Tarefas: prioridade padrão 'média' adicionada ao criar tarefa",
+    "🐛 Layout: conflito Tailwind hidden vs CSS flex do #main-app corrigido"
   ],
-  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.0",
-  "releaseNotesUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.0",
-  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.0",
-  "critical": true,
+  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.1",
+  "releaseNotesUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.1",
+  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.1",
+  "critical": false,
   "prerelease": false,
   "draft": false,
-  "features": {
-    "dashboard": {
-      "description": "Sistema completo de tracking com gráficos, calendário e estatísticas",
-      "status": "✅ Implementado",
-      "files": ["dashboard.js"]
-    },
-    "game2048": {
-      "description": "Jogo 2048 com undo, dark mode e highscore",
-      "status": "✅ Implementado",
-      "files": ["2048.js", "offline.js"]
-    },
-    "keyboardShortcuts": {
-      "description": "Atalhos globais de teclado para navegação rápida",
-      "status": "✅ Implementado",
-      "files": ["keyboard-shortcuts.js"]
-    },
-    "uiRedesign": {
-      "description": "Redesign completo de loading, login, settings, updater",
-      "status": "✅ Implementado",
-      "files": ["index.html", "settings.js", "updater.js", "preload.js"]
-    }
-  },
   "bugFixes": [
     {
-      "id": "flappy-gameover-spam",
-      "description": "Spam de game over ao perder no Flappy Bird",
+      "id": "snake-gameover-spam",
+      "description": "Spam de game over ao reiniciar a Cobrinha",
       "status": "✅ Corrigido",
-      "file": "flappy-bird.js",
-      "solution": "Guard if (this.gameOver) return adicionado em updateBird(), updatePipes() e endGame()"
+      "file": "game.js",
+      "solution": "startGame() agora chama resetGame() incondicionalmente. Removida a condição `if (this.isPlaying && !this.isPaused)` que impedia o reset quando isPlaying era false após morte."
     },
     {
-      "id": "dashboard-calendar-bug",
-      "description": "Calendário marcava todos os dias da semana iguais",
+      "id": "dashboard-logout-bug",
+      "description": "Tela de login desalinhada/sobreposta pela sidebar após logout",
       "status": "✅ Corrigido",
-      "file": "dashboard.js",
-      "solution": "weeklyActivity[0-6] → dailyActivity[YYYY-MM-DD]"
+      "file": "app.js, router.js, dashboard.js",
+      "solution": "setInterval de tracking limpo no logout, guard em Router.render() para App.user nulo, renderHeader() usa App.user.username"
     },
     {
-      "id": "dashboard-calendar-today",
-      "description": "Hoje no calendário ficava branco com borda roxa",
+      "id": "layout-tailwind-flex-conflict",
+      "description": "Conflito entre classe hidden do Tailwind e display:flex customizado do #main-app",
       "status": "✅ Corrigido",
-      "file": "dashboard.js",
-      "solution": "Hoje COM atividade agora fica verde com borda verde"
+      "file": "index.html, app.js",
+      "solution": "#main-app agora usa display:none no CSS por padrão e classe .visible para exibir como flex"
     },
     {
-      "id": "termo-best-score",
-      "description": "Termo não salvava melhor tentativa",
+      "id": "notes-dark-mode",
+      "description": "Notas sem suporte a dark mode",
       "status": "✅ Corrigido",
-      "file": "termo.js",
-      "solution": "Salva em termo_best (menor = melhor)"
+      "file": "notes.js",
+      "solution": "Classes dark: adicionadas em todos os elementos (bg, text, border, input, modal)"
     },
     {
-      "id": "2048-dark-mode",
-      "description": "Tiles 2 e 4 invisíveis no dark mode",
+      "id": "notes-pin-sort",
+      "description": "Notas fixadas não aparecem primeiro",
       "status": "✅ Corrigido",
-      "file": "2048.js",
-      "solution": "Cores ajustadas: from-slate-300 to-slate-400"
-    }
-  ],
-  "breakingChanges": [
-    {
-      "id": "tracking-system-refactor",
-      "severity": "high",
-      "description": "Sistema de tracking reformulado de weeklyActivity para dailyActivity",
-      "migration": "Dados antigos podem ser perdidos. Recomenda-se backup.",
-      "files": ["dashboard.js", "app.js"]
+      "file": "notes.js",
+      "solution": "sortNotes() chamado após criar e editar nota"
     },
     {
-      "id": "localstorage-keys",
-      "severity": "medium",
-      "description": "Chaves de localStorage alteradas",
-      "changes": [
-        "2048_highscore → game_2048_highscore",
-        "termo_stats → termo_best"
-      ],
-      "files": ["dashboard.js", "2048.js", "termo.js"]
+      "id": "notes-date-format",
+      "description": "Data da nota não exibia o ano",
+      "status": "✅ Corrigido",
+      "file": "notes.js",
+      "solution": "Lógica de formatação atualizada para incluir ano em notas com mais de 7 dias"
     },
     {
-      "id": "settings-api",
-      "severity": "low",
-      "description": "Settings.js reescrito com métodos privados",
-      "migration": "API pública mantida, mas estrutura interna alterada",
-      "files": ["settings.js"]
-    }
-  ],
-  "performanceImprovements": [
-    {
-      "id": "preload-refactor",
-      "description": "Código do preload.js reduzido em 22% (236 → 183 linhas)",
-      "status": "✅ Implementado",
-      "file": "preload.js",
-      "improvement": "22%"
+      "id": "tasks-dark-mode",
+      "description": "Tarefas sem suporte a dark mode",
+      "status": "✅ Corrigido",
+      "file": "tasks.js",
+      "solution": "Classes dark: adicionadas em todos os elementos da UI"
     },
     {
-      "id": "dashboard-normalization",
-      "description": "Normalização de IDs de ferramentas evita duplicatas",
-      "status": "✅ Implementado",
-      "file": "dashboard.js"
+      "id": "tasks-tailwind-dynamic-classes",
+      "description": "Classes dinâmicas de Tailwind (peer-checked:border-${p.color}-500) não compiladas",
+      "status": "✅ Corrigido",
+      "file": "tasks.js",
+      "solution": "Substituídas por classes fixas completas para cada prioridade (alta, média, baixa)"
+    },
+    {
+      "id": "tasks-default-priority",
+      "description": "Modal de criação de tarefa sem prioridade padrão selecionada",
+      "status": "✅ Corrigido",
+      "file": "tasks.js",
+      "solution": "Prioridade 'média' definida como padrão ao abrir o modal de criação"
     }
   ],
   "filesModified": [
     "frontend/public/index.html",
     "frontend/src/scripts/core/app.js",
     "frontend/src/scripts/core/router.js",
-    "frontend/src/scripts/core/keyboard-shortcuts.js",
     "frontend/src/scripts/tools/dashboard/dashboard.js",
-    "frontend/src/scripts/tools/offline-zone/2048.js",
-    "frontend/src/scripts/tools/offline-zone/offline.js",
-    "frontend/src/scripts/tools/offline-zone/flappy-bird.js",
-    "frontend/src/scripts/tools/termo/termo.js",
-    "frontend/src/scripts/tools/settings/settings.js",
-    "frontend/src/scripts/tools/updater/updater.js",
-    "backend/src/preload.js",
+    "frontend/src/scripts/tools/mini-game/game.js",
+    "frontend/src/scripts/tools/notes/notes.js",
+    "frontend/src/scripts/tools/tasks/tasks.js",
     "version.json"
   ],
   "statistics": {
-    "filesNew": 3,
-    "filesRewritten": 3,
-    "filesModified": 7,
-    "linesAdded": 3500,
-    "linesRemoved": 400,
-    "bugsFixed": 12,
-    "featuresAdded": 3,
-    "performanceImprovements": 2
-  },
-  "platforms": {
-    "windows": {
-      "supported": true,
-      "minVersion": "Windows 10",
-      "architecture": ["x64"],
-      "installer": "NyanTools-3.0.0-Setup.exe",
-      "portable": "NyanTools 3.0.0.exe"
-    },
-    "macos": {
-      "supported": true,
-      "minVersion": "macOS 10.14",
-      "architecture": ["x64", "arm64"],
-      "installer": "NyanTools-3.0.0-{arch}.dmg"
-    },
-    "linux": {
-      "supported": true,
-      "distributions": ["Ubuntu 20.04+", "Debian 10+", "Fedora 33+"],
-      "architecture": ["x64"],
-      "formats": ["AppImage", "deb"]
-    }
-  },
-  "requirements": {
-    "electron": ">=27.0.0",
-    "node": ">=16.0.0",
-    "npm": ">=7.0.0",
-    "disk": "140 MB",
-    "ram": "512 MB",
-    "internet": "Requerido para updates e streaming de música"
-  },
-  "assets": [
-    {
-      "name": "NyanTools-3.0.0-Setup.exe",
-      "platform": "windows",
-      "architecture": "x64",
-      "size": 92000000,
-      "content_type": "application/x-msdownload",
-      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v3.0.0/NyanTools-3.0.0-Setup.exe"
-    },
-    {
-      "name": "NyanTools-3.0.0-x64.dmg",
-      "platform": "macos",
-      "architecture": "x64",
-      "size": 95000000,
-      "content_type": "application/x-apple-diskimage",
-      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v3.0.0/NyanTools-3.0.0-x64.dmg"
-    },
-    {
-      "name": "NyanTools-3.0.0-arm64.dmg",
-      "platform": "macos",
-      "architecture": "arm64",
-      "size": 93000000,
-      "content_type": "application/x-apple-diskimage",
-      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v3.0.0/NyanTools-3.0.0-arm64.dmg"
-    },
-    {
-      "name": "NyanTools-3.0.0-x64.AppImage",
-      "platform": "linux",
-      "architecture": "x64",
-      "size": 99000000,
-      "content_type": "application/x-executable",
-      "browser_download_url": "https://github.com/Fish7w7/Pandora/releases/download/v3.0.0/NyanTools-3.0.0-x64.AppImage"
-    }
-  ],
-  "nextVersion": {
-    "version": "3.1.0",
-    "estimatedDate": "2026-03-XX",
-    "plannedFeatures": [
-      "📝 Notas com categorias, busca e cores personalizadas",
-      "✅ Tarefas com prioridades, filtros e datas",
-      "🔖 Sistema de favoritos no menu lateral",
-      "💾 Export/Import completo de configurações",
-      "🎨 8 Esquemas de cores totalmente funcionais"
-    ]
+    "filesNew": 0,
+    "filesRewritten": 0,
+    "filesModified": 8,
+    "bugsFixed": 9
   },
   "previousVersion": {
-    "version": "2.7.1",
-    "tag": "v2.7.1",
-    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v2.7.1"
+    "version": "3.0.0",
+    "tag": "v3.0.0",
+    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.0"
   },
   "author": {
     "name": "Fish7w7",
@@ -237,11 +116,8 @@
   "repository": {
     "url": "https://github.com/Fish7w7/Pandora",
     "releases": "https://github.com/Fish7w7/Pandora/releases",
-    "issues": "https://github.com/Fish7w7/Pandora/issues",
-    "discussions": "https://github.com/Fish7w7/Pandora/discussions"
+    "issues": "https://github.com/Fish7w7/Pandora/issues"
   },
   "license": "MIT",
-  "homepage": "https://github.com/Fish7w7/Pandora",
-  "documentation": "https://github.com/Fish7w7/Pandora#readme",
   "codename": "Phoenix"
 }

@@ -1,4 +1,4 @@
-// Sistema de Lista de Tarefas Otimizado にゃん~
+// Sistema de Lista de Tarefas v3.0.0 - Dark Mode + Bug Fixes にゃん~
 const Tasks = {
     tasks: [],
     filter: 'all',
@@ -43,7 +43,7 @@ const Tasks = {
                 <h1 class="text-5xl font-black mb-3 bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
                     Lista de Tarefas
                 </h1>
-                <p class="text-gray-600 text-lg font-semibold">Organize e acompanhe suas atividades にゃん~</p>
+                <p class="text-gray-600 dark:text-gray-300 text-lg font-semibold">Organize e acompanhe suas atividades にゃん~</p>
             </div>
         `;
     },
@@ -75,7 +75,7 @@ const Tasks = {
     
     renderActionBar() {
         return `
-            <div class="bg-white rounded-2xl shadow-2xl p-6 mb-6">
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-6 mb-6 border dark:border-gray-700">
                 ${this.renderFilterButtons()}
                 ${this.renderSortOptions()}
             </div>
@@ -103,7 +103,7 @@ const Tasks = {
                                 class="flex-1 px-4 py-2 rounded-xl font-bold transition-all ${
                                     this.filter === f.id 
                                     ? `bg-gradient-to-r ${f.gradient} text-white` 
-                                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                                    : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600'
                                 }">
                             ${f.icon} ${f.label} (${f.count})
                         </button>
@@ -116,9 +116,9 @@ const Tasks = {
     renderSortOptions() {
         return `
             <div class="flex items-center gap-3">
-                <span class="text-gray-700 font-semibold">Ordenar por:</span>
+                <span class="text-gray-700 dark:text-gray-300 font-semibold">Ordenar por:</span>
                 <select onchange="Tasks.setSortBy(this.value)" 
-                        class="px-4 py-2 border-2 border-gray-300 rounded-xl font-semibold cursor-pointer">
+                        class="px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-xl font-semibold cursor-pointer bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                     <option value="created" ${this.sortBy === 'created' ? 'selected' : ''}>⏰ Data de Criação</option>
                     <option value="priority" ${this.sortBy === 'priority' ? 'selected' : ''}>🔴 Prioridade</option>
                     <option value="title" ${this.sortBy === 'title' ? 'selected' : ''}>🔤 Título (A-Z)</option>
@@ -126,7 +126,7 @@ const Tasks = {
                 
                 ${this.tasks.length > 0 ? `
                     <button onclick="Tasks.clearCompleted()" 
-                            class="ml-auto text-red-600 hover:text-red-800 font-bold text-sm transition-all">
+                            class="ml-auto text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 font-bold text-sm transition-all">
                         🗑️ Limpar Concluídas
                     </button>
                 ` : ''}
@@ -149,23 +149,30 @@ const Tasks = {
     },
     
     renderEmptyState() {
-        const messages = {
-            all: { icon: '📋', title: 'Nenhuma tarefa ainda', subtitle: 'Comece criando sua primeira tarefa!' },
-            active: { icon: '⏳', title: 'Nenhuma tarefa ativa', subtitle: 'Todas as tarefas foram concluídas!' },
-            completed: { icon: '✅', title: 'Nenhuma tarefa concluída', subtitle: 'Marque tarefas como concluídas!' }
-        };
+        let message = '';
+        let icon = '📋';
         
-        const msg = messages[this.filter];
+        if (this.filter === 'active') {
+            message = 'Nenhuma tarefa ativa';
+            icon = '✅';
+        } else if (this.filter === 'completed') {
+            message = 'Nenhuma tarefa concluída';
+            icon = '⏳';
+        } else {
+            message = 'Nenhuma tarefa ainda';
+        }
         
         return `
-            <div class="bg-white rounded-2xl shadow-2xl p-16 text-center">
-                <div class="text-8xl mb-6 opacity-50">${msg.icon}</div>
-                <h3 class="text-3xl font-bold text-gray-800 mb-3">${msg.title}</h3>
-                <p class="text-gray-600 mb-6">${msg.subtitle}</p>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-16 text-center border dark:border-gray-700">
+                <div class="text-8xl mb-6 opacity-50">${icon}</div>
+                <h3 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-3">${message}</h3>
+                <p class="text-gray-600 dark:text-gray-400 mb-6">
+                    ${this.filter === 'all' ? 'Comece criando sua primeira tarefa!' : 'Ajuste o filtro para ver outras tarefas'}
+                </p>
                 ${this.filter === 'all' ? `
                     <button onclick="Tasks.openCreateModal()" 
                             class="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all">
-                        📋 Criar Primeira Tarefa
+                        ✏️ Criar Primeira Tarefa
                     </button>
                 ` : ''}
             </div>
@@ -173,58 +180,75 @@ const Tasks = {
     },
     
     renderTaskCard(task) {
-        const colors = {
-            high: 'from-red-50 to-rose-50 border-red-400',
-            medium: 'from-yellow-50 to-orange-50 border-yellow-400',
-            low: 'from-green-50 to-emerald-50 border-green-400'
+        const priorityBorder = {
+            high: 'border-red-500',
+            medium: 'border-yellow-500',
+            low: 'border-green-500'
         };
         
         return `
-            <div class="bg-gradient-to-br ${colors[task.priority]} rounded-2xl p-6 shadow-lg border-2 transform hover:scale-102 hover:shadow-2xl transition-all ${task.completed ? 'opacity-60' : ''}">
-                <div class="flex items-start gap-4">
-                    <input type="checkbox" 
-                           ${task.completed ? 'checked' : ''}
-                           onchange="Tasks.toggleComplete('${task.id}')"
-                           class="w-6 h-6 mt-1 accent-green-600 cursor-pointer flex-shrink-0">
-                    
-                    <div class="flex-1">
-                        <div class="flex items-start justify-between gap-4 mb-2">
-                            <h3 class="text-xl font-bold text-gray-800 ${task.completed ? 'line-through opacity-60' : ''}">
-                                ${this.escapeHtml(task.title)}
-                            </h3>
-                            <div class="flex items-center gap-2 flex-shrink-0">
-                                <span class="text-2xl" title="${task.priority} priority">
-                                    ${this.priorityEmojis[task.priority]}
-                                </span>
-                                <button onclick="Tasks.openEditModal('${task.id}')" 
-                                        class="p-2 hover:bg-white/50 rounded-lg transition-all"
-                                        title="Editar">
-                                    ✏️
-                                </button>
-                                <button onclick="Tasks.deleteTask('${task.id}')" 
-                                        class="p-2 hover:bg-red-200 rounded-lg transition-all"
-                                        title="Excluir">
-                                    🗑️
-                                </button>
-                            </div>
-                        </div>
-                        
-                        ${task.description ? `
-                            <p class="text-gray-700 mb-3 ${task.completed ? 'line-through opacity-60' : ''}">
-                                ${this.escapeHtml(task.description)}
-                            </p>
-                        ` : ''}
-                        
-                        <div class="flex items-center gap-4 text-sm text-gray-600">
-                            <span>📅 ${this.formatDate(task.created)}</span>
-                            ${task.completed ? `
-                                <span class="text-green-700 font-semibold">
-                                    ✅ Concluída em ${this.formatDate(task.completedAt)}
-                                </span>
-                            ` : ''}
-                        </div>
-                    </div>
+            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border-l-8 ${priorityBorder[task.priority]} border dark:border-r dark:border-t dark:border-b dark:border-gray-700 transform hover:scale-102 transition-all ${task.completed ? 'opacity-60' : ''}">
+                ${this.renderTaskHeader(task)}
+                ${this.renderTaskContent(task)}
+                ${this.renderTaskFooter(task)}
+            </div>
+        `;
+    },
+    
+    renderTaskHeader(task) {
+        return `
+            <div class="flex items-start justify-between mb-3">
+                <div class="flex items-center gap-3">
+                    <button onclick="Tasks.toggleComplete('${task.id}')" 
+                            class="w-8 h-8 rounded-lg border-2 ${
+                                task.completed 
+                                ? 'bg-green-500 border-green-500' 
+                                : 'border-gray-300 dark:border-gray-600 hover:border-green-500'
+                            } flex items-center justify-center transition-all">
+                        ${task.completed ? '<span class="text-white text-lg">✓</span>' : ''}
+                    </button>
+                    <span class="text-2xl">${this.priorityEmojis[task.priority]}</span>
                 </div>
+                <div class="flex gap-2">
+                    <button onclick="Tasks.openEditModal('${task.id}')" 
+                            class="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-all"
+                            title="Editar">
+                        ✏️
+                    </button>
+                    <button onclick="Tasks.deleteTask('${task.id}')" 
+                            class="p-2 hover:bg-red-100 dark:hover:bg-red-900/30 rounded-lg transition-all"
+                            title="Excluir">
+                        🗑️
+                    </button>
+                </div>
+            </div>
+        `;
+    },
+    
+    renderTaskContent(task) {
+        return `
+            <h3 class="font-bold text-xl text-gray-800 dark:text-gray-100 mb-2 ${task.completed ? 'line-through opacity-60' : ''}">
+                ${this.escapeHtml(task.title)}
+            </h3>
+            ${task.description ? `
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-3 ${task.completed ? 'line-through opacity-60' : ''}">
+                    ${this.escapeHtml(task.description)}
+                </p>
+            ` : ''}
+        `;
+    },
+    
+    renderTaskFooter(task) {
+        return `
+            <div class="flex items-center justify-between pt-3 border-t-2 border-gray-200 dark:border-gray-700">
+                <span class="text-xs text-gray-500 dark:text-gray-400 font-semibold">
+                    ${this.formatDate(task.created)}
+                </span>
+                ${task.completed && task.completedAt ? `
+                    <span class="text-xs text-green-600 dark:text-green-400 font-bold">
+                        ✅ Concluída ${this.formatDate(task.completedAt)}
+                    </span>
+                ` : ''}
             </div>
         `;
     },
@@ -235,11 +259,11 @@ const Tasks = {
         const isEdit = this.currentTask !== null;
         const title = isEdit ? this.currentTask.title : '';
         const description = isEdit ? this.currentTask.description : '';
-        const priority = isEdit ? this.currentTask.priority : 'medium';
+        const priority = isEdit ? this.currentTask.priority : 'medium'; // Padrão: média
         
         return `
             <div id="tasks-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4" onclick="if(event.target.id === 'tasks-modal') Tasks.closeModal()">
-                <div class="bg-white rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                <div class="bg-white dark:bg-gray-800 rounded-3xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto border dark:border-gray-700">
                     ${this.renderModalHeader(isEdit)}
                     ${this.renderModalForm(title, description, priority, isEdit)}
                 </div>
@@ -267,21 +291,21 @@ const Tasks = {
         return `
             <form onsubmit="Tasks.saveTask(event); return false;" class="p-6 space-y-6">
                 <div>
-                    <label class="block text-gray-800 font-bold mb-3 text-lg">📌 Título</label>
+                    <label class="block text-gray-800 dark:text-gray-200 font-bold mb-3 text-lg">📌 Título</label>
                     <input type="text" 
                            id="task-title"
                            value="${this.escapeHtml(title)}"
                            placeholder="Ex: Estudar JavaScript..."
                            required
-                           class="w-full px-6 py-4 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-200 outline-none transition-all text-lg font-semibold">
+                           class="w-full px-6 py-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-200 dark:focus:ring-green-900/50 outline-none transition-all text-lg font-semibold bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
                 </div>
                 
                 <div>
-                    <label class="block text-gray-800 font-bold mb-3 text-lg">📄 Descrição (opcional)</label>
+                    <label class="block text-gray-800 dark:text-gray-200 font-bold mb-3 text-lg">📄 Descrição (opcional)</label>
                     <textarea id="task-description"
                               placeholder="Detalhes sobre a tarefa..."
                               rows="4"
-                              class="w-full px-6 py-4 border-2 border-gray-300 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-200 outline-none transition-all text-lg resize-none">${this.escapeHtml(description)}</textarea>
+                              class="w-full px-6 py-4 border-2 border-gray-300 dark:border-gray-600 rounded-xl focus:border-green-500 focus:ring-4 focus:ring-green-200 dark:focus:ring-green-900/50 outline-none transition-all text-lg resize-none bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">${this.escapeHtml(description)}</textarea>
                 </div>
                 
                 ${this.renderPrioritySelector(priority)}
@@ -289,7 +313,7 @@ const Tasks = {
                 <div class="flex gap-3">
                     <button type="button" 
                             onclick="Tasks.closeModal()"
-                            class="flex-1 px-6 py-4 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-xl font-bold text-lg transition-all">
+                            class="flex-1 px-6 py-4 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 rounded-xl font-bold text-lg transition-all">
                         ❌ Cancelar
                     </button>
                     <button type="submit"
@@ -302,15 +326,35 @@ const Tasks = {
     },
     
     renderPrioritySelector(priority) {
+        // BUG FIX: Classes dinâmicas não funcionam com Tailwind
+        // Solução: usar classes fixas completas
         const priorities = [
-            { value: 'high', emoji: '🔴', label: 'Alta', color: 'red' },
-            { value: 'medium', emoji: '🟡', label: 'Média', color: 'yellow' },
-            { value: 'low', emoji: '🟢', label: 'Baixa', color: 'green' }
+            { 
+                value: 'high', 
+                emoji: '🔴', 
+                label: 'Alta',
+                checkedClasses: 'border-red-500 bg-red-50 dark:bg-red-900/20',
+                hoverClasses: 'hover:border-red-300 dark:hover:border-red-700'
+            },
+            { 
+                value: 'medium', 
+                emoji: '🟡', 
+                label: 'Média',
+                checkedClasses: 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20',
+                hoverClasses: 'hover:border-yellow-300 dark:hover:border-yellow-700'
+            },
+            { 
+                value: 'low', 
+                emoji: '🟢', 
+                label: 'Baixa',
+                checkedClasses: 'border-green-500 bg-green-50 dark:bg-green-900/20',
+                hoverClasses: 'hover:border-green-300 dark:hover:border-green-700'
+            }
         ];
         
         return `
             <div>
-                <label class="block text-gray-800 font-bold mb-3 text-lg">🔴 Prioridade</label>
+                <label class="block text-gray-800 dark:text-gray-200 font-bold mb-3 text-lg">🔴 Prioridade</label>
                 <div class="grid grid-cols-3 gap-3">
                     ${priorities.map(p => `
                         <label class="relative cursor-pointer">
@@ -319,9 +363,9 @@ const Tasks = {
                                    value="${p.value}" 
                                    ${priority === p.value ? 'checked' : ''}
                                    class="peer sr-only">
-                            <div class="peer-checked:border-${p.color}-500 peer-checked:bg-${p.color}-50 border-2 border-gray-300 rounded-xl p-4 text-center transition-all hover:border-${p.color}-300">
+                            <div class="peer-checked:${p.checkedClasses} border-2 border-gray-300 dark:border-gray-600 rounded-xl p-4 text-center transition-all ${p.hoverClasses}">
                                 <div class="text-3xl mb-2">${p.emoji}</div>
-                                <div class="font-bold">${p.label}</div>
+                                <div class="font-bold text-gray-800 dark:text-gray-200">${p.label}</div>
                             </div>
                         </label>
                     `).join('')}
@@ -356,8 +400,8 @@ const Tasks = {
         event.preventDefault();
         
         const title = document.getElementById('task-title')?.value.trim();
-        const description = document.getElementById('task-description')?.value.trim();
-        const priority = document.querySelector('input[name="priority"]:checked')?.value;
+        const description = document.getElementById('task-description')?.value.trim() || '';
+        const priority = document.querySelector('input[name="priority"]:checked')?.value || 'medium';
         
         if (!title) {
             Utils.showNotification('⚠️ Digite um título', 'warning');
@@ -484,8 +528,7 @@ const Tasks = {
         return date.toLocaleDateString('pt-BR', { 
             day: '2-digit', 
             month: 'short',
-            hour: '2-digit',
-            minute: '2-digit'
+            year: 'numeric'
         });
     },
     
@@ -500,6 +543,7 @@ const Tasks = {
     init() {
         this.loadTasks();
         this.modalOpen = false;
+        console.log('✅ Tarefas carregadas:', this.tasks.length);
     }
 };
 

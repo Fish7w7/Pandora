@@ -4,7 +4,7 @@
 */
 
 const AutoUpdater = {
-    currentVersion: '3.0.0',
+    currentVersion: '3.0.1',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -21,10 +21,30 @@ const AutoUpdater = {
     // Array de changelog para updater.js
 changelog: [
     {
-        version: '3.0.0',
-        date: '2026-02-20',
+        version: '3.0.1',
+        date: '2026-02-21T12:00:00',
         label: 'Atual',
-        labelColor: 'bg-purple-500',
+        labelColor: 'bg-green-500',
+        author: 'Clara',
+        changes: [
+            { type: '🐛', text: 'Cobrinha: spam de game over ao reiniciar corrigido' },
+            { type: '🐛', text: 'Dashboard: bug de logout com tela desalinhada corrigido' },
+            { type: '🐛', text: 'Dashboard: tracking de atividade limpo corretamente no logout' },
+            { type: '🐛', text: 'Notas: dark mode completo implementado' },
+            { type: '🐛', text: 'Notas: ordenação por pins corrigida' },
+            { type: '🐛', text: 'Notas: formatação de data agora exibe o ano corretamente' },
+            { type: '🐛', text: 'Tarefas: dark mode completo implementado' },
+            { type: '🐛', text: 'Tarefas: classes de prioridade do Tailwind corrigidas (eram dinâmicas)' },
+            { type: '🐛', text: 'Tarefas: prioridade padrão "média" ao criar nova tarefa' },
+            { type: '🐛', text: 'Layout: conflito entre Tailwind hidden e CSS flex do #main-app corrigido' }
+        ]
+    },
+    {
+        version: '3.0.0',
+        date: '2026-02-20T12:00:00',
+        label: null,
+        labelColor: '',
+        author: 'Gabriel',
         changes: [
             { type: '🚀', text: 'MAJOR UPDATE: Redesign completo com breaking changes' },
             { type: '📊', text: 'Dashboard com tracking inteligente e estatísticas' },
@@ -39,20 +59,6 @@ changelog: [
             { type: '🐛', text: 'Dashboard: calendário usa data YYYY-MM-DD' },
             { type: '🐛', text: 'Termo: salva melhor tentativa corretamente' },
             { type: '🐛', text: '2048: tiles 2 e 4 visíveis no dark mode' }
-        ]
-    },
-    {
-        version: '2.7.1',
-        date: '2026-02-17',
-        label: null,
-        labelColor: '',
-        changes: [
-            { type: '🔒', text: 'API Keys do Gemini e OpenWeather removidas do código-fonte' },
-            { type: '🔒', text: 'API Keys agora configuradas pelo usuário via interface (localStorage)' },
-            { type: '🐛', text: 'termo.js: função evaluateGuess duplicada removida' },
-            { type: '🐛', text: 'tictactoe.js: aspas quebradas na notificação de vitória corrigidas' },
-            { type: '🔧', text: 'version.json: encoding UTF-8 corrigido' },
-            { type: '⚡', text: 'main.js: clearCache agora assíncrono com async/await e try/catch' }
         ]
     },
 ],
@@ -199,6 +205,7 @@ changelog: [
                                 <span class="font-black text-gray-800">v${release.version}</span>
                                 ${release.label ? `<span class="text-xs font-bold px-2 py-0.5 rounded-full text-white ${release.labelColor}">${release.label}</span>` : ''}
                                 <span class="text-xs text-gray-400">${new Date(release.date).toLocaleDateString('pt-BR', { day:'2-digit', month: 'short', year: 'numeric' })}</span>
+                                ${release.author ? `<span class="text-xs text-gray-400 flex items-center gap-1">· <span class="inline-flex items-center gap-1 bg-gray-100 text-gray-500 font-semibold px-2 py-0.5 rounded-full">👤 ${release.author}</span></span>` : ''}
                             </div>
 
                             <div class="space-y-1.5">

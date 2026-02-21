@@ -283,6 +283,12 @@ const Termo = {
         }
         
         const listener = (e) => {
+            // Auto-remove se o Termo não estiver mais na página
+            if (!document.getElementById('termo-grid')) {
+                document.removeEventListener('keydown', listener);
+                window.termoKeyListener = null;
+                return;
+            }
             if (this.gameOver) return;
             
             const key = e.key.toUpperCase();
@@ -549,6 +555,13 @@ const Termo = {
         }
     },
     
+    cleanup() {
+        if (window.termoKeyListener) {
+            document.removeEventListener('keydown', window.termoKeyListener);
+            window.termoKeyListener = null;
+        }
+    },
+
     resetGame() {
         this.guesses = [];
         this.currentGuess = ['', '', '', '', ''];

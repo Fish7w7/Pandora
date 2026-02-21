@@ -1,19 +1,16 @@
 {
-  "version": "3.0.0",
-  "buildDate": "2026-02-20",
+  "version": "3.0.1",
+  "buildDate": "2026-02-21",
   "changelog": [
-    "🚀 MAJOR: Redesign completo com breaking changes",
-    "📊 NOVO: Dashboard com tracking e estatísticas",
-    "🎮 NOVO: Jogo 2048 com dark mode completo",
-    "⌨️ NOVO: Atalhos de teclado globais (Ctrl+1-9)",
-    "🎨 Settings.js reescrito v3.0 (tipografia Syne/DM Sans)",
-    "🎨 Updater.js reescrito v3.0 (timeline vertical)",
-    "🎨 Preload.js reescrito v3.0 (-22% código)",
-    "🎨 Loading screen com animação glow pulsante",
-    "🎨 Login screen com glassmorphism + orbs flutuantes",
-    "🐛 Flappy Bird: spam de game over corrigido",
-    "🐛 Dashboard: calendário usa data completa (YYYY-MM-DD)",
-    "🐛 Termo: salva melhor tentativa em termo_best",
-    "🐛 2048: tiles 2 e 4 visíveis no dark mode"
+    "🐛 Cobrinha: spam de game over ao reiniciar corrigido",
+    "🐛 Dashboard: bug de logout com tela desalinhada corrigido",
+    "🐛 Dashboard: tracking de atividade limpo corretamente no logout",
+    "🐛 Notas: dark mode completo implementado",
+    "🐛 Notas: ordenação por pins corrigida",
+    "🐛 Notas: formatação de data agora exibe o ano corretamente",
+    "🐛 Tarefas: dark mode completo implementado",
+    "🐛 Tarefas: classes de prioridade do Tailwind corrigidas (eram dinâmicas)",
+    "🐛 Tarefas: prioridade padrão 'média' ao criar nova tarefa",
+    "🐛 Layout: conflito entre Tailwind hidden e CSS flex do #main-app corrigido"
   ]
 }

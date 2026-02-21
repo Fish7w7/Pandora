@@ -21,7 +21,7 @@ const KeyboardShortcuts = {
     isModalOpen: false,
     
     init() {
-        console.log('⌨️ Inicializando Atalhos de Teclado v3.0.0...');
+        console.log('⌨️ Inicializando Atalhos de Teclado v3.0.1...');
         this.setupListeners();
         console.log('✅ Atalhos ativados! Pressione Ctrl+/ para ver todos.');
     },

@@ -4,7 +4,7 @@
    ======================================== */
 
 const App = {
-    version: '3.0.0', 
+    version: '3.0.1', 
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
@@ -111,7 +111,7 @@ const App = {
         const userDisplay = document.getElementById('user-display');
         
         if (loginScreen) loginScreen.classList.add('hidden');
-        if (mainApp) mainApp.classList.remove('hidden');
+        if (mainApp) mainApp.classList.add('visible');
         if (userDisplay) userDisplay.textContent = user.username;
         
         this.renderNavMenu();
@@ -143,8 +143,13 @@ const App = {
     startActivityTracking() {
         console.log('⏱️ Iniciando tracking de atividade...');
         
+        // Limpar intervalo anterior se existir
+        if (this._activityInterval) {
+            clearInterval(this._activityInterval);
+        }
+        
         // Atualizar a cada minuto
-        setInterval(() => {
+        this._activityInterval = setInterval(() => {
             if (window.Dashboard) {
                 const today = new Date().toISOString().split('T')[0];
                 const dayOfWeek = new Date().getDay();
@@ -207,6 +212,17 @@ const App = {
         if (!confirm('Deseja realmente sair? にゃん~')) return;
         
         console.log('🚪 Fazendo logout...');
+        
+        // Parar tracking antes de tudo
+        if (this._activityInterval) {
+            clearInterval(this._activityInterval);
+            this._activityInterval = null;
+        }
+        
+        // Limpar estado do app
+        this.user = null;
+        this.currentTool = 'home';
+        
         Auth.logout();
         
         // Limpar formulário

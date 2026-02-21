@@ -40,6 +40,12 @@ const Router = {
         const container = document.getElementById('tool-container');
         if (!container) return;
         
+        // Guard: não renderizar nada se não houver usuário autenticado
+        if (!App.user) {
+            console.warn('⚠️ Router.render() chamado sem usuário autenticado. Abortando.');
+            return;
+        }
+        
         container.innerHTML = '';
         container.classList.add('fade-in');
         
@@ -139,7 +145,7 @@ const Router = {
                     <div>
                         <h3 class="text-2xl font-bold mb-2">💡 Dica do Dia にゃん~</h3>
                         <p>Use o <strong>Gerador de Senhas</strong> para criar senhas seguras e únicas para cada site! 🔐✨</p>
-                        <p class="mt-2 text-sm text-purple-100">Novo na v3.0.0: Jogue <strong>2048</strong> na Zona Offline! 🎮</p>
+                        <p class="mt-2 text-sm text-purple-100">Novo na v3.0.1: Jogue <strong>2048</strong> na Zona Offline! 🎮</p>
                         <p class="mt-2 text-sm text-purple-100">🎵 <strong>Música em background!</strong> Inicie uma música e continue navegando nas outras abas!</p>
                         <p class="mt-2 text-sm text-purple-100">⌨️ <strong>Atalhos de teclado!</strong> Pressione Ctrl+/ para ver todos os comandos!</p>
                     </div>

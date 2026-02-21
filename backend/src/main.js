@@ -6,7 +6,7 @@ const https = require('https');
 
 // OTIMIZAÇÃO: GPU E PERFORMANCE
 
-console.log('🔧 Aplicando otimizações de performance...');
+console.log('🔧 Aplicando otimizacoes de performance...');
 
 // Desabilitar aceleração de hardware para estabilidade
 app.disableHardwareAcceleration();
@@ -69,9 +69,9 @@ function createWindow() {
 
     const indexPath = path.join(__dirname, '../../frontend/public/index.html');
     
-    console.log('🐱 NyanTools v3.0.0 (Phoenix Update)');
-    console.log('📂 Diretório:', __dirname);
-    console.log('📄 Carregando:', indexPath);
+    console.log(' NyanTools v3.0.0 (Phoenix Update)');
+    console.log(' Diretório:', __dirname);
+    console.log(' Carregando:', indexPath);
     
     mainWindow.loadFile(indexPath);
 
@@ -80,7 +80,7 @@ function createWindow() {
         setTimeout(() => {
             if (!mainWindow?.isDestroyed()) {
                 mainWindow.show();
-                console.log('✅ NyanTools iniciado! にゃん~');
+                console.log(' NyanTools iniciado! にゃん~');
             }
         }, 50); // Reduzido de 100ms para 50ms
     });
@@ -114,7 +114,7 @@ function createWindow() {
         if (mainWindow && !mainWindow.isDestroyed()) {
             try {
                 await mainWindow.webContents.session.clearCache();
-                console.log('🧹 Cache limpo');
+                console.log(' Cache limpo');
             } catch (err) {
                 // Ignora erros silenciosos (janela pode ter sido destruída)
             }
@@ -343,10 +343,10 @@ ipcMain.handle('open-downloads-folder', async () => {
 // LIFECYCLE DO APP
 
 app.whenReady().then(() => {
-    console.log('🐱 NyanTools v3.0.0 - Phoenix Update');
-    console.log('📂 App path:', app.getAppPath());
-    console.log('🖥️ Plataforma:', process.platform);
-    console.log('📥 Downloads:', app.getPath('downloads'));
+    console.log(' NyanTools v3.0.0 - Phoenix Update');
+    console.log(' App path:', app.getAppPath());
+    console.log(' Plataforma:', process.platform);
+    console.log(' Downloads:', app.getPath('downloads'));
     
     createWindow();
 

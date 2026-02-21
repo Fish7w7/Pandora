@@ -9,7 +9,7 @@ const MusicPlayer = {
     currentPlaylist: 'outros',
     isPlaying: false,
     audio: null,
-    volume: 30,
+    volume: 5,
     
     // Configuração das playlists
     playlists: {

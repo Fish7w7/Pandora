@@ -35,7 +35,7 @@ const Dashboard = {
     
     renderHeader() {
         const greeting = this.getGreeting();
-        const username = Utils.loadData('current_user') || 'Usuário';
+        const username = (window.App?.user?.username) || Utils.loadData('current_user') || 'Usuário';
         
         return `
             <div class="text-center mb-6">
