@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![NyanTools Logo](https://img.shields.io/badge/NyanTools-2.4.0-purple?style=for-the-badge&logo=electron)
+![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.0.1-purple?style=for-the-badge&logo=electron)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)
 ![Electron](https://img.shields.io/badge/Electron-27.0.0-47848F?style=for-the-badge&logo=electron)
@@ -35,21 +35,23 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
 ## ✨ Funcionalidades
 
 ### 🎨 Interface Moderna
-- 🌓 **Tema Escuro/Claro** - Alternância suave entre temas
-- 🎨 **8 Esquemas de Cores** - Personalize seu app (em desenvolvimento)
-- 💫 **Animações Fluidas** - Transições suaves e elegantes
-- 📱 **Design Responsivo** - Adaptado para diferentes resoluções
-- 🔔 **Notificações Modernas** - Sistema de notificações empilhadas e discretas
-- ✨ **Efeitos Glass** - Backdrop blur e transparências modernas
+- 🌓 **Tema Escuro/Claro** — Alternância suave com dark mode completo
+- 🎨 **8 Esquemas de Cores** — Personalize a sidebar e destaques
+- 💫 **Animações Fluidas** — Transições suaves e elegantes
+- 📱 **Design Responsivo** — Adaptado para diferentes resoluções
+- 🔔 **Notificações Modernas** — Sistema empilhado e discreto
+- ✨ **Efeitos Glass** — Backdrop blur e transparências (login, mini player)
+- 🖋️ **Tipografia Premium** — Syne (display) + DM Sans (corpo)
 
 ### 🔧 Funcionalidades do Sistema
-- 💾 **Auto-save** - Configurações salvas automaticamente
-- 🔄 **Auto-update** - Sistema de atualização integrado com GitHub API
-- 📥 **Download Integrado** - Baixa e instala atualizações automaticamente
-- 🔐 **Sistema de Login** - Múltiplos usuários locais
-- 📊 **Estatísticas de Uso** - Veja highscores e históricos
-- 💾 **Backup e Restore** - Exporte/importe suas configurações
-- 🧹 **Limpeza de Cache** - Gerenciador de dados
+- 💾 **Auto-save** — Configurações e dados salvos automaticamente
+- 🔄 **Auto-update** — Sistema integrado com GitHub API + timeline de changelog
+- 📥 **Download Integrado** — Baixa e instala atualizações automaticamente
+- 🔐 **Sistema de Login** — Glassmorphism com animação de entrada
+- 📊 **Dashboard de Estatísticas** — Uso por ferramenta, sequência de dias, recordes de jogos
+- 💾 **Backup e Restore** — Exporte/importe suas configurações em JSON
+- ⌨️ **Atalhos de Teclado** — Ctrl+1-9 e Ctrl+/ para ajuda interativa
+- 🧹 **Limpeza de Cache** — Gerenciador de dados com métricas de uso
 
 ---
 
@@ -63,7 +65,7 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
    ```
 
 2. **Execute o Instalador**
-   - Baixe `NyanTools-Setup-2.4.0.exe`
+   - Baixe `NyanTools-Setup-3.0.1.exe`
    - Execute como administrador
    - Siga o assistente de instalação
 
@@ -115,14 +117,21 @@ npm run dev
 
 ## 🛠️ Ferramentas Incluídas
 
-### 1. 🔑 Gerador de Senhas
+### 1. 📊 Dashboard
+- **Estatísticas de uso** — tempo total, sequência de dias, ferramenta mais usada
+- **Atividade semanal** — gráfico de barras com uso por dia da semana
+- **Calendário dos últimos 30 dias** — visualização de dias ativos
+- **Recordes de jogos** — Cobrinha, Termo, 2048, Flappy Bird
+- **Resumo de Notas e Tarefas** — total, fixadas, concluídas e progresso
+
+### 2. 🔑 Gerador de Senhas
 - Senhas de **8-64 caracteres**
 - Opções: maiúsculas, minúsculas, números, símbolos
 - **Indicador de força** em tempo real (Fraca → Muito Forte)
 - Design premium com gradientes coloridos
 - Dicas de segurança integradas
 
-### 2. 🌤️ Clima
+### 3. 🌤️ Clima
 - **Clima atual** com dados em tempo real
 - **Previsão de 5 dias** com cards interativos
 - Busca por **cidade** ou **GPS**
@@ -130,135 +139,158 @@ npm run dev
 - Cards rápidos: São Paulo, Rio, London, Tokyo
 - Design adaptativo (cores mudam com temperatura)
 
-### 3. 🌍 Tradutor Universal
+### 4. 🌍 Tradutor Universal
 - **12+ idiomas**: PT, EN, ES, FR, DE, IT, JA, KO, ZH, RU, AR, HI
 - **Tradução em tempo real** enquanto digita (debounce de 1s)
 - Contador de caracteres
 - **Síntese de voz** (TTS) para ouvir traduções
-- Botão de **inverter idiomas** animado (rotate 180°)
+- Botão de **inverter idiomas** animado
 - API **MyMemory** gratuita e ilimitada
-- Design glass premium
 
-### 4. 🤖 Assistente IA
+### 5. 🤖 Assistente IA
 - Powered by **Google Gemini 2.5 Flash**
 - Conversas naturais e contextuais
 - **Markdown support** completo (negrito, itálico, código)
 - **Syntax highlighting** para blocos de código
 - Histórico persistente de conversas
-- Atalhos rápidos: Piada, Dica, Aprender
-- Botão de limpar conversa
+- Atalhos rápidos e botão de limpar conversa
 
-### 5. 🎮 Mini Game (Cobrinha)
+### 6. 🎮 Mini Game (Cobrinha)
 - Jogo clássico **Snake** arcade
-- Sistema de **highscore** persistente
-- Controles: teclado (setas) ou botões na tela
-- Visual moderno com **glow effects**
-- Grid semitransparente estilizado
-- Comida com animação pulsante
+- Sistema de **highscore** persistente (integrado ao Dashboard)
+- Controles: teclado (setas/WASD) ou botões na tela
+- Visual moderno com **glow effects** e olhinhos na cabeça
+- Velocidade aumenta progressivamente a cada 50 pontos
+- Fix v3.0.1: spam de game over ao reiniciar corrigido
 
-### 6. 📧 Email Temporário
+### 7. 📧 Email Temporário
 - **3 opções** de serviços:
   1. 🚀 **Serviços Online** (Temp-Mail, MinuteInbox, Tempail)
   2. 🎲 **Gerador Simples** de email aleatório
   3. 🎯 **Truque do "+"** para Gmail/Outlook
-- Emails descartáveis para cadastros
 - Copiar email com um clique
-- Abrir inbox direto no navegador
 - Dicas de segurança incluídas
 
-### 7. 🎵 Player de Música
+### 8. 🎵 Player de Música
 - **3 Playlists** via Cloudinary CDN:
   - 🎵 Lofi Chill Beats
   - 🎧 Electronic Vibes
-  - 😾 Outros (depressivo lol)
-- 🆕 **Modo Background** - Toca em TODAS as abas!
-- **Mini player flutuante** quando troca de aba
+  - 😾 Outros
+- **Modo Background** — toca em **todas as abas** sem pausar
+- **Mini player flutuante** e arrastável quando troca de aba
 - Controles completos: play, pause, anterior, próxima
-- Barra de progresso animada
-- Controle de volume
-- Streaming 100% online (não ocupa espaço)
+- Barra de progresso animada + controle de volume
+- Streaming 100% online (sem ocupar espaço local)
 
-### 8. 📶 Zona Offline
+### 9. 📝 Notas Rápidas
+- Criar, editar e excluir notas com título e conteúdo
+- **📌 Fixar notas** — pins sempre ficam no topo
+- **Busca em tempo real** por título e conteúdo
+- Cards coloridos com 5 paletas (compatíveis com dark mode)
+- Ordenação automática: fixadas primeiro, depois por data
+- Contador de caracteres e data formatada
+- Dark mode completo (v3.0.1)
 
-**4 Jogos sem Internet:**
+### 10. ✅ Lista de Tarefas
+- Criar tarefas com título, descrição e **prioridade** (Alta/Média/Baixa)
+- **Marcar como concluída** com data de conclusão registrada
+- Filtros: Todas / Ativas / Concluídas
+- Ordenação: Data de criação / Prioridade / Título A-Z
+- Cards com borda colorida por prioridade (vermelha/amarela/verde)
+- Estatísticas: total, ativas, concluídas e % de progresso
+- Dark mode completo (v3.0.1)
+
+### 11. 📶 Zona Offline
+
+**Jogos sem internet:**
 
 #### 🎯 **Jogo da Velha**
 - 2 jogadores local
-- Design moderno com gradientes
 - Detecção de vitória e empate
-- Botão de reiniciar
+- Design moderno com gradientes
 
-#### 🐍 **Cobrinha**
-- Clone do Snake clássico
-- Mesma engine do Mini Game
-- Visual retrô pixelado
-
-#### 🔤 **Termo** (NOVO! v2.3.2)
+#### 🔤 **Termo**
 - **Wordle em português**
 - Palavra do dia (muda a cada 24h)
 - 6 tentativas para acertar
 - Sistema de cores: Verde (certo), Amarelo (letra existe), Cinza (não tem)
 - Teclado virtual interativo
-- Compartilhar resultado (copiar emoji grid)
-- 30+ palavras no banco de dados
+- Salva melhor tentativa no Dashboard
+- Compartilhar resultado (emoji grid)
 
-#### 🎯 **Forca** (NOVO! v2.3.2)
-- Jogo clássico de adivinhar palavras
-- Palavra do dia (muda a cada 24h)
-- 6 vidas (partes do boneco)
-- Dica para cada palavra
+#### 🎯 **Forca**
+- Palavra do dia com **dica** para cada palavra
+- 6 vidas com boneco animado
 - Teclado virtual com cores
-- 40+ palavras variadas
 - Compartilhar resultado
 
-### 9. ⚙️ Configurações (NOVO! v2.3.2)
+#### 🔢 **2048**
+- Jogo clássico de deslizar e combinar tiles
+- Pontuação salva automaticamente no Dashboard
+- Dark mode completo (tiles 2 e 4 visíveis)
+
+#### 🐱 **Flappy Nyan**
+- Versão kawaii do Flappy Bird
+- Highscore salvo e exibido no Dashboard
+- Fix v3.0.0: spam de game over corrigido
+
+### 12. ⚙️ Configurações
 
 **5 Abas Completas:**
 
 #### 🎨 **Aparência**
-- Tema Claro/Escuro (funcional)
-- 8 Esquemas de cores (em desenvolvimento)
-- Preview visual dos temas
+- Tema Claro/Escuro (funcional e completo)
+- **8 Esquemas de cores** — Roxo, Azul, Verde, Vermelho, Laranja, Rosa, Turquesa, Índigo
+- Preview visual animado com badge "ATIVO" sem re-render completo
 
 #### 🔄 **Atualizações**
-- Sistema completo de auto-update
-- Verificação automática ao iniciar
-- Download integrado com barra de progresso
-- Instalação com um clique
-- Histórico de versões (changelog)
-- Cache inteligente (reduz 90% das requisições)
+- Verificação manual + automática ao iniciar
+- Download integrado com barra de progresso em tempo real
+- **Timeline vertical de changelog** com versão, autor e data
+- Cache inteligente (5 minutos entre verificações)
+- Fallback para abrir no navegador sem Electron
 
 #### 🔔 **Notificações**
 - Habilitar/Desabilitar notificações
 - Som de notificação (toggle)
 - Botão de testar notificação
 
-#### 💾 **Gerenciar Dados**
-- Uso de armazenamento (visualização)
-- **Exportar dados** (backup JSON)
-- **Importar dados** (restore)
+#### 💾 **Dados**
+- Uso de armazenamento com barra de progresso colorida
+- **Exportar backup** (JSON)
+- **Importar backup** (restore)
 - Limpar cache
 - **Resetar tudo** (confirmação dupla)
 
 #### ℹ️ **Sobre**
-- Informações do app
-- Desenvolvedor e links
+- Informações do app e versão atual
+- Desenvolvedores (Gabriel + Clara)
+- Links úteis (GitHub, Issues, Releases, Discussions)
 - Tecnologias usadas
 - Licença MIT
-- Links úteis (GitHub, Issues, Releases)
 
-### 10. 🔄 Sistema de Atualizações (NOVO! v2.4.0)
+---
 
-**Features Avançadas:**
-- ✅ **API GitHub oficial** (sem rate limit)
-- ✅ **Cache de 1 hora** para economizar requisições
-- ✅ **Download integrado** no app (Electron IPC)
-- ✅ **Barra de progresso** em tempo real
-- ✅ **Instalação automática** com um clique
-- ✅ **Auto-check** ao iniciar (opcional)
-- ✅ **Auto-download** de updates (opcional)
-- ✅ **Fallbacks múltiplos** para máxima confiabilidade
-- ✅ **Notificações elegantes** de nova versão
+## ⌨️ Atalhos de Teclado
+
+| Atalho | Ação |
+|--------|------|
+| `Ctrl + 1` | Dashboard |
+| `Ctrl + 2` | Gerador de Senhas |
+| `Ctrl + 3` | Clima |
+| `Ctrl + 4` | Tradutor |
+| `Ctrl + 5` | Assistente IA |
+| `Ctrl + 6` | Mini Game |
+| `Ctrl + 7` | Email Temporário |
+| `Ctrl + 8` | Player de Música |
+| `Ctrl + 9` | Zona Offline |
+| `Ctrl + 0` | Notas Rápidas |
+| `Ctrl + T` | Tarefas |
+| `Ctrl + S` | Configurações |
+| `Ctrl + /` | Ver todos os atalhos |
+| `Esc` | Fechar modais |
+
+> Atalhos não funcionam quando você está digitando em campos de texto.
 
 ---
 
@@ -268,8 +300,8 @@ npm run dev
 NyanTools/
 ├── 📦 backend/
 │   └── src/
-│       ├── main.js              # Entry point Electron
-│       └── preload.js           # Bridge segura (IPC API)
+│       ├── main.js              # Entry point Electron (otimizado v3.0)
+│       └── preload.js           # Bridge segura — IPC API v3.0
 │
 ├── 🎨 frontend/
 │   ├── public/
@@ -279,51 +311,63 @@ NyanTools/
 │   │   │       ├── icon.ico     # Windows
 │   │   │       └── icon.icns    # macOS
 │   │   ├── index.html           # HTML principal
-│   │   └── version.json         # Versão para auto-update
+│   │   └── version.json         # Versão + changelog para auto-update
 │   │
 │   └── src/
 │       ├── scripts/
 │       │   ├── core/            # 🧠 Núcleo do app
-│       │   │   ├── app.js       # Inicialização e gerenciamento
+│       │   │   ├── app.js       # Inicialização, tracking de atividade
 │       │   │   ├── auth.js      # Sistema de login
-│       │   │   └── router.js    # Navegação SPA
+│       │   │   ├── router.js    # Navegação SPA
+│       │   │   └── keyboard-shortcuts.js  # ⌨️ Atalhos globais
 │       │   │
 │       │   ├── tools/           # 🛠️ Ferramentas individuais
+│       │   │   ├── dashboard/
+│       │   │   │   └── dashboard.js     # 📊 Stats, gráficos, recordes
 │       │   │   ├── ai-assistant/
 │       │   │   │   └── ai-chat.js
 │       │   │   ├── mini-game/
 │       │   │   │   └── game.js
 │       │   │   ├── music-player/
-│       │   │   │   └── music.js
+│       │   │   │   └── music.js         # Mini player flutuante
+│       │   │   ├── notes/
+│       │   │   │   └── notes.js         # 📝 Notas com pins e busca
+│       │   │   ├── tasks/
+│       │   │   │   └── tasks.js         # ✅ Tarefas com prioridade
 │       │   │   ├── offline-zone/
-│       │   │   │   ├── offline.js      # Menu principal
-│       │   │   │   ├── termo.js        # ✨ Wordle PT
-│       │   │   │   └── forca.js        # ✨ Jogo da Forca
+│       │   │   │   ├── offline.js       # Menu principal
+│       │   │   │   ├── termo.js         # Wordle PT
+│       │   │   │   ├── forca.js         # Jogo da Forca
+│       │   │   │   ├── 2048.js          # 🔢 Jogo 2048
+│       │   │   │   ├── flappy-bird.js   # 🐱 Flappy Nyan
+│       │   │   │   └── tictactoe.js     # Jogo da Velha
 │       │   │   ├── password-generator/
 │       │   │   │   └── password.js
-│       │   │   ├── settings/           # ⚙️ Sistema completo
-│       │   │   │   └── settings.js     # 5 abas de config
+│       │   │   ├── settings/
+│       │   │   │   └── settings.js      # 5 abas + ThemeManager
 │       │   │   ├── temp-email/
 │       │   │   │   └── temp-email.js
 │       │   │   ├── translator/
 │       │   │   │   └── translator.js
-│       │   │   ├── updater/            # 🔄 Auto-update
-│       │   │   │   └── updater.js      # Sistema completo
+│       │   │   ├── updater/
+│       │   │   │   └── updater.js       # Timeline changelog + download
 │       │   │   └── weather/
 │       │   │       └── weather.js
 │       │   │
-│       │   └── utils/           # 🔧 Utilidades
-│       │       └── helpers.js   # Funções auxiliares
+│       │   └── utils/
+│       │       └── helpers.js           # Utilitários globais
 │       │
 │       └── styles/
-│           ├── main.css         # Estilos principais
-│           ├── dark-theme.css   # 🌙 Tema escuro (v4.0)
-│           └── animations.css   # Animações dos jogos
+│           ├── main.css                 # Estilos principais + mini player
+│           ├── dark-theme.css           # 🌙 Dark mode v2.7.1 completo
+│           ├── theme-system.css         # 8 temas de cor + CSS vars
+│           ├── density-fix.css          # Ajustes de zoom e densidade
+│           └── animations.css           # Animações dos jogos
 │
-├── 📄 package.json              # Dependências e scripts
-├── 📘 README.md                 # Este arquivo
-├── 📜 LICENSE                   # Licença MIT
-└── 🚀 publish.bat              # Script de publicação (Windows)
+├── 📄 package.json
+├── 📘 README.md
+├── 📜 LICENSE
+└── 🚀 publish.bat
 ```
 
 ---
@@ -342,7 +386,6 @@ npm run build:win      # Windows (x64)
 npm run build:mac      # macOS (x64 + ARM64)
 npm run build:linux    # Linux (AppImage + DEB)
 npm run build:all      # Todas as plataformas
-
 ```
 
 ### **Outputs do Build**
@@ -350,23 +393,23 @@ npm run build:all      # Todas as plataformas
 #### **Windows** (`npm run build:win`)
 ```
 dist/
-├── NyanTools-Setup-2.4.0.exe     # Instalador NSIS (recomendado)
-└── NyanTools 2.4.0.exe           # Portátil (sem instalação)
+├── NyanTools-Setup-3.0.1.exe     # Instalador NSIS (recomendado)
+└── NyanTools 3.0.1.exe           # Portátil (sem instalação)
 ```
 
 #### **macOS** (`npm run build:mac`)
 ```
 dist/
-├── NyanTools-2.4.0-x64.dmg       # Intel
-├── NyanTools-2.4.0-arm64.dmg     # Apple Silicon (M1/M2)
-└── NyanTools-2.4.0-universal.dmg # Universal
+├── NyanTools-3.0.1-x64.dmg       # Intel
+├── NyanTools-3.0.1-arm64.dmg     # Apple Silicon (M1/M2)
+└── NyanTools-3.0.1-universal.dmg # Universal
 ```
 
 #### **Linux** (`npm run build:linux`)
 ```
 dist/
-├── NyanTools-2.4.0-x64.AppImage  # AppImage
-└── NyanTools-2.4.0-amd64.deb     # Debian/Ubuntu
+├── NyanTools-3.0.1-x64.AppImage  # AppImage
+└── NyanTools-3.0.1-amd64.deb     # Debian/Ubuntu
 ```
 
 ---
@@ -374,73 +417,62 @@ dist/
 ## 🎯 Tecnologias
 
 ### **Core**
-- ![Electron](https://img.shields.io/badge/Electron-27.0.0-47848F?logo=electron&logoColor=white) - Framework desktop multiplataforma
-- ![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-F7DF1E?logo=javascript&logoColor=black) - Linguagem principal
-- ![Tailwind](https://img.shields.io/badge/Tailwind-3.0-38B2AC?logo=tailwind-css&logoColor=white) - Framework CSS utilitário
+- ![Electron](https://img.shields.io/badge/Electron-27.0.0-47848F?logo=electron&logoColor=white) — Framework desktop multiplataforma
+- ![JavaScript](https://img.shields.io/badge/JavaScript-ES2022-F7DF1E?logo=javascript&logoColor=black) — Linguagem principal
+- ![Tailwind](https://img.shields.io/badge/Tailwind-3.x-38B2AC?logo=tailwind-css&logoColor=white) — Framework CSS utilitário
 
 ### **APIs Integradas**
-- **OpenWeatherMap API** - Dados meteorológicos em tempo real
-- **MyMemory API** - Tradução gratuita e ilimitada
-- **Google Gemini API** - IA conversacional avançada
-- **GitHub API** - Sistema de atualizações
+- **OpenWeatherMap API** — Dados meteorológicos em tempo real
+- **MyMemory API** — Tradução gratuita e ilimitada
+- **Google Gemini API** — IA conversacional avançada
+- **GitHub API** — Sistema de atualizações automáticas
 
 ### **Recursos Web**
-- **LocalStorage** - Armazenamento local persistente
-- **Geolocation API** - Localização GPS
-- **Fetch API** - Requisições HTTP modernas
-- **Speech Synthesis** - Text-to-Speech (TTS)
-- **Canvas API** - Renderização dos jogos
+- **LocalStorage** — Armazenamento local persistente
+- **Geolocation API** — Localização GPS
+- **Fetch API** — Requisições HTTP modernas
+- **Speech Synthesis** — Text-to-Speech (TTS)
+- **Canvas API** — Renderização dos jogos (Snake, Flappy Bird)
+- **Audio API** — Player de música com streaming
 
 ### **Build & Deploy**
-- **Electron Builder** - Empacotamento multiplataforma
-- **NSIS** - Instalador Windows
-- **DMG** - Instalador macOS
-- **AppImage/DEB** - Instaladores Linux
+- **Electron Builder** — Empacotamento multiplataforma
+- **NSIS** — Instalador Windows
+- **DMG** — Instalador macOS
+- **AppImage/DEB** — Instaladores Linux
 
 ---
 
 ## 📝 Roadmap
 
+### **✅ Concluído (v3.0.1 — atual)**
+- [x] Dashboard com tracking de atividade e recordes
+- [x] Notas Rápidas com pins, busca e dark mode
+- [x] Lista de Tarefas com prioridades e dark mode
+- [x] Jogo 2048 na Zona Offline
+- [x] Flappy Nyan na Zona Offline
+- [x] Atalhos de teclado globais (Ctrl+1-9, Ctrl+/)
+- [x] Settings v3.0 com ThemeManager sem re-render
+- [x] Updater v3.0 com timeline vertical de changelog
+- [x] Login screen glassmorphism + orbs flutuantes
+- [x] Loading screen com animação glow pulsante
+- [x] Mini player flutuante e arrastável
+- [x] Dark mode completo em todas as ferramentas
+- [x] 8 temas de cor funcionais
 
-### **✅ Concluído (v2.4.0)**
-- [x] Sistema de autenticação local
-- [x] 10 ferramentas funcionais
-- [x] Tema escuro completo e funcional
-- [x] Sistema de configurações (5 abas)
-- [x] Auto-update com download integrado
-- [x] Termo e Forca (jogos diários)
-- [x] Music player com modo background
-- [x] Notificações modernas empilhadas
-- [x] Build multiplataforma
-- [x] Script de publicação automatizado
+### **🚧 Em Desenvolvimento (v3.1.0)**
+- [ ] 🌐 **Multi-idioma UI** — Interface em PT, EN, ES
+- [ ] 🧮 **Calculadora Científica** — Operações avançadas
+- [ ] 📐 **Conversor de Unidades** — Temperatura, peso, distância
+- [ ] 📊 **Histórico de uso mais detalhado** no Dashboard
+- [ ] 🔖 **Sistema de favoritos** — Fixar ferramentas no menu
 
-### **🚧 Em Desenvolvimento (v2.5.0)** - Previsto: 2-3 meses
-- [ ] 🎨 **Temas personalizáveis** - 8 esquemas de cores funcionais
-- [ ] ⌨️ **Atalhos de teclado** - Ctrl+1-9 para ferramentas
-- [ ] 🔖 **Sistema de favoritos** - Marcar ferramentas no menu
-- [ ] 📊 **Dashboard de estatísticas** - Tempo de uso, ferramenta mais usada
-- [ ] 📝 **Notas rápidas** - Bloco de notas simples com save local
-- [ ] 🔔 **Histórico de notificações** - Ver últimas 10 notificações
-- [ ] 🧮 **Calculadora Científica** - Operações avançadas
-- [ ] 📐 **Conversor de Unidades** - Temperatura, peso, distância, etc
-
-### **🎯 Próximas Versões (v2.6.0 - v2.9.0)**
-- [ ] 🌐 **Multi-idioma UI** - Interface em PT, EN, ES
-- [ ] ✅ **Gerenciador de Tarefas** - To-do list com categorias
-- [ ] 📝 **Editor de Markdown** - Preview em tempo real
-- [ ] 🎨 **Editor de imagens básico** - Crop, resize, filtros
-- [ ] 📊 **Visualizador de CSV/JSON** - Importar e visualizar dados
-- [ ] 🔐 **Gerenciador de senhas** - Vault local criptografado
-- [ ] 📷 **Screenshot tool** - Captura de tela com anotações
-- [ ] 🎤 **Gravador de áudio** - Gravar e salvar áudio
-
-### **🔮 Futuro Distante (v3.0.0+)** - Se houver demanda
-- [ ] 💾 **Backup na nuvem** - Google Drive (opcional)
-- [ ] 🌍 **Versão web** - PWA rodando no navegador
-- [ ] 📱 **App mobile** - Versão Android básica (Cordova/Capacitor)
-- [ ] 🔌 **Sistema de plugins** - Comunidade pode criar ferramentas (JSON config)
-- [ ] 🤖 **IA melhorada** - Histórico persistente de conversas
-- [ ] 🎮 **Mais jogos offline** - Quiz, Memória, 2048, Sudoku
+### **🎯 Próximas Versões**
+- [ ] 📝 **Editor de Markdown** — Preview em tempo real
+- [ ] 🔐 **Gerenciador de senhas** — Vault local criptografado
+- [ ] 📷 **Screenshot tool** — Captura de tela com anotações
+- [ ] 🎤 **Gravador de áudio** — Gravar e salvar áudio
+- [ ] 🌍 **Versão web (PWA)**
 
 ---
 
@@ -451,7 +483,7 @@ Contribuições são muito bem-vindas! にゃん~ 🐱
 ### **Como Contribuir**
 
 1. **Fork** o projeto
-2. Crie uma **branch**: 
+2. Crie uma **branch**:
    ```bash
    git checkout -b feature/MinhaFeature
    ```
@@ -475,25 +507,7 @@ Use [Conventional Commits](https://www.conventionalcommits.org/):
 - `style:` Formatação (não afeta código)
 - `refactor:` Refatoração
 - `perf:` Melhoria de performance
-- `test:` Testes
 - `chore:` Manutenção
-
-**Exemplos:**
-```bash
-feat: adiciona tema escuro
-fix: corrige bug no tradutor
-docs: atualiza README
-style: formata código com prettier
-refactor: simplifica lógica do router
-```
-
-### **Código de Conduta**
-
-- 🤝 Seja respeitoso e inclusivo
-- 🐛 Reporte bugs com detalhes
-- 💡 Sugira features com clareza
-- 📝 Documente suas mudanças
-- ✅ Teste antes de enviar PR
 
 ---
 
@@ -504,7 +518,7 @@ Este projeto está sob a licença **MIT**.
 ```
 MIT License
 
-Copyright (c) 2025 Fish7w7
+Copyright (c) 2026 Fish7w7
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -517,46 +531,28 @@ The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 ```
 
-Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
-
 ---
 
 ## 🙏 Agradecimentos
 
 ### **Frameworks & Libraries**
-- [Electron](https://www.electronjs.org/) - Framework desktop incrível
-- [Tailwind CSS](https://tailwindcss.com/) - CSS utilitário moderno
-- [Electron Builder](https://www.electron.build/) - Build multiplataforma
+- [Electron](https://www.electronjs.org/) — Framework desktop incrível
+- [Tailwind CSS](https://tailwindcss.com/) — CSS utilitário moderno
+- [Electron Builder](https://www.electron.build/) — Build multiplataforma
+- [Google Fonts](https://fonts.google.com/) — Syne e DM Sans
 
 ### **APIs & Serviços**
-- [OpenWeatherMap](https://openweathermap.org/) - API de clima gratuita
-- [MyMemory](https://mymemory.translated.net/) - API de tradução
-- [Google Gemini](https://deepmind.google/technologies/gemini/) - IA avançada
-- [Cloudinary](https://cloudinary.com/) - CDN para músicas
+- [OpenWeatherMap](https://openweathermap.org/) — API de clima gratuita
+- [MyMemory](https://mymemory.translated.net/) — API de tradução
+- [Google Gemini](https://deepmind.google/technologies/gemini/) — IA avançada
+- [Cloudinary](https://cloudinary.com/) — CDN para músicas
+- [GitHub API](https://docs.github.com/en/rest) — Sistema de atualizações
 
 ### **Inspirações**
-- [Notion](https://notion.so) - Design e UX
-- [Discord](https://discord.com) - Sistema de temas
-- [Spotify](https://spotify.com) - Music player
-- [Wordle](https://www.nytimes.com/games/wordle/) - Jogo Termo
-
-### **Comunidade**
-- Stack Overflow - Soluções de problemas
-- GitHub Community - Feedback e sugestões
-- Electron Discord - Suporte técnico
-- Todos que testaram e reportaram bugs にゃん~ 🐱
-
----
-
-## 💡 Easter Eggs
-
-🎁 Existem alguns easter eggs escondidos no app...
-
-**Dicas:**
-- Tente clicar no logo do NyanTools 10 vezes rápido にゃん~
-- Procure pelo botão "Sobre" no menu
-- Digite "konami code" em algum lugar... 🎮
-- Clique no emoji 🐱 em lugares inesperados
+- [Notion](https://notion.so) — Design e UX
+- [Discord](https://discord.com) — Sistema de temas
+- [Spotify](https://spotify.com) — Music player e mini player
+- [Wordle](https://www.nytimes.com/games/wordle/) — Jogo Termo
 
 ---
 
@@ -568,18 +564,18 @@ Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
    - Descrição clara do problema
    - Passos para reproduzir
    - Screenshots (se possível)
-   - Versão do app
-   - Sistema operacional
+   - Versão do app e sistema operacional
 
 ### **Tem uma sugestão?**
 1. Acesse [Discussions](https://github.com/Fish7w7/Pandora/discussions)
 2. Crie um novo tópico em "Ideas"
-3. Descreva sua sugestão detalhadamente
 
-### **Precisa de ajuda?**
-- 📧 Email: kik73261@gmail.com
-- 🌐 GitHub: [@Fish7w7](https://github.com/Fish7w7)
-- 💬 Discussions: [GitHub Discussions](https://github.com/Fish7w7/Pandora/discussions)
+### **Contato dos Desenvolvedores**
+
+| Dev | Papel | Contato |
+|-----|-------|---------|
+| Gabriel | Desenvolvedor Principal | [GitHub](https://github.com/Fish7w7) · kik73261@gmail.com |
+| Clara | Desenvolvedora Principal | clara.mendes@proton.me |
 
 ---
 
@@ -587,23 +583,20 @@ Veja o arquivo [LICENSE](LICENSE) para mais detalhes.
 
 ![GitHub stars](https://img.shields.io/github/stars/Fish7w7/Pandora?style=social)
 ![GitHub forks](https://img.shields.io/github/forks/Fish7w7/Pandora?style=social)
-![GitHub watchers](https://img.shields.io/github/watchers/Fish7w7/Pandora?style=social)
-
 ![GitHub last commit](https://img.shields.io/github/last-commit/Fish7w7/Pandora)
 ![GitHub issues](https://img.shields.io/github/issues/Fish7w7/Pandora)
-![GitHub pull requests](https://img.shields.io/github/issues-pr/Fish7w7/Pandora)
 ![GitHub downloads](https://img.shields.io/github/downloads/Fish7w7/Pandora/total)
 
 ---
 
-## 👤 Autor
+## 💡 Easter Eggs
 
-**Fish7w7**
+🎁 Existem alguns easter eggs escondidos no app...
 
-- 🌐 GitHub: [@Fish7w7](https://github.com/Fish7w7)
-- 📧 Email: kik73261@gmail.com
-- 🐱 Nickname: Ga / Fish
-- 📍 Localização: Brasil 🇧🇷
+**Dicas:**
+- Clique várias vezes no logo do NyanTools にゃん~
+- Explore o botão "Sobre" nas configurações
+- Preste atenção no código do easter egg em `app.js`... 👀
 
 ---
 
@@ -617,13 +610,14 @@ Se este projeto te ajudou, considere:
 🐛 **Reportar bugs** para melhorar
 💡 **Sugerir features** novas
 📢 **Compartilhar** com amigos
-☕ **Buy me a coffee** (em breve)
 
 ---
 
 ### **Feito com ❤️ e にゃん~**
 
 *Your Purr-fect Toolkit! 🐱✨*
+
+**v3.0.1 — Phoenix Update**
 
 **[⬆ Voltar ao topo](#-nyantools-にゃん)**
 
