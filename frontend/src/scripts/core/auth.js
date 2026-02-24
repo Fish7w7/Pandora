@@ -1,7 +1,7 @@
-/* ========================================
+/* 
    AUTH.JS OPTIMIZED v2.7.0
    Sistema de Autenticação Otimizado
-   ======================================== */
+ */
 
 const Auth = {
     storageKey: 'toolbox_user',
@@ -130,7 +130,6 @@ function showLoginError(errorDiv, message) {
     const errorText = errorDiv.querySelector('p');
     if (errorText) errorText.textContent = message;
     
-    // Auto-hide após 3s
     setTimeout(() => errorDiv.classList.add('hidden'), 3000);
 }
 

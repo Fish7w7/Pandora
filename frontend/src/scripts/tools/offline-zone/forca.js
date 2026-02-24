@@ -1,7 +1,5 @@
-// ============================================
-// 🎯 FORCA - NyanTools にゃん~
+// FORCA - NyanTools にゃん~
 // Versão Otimizada v2.0
-// ============================================
 
 const Forca = {
     // Lista de palavras com dificuldade

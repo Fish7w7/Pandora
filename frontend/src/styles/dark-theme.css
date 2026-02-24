@@ -3,7 +3,7 @@
    ======================================== */
 
 /* ===== VARIÁVEIS - DEFINIDAS PRIMEIRO ===== */
-/* CORREÇÃO: :root movido para o topo — variáveis precisam existir
+/* CORREÇÃO: root movido para o topo — variáveis precisam existir
    antes de serem usadas nas regras abaixo */
 :root {
     --dark-bg-app:      #0a0a0f;
@@ -424,11 +424,6 @@ body.dark-theme input[type="range"]::-webkit-slider-thumb {
 /* ===== CONFIGURAÇÕES ===== */
 body.dark-theme .border-3 { border-width: 2px; }
 
-/* ========================================
-   TERMO E FORCA — CORES DOS JOGOS
-   MÁXIMA PRIORIDADE — NUNCA ALTERAR
-   ======================================== */
-
 /* Células com data-status são os resultados do Termo.
    Esses seletores têm a maior especificidade do arquivo
    para garantir que o dark theme nunca sobrescreva as cores do jogo */
@@ -597,10 +592,6 @@ body.dark-theme input:checked ~ .option-card {
     background: var(--dark-bg-elevated) !important;
 }
 
-/* ========================================
-   FIXES v2.7.1 — NOTES, PASSWORD, SETTINGS
-   ======================================== */
-
 /* ===== NOTAS RÁPIDAS =====
    Cards usam from-yellow-100/green-100/blue-100 etc com text-gray-800.
    No dark, o fundo vira rgba(0.15) mas o texto ficava da cor do tint.
@@ -739,4 +730,110 @@ body.dark-theme [class*="bg-"][class*="-50"] .text-xs {
 body.dark-theme .bg-white.text-gray-800 {
     background-color: var(--dark-bg-elevated) !important;
     color: var(--dark-text-primary) !important;
+}
+
+/* ===== SEÇÃO DE ATUALIZAÇÕES — TEMA ESCURO =====
+   Corrige o card de "nova versão disponível" que ficava ilegível
+   no dark mode (fundo claro com texto escuro). */
+
+body.dark-theme .update-card,
+body.dark-theme [class*="from-green-50"][class*="to-green-100"],
+body.dark-theme div[style*="background"][class*="update"] {
+    background: var(--dark-bg-secondary) !important;
+    border-color: rgba(16, 185, 129, 0.4) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+/* Card de atualização disponível (fundo verde claro no light) */
+body.dark-theme .bg-gradient-to-br.from-green-50.to-green-100,
+body.dark-theme div.from-green-50,
+body.dark-theme .rounded-2xl.border.border-green-200,
+body.dark-theme .rounded-xl.border.border-green-200,
+body.dark-theme .rounded-lg.border.border-green-200,
+body.dark-theme [class*="border-green-200"] {
+    border-color: rgba(16, 185, 129, 0.35) !important;
+}
+
+/* Textos dentro de cards de update */
+body.dark-theme .bg-gradient-to-r.from-green-600,
+body.dark-theme .bg-gradient-to-r.from-green-500 {
+    filter: brightness(1.1) !important;
+}
+
+/* Cards de "versão atual" e "nova versão" em branco no dark */
+body.dark-theme .bg-white.border.border-gray-200,
+body.dark-theme .bg-white.rounded-xl.border,
+body.dark-theme .bg-white.rounded-2xl.border {
+    background-color: var(--dark-bg-secondary) !important;
+    border-color: var(--dark-border-light) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+/* Texto do changelog / release notes */
+body.dark-theme .prose,
+body.dark-theme .changelog-body,
+body.dark-theme [class*="changelog"] {
+    color: var(--dark-text-secondary) !important;
+}
+
+body.dark-theme .prose h1, body.dark-theme .prose h2, body.dark-theme .prose h3,
+body.dark-theme .prose strong {
+    color: var(--dark-text-primary) !important;
+}
+
+body.dark-theme .prose code, body.dark-theme .prose pre {
+    background: var(--dark-bg-tertiary) !important;
+    color: #93c5fd !important;
+    border-color: var(--dark-border) !important;
+}
+
+/* Barra de download / progresso no updater */
+body.dark-theme .bg-gray-100.rounded-full {
+    background-color: var(--dark-bg-elevated) !important;
+}
+
+/* ===== GERADOR DE SENHAS — CARDS DE OPÇÃO (fix v3.0.2) =====
+   Agora os cards são gerenciados por JS, mas garantimos que
+   o fundo padrão (desmarcado) seja visível no dark mode */
+
+body.dark-theme [data-option-id] {
+    background: var(--dark-bg-tertiary) !important;
+    border-color: var(--dark-border-light) !important;
+    color: var(--dark-text-primary) !important;
+}
+
+body.dark-theme [data-option-id][data-checked="true"] {
+    /* O JS define o gradiente colorido via style inline.
+       Aqui apenas garantimos que o texto seja legível */
+    color: var(--dark-text-primary) !important;
+}
+
+body.dark-theme [data-option-id] .font-black,
+body.dark-theme [data-option-id] .text-gray-800 {
+    color: var(--dark-text-primary) !important;
+}
+
+body.dark-theme [data-option-id] .text-gray-600,
+body.dark-theme [data-option-id] .text-gray-500 {
+    color: var(--dark-text-muted) !important;
+}
+
+/* ===== TOGGLE SWITCHES — NOTIFICAÇÕES =====
+   Garantir que o fundo do toggle seja visível no dark mode */
+
+body.dark-theme .w-11.h-6.bg-gray-300 {
+    background-color: var(--dark-bg-elevated) !important;
+}
+
+/* ===== HISTÓRICO DE NOTIFICAÇÕES — DARK MODE ===== */
+body.dark-theme .bg-green-50.border-green-200   { background-color: rgba(16,185,129,0.12) !important; border-color: rgba(16,185,129,0.3) !important; }
+body.dark-theme .bg-red-50.border-red-200       { background-color: rgba(239,68,68,0.12)  !important; border-color: rgba(239,68,68,0.3)  !important; }
+body.dark-theme .bg-yellow-50.border-yellow-200 { background-color: rgba(234,179,8,0.12)  !important; border-color: rgba(234,179,8,0.3)  !important; }
+body.dark-theme .bg-blue-50.border-blue-200     { background-color: rgba(59,130,246,0.12) !important; border-color: rgba(59,130,246,0.3) !important; }
+
+/* ===== DASHBOARD — CALENDÁRIO DE ATIVIDADE =====
+   Os novos elementos usam inline style, então o dark mode
+   não interfere. Mas garantimos que o texto seja legível. */
+body.dark-theme .dashboard-time-label {
+    color: var(--dark-text-muted) !important;
 }

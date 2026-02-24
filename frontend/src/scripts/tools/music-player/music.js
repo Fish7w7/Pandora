@@ -375,15 +375,12 @@ const MusicPlayer = {
     updateMiniPlayer() {
         const existingMiniPlayer = document.getElementById('mini-player');
         
-        // Remove mini player existente
         if (existingMiniPlayer) {
             existingMiniPlayer.remove();
         }
         
-        // Se está na página de música, não mostra mini player
         if (Router?.currentRoute === 'music') return;
         
-        // Se tem música, renderiza mini player
         if (this.currentSong) {
             const miniPlayerHTML = this.renderMiniPlayer();
             document.body.insertAdjacentHTML('beforeend', miniPlayerHTML);
@@ -399,7 +396,6 @@ const MusicPlayer = {
         let currentX, currentY, initialX, initialY;
         
         miniPlayer.addEventListener('mousedown', (e) => {
-            // Não arrasta se clicar em botões ou inputs
             if (e.target.closest('button') || e.target.closest('input')) return;
             
             isDragging = true;
@@ -531,7 +527,6 @@ const MusicPlayer = {
             }
         }
         
-        // Atualizar mini player
         this.updateMiniPlayer();
         
         if (Router?.currentRoute === 'music') {
@@ -567,7 +562,6 @@ const MusicPlayer = {
         
         Utils.showNotification?.(`📂 ${playlist.name}`, 'info');
         
-        // Atualizar mini player
         this.updateMiniPlayer();
         
         if (Router?.currentRoute === 'music') {
@@ -606,23 +600,18 @@ const MusicPlayer = {
         
         const progress = (this.audio.currentTime / this.audio.duration) * 100;
         
-        // Progress bar principal
         const progressBar = document.getElementById('progress-bar');
         if (progressBar) progressBar.value = progress || 0;
         
-        // Progress bar mini player (input range)
         const miniProgress = document.getElementById('mini-progress');
         if (miniProgress) miniProgress.value = progress || 0;
         
-        // Progress bar visual do mini player
         const miniProgressBar = document.getElementById('mini-progress-bar');
         if (miniProgressBar) miniProgressBar.style.width = `${progress || 0}%`;
         
-        // Current time
         const currentTimeEl = document.getElementById('current-time');
         if (currentTimeEl) currentTimeEl.textContent = this.formatTime(this.audio.currentTime);
         
-        // Mini player current time
         const miniCurrentTime = document.getElementById('mini-current-time');
         if (miniCurrentTime) miniCurrentTime.textContent = this.formatTime(this.audio.currentTime);
     },
@@ -642,16 +631,13 @@ const MusicPlayer = {
     },
     
     closeMiniPlayer() {
-        // Pausa a música
         if (this.isPlaying) {
             this.togglePlay();
         }
-        // Remove o mini player
         const miniPlayer = document.getElementById('mini-player');
         if (miniPlayer) {
             miniPlayer.remove();
         }
-        // Limpa a música atual
         this.currentSong = null;
     }
 };

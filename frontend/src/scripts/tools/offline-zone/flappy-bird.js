@@ -1,7 +1,6 @@
-// ============================================
-// 🐱 FLAPPY NYAN - NyanTools にゃん~
+// FLAPPY NYAN - NyanTools にゃん~
 // Versão Melhorada v3.0
-// ============================================
+
 
 const FlappyBird = {
     canvas: null,

@@ -1,5 +1,5 @@
 /* ========================================
-   DENSITY FIX v2.7.1 - SELETORES ESPECÍFICOS
+   DENSITY v2.7.1 - SELETORES ESPECÍFICOS
    Reduz zoom excessivo e melhora densidade
    ======================================== */
 
@@ -253,11 +253,7 @@ p {
     width: 6px !important;
     height: 6px !important;
 }
-
-/* ===== ALTERNATIVA: ZOOM GLOBAL ===== */
-/* Se os ajustes específicos não funcionarem bem,
-   descomente a linha abaixo para zoom uniforme */
-   
+  
 body main {
     zoom: 0.85;
 }

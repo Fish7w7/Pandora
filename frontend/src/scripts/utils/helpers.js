@@ -1,28 +1,19 @@
-// 🛠️ UTILITÁRIOS GLOBAIS - NyanTools にゃん~
+// UTILITÁRIOS GLOBAIS - NyanTools にゃん~
 // Versão Otimizada v2.0
 
 const Utils = {
-    // Configurações de notificação
     notificationConfig: {
         success: { bg: 'from-green-400 to-emerald-500', icon: '✔', iconBg: 'bg-white/30' },
         error: { bg: 'from-red-400 to-pink-500', icon: '✕', iconBg: 'bg-white/30' },
         warning: { bg: 'from-amber-400 to-orange-500', icon: '!', iconBg: 'bg-white/30' },
         info: { bg: 'from-blue-400 to-cyan-500', icon: 'i', iconBg: 'bg-white/30' }
     },
-    
-    
-    // CLIPBOARD
-    
-    
+        
     copyToClipboard(text) {
         navigator.clipboard.writeText(text)
             .then(() => this.showNotification('✅ Copiado!', 'success'))
             .catch(() => this.showNotification('❌ Erro ao copiar', 'error'));
     },
-    
-    
-    // NOTIFICAÇÕES
-    
     
     showNotification(message, type = 'info') {
         const config = this.notificationConfig[type];
@@ -30,10 +21,33 @@ const Utils = {
             console.error('Tipo de notificação inválido:', type);
             return;
         }
+
+        try {
+            const historyEnabled = this.loadData('notification_history_enabled') !== false;
+            if (historyEnabled) {
+                const history = this.loadData('notification_history') || [];
+                history.push({
+                    message,
+                    type,
+                    time: new Date().toLocaleString('pt-BR', {
+                        day: '2-digit', month: '2-digit',
+                        hour: '2-digit', minute: '2-digit'
+                    })
+                });
+                if (history.length > 50) history.splice(0, history.length - 50);
+                this.saveData('notification_history', history);
+            }
+        } catch (e) { /* silencioso */ }
+
+        const globalEnabled = this.loadData('notifications_enabled') !== false;
+        if (!globalEnabled) return;
         
+        const typeEnabled = this.loadData('notif_type_' + type) !== false;
+        if (!typeEnabled) return;
+
         const container = this.getNotificationContainer();
         const notification = this.createNotification(message, config);
-        
+
         container.appendChild(notification);
         this.animateNotificationIn(notification);
         this.scheduleNotificationRemoval(notification, container);

@@ -1,10 +1,7 @@
-// ============================================
-// 📤 TERMO - Wordle em Português にゃん~
+// TERMO - Wordle em Português にゃん~
 // Versão Otimizada v2.0
-// ============================================
 
 const Termo = {
-    // Lista de palavras
     wordList: [
         'FORCA', 'TEMPO', 'MUNDO', 'GATOS', 'JOGOS', 'LIVRO', 'PRAIA',
         'CARRO', 'FELIZ', 'AMIGO', 'PAPEL', 'TINTA', 'VERDE', 'PRETO',

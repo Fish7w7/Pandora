@@ -10,7 +10,7 @@ const AIAssistant = {
     
     // Configurações do modelo
     config: {
-        model: 'gemini-2.5-flash-preview-09-2025',
+        model: 'gemini-3-flash-preview',
         apiVersion: 'v1beta',
         safetySettings: [
             { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },

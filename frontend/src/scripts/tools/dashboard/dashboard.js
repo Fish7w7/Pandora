@@ -94,7 +94,7 @@ const Dashboard = {
         const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
         const today = new Date();
         const currentDay = today.getDay();
-        
+
         const weeklyUsage = [0, 0, 0, 0, 0, 0, 0];
         Object.keys(this.stats.weeklyActivity).forEach(key => {
             const dayIndex = parseInt(key);
@@ -102,86 +102,205 @@ const Dashboard = {
                 weeklyUsage[dayIndex] = this.stats.weeklyActivity[key] || 0;
             }
         });
-        
+
         const maxUsage = Math.max(...weeklyUsage, 1);
         const totalWeek = weeklyUsage.reduce((a, b) => a + b, 0);
-        
+
+        const bars = weekDays.map((day, index) => {
+            const usage = weeklyUsage[index];
+            const isToday = currentDay === index;
+            const hasData = usage > 0;
+
+            // Altura proporcional (mínimo 4px quando há dado, 3% de placeholder)
+            const heightPct = hasData ? Math.max((usage / maxUsage) * 100, 8) : 3;
+
+            // Cores via inline style — imune ao dark theme CSS
+            let barBg, barOpacity;
+            if (isToday && hasData) {
+                barBg = 'linear-gradient(to top, #a855f7, #ec4899)';
+                barOpacity = '1';
+            } else if (isToday) {
+                barBg = 'linear-gradient(to top, #a855f7, #ec4899)';
+                barOpacity = '0.25';
+            } else if (hasData) {
+                barBg = 'linear-gradient(to top, rgba(168,85,247,0.7), rgba(236,72,153,0.7))';
+                barOpacity = '1';
+            } else {
+                barBg = 'rgba(255,255,255,0.08)';
+                barOpacity = '1';
+            }
+
+            const timeLabel = hasData
+                ? `<div style="font-size:10px;font-weight:700;color:#d1d5db;margin-bottom:4px;text-align:center;">${this.formatTime(usage)}</div>`
+                : '';
+
+            const dayColor  = isToday ? '#a855f7' : '#9ca3af';
+            const dotStyle  = isToday ? `<div style="width:5px;height:5px;border-radius:50%;background:#a855f7;margin:3px auto 0;"></div>` : '';
+
+            return `
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
+                    ${timeLabel}
+                    <div style="width:100%;height:${heightPct}%;background:${barBg};opacity:${barOpacity};border-radius:6px 6px 0 0;transition:all 0.3s;"
+                         onmouseenter="this.style.opacity='0.75'"
+                         onmouseleave="this.style.opacity='${barOpacity}'"
+                         title="${day}: ${this.formatTime(usage)}">
+                    </div>
+                    <div style="margin-top:8px;font-size:12px;font-weight:700;color:${dayColor};text-align:center;">
+                        ${day}${dotStyle}
+                    </div>
+                </div>`;
+        }).join('');
+
+        const totalLabel = totalWeek > 0
+            ? `<div style="text-align:center;font-size:12px;font-weight:600;color:#9ca3af;margin-top:10px;">Total esta semana: <span style="color:#c084fc;font-weight:800;">${this.formatTime(totalWeek)}</span></div>`
+            : `<div style="text-align:center;font-size:12px;color:#6b7280;margin-top:10px;">Nenhuma atividade esta semana</div>`;
+
         return `
-            <div class="mb-6">
-                <div class="flex items-end justify-between gap-2 h-48">
-                    ${weekDays.map((day, index) => {
-                        const usage = weeklyUsage[index];
-                        const height = maxUsage > 0 ? (usage / maxUsage) * 100 : 0;
-                        const isToday = currentDay === index;
-                        
-                        return `
-                            <div class="flex-1 flex flex-col items-center gap-2">
-                                <div class="w-full bg-gradient-to-t from-purple-500 to-pink-500 rounded-t-lg transition-all hover:opacity-80 ${height === 0 ? 'opacity-20' : ''}" 
-                                     style="height: ${Math.max(height, 5)}%"
-                                     title="${usage} minutos">
-                                </div>
-                                <div class="text-xs font-bold ${isToday ? 'text-purple-600' : 'text-gray-600'}">
-                                    ${day}
-                                    ${isToday ? '<div class="w-1 h-1 bg-purple-600 rounded-full mx-auto mt-1"></div>' : ''}
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
+            <div style="margin-bottom:24px;">
+                <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px;height:180px;">
+                    ${bars}
                 </div>
-                <div class="text-center text-xs text-gray-500 mt-2">
-                    Total esta semana: ${this.formatTime(totalWeek)}
-                </div>
+                ${totalLabel}
             </div>
         `;
     },
     
     renderActivityCalendar() {
         const today = new Date();
-        const last30Days = [];
+        const DAYS_LABEL = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+        const isDark = document.body.classList.contains('dark-theme');
+
+        // Cores adaptadas ao tema
+        const c = isDark ? {
+            border:      'rgba(255,255,255,0.07)',
+            title:       '#e5e7eb',
+            label:       '#9ca3af',
+            badge_bg:    'rgba(168,85,247,0.2)',
+            badge_color: '#c084fc',
+            badge_bdr:   'rgba(168,85,247,0.3)',
+            cell_empty:  'rgba(255,255,255,0.06)',
+            cell_border: '1px solid rgba(255,255,255,0.1)',
+            cell_future: 'rgba(255,255,255,0.03)',
+        } : {
+            border:      'rgba(0,0,0,0.07)',
+            title:       '#374151',
+            label:       '#6b7280',
+            badge_bg:    'rgba(168,85,247,0.12)',
+            badge_color: '#7c3aed',
+            badge_bdr:   'rgba(168,85,247,0.25)',
+            cell_empty:  '#f3f4f6',
+            cell_border: '1px solid #e5e7eb',
+            cell_future: '#f9fafb',
+        };
         
-        for (let i = 29; i >= 0; i--) {
-            const date = new Date(today);
-            date.setDate(date.getDate() - i);
-            last30Days.push(date);
+        const todayDow = today.getDay(); // 0=Dom ... 6=Sáb
+        const daysBack = 4 * 7 + todayDow; // dias até o início da primeira semana
+        const startDate = new Date(today);
+        startDate.setDate(today.getDate() - daysBack);
+
+        // Gerar células: 5 semanas × 7 dias
+        const totalCells = 5 * 7;
+        const cells = [];
+        for (let i = 0; i < totalCells; i++) {
+            const d = new Date(startDate);
+            d.setDate(startDate.getDate() + i);
+            cells.push(d);
         }
-        
-        const chunks = [];
-        for (let i = 0; i < last30Days.length; i += 10) {
-            chunks.push(last30Days.slice(i, i + 10));
+
+        const weeks = [];
+        for (let w = 0; w < 5; w++) {
+            weeks.push(cells.slice(w * 7, w * 7 + 7));
         }
-        
+
+        // Calcular dias ativos
+        let activeDays = 0;
+        for (const d of cells) {
+            const key = d.toISOString().split('T')[0];
+            if ((this.stats.dailyActivity && this.stats.dailyActivity[key]) > 0) activeDays++;
+        }
+
+        const weekDayHeaders = DAYS_LABEL.map(l =>
+            `<div style="text-align:center;font-size:11px;font-weight:700;color:${c.label};width:28px">${l}</div>`
+        ).join('');
+
+        const gridRows = weeks.map(week => {
+            const cellsHtml = week.map(date => {
+                const dateKey = date.toISOString().split('T')[0];
+                const mins = (this.stats.dailyActivity && this.stats.dailyActivity[dateKey]) || 0;
+                const hasActivity = mins > 0;
+                const isToday = date.toDateString() === today.toDateString();
+                const isFuture = date > today;
+
+                let bg, ring = '', opacity = '';
+                if (isFuture) {
+                    bg = `background:${c.cell_future};`;
+                    opacity = 'opacity:0.4;';
+                } else if (isToday && hasActivity) {
+                    bg = 'background:linear-gradient(135deg,#a855f7,#ec4899);';
+                    ring = 'outline:2.5px solid #ec4899;outline-offset:2px;';
+                } else if (isToday) {
+                    bg = 'background:rgba(168,85,247,0.2);';
+                    ring = 'outline:2.5px solid #a855f7;outline-offset:2px;';
+                } else if (hasActivity) {
+                    bg = 'background:rgba(34,197,94,0.85);';
+                } else {
+                    bg = `background:${c.cell_empty};`;
+                }
+
+                const titleDate = date.toLocaleDateString('pt-BR', { day:'2-digit', month:'short' });
+                const titleMsg = isFuture ? titleDate : hasActivity ? `${titleDate} • ${this.formatTime(mins)}` : `${titleDate} • sem atividade`;
+
+                return `<div style="width:28px;height:28px;border-radius:6px;${bg}${ring}${opacity}${!hasActivity && !isToday && !isFuture ? c.cell_border : ''}cursor:pointer;transition:transform 0.15s;"
+                             onmouseenter="this.style.transform='scale(1.25)'"
+                             onmouseleave="this.style.transform='scale(1)'"
+                             title="${titleMsg}"></div>`;
+            }).join('');
+            return `<div style="display:flex;gap:4px;">${cellsHtml}</div>`;
+        }).join('');
+
         return `
-            <div>
-                <h3 class="text-sm font-bold text-gray-700 mb-3">Últimos 30 dias</h3>
-                <div class="space-y-2">
-                    ${chunks.map(chunk => `
-                        <div class="flex gap-1">
-                            ${chunk.map(date => {
-                                const dateKey = date.toISOString().split('T')[0];
-                                const hasActivity = (this.stats.dailyActivity && this.stats.dailyActivity[dateKey]) > 0;
-                                const isToday = date.toDateString() === today.toDateString();
-                                
-                                const cssClass = isToday && hasActivity ? 'bg-green-400 ring-2 ring-green-600' :
-                                               isToday && !hasActivity ? 'bg-gray-200 ring-2 ring-purple-500' :
-                                               hasActivity ? 'bg-green-400' : 'bg-gray-200';
-                                
-                                return `
-                                    <div class="w-6 h-6 rounded ${cssClass} hover:scale-110 transition-transform cursor-pointer"
-                                         title="${date.toLocaleDateString('pt-BR')}${hasActivity ? ' - Ativo' : ''}">
-                                    </div>
-                                `;
-                            }).join('')}
-                        </div>
-                    `).join('')}
-                </div>
-                <div class="flex items-center gap-4 mt-3 text-xs text-gray-600">
-                    <div class="flex items-center gap-1">
-                        <div class="w-3 h-3 bg-gray-200 rounded"></div>
-                        <span>Sem uso</span>
+            <div style="margin-top:24px;padding-top:20px;border-top:1px solid ${c.border}">
+                <!-- Header -->
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <span style="font-size:15px;font-weight:900;color:${c.title};letter-spacing:0.04em">HISTÓRICO DE USO</span>
+                        <span style="font-size:11px;font-weight:600;background:${c.badge_bg};color:${c.badge_color};padding:3px 10px;border-radius:20px;border:1px solid ${c.badge_bdr}">35 dias</span>
                     </div>
-                    <div class="flex items-center gap-1">
-                        <div class="w-3 h-3 bg-green-400 rounded"></div>
-                        <span>Ativo</span>
+                    <div style="display:flex;gap:20px;">
+                        <div style="text-align:center;">
+                            <div style="font-size:18px;font-weight:900;color:#a855f7;">${activeDays}</div>
+                            <div style="font-size:10px;color:${c.label};font-weight:600;">DIAS ATIVOS</div>
+                        </div>
+                        <div style="text-align:center;">
+                            <div style="font-size:18px;font-weight:900;color:#ec4899;">${this.stats.dailyStreak}</div>
+                            <div style="font-size:10px;color:${c.label};font-weight:600;">SEQUÊNCIA</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Header dias da semana -->
+                <div style="display:flex;gap:4px;margin-bottom:4px;">
+                    ${weekDayHeaders}
+                </div>
+
+                <!-- Grid -->
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                    ${gridRows}
+                </div>
+
+                <!-- Legenda -->
+                <div style="display:flex;align-items:center;gap:16px;margin-top:12px;flex-wrap:wrap;">
+                    <div style="display:flex;align-items:center;gap:5px;">
+                        <div style="width:11px;height:11px;border-radius:3px;background:${c.cell_empty};border:${c.cell_border}"></div>
+                        <span style="font-size:11px;color:${c.label}">Sem uso</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:5px;">
+                        <div style="width:11px;height:11px;border-radius:3px;background:rgba(34,197,94,0.85)"></div>
+                        <span style="font-size:11px;color:${c.label}">Ativo</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:5px;">
+                        <div style="width:11px;height:11px;border-radius:3px;background:linear-gradient(135deg,#a855f7,#ec4899)"></div>
+                        <span style="font-size:11px;color:${c.label}">Hoje</span>
                     </div>
                 </div>
             </div>
@@ -270,7 +389,9 @@ const Dashboard = {
         
         delete normalized.home;
         delete normalized.dashboard;
-        
+        delete normalized.settings;
+        delete normalized.updates;
+
         return normalized;
     },
     

@@ -1,7 +1,5 @@
-// ============================================
-// ⚙️ SISTEMA DE CONFIGURAÇÕES - NyanTools にゃん~
+// SISTEMA DE CONFIGURAÇÕES - NyanTools にゃん~
 // Versão Renovada v3.0
-// ============================================
 
 // ============================================
 // THEME MANAGER
@@ -50,8 +48,6 @@ const ThemeManager = {
     // Atualiza banner + cards sem re-render completo
     _refreshThemeCards() {
         const t = this.themes[this.currentTheme];
-
-        // 1. Atualizar o banner do tema ativo
         const banner = document.getElementById('theme-banner');
         if (banner && t) {
             banner.className = `bg-gradient-to-r ${t.gradient} p-6 text-white`;
@@ -63,7 +59,6 @@ const ThemeManager = {
             if (descEl)  descEl.textContent  = t.desc;
         }
 
-        // 2. Atualizar badges dos cards
         document.querySelectorAll('[data-theme-card]').forEach(card => {
             const id = card.getAttribute('data-theme-card');
             const isActive = id === this.currentTheme;
@@ -268,10 +263,6 @@ const Settings = {
     },
 
     // ============================================
-    // TAB: NOTIFICAÇÕES
-    // ============================================
-
-    // ============================================
     // TAB: ATUALIZAÇÕES
     // ============================================
 
@@ -291,27 +282,99 @@ const Settings = {
     renderNotifications() {
         const notifEnabled = Utils.loadData('notifications_enabled') !== false;
         const soundEnabled = Utils.loadData('notification_sound') !== false;
+        const historyEnabled = Utils.loadData('notification_history_enabled') !== false;
+        const history = Utils.loadData('notification_history') || [];
+
+        const notifTypes = [
+            { id: 'notif_type_success', label: 'Confirmações',  desc: 'Ações concluídas com sucesso', icon: '✅' },
+            { id: 'notif_type_error',   label: 'Erros',         desc: 'Falhas e erros do sistema',    icon: '❌' },
+            { id: 'notif_type_info',    label: 'Informações',   desc: 'Dicas e avisos gerais',        icon: 'ℹ️' },
+            { id: 'notif_type_warning', label: 'Alertas',       desc: 'Situações que requerem atenção', icon: '⚠️' },
+        ];
+
+        const typeRows = notifTypes.map(t => {
+            const enabled = Utils.loadData(t.id) !== false;
+            return this._renderToggleRow(t.label, t.desc, t.icon, enabled && notifEnabled,
+                `Settings.toggleNotifType('${t.id}', this.checked)`, !notifEnabled);
+        }).join('');
+
+        const iconMap   = { success: '✅', error: '❌', warning: '⚠️', info: 'ℹ️' };
+        const borderMap = { success: 'border-green-200', error: 'border-red-200', warning: 'border-yellow-200', info: 'border-blue-200' };
+        const bgMap     = { success: 'bg-green-50',      error: 'bg-red-50',      warning: 'bg-yellow-50',     info: 'bg-blue-50'    };
+
+        const historyItems = !historyEnabled
+            ? `<div class="text-center py-6 text-gray-400">
+                   <div class="text-4xl mb-2">🔕</div>
+                   <p class="text-sm">Histórico desativado nas configurações</p>
+               </div>`
+            : history.length === 0
+            ? `<div class="text-center py-6 text-gray-400">
+                   <div class="text-4xl mb-2">🔕</div>
+                   <p class="text-sm">Nenhuma notificação no histórico</p>
+               </div>`
+            : [...history].reverse().slice(0, 20).map(n => `
+                <div class="flex items-start gap-3 px-3 py-2.5 rounded-xl border ${bgMap[n.type] || 'bg-gray-50'} ${borderMap[n.type] || 'border-gray-200'}">
+                    <span class="text-base mt-0.5">${iconMap[n.type] || '🔔'}</span>
+                    <div class="flex-1 min-w-0">
+                        <p class="text-sm font-semibold text-gray-800 truncate">${n.message}</p>
+                        <p class="text-xs text-gray-500 mt-0.5">${n.time}</p>
+                    </div>
+                </div>`).join('');
 
         return `
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
-                <div class="flex items-center gap-3 mb-2">
-                    <span class="text-2xl">🔔</span>
-                    <div>
-                        <h3 class="font-black text-gray-800">Notificações</h3>
-                        <p class="text-sm text-gray-500">Configure os alertas do aplicativo</p>
+            <div class="space-y-5">
+                <!-- Configuração principal -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
+                    <div class="flex items-center gap-3 mb-2">
+                        <span class="text-2xl">🔔</span>
+                        <div>
+                            <h3 class="font-black text-gray-800">Notificações</h3>
+                            <p class="text-sm text-gray-500">Configure os alertas do aplicativo</p>
+                        </div>
+                    </div>
+                    ${this._renderToggleRow('Ativar Notificações', 'Exibir alertas de ações e eventos', '📬', notifEnabled, 'Settings.toggleNotifications(this.checked)')}
+                    ${this._renderToggleRow('Som de Notificação', 'Reproduzir som ao exibir alertas', '🔊', soundEnabled, 'Settings.toggleSound(this.checked)', !notifEnabled)}
+                    ${this._renderToggleRow('Salvar Histórico', 'Registrar notificações no histórico recente', '📋', historyEnabled, 'Settings.toggleNotifHistory(this.checked)')}
+                    <div class="pt-2 border-t border-gray-100 flex gap-3">
+                        <button onclick="Settings.testNotification()"
+                                ${!notifEnabled ? 'disabled' : ''}
+                                class="flex-1 py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-bold hover:shadow-lg hover:scale-[1.01] active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2">
+                            <span>🧪</span>
+                            <span>Testar Notificação</span>
+                        </button>
+                        <button onclick="Settings.clearNotificationHistory()"
+                                ${history.length === 0 || !historyEnabled ? 'disabled' : ''}
+                                class="px-4 py-3 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-semibold transition-all disabled:opacity-40 disabled:cursor-not-allowed text-sm flex items-center gap-2">
+                            <span>🗑️</span>
+                            <span>Limpar histórico</span>
+                        </button>
                     </div>
                 </div>
 
-                ${this._renderToggleRow('Ativar Notificações', 'Exibir alertas de ações e eventos', '📬', notifEnabled, 'Settings.toggleNotifications(this.checked)')}
-                ${this._renderToggleRow('Som de Notificação', 'Reproduzir som ao exibir alertas', '🔊', soundEnabled, 'Settings.toggleSound(this.checked)', !notifEnabled)}
+                <!-- Tipos de alerta -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center gap-3 mb-4">
+                        <span class="text-2xl">🎛️</span>
+                        <div>
+                            <h3 class="font-black text-gray-800">Tipos de Alerta</h3>
+                            <p class="text-sm text-gray-500">Escolha quais tipos de notificação exibir</p>
+                        </div>
+                    </div>
+                    <div class="space-y-2">${typeRows}</div>
+                </div>
 
-                <div class="pt-2 border-t border-gray-100">
-                    <button onclick="Settings.testNotification()"
-                            ${!notifEnabled ? 'disabled' : ''}
-                            class="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-xl font-bold hover:shadow-lg hover:scale-[1.01] active:scale-95 transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 flex items-center justify-center gap-2">
-                        <span>🧪</span>
-                        <span>Testar Notificação</span>
-                    </button>
+                <!-- Histórico -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">📋</span>
+                            <div>
+                                <h3 class="font-black text-gray-800">Histórico Recente</h3>
+                                <p class="text-sm text-gray-500">Últimas ${history.length} notificações</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-2 max-h-56 overflow-y-auto">${historyItems}</div>
                 </div>
             </div>
         `;
@@ -609,7 +672,32 @@ const Settings = {
     },
 
     testNotification() {
-        Utils.showNotification?.('🐱 Esta é uma notificação de teste にゃん~', 'success');
+        Utils.showNotification('🐱 Esta é uma notificação de teste にゃん~', 'success');
+    },
+
+    toggleNotifType(typeId, enabled) {
+        Utils.saveData(typeId, enabled);
+    },
+
+    toggleNotifHistory(enabled) {
+        Utils.saveData('notification_history_enabled', enabled);
+        Utils.showNotification(enabled ? '📋 Histórico ativado' : '📋 Histórico desativado', 'info');
+        Router?.render();
+    },
+
+    clearNotificationHistory() {
+        Utils.saveData('notification_history', []);
+        Router?.render();
+    },
+
+    toggleNotifType(typeId, enabled) {
+        Utils.saveData(typeId, enabled);
+        // Salva silenciosamente sem re-render (evita reset dos outros toggles)
+    },
+
+    clearNotificationHistory() {
+        Utils.saveData('notification_history', []);
+        Router?.render();
     },
 
     _getStorageKB() {
@@ -690,7 +778,7 @@ const Settings = {
     },
 
     loadSettings() {
-        // Carregado sob demanda via Utils.loadData no render
+
     }
 };
 

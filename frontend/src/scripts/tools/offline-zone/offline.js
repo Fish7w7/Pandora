@@ -1,7 +1,6 @@
-// ============================================
-// 📶 ZONA OFFLINE - NyanTools にゃん~
+// ZONA OFFLINE - NyanTools にゃん~
 // Versão Otimizada v2.0
-// ============================================
+
 const OfflineZone = {
     currentGame: null,
     

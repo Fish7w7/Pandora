@@ -4,7 +4,7 @@
 */
 
 const AutoUpdater = {
-    currentVersion: '3.0.1',
+    currentVersion: '3.0.2',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -21,10 +21,29 @@ const AutoUpdater = {
     // Array de changelog para updater.js
 changelog: [
     {
-        version: '3.0.1',
-        date: '2026-02-21T12:00:00',
+        version: '3.0.2',
+        date: '2026-02-22T12:00:00',
         label: 'Atual',
         labelColor: 'bg-green-500',
+        author: 'Clara',
+        changes: [
+            { type: '✨', text: 'Dashboard: Histórico de Uso redesenhado com grid 5×7 e alinhamento correto por dia da semana' },
+            { type: '✨', text: 'Dashboard: Gráfico semanal com barras proporcionais e labels de tempo visíveis no dark mode' },
+            { type: '✨', text: 'Dashboard: Sequência do histórico sincronizada com o card de stats' },
+            { type: '✨', text: 'Dashboard: Configurações e Atualizações removidas de Ferramentas Mais Usadas' },
+            { type: '✨', text: 'Notificações: Tipos de Alerta com toggles individuais (Confirmações, Erros, Info, Alertas)' },
+            { type: '✨', text: 'Notificações: Histórico Recente com últimas 20 entradas' },
+            { type: '✨', text: 'Notificações: Toggle para ativar/desativar salvamento do histórico' },
+            { type: '✨', text: 'Notificações: Botão para limpar histórico' },
+            { type: '✨', text: 'Gerador de Senhas: Cards com visual idêntico em light e dark mode' },
+            { type: '✨', text: 'Electron: Menu padrão removido (File/Edit/View/Window/Help)' }
+        ]
+    },
+    {
+        version: '3.0.1',
+        date: '2026-02-21T12:00:00',
+        label: null,
+        labelColor: '',
         author: 'Clara',
         changes: [
             { type: '🐛', text: 'Cobrinha: spam de game over ao reiniciar corrigido' },
@@ -37,28 +56,6 @@ changelog: [
             { type: '🐛', text: 'Tarefas: classes de prioridade do Tailwind corrigidas (eram dinâmicas)' },
             { type: '🐛', text: 'Tarefas: prioridade padrão "média" ao criar nova tarefa' },
             { type: '🐛', text: 'Layout: conflito entre Tailwind hidden e CSS flex do #main-app corrigido' }
-        ]
-    },
-    {
-        version: '3.0.0',
-        date: '2026-02-20T12:00:00',
-        label: null,
-        labelColor: '',
-        author: 'Gabriel',
-        changes: [
-            { type: '🚀', text: 'MAJOR UPDATE: Redesign completo com breaking changes' },
-            { type: '📊', text: 'Dashboard com tracking inteligente e estatísticas' },
-            { type: '🎮', text: 'Jogo 2048 adicionado com dark mode completo' },
-            { type: '⌨️', text: 'Atalhos de teclado globais (Ctrl+1-9, Ctrl+/)' },
-            { type: '🎨', text: 'Settings.js reescrito v3.0 (Syne/DM Sans)' },
-            { type: '🎨', text: 'Updater.js reescrito v3.0 (timeline vertical)' },
-            { type: '🎨', text: 'Preload.js reescrito v3.0 (código -22%)' },
-            { type: '🎨', text: 'Loading screen: animação glow pulsante' },
-            { type: '🎨', text: 'Login screen: glassmorphism + orbs flutuantes' },
-            { type: '🐛', text: 'Flappy Bird: spam de game over corrigido' },
-            { type: '🐛', text: 'Dashboard: calendário usa data YYYY-MM-DD' },
-            { type: '🐛', text: 'Termo: salva melhor tentativa corretamente' },
-            { type: '🐛', text: '2048: tiles 2 e 4 visíveis no dark mode' }
         ]
     },
 ],

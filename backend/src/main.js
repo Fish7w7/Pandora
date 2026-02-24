@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs').promises;
 const fsSync = require('fs');
@@ -31,7 +31,6 @@ performanceFlags.forEach(flag => app.commandLine.appendSwitch(flag));
 let mainWindow = null;
 let isQuitting = false;
 
-// Cache para ícones
 const iconCache = new Map();
 
 // CRIAÇÃO DA JANELA (OTIMIZADA)
@@ -69,10 +68,13 @@ function createWindow() {
 
     const indexPath = path.join(__dirname, '../../frontend/public/index.html');
     
-    console.log(' NyanTools v3.0.0 (Phoenix Update)');
+    console.log(' NyanTools v3.0.2 (Phoenix Update)');
     console.log(' Diretório:', __dirname);
     console.log(' Carregando:', indexPath);
     
+    // Remove menubar padrão do Electron (File, Edit, View, Window, Help)
+    Menu.setApplicationMenu(null);
+
     mainWindow.loadFile(indexPath);
 
     // Mostrar janela quando pronta (com delay mínimo)
@@ -82,7 +84,7 @@ function createWindow() {
                 mainWindow.show();
                 console.log(' NyanTools iniciado! にゃん~');
             }
-        }, 50); // Reduzido de 100ms para 50ms
+        }, 50); 
     });
 
     // DevTools apenas em desenvolvimento
@@ -96,7 +98,6 @@ function createWindow() {
     
     mainWindow.on('close', (e) => {
         if (!isQuitting) {
-            // Permitir que a janela feche normalmente
         }
     });
     
@@ -109,17 +110,16 @@ function createWindow() {
         }
     });
 
-    // Performance: limpar cache periodicamente de forma assíncrona e segura
+    // limpar cache periodicamente de forma assíncrona e segura
     setInterval(async () => {
         if (mainWindow && !mainWindow.isDestroyed()) {
             try {
                 await mainWindow.webContents.session.clearCache();
                 console.log(' Cache limpo');
             } catch (err) {
-                // Ignora erros silenciosos (janela pode ter sido destruída)
             }
         }
-    }, 600000); // A cada 10 minutos
+    }, 600000);
 }
 
 // GERENCIAMENTO DE ÍCONES (CACHED)
@@ -149,7 +149,7 @@ function getIconPath() {
     return iconPath;
 }
 
-// SISTEMA DE AUTO-UPDATE (OTIMIZADO)
+// SISTEMA DE AUTO-UPDATE
 
 // Rate limiting para evitar requests excessivos
 let lastUpdateCheck = 0;
@@ -343,7 +343,7 @@ ipcMain.handle('open-downloads-folder', async () => {
 // LIFECYCLE DO APP
 
 app.whenReady().then(() => {
-    console.log(' NyanTools v3.0.0 - Phoenix Update');
+    console.log(' NyanTools v3.0.2 - Phoenix Update');
     console.log(' App path:', app.getAppPath());
     console.log(' Plataforma:', process.platform);
     console.log(' Downloads:', app.getPath('downloads'));

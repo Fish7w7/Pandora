@@ -1,13 +1,9 @@
-// ============================================
 // PRELOAD.JS — Ponte segura Electron ↔ Frontend
 // NyanTools にゃん~ v3.0
-// ============================================
 
 const { contextBridge, ipcRenderer } = require('electron');
 
-// ============================================
 // VALIDAÇÕES DE SEGURANÇA
-// ============================================
 
 /**
  * Aceita apenas URLs HTTPS do GitHub
@@ -30,7 +26,7 @@ function isValidUrl(url) {
  */
 function isValidFileName(fileName) {
     if (typeof fileName !== 'string' || fileName.length === 0 || fileName.length > 255) return false;
-    if (/[/\\.]\./.test(fileName)) return false; // path traversal
+    if (/[/\\.]\./.test(fileName)) return false;
     const validExts = ['.exe', '.dmg', '.AppImage', '.deb', '.rpm'];
     return validExts.some(ext => fileName.toLowerCase().endsWith(ext));
 }
@@ -43,9 +39,7 @@ function isValidFilePath(filePath) {
     return !filePath.replace(/\\/g, '/').includes('/../');
 }
 
-// ============================================
 // THROTTLE UTILITÁRIO
-// ============================================
 
 /**
  * Throttle genérico — evita flood de callbacks
@@ -62,9 +56,7 @@ function throttle(fn, ms = 100) {
     };
 }
 
-// ============================================
 // IPC HELPER — wrapper seguro com try/catch
-// ============================================
 
 async function invoke(channel, ...args) {
     try {
@@ -75,9 +67,7 @@ async function invoke(channel, ...args) {
     }
 }
 
-// ============================================
 // API EXPOSTA AO FRONTEND
-// ============================================
 
 try {
     contextBridge.exposeInMainWorld('electronAPI', {
@@ -134,7 +124,7 @@ try {
         /**
          * Registra um listener de progresso de download com throttle automático.
          * @param {function} callback  Recebe { progress, downloadedBytes, totalBytes }
-         * @returns {function} Chame para cancelar o listener
+         * @returns {function} 
          */
         onDownloadProgress: (callback) => {
             if (typeof callback !== 'function') {
@@ -145,7 +135,6 @@ try {
             const throttled = throttle(callback, 100);
             ipcRenderer.on('download-progress', throttled);
 
-            // Retorna cleanup function
             return () => ipcRenderer.removeListener('download-progress', throttled);
         },
 
@@ -161,7 +150,6 @@ try {
     console.log('✅ [Preload v3.0] API exposta com sucesso');
 
 } catch (error) {
-    // Falha crítica: expõe API mínima para o frontend não quebrar completamente
     console.error('❌ [Preload] ERRO CRÍTICO:', error);
     try {
         contextBridge.exposeInMainWorld('electronAPI', {
@@ -174,9 +162,7 @@ try {
     }
 }
 
-// ============================================
 // CLEANUP
-// ============================================
 
 window.addEventListener('beforeunload', () => {
     ipcRenderer.removeAllListeners('download-progress');

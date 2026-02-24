@@ -1,7 +1,7 @@
-/* ========================================
+/* 
    ROUTER.JS v3.0.0
    Sistema de Roteamento com Dashboard e 2048
-   ======================================== */
+ */
 
 const Router = {
     currentRoute: 'home',
@@ -56,7 +56,6 @@ const Router = {
                     setTimeout(() => window.Dashboard.init(), 100);
                 }
             } else {
-                // Fallback para home antiga se Dashboard não existir
                 container.innerHTML = this.renderHome();
             }
             return;
@@ -124,7 +123,7 @@ const Router = {
         `;
     },
     
-    // Renderizar card de tool (otimizado)
+    // Renderizar card de tool
     renderToolCard(tool) {
         return `
             <div class="tool-card bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transform hover:scale-105 transition-all"
@@ -145,7 +144,7 @@ const Router = {
                     <div>
                         <h3 class="text-2xl font-bold mb-2">💡 Dica do Dia にゃん~</h3>
                         <p>Use o <strong>Gerador de Senhas</strong> para criar senhas seguras e únicas para cada site! 🔐✨</p>
-                        <p class="mt-2 text-sm text-purple-100">Novo na v3.0.1: Jogue <strong>2048</strong> na Zona Offline! 🎮</p>
+                        <p class="mt-2 text-sm text-purple-100">Novo na v3.0.2: Jogue <strong>2048</strong> na Zona Offline! 🎮</p>
                         <p class="mt-2 text-sm text-purple-100">🎵 <strong>Música em background!</strong> Inicie uma música e continue navegando nas outras abas!</p>
                         <p class="mt-2 text-sm text-purple-100">⌨️ <strong>Atalhos de teclado!</strong> Pressione Ctrl+/ para ver todos os comandos!</p>
                     </div>

@@ -12,7 +12,7 @@ const MiniGame = {
     isPlaying: false,
     isPaused: false,
     _keydownHandler: null,
-    _isGameOver: false, // NOVO: flag para evitar spam
+    _isGameOver: false,
     
     // Configurações do jogo
     config: {
@@ -234,7 +234,7 @@ const MiniGame = {
     },
     
     resetGame() {
-        this.config.speed = 100; // FIX: Garante que a velocidade volte ao normal
+        this.config.speed = 100;
         this.snake = [
             { x: 10, y: 10 },
             { x: 9, y: 10 },
@@ -251,7 +251,6 @@ const MiniGame = {
     },
     
     startGame() {
-        // FIX: Sempre reseta o estado da partida antes de (re)iniciar
         this.resetGame();
         
         this.isPlaying = true;

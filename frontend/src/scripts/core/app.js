@@ -1,10 +1,10 @@
-/* ========================================
+/* 
    APP.JS  v3.0.0
    Core da Aplicação com Dashboard e Tracking
-   ======================================== */
+ */
 
 const App = {
-    version: '3.0.1', 
+    version: '3.0.2', 
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
@@ -43,7 +43,6 @@ const App = {
             }
         }, 2500);
         
-        // Listeners globais
         this.setupGlobalListeners();
     },
     
@@ -229,7 +228,6 @@ const App = {
         const loginForm = document.getElementById('login-form');
         if (loginForm) loginForm.reset();
         
-        // Recarregar página
         location.reload();
     },
     

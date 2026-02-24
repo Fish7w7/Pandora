@@ -1,123 +1,75 @@
 {
-  "version": "3.0.1",
-  "tag_name": "v3.0.1",
-  "releaseDate": "2026-02-21",
-  "name": "NyanTools v3.0.1 - Phoenix Patch にゃん~",
-  "body": "## 🐛 NyanTools v3.0.1 – Phoenix Patch にゃん~\n\n**PATCH:** Correções de bugs críticos reportados após o lançamento da v3.0.0.\n\n### 🐛 BUG FIXES\n\n#### 🐍 Mini Game (Cobrinha)\n- **Spam de Game Over corrigido:** `startGame()` agora chama `resetGame()` incondicionalmente ao reiniciar, evitando o ciclo infinito de notificações de morte causado pela cobrinha permanecer na posição de colisão após o fim de partida.\n- Reset de velocidade e botões garantidos ao reiniciar no meio de uma partida.\n\n#### 📊 Dashboard\n- **Bug de logout corrigido:** Tela de login não fica mais desalinhada/sobreposta pela sidebar após deslogar.\n- `setInterval` de tracking agora é limpo corretamente no logout.\n- Guard adicionado no `Router.render()` para impedir renderização sem usuário autenticado.\n- `renderHeader()` agora usa `App.user.username` em vez de `Utils.loadData('current_user')`.\n\n#### 📝 Notas\n- Dark mode completo implementado em todos os elementos.\n- Ordenação por pins corrigida (`sortNotes()` chamado após criar/editar).\n- Formatação de data corrigida — exibe ano quando a nota tem mais de 7 dias.\n\n#### ✅ Tarefas\n- Dark mode completo implementado em todos os elementos.\n- **Bug crítico de Tailwind corrigido:** Classes dinâmicas como `peer-checked:border-${p.color}-500` substituídas por classes fixas por prioridade (Tailwind não compila classes geradas dinamicamente).\n- Prioridade padrão \"média\" adicionada ao modal de criação.\n\n#### 🎨 Layout\n- **Conflito Tailwind vs CSS customizado corrigido:** `#main-app` agora usa `display: none` por padrão no CSS e classe `.visible` para exibir, eliminando o conflito com a classe `hidden` do Tailwind que causava vazamento da sidebar.\n\n---\n\n**Versão Anterior:** [v3.0.0](https://github.com/Fish7w7/Pandora/releases/tag/v3.0.0)\n**Codename:** Phoenix 🔥",
+  "version": "3.0.2",
+  "buildDate": "2026-02-21",
   "changelog": [
-    "🐛 Cobrinha: spam de game over ao reiniciar corrigido",
-    "🐛 Dashboard: bug de logout com tela desalinhada corrigido",
-    "🐛 Dashboard: setInterval de tracking limpo corretamente no logout",
-    "🐛 Notas: dark mode completo implementado",
-    "🐛 Notas: ordenação por pins corrigida",
-    "🐛 Notas: formatação de data com ano corrigida",
-    "🐛 Tarefas: dark mode completo implementado",
-    "🐛 Tarefas: classes dinâmicas de Tailwind substituídas por classes fixas",
-    "🐛 Tarefas: prioridade padrão 'média' adicionada ao criar tarefa",
-    "🐛 Layout: conflito Tailwind hidden vs CSS flex do #main-app corrigido"
+    "✨ Dashboard: Histórico de Uso redesenhado com grid 5×7 e alinhamento correto por dia da semana",
+    "✨ Dashboard: Gráfico semanal com barras proporcionais e labels de tempo",
+    "✨ Dashboard: Sequência do histórico sincronizada com card de stats",
+    "✨ Dashboard: Configurações e Atualizações removidas de Ferramentas Mais Usadas",
+    "✨ Notificações: Tipos de Alerta com toggles individuais (Confirmações, Erros, Info, Alertas)",
+    "✨ Notificações: Histórico Recente com últimas 20 entradas",
+    "✨ Notificações: Toggle para ativar/desativar salvamento do histórico",
+    "✨ Notificações: Botão para limpar histórico",
+    "✨ Gerador de Senhas: Cards com visual idêntico em light e dark mode",
+    "✨ Electron: Menu padrão removido (File/Edit/View/Window/Help)"
   ],
-  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.1",
-  "releaseNotesUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.1",
-  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.1",
-  "critical": false,
-  "prerelease": false,
-  "draft": false,
-  "bugFixes": [
-    {
-      "id": "snake-gameover-spam",
-      "description": "Spam de game over ao reiniciar a Cobrinha",
-      "status": "✅ Corrigido",
-      "file": "game.js",
-      "solution": "startGame() agora chama resetGame() incondicionalmente. Removida a condição `if (this.isPlaying && !this.isPaused)` que impedia o reset quando isPlaying era false após morte."
-    },
-    {
-      "id": "dashboard-logout-bug",
-      "description": "Tela de login desalinhada/sobreposta pela sidebar após logout",
-      "status": "✅ Corrigido",
-      "file": "app.js, router.js, dashboard.js",
-      "solution": "setInterval de tracking limpo no logout, guard em Router.render() para App.user nulo, renderHeader() usa App.user.username"
-    },
-    {
-      "id": "layout-tailwind-flex-conflict",
-      "description": "Conflito entre classe hidden do Tailwind e display:flex customizado do #main-app",
-      "status": "✅ Corrigido",
-      "file": "index.html, app.js",
-      "solution": "#main-app agora usa display:none no CSS por padrão e classe .visible para exibir como flex"
-    },
-    {
-      "id": "notes-dark-mode",
-      "description": "Notas sem suporte a dark mode",
-      "status": "✅ Corrigido",
-      "file": "notes.js",
-      "solution": "Classes dark: adicionadas em todos os elementos (bg, text, border, input, modal)"
-    },
-    {
-      "id": "notes-pin-sort",
-      "description": "Notas fixadas não aparecem primeiro",
-      "status": "✅ Corrigido",
-      "file": "notes.js",
-      "solution": "sortNotes() chamado após criar e editar nota"
-    },
-    {
-      "id": "notes-date-format",
-      "description": "Data da nota não exibia o ano",
-      "status": "✅ Corrigido",
-      "file": "notes.js",
-      "solution": "Lógica de formatação atualizada para incluir ano em notas com mais de 7 dias"
-    },
-    {
-      "id": "tasks-dark-mode",
-      "description": "Tarefas sem suporte a dark mode",
-      "status": "✅ Corrigido",
-      "file": "tasks.js",
-      "solution": "Classes dark: adicionadas em todos os elementos da UI"
-    },
-    {
-      "id": "tasks-tailwind-dynamic-classes",
-      "description": "Classes dinâmicas de Tailwind (peer-checked:border-${p.color}-500) não compiladas",
-      "status": "✅ Corrigido",
-      "file": "tasks.js",
-      "solution": "Substituídas por classes fixas completas para cada prioridade (alta, média, baixa)"
-    },
-    {
-      "id": "tasks-default-priority",
-      "description": "Modal de criação de tarefa sem prioridade padrão selecionada",
-      "status": "✅ Corrigido",
-      "file": "tasks.js",
-      "solution": "Prioridade 'média' definida como padrão ao abrir o modal de criação"
-    }
-  ],
-  "filesModified": [
-    "frontend/public/index.html",
-    "frontend/src/scripts/core/app.js",
-    "frontend/src/scripts/core/router.js",
-    "frontend/src/scripts/tools/dashboard/dashboard.js",
-    "frontend/src/scripts/tools/mini-game/game.js",
-    "frontend/src/scripts/tools/notes/notes.js",
-    "frontend/src/scripts/tools/tasks/tasks.js",
-    "version.json"
-  ],
+  "tag_name": "v3.0.2",
+  "releaseDate": "2026-02-22",
+  "name": "NyanTools v3.0.2 - Nyan Patch にゃん~",
+  "codename": "Nyan",
+  "body": "## 🐛 NyanTools v3.0.2 – Nyan Patch にゃん~\n\n**PATCH:** Melhorias de UI, correções de dark mode e novas funcionalidades de notificações.\n\n### ✨ MELHORIAS\n\n#### 📊 Dashboard\n- **Histórico de Uso redesenhado:** Grid de 5×7 dias com alinhamento correto por dia da semana.\n- **Gráfico semanal corrigido:** Barras usam inline styles, imunes ao dark theme CSS.\n- **Sequência linkada:** Contador de sequência do histórico sincronizado com o card de stats.\n- **Ferramentas Mais Usadas:** Configurações e Atualizações removidas da lista.\n\n#### 🔔 Notificações (Settings)\n- **Tipos de Alerta:** Novos toggles individuais para Confirmações, Erros, Informações e Alertas.\n- **Histórico Recente:** Histórico de notificações com visualização das últimas 20 entradas.\n- **Toggle Salvar Histórico:** Opção para ativar/desativar o registro no histórico.\n- **Limpar histórico:** Botão para apagar o histórico de notificações.\n\n#### 🔑 Gerador de Senhas\n- **Cards idênticos em ambos os temas:** Dark mode agora exibe os gradientes coloridos igual ao light mode.\n\n#### 🖥️ Electron\n- **Menu removido:** Barra de menu padrão (File/Edit/View/Window/Help) removida via `Menu.setApplicationMenu(null)`.\n\n---\n\n**Versão Anterior:** [v3.0.1](https://github.com/Fish7w7/Pandora/releases/tag/v3.0.1)\n**Codename:** Nyan 🐱",
+  "previousVersion": {
+    "version": "3.0.1",
+    "tag": "v3.0.1",
+    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.1"
+  },
+  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.2",
+  "releaseNotesUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.2",
+  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.2",
   "statistics": {
     "filesNew": 0,
     "filesRewritten": 0,
-    "filesModified": 8,
-    "bugsFixed": 9
+    "filesModified": 6,
+    "bugsFixed": 4,
+    "featuresAdded": 6
   },
-  "previousVersion": {
-    "version": "3.0.0",
-    "tag": "v3.0.0",
-    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.0"
-  },
-  "author": {
-    "name": "Fish7w7",
-    "github": "https://github.com/Fish7w7",
-    "email": "kik73261@gmail.com"
-  },
-  "repository": {
-    "url": "https://github.com/Fish7w7/Pandora",
-    "releases": "https://github.com/Fish7w7/Pandora/releases",
-    "issues": "https://github.com/Fish7w7/Pandora/issues"
-  },
-  "license": "MIT",
-  "codename": "Phoenix"
+  "filesModified": [
+    "frontend/src/scripts/tools/dashboard/dashboard.js",
+    "frontend/src/scripts/tools/settings/settings.js",
+    "frontend/src/scripts/tools/password/password.js",
+    "frontend/src/scripts/utils/helpers.js",
+    "frontend/src/styles/dark-theme.css",
+    "backend/main.js",
+    "version.json"
+  ],
+  "bugFixes": [
+    {
+      "id": "dashboard-weekly-chart-dark",
+      "description": "Gráfico semanal invisível no dark mode",
+      "status": "✅ Corrigido",
+      "file": "dashboard.js",
+      "solution": "Barras usam inline styles ao invés de classes Tailwind, imunes ao dark theme CSS"
+    },
+    {
+      "id": "password-cards-dark-mode",
+      "description": "Cards do gerador de senhas sem gradiente colorido no dark mode",
+      "status": "✅ Corrigido",
+      "file": "password.js",
+      "solution": "Cards usam inline styles via JS, dark theme CSS não interfere mais"
+    },
+    {
+      "id": "dashboard-tools-settings-entry",
+      "description": "Configurações aparecia na lista de Ferramentas Mais Usadas",
+      "status": "✅ Corrigido",
+      "file": "dashboard.js",
+      "solution": "delete normalized.settings e delete normalized.updates em normalizeToolAccess()"
+    },
+    {
+      "id": "calendar-day-alignment",
+      "description": "Calendário do histórico marcava dia errado da semana",
+      "status": "✅ Corrigido",
+      "file": "dashboard.js",
+      "solution": "startDate calculado com base no getDay() de today para alinhamento correto"
+    }
+  ]
 }

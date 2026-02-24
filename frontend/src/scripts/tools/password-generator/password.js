@@ -1,10 +1,7 @@
-// ============================================
 // GERADOR DE SENHAS ULTRA OTIMIZADO
 // Performance maximizada + features completas
-// ============================================
 
 const PasswordGenerator = {
-    // Configurações
     config: {
         length: 16,
         uppercase: true,
@@ -13,7 +10,6 @@ const PasswordGenerator = {
         symbols: true
     },
     
-    // Estado
     state: {
         currentPassword: '',
         history: [],
@@ -42,50 +38,48 @@ const PasswordGenerator = {
     // Templates HTML otimizados
     templates: {
         checkboxOption(opt) {
-            const badgeColors = {
-                blue: 'bg-blue-600',
-                green: 'bg-green-600',
-                purple: 'bg-purple-600',
-                orange: 'bg-orange-600'
+            // Cores por cor — inline style para funcionar igual em light E dark mode
+            const palettes = {
+                blue:   { border: '#2563eb', gradFrom: '#eff6ff', gradTo: '#dbeafe', badge: '#2563eb' },
+                green:  { border: '#16a34a', gradFrom: '#f0fdf4', gradTo: '#dcfce7', badge: '#16a34a' },
+                purple: { border: '#7c3aed', gradFrom: '#f5f3ff', gradTo: '#ede9fe', badge: '#7c3aed' },
+                orange: { border: '#ea580c', gradFrom: '#fff7ed', gradTo: '#fed7aa', badge: '#ea580c' }
             };
-            
-            const borderColors = {
-                blue: 'peer-checked:border-blue-600',
-                green: 'peer-checked:border-green-600',
-                purple: 'peer-checked:border-purple-600',
-                orange: 'peer-checked:border-orange-600'
-            };
-            
-            const bgColors = {
-                blue: 'peer-checked:from-blue-50 peer-checked:to-blue-100',
-                green: 'peer-checked:from-green-50 peer-checked:to-green-100',
-                purple: 'peer-checked:from-purple-50 peer-checked:to-purple-100',
-                orange: 'peer-checked:from-orange-50 peer-checked:to-orange-100'
-            };
-            
+            const p = palettes[opt.color] || palettes.blue;
+
+            const cardStyleOn  = `border: 4px solid ${p.border}; background: linear-gradient(135deg, ${p.gradFrom}, ${p.gradTo}); box-shadow: 0 20px 40px -12px rgba(0,0,0,0.15);`;
+            const cardStyleOff = `border: 4px solid #d1d5db; background: #ffffff;`;
+            const badgeStyleOn  = `background: ${p.badge}; opacity: 1; transform: scale(1);`;
+            const badgeStyleOff = `background: ${p.badge}; opacity: 0; transform: scale(0.7);`;
+
+            const cardStyle  = opt.checked ? cardStyleOn  : cardStyleOff;
+            const badgeStyle = opt.checked ? badgeStyleOn : badgeStyleOff;
+
             return `
-                <label class="group relative overflow-hidden cursor-pointer block">
-                    <input type="checkbox" id="${opt.id}" ${opt.checked ? 'checked' : ''} class="peer sr-only">
-                    
-                    <!-- Card principal -->
-                    <div class="relative flex items-center gap-4 p-6 bg-white border-4 border-gray-300 ${borderColors[opt.color]} peer-checked:bg-gradient-to-br ${bgColors[opt.color]} rounded-2xl transition-all hover:shadow-xl peer-checked:shadow-2xl">
-                        
-                        <!-- Ícone -->
+                <div class="pwd-card relative overflow-hidden rounded-2xl cursor-pointer transition-shadow hover:shadow-xl"
+                     id="card_${opt.id}"
+                     data-id="${opt.id}"
+                     data-on="${cardStyleOn.replace(/"/g, '&quot;')}"
+                     data-off="${cardStyleOff.replace(/"/g, '&quot;')}"
+                     onclick="PasswordGenerator._cardClick(this)"
+                     style="${cardStyle}">
+
+                    <input type="checkbox" id="${opt.id}" ${opt.checked ? 'checked' : ''} class="sr-only">
+
+                    <div class="flex items-center gap-4 p-6">
                         <div class="text-5xl">${opt.icon}</div>
-                        
-                        <!-- Conteúdo -->
                         <div class="flex-1">
-                            <div class="font-black text-xl text-gray-800 mb-1">${opt.label}</div>
-                            <div class="text-sm text-gray-600 mb-2">${opt.desc}</div>
-                            <div class="font-mono font-bold text-gray-500 text-lg">${opt.example}</div>
+                            <div class="font-black text-xl mb-1" style="color:#1f2937">${opt.label}</div>
+                            <div class="text-sm mb-2" style="color:#4b5563">${opt.desc}</div>
+                            <div class="font-mono font-bold text-lg" style="color:#6b7280">${opt.example}</div>
                         </div>
                     </div>
-                    
-                    <!-- Badge ATIVO -->
-                    <div class="absolute top-6 right-6 ${badgeColors[opt.color]} text-white text-xs font-black px-3 py-1.5 rounded-full shadow-lg opacity-0 peer-checked:opacity-100 transition-all pointer-events-none z-10">
+
+                    <div class="pwd-badge absolute top-4 right-4 text-white text-xs font-black px-3 py-1.5 rounded-full shadow-lg pointer-events-none transition-all"
+                         style="${badgeStyle}">
                         ✓ ATIVO
                     </div>
-                </label>
+                </div>
             `;
         },
         
@@ -310,6 +304,26 @@ const PasswordGenerator = {
         `;
     },
     
+
+    // Toggle de card — funciona igual em light e dark mode
+    _cardClick(card) {
+        const id = card.dataset.id;
+        const checkbox = document.getElementById(id);
+        if (!checkbox) return;
+
+        const checked = !checkbox.checked;
+        checkbox.checked = checked;
+        this.config[id] = checked;
+
+        card.style.cssText = checked ? card.dataset.on : card.dataset.off;
+
+        const badge = card.querySelector('.pwd-badge');
+        if (badge) {
+            badge.style.opacity   = checked ? '1' : '0';
+            badge.style.transform = checked ? 'scale(1)' : 'scale(0.7)';
+        }
+    },
+
     // Inicialização
     init() {
         this.loadHistory();
@@ -343,29 +357,7 @@ const PasswordGenerator = {
                     this.cache.lengthDisplay.textContent = this.config.length;
                 }
             });
-        });
-        
-        // Checkboxes com event delegation no change
-        ['uppercase', 'lowercase', 'numbers', 'symbols'].forEach(id => {
-            const checkbox = this.cache[id];
-            if (checkbox) {
-                // Remove listeners antigos
-                checkbox.replaceWith(checkbox.cloneNode(true));
-                
-                // Pega referência atualizada
-                const newCheckbox = document.getElementById(id);
-                
-                if (newCheckbox) {
-                    newCheckbox.addEventListener('change', (e) => {
-                        this.config[id] = e.target.checked;
-                        console.log(`${id}: ${e.target.checked}`); // Debug
-                    });
-                    
-                    // Atualiza cache
-                    this.cache[id] = newCheckbox;
-                }
-            }
-        });
+        });  
     },
     
     // Geração de senha com crypto API

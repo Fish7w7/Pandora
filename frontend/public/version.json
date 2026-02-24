@@ -1,16 +1,16 @@
 {
-  "version": "3.0.1",
-  "buildDate": "2026-02-21",
+  "version": "3.0.2",
+  "buildDate": "2026-02-22",
   "changelog": [
-    "🐛 Cobrinha: spam de game over ao reiniciar corrigido",
-    "🐛 Dashboard: bug de logout com tela desalinhada corrigido",
-    "🐛 Dashboard: tracking de atividade limpo corretamente no logout",
-    "🐛 Notas: dark mode completo implementado",
-    "🐛 Notas: ordenação por pins corrigida",
-    "🐛 Notas: formatação de data agora exibe o ano corretamente",
-    "🐛 Tarefas: dark mode completo implementado",
-    "🐛 Tarefas: classes de prioridade do Tailwind corrigidas (eram dinâmicas)",
-    "🐛 Tarefas: prioridade padrão 'média' ao criar nova tarefa",
-    "🐛 Layout: conflito entre Tailwind hidden e CSS flex do #main-app corrigido"
+    "✨ Dashboard: Histórico de Uso redesenhado com grid 5×7 e alinhamento correto por dia da semana",
+    "✨ Dashboard: Gráfico semanal com barras proporcionais e labels de tempo",
+    "✨ Dashboard: Sequência do histórico sincronizada com card de stats",
+    "✨ Dashboard: Configurações e Atualizações removidas de Ferramentas Mais Usadas",
+    "✨ Notificações: Tipos de Alerta com toggles individuais (Confirmações, Erros, Info, Alertas)",
+    "✨ Notificações: Histórico Recente com últimas 20 entradas",
+    "✨ Notificações: Toggle para ativar/desativar salvamento do histórico",
+    "✨ Notificações: Botão para limpar histórico",
+    "✨ Gerador de Senhas: Cards com visual idêntico em light e dark mode",
+    "✨ Electron: Menu padrão removido (File/Edit/View/Window/Help)"
   ]
 }
