@@ -445,7 +445,7 @@ dist/
 
 ## 📝 Roadmap
 
-### **✅ Concluído (v3.0.1 — atual)**
+### **✅ Concluído (v3.0.1)**
 - [x] Dashboard com tracking de atividade e recordes
 - [x] Notas Rápidas com pins, busca e dark mode
 - [x] Lista de Tarefas com prioridades e dark mode
