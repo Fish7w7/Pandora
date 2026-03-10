@@ -169,6 +169,28 @@
         #main-content::-webkit-scrollbar       { width: 6px; }
         #main-content::-webkit-scrollbar-track { background: transparent; }
         #main-content::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 4px; }
+
+        /* ─── Modal "O que há de novo" ───────────────────── */
+        @keyframes whatsNewEnter {
+            from { opacity: 0; transform: translateY(24px) scale(0.97); }
+            to   { opacity: 1; transform: translateY(0)    scale(1); }
+        }
+        .whats-new-enter {
+            animation: whatsNewEnter 0.45s cubic-bezier(0.34,1.56,0.64,1) forwards;
+        }
+
+        /* ─── Badge de update no nav ─────────────────────── */
+        .nav-update-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 8px;
+            height: 8px;
+            background: #ef4444;
+            border-radius: 50%;
+            margin-left: auto;
+            animation: pulse 2s infinite;
+        }
     </style>
 </head>
 <body class="bg-gray-100 overflow-hidden">
@@ -273,7 +295,7 @@
             <div class="mt-6 text-center">
                 <div class="inline-flex items-center gap-2 text-white/20 text-xs font-semibold tracking-widest">
                     <span class="w-8 h-px bg-white/10 block"></span>
-                    <span>v3.0.2</span>
+                    <span>v3.1.2</span>
                     <span class="w-8 h-px bg-white/10 block"></span>
                 </div>
             </div>
@@ -321,9 +343,68 @@
     </div>
 
 
-    <!-- ════════════════════════════════════════════════
-         SCRIPTS — ordem preservada
-    ════════════════════════════════════════════════ -->
+    <!-- ═══════════════════════════════════════
+         MODAL: O QUE HÁ DE NOVO
+    ═══════════════════════════════════════ -->
+    <div id="whats-new-modal"
+         class="hidden fixed inset-0 z-[9998] flex items-end justify-center sm:items-center p-4"
+         style="background: rgba(0,0,0,0.55); backdrop-filter: blur(6px);"
+         onclick="if(event.target===this) document.getElementById('whats-new-modal').classList.add('hidden')">
+
+        <div data-whats-new-card
+             class="bg-[#111827] text-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
+             style="border: 1px solid rgba(255,255,255,0.08);">
+
+            <!-- Topo: versão + fechar -->
+            <div class="flex items-center justify-between px-6 pt-5 pb-4"
+                 style="border-bottom: 1px solid rgba(255,255,255,0.07);">
+                <div class="flex items-center gap-3">
+                    <div class="w-9 h-9 rounded-xl flex items-center justify-center text-lg"
+                         style="background: rgba(255,255,255,0.07);">🐱</div>
+                    <div>
+                        <div class="text-[10px] uppercase tracking-widest font-bold text-gray-500">NyanTools</div>
+                        <div class="text-sm font-black leading-tight">
+                            Atualizado para <span data-whats-new-version class="text-emerald-400"></span>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="document.getElementById('whats-new-modal').classList.add('hidden')"
+                        class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-all text-lg leading-none">
+                    ✕
+                </button>
+            </div>
+
+            <!-- Subtítulo -->
+            <div class="px-6 pt-4 pb-2">
+                <div class="text-xs text-gray-500 font-medium">
+                    Novidades em relação à <span data-whats-new-from class="text-gray-400 font-bold"></span>
+                </div>
+            </div>
+
+            <!-- Lista de mudanças -->
+            <div data-whats-new-list
+                 class="px-6 pb-4 space-y-1 max-h-72 overflow-y-auto"
+                 style="scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.1) transparent;">
+                <!-- Preenchido por app.js -->
+            </div>
+
+            <!-- Rodapé -->
+            <div class="px-6 pb-5 pt-3 flex items-center gap-3"
+                 style="border-top: 1px solid rgba(255,255,255,0.07);">
+                <button onclick="document.getElementById('whats-new-modal').classList.add('hidden')"
+                        class="flex-1 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95"
+                        style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7);">
+                    Fechar
+                </button>
+                <button onclick="Router?.navigate('settings'); setTimeout(() => Settings?.switchTab?.('updates'), 100); document.getElementById('whats-new-modal').classList.add('hidden')"
+                        class="flex-1 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95"
+                        style="background: #10b981; color: #fff;">
+                    Ver changelog completo
+                </button>
+            </div>
+        </div>
+    </div>
+
     <script src="../src/scripts/utils/helpers.js"></script>
     <script src="../src/scripts/core/auth.js"></script>
     <script src="../src/scripts/core/router.js"></script>

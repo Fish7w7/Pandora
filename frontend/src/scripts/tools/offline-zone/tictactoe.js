@@ -5,13 +5,12 @@ const TicTacToe = {
     // Estado do jogo
     board: Array(9).fill(null),
     currentPlayer: 'X',
-    gameMode: null, // 'pvp' ou 'pvc'
+    gameMode: null,
     difficulty: 'medium',
     gameOver: false,
     winner: null,
     scores: { X: 0, O: 0, draws: 0 },
     
-    // Configurações
     difficultyConfig: {
         easy: { icon: '😊', label: 'Fácil', desc: 'Mayara é lerda' },
         medium: { icon: '🤔', label: 'Médio', desc: 'Mayara usa estratégia básica' },
@@ -24,9 +23,9 @@ const TicTacToe = {
         [0, 4, 8], [2, 4, 6]             // Diagonais
     ],
     
-    // ============================================
+    // ══════════════════════════════
     // RENDER PRINCIPAL
-    // ============================================
+    // ══════════════════════════════
     
     render() {
         if (!this.gameMode) {
@@ -299,9 +298,9 @@ const TicTacToe = {
         `;
     },
     
-    // ============================================
+    // ══════════════════════════════
     // CONTROLE DO JOGO
-    // ============================================
+    // ══════════════════════════════
     
     selectMode(mode) {
         this.gameMode = mode;
@@ -376,9 +375,9 @@ const TicTacToe = {
         }
     },
     
-    // ============================================
+    // ══════════════════════════════
     // ESTRATÉGIAS DE IA
-    // ============================================
+    // ══════════════════════════════
     
     getRandomMove() {
         const available = this.board.map((cell, i) => cell === null ? i : null).filter(i => i !== null);
@@ -497,9 +496,9 @@ const TicTacToe = {
         }
     },
     
-    // ============================================
+    // ══════════════════════════════
     // UTILITÁRIOS
-    // ============================================
+    // ══════════════════════════════
     
     checkWinner() {
         return this.winningLines.some(line => {

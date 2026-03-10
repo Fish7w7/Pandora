@@ -1,12 +1,12 @@
-/* 
+/* ═════════════════════════════════════════════
    ROUTER.JS v3.0.0
    Sistema de Roteamento com Dashboard e 2048
- */
+ ═══════════════════════════════════════════════*/
 
 const Router = {
     currentRoute: 'home',
     
-    // Mapa de rotas (otimizado - com Dashboard e 2048)
+    // Mapa de rotas
     routes: {
         'home': null, // Home é especial (Dashboard)
         'password': 'PasswordGenerator',
@@ -39,9 +39,7 @@ const Router = {
     render() {
         const container = document.getElementById('tool-container');
         if (!container) return;
-        
-        // Guard: não renderizar nada se não houver usuário autenticado
-        if (!App.user) {
+                if (!App.user) {
             console.warn('⚠️ Router.render() chamado sem usuário autenticado. Abortando.');
             return;
         }
@@ -71,22 +69,17 @@ const Router = {
         } else {
             container.innerHTML = this.renderNotFound();
         }
-        
-        // Mini player (se não estiver na aba de música)
         this.attachMiniPlayer(container);
     },
     
-    // Anexar mini player (otimizado)
+    // Anexar mini player
     attachMiniPlayer(container) {
         if (this.currentRoute !== 'music' && 
             window.MusicPlayer?.isPlaying && 
             window.MusicPlayer?.currentSong) {
             
             setTimeout(() => {
-                // Remover mini player antigo
                 document.getElementById('mini-player')?.remove();
-                
-                // Adicionar novo
                 if (window.MusicPlayer.renderMiniPlayer) {
                     container.insertAdjacentHTML('beforeend', window.MusicPlayer.renderMiniPlayer());
                 }
@@ -135,7 +128,7 @@ const Router = {
         `;
     },
     
-    // Card de dica
+    // Card de dica (remover depois)
     renderTipCard() {
         return `
             <div class="mt-12 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 rounded-xl p-6 text-white shadow-2xl">

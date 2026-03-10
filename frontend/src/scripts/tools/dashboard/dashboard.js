@@ -1,4 +1,4 @@
-// Dashboard - Estatísticas de Uso にゃん~ v3.0.0 
+// Dashboard - Estatísticas de Uso にゃん~ v3.0.1 
 const Dashboard = {
     stats: {
         totalTime: 0,
@@ -8,7 +8,9 @@ const Dashboard = {
         gameHighscores: {},
         notesStats: { total: 0, pinned: 0 },
         tasksStats: { total: 0, completed: 0 },
-        weeklyActivity: {}
+        weeklyActivity: {},
+        weeklyHistory: {},
+        currentWeekStart: null
     },
     
     init() {
@@ -31,6 +33,15 @@ const Dashboard = {
                 ${this.renderProductivitySection()}
             </div>
         `;
+    },
+
+    // ─── LIVE REFRESH ──────────────────────────────────────────────────────────
+    // Chamado pelo app.js a cada minuto quando o usuário está na aba Dashboard.
+    // Atualiza apenas o gráfico semanal no DOM, sem re-renderizar a página toda.
+    refreshWeeklyChart() {
+        const chartContainer = document.getElementById('weekly-chart-container');
+        if (!chartContainer) return;
+        chartContainer.innerHTML = this.renderWeeklyChartInner();
     },
     
     renderHeader() {
@@ -84,13 +95,16 @@ const Dashboard = {
                     <span>📅</span>
                     <span>Atividade Semanal</span>
                 </h2>
-                ${this.renderWeeklyChart()}
+                <div id="weekly-chart-container">
+                    ${this.renderWeeklyChartInner()}
+                </div>
                 ${this.renderActivityCalendar()}
             </div>
         `;
     },
-    
-    renderWeeklyChart() {
+
+    // O HTML real do gráfico — separado para poder ser trocado no DOM pelo refreshWeeklyChart()
+    renderWeeklyChartInner() {
         const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
         const today = new Date();
         const currentDay = today.getDay();
@@ -111,10 +125,8 @@ const Dashboard = {
             const isToday = currentDay === index;
             const hasData = usage > 0;
 
-            // Altura proporcional (mínimo 4px quando há dado, 3% de placeholder)
             const heightPct = hasData ? Math.max((usage / maxUsage) * 100, 8) : 3;
 
-            // Cores via inline style — imune ao dark theme CSS
             let barBg, barOpacity;
             if (isToday && hasData) {
                 barBg = 'linear-gradient(to top, #a855f7, #ec4899)';
@@ -134,8 +146,8 @@ const Dashboard = {
                 ? `<div style="font-size:10px;font-weight:700;color:#d1d5db;margin-bottom:4px;text-align:center;">${this.formatTime(usage)}</div>`
                 : '';
 
-            const dayColor  = isToday ? '#a855f7' : '#9ca3af';
-            const dotStyle  = isToday ? `<div style="width:5px;height:5px;border-radius:50%;background:#a855f7;margin:3px auto 0;"></div>` : '';
+            const dayColor = isToday ? '#a855f7' : '#9ca3af';
+            const dotStyle = isToday ? `<div style="width:5px;height:5px;border-radius:50%;background:#a855f7;margin:3px auto 0;"></div>` : '';
 
             return `
                 <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
@@ -170,7 +182,6 @@ const Dashboard = {
         const DAYS_LABEL = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
         const isDark = document.body.classList.contains('dark-theme');
 
-        // Cores adaptadas ao tema
         const c = isDark ? {
             border:      'rgba(255,255,255,0.07)',
             title:       '#e5e7eb',
@@ -193,12 +204,11 @@ const Dashboard = {
             cell_future: '#f9fafb',
         };
         
-        const todayDow = today.getDay(); // 0=Dom ... 6=Sáb
-        const daysBack = 4 * 7 + todayDow; // dias até o início da primeira semana
+        const todayDow = today.getDay();
+        const daysBack = 4 * 7 + todayDow;
         const startDate = new Date(today);
         startDate.setDate(today.getDate() - daysBack);
 
-        // Gerar células: 5 semanas × 7 dias
         const totalCells = 5 * 7;
         const cells = [];
         for (let i = 0; i < totalCells; i++) {
@@ -212,7 +222,6 @@ const Dashboard = {
             weeks.push(cells.slice(w * 7, w * 7 + 7));
         }
 
-        // Calcular dias ativos
         let activeDays = 0;
         for (const d of cells) {
             const key = d.toISOString().split('T')[0];
@@ -260,7 +269,6 @@ const Dashboard = {
 
         return `
             <div style="margin-top:24px;padding-top:20px;border-top:1px solid ${c.border}">
-                <!-- Header -->
                 <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
                     <div style="display:flex;align-items:center;gap:10px;">
                         <span style="font-size:15px;font-weight:900;color:${c.title};letter-spacing:0.04em">HISTÓRICO DE USO</span>
@@ -278,17 +286,14 @@ const Dashboard = {
                     </div>
                 </div>
 
-                <!-- Header dias da semana -->
                 <div style="display:flex;gap:4px;margin-bottom:4px;">
                     ${weekDayHeaders}
                 </div>
 
-                <!-- Grid -->
                 <div style="display:flex;flex-direction:column;gap:4px;">
                     ${gridRows}
                 </div>
 
-                <!-- Legenda -->
                 <div style="display:flex;align-items:center;gap:16px;margin-top:12px;flex-wrap:wrap;">
                     <div style="display:flex;align-items:center;gap:5px;">
                         <div style="width:11px;height:11px;border-radius:3px;background:${c.cell_empty};border:${c.cell_border}"></div>
@@ -381,9 +386,7 @@ const Dashboard = {
         
         Object.entries(this.stats.toolAccess).forEach(([toolId, count]) => {
             const normalizedId = idMap[toolId] || toolId;
-            if (!normalized[normalizedId]) {
-                normalized[normalizedId] = 0;
-            }
+            if (!normalized[normalizedId]) normalized[normalizedId] = 0;
             normalized[normalizedId] += count;
         });
         
@@ -503,9 +506,9 @@ const Dashboard = {
                             <span class="text-gray-600 font-semibold">Progresso</span>
                             <span class="text-green-600 font-bold">${completionRate}%</span>
                         </div>
-                        <div class="h-3 bg-gray-200 rounded-full overflow-hidden">
-                            <div class="h-full bg-gradient-to-r from-green-500 to-emerald-600 rounded-full transition-all"
-                                 style="width: ${completionRate}%">
+                        <div class="h-3 rounded-full overflow-hidden" style="background: rgba(255,255,255,0.12);">
+                            <div class="h-full rounded-full transition-all"
+                                 style="width: ${completionRate}%; background: linear-gradient(to right, #4ade80, #22c55e);">
                             </div>
                         </div>
                     </div>
@@ -516,6 +519,15 @@ const Dashboard = {
                 </div>
             </div>
         `;
+    },
+
+    // ─── HELPERS ──────────────────────────────────────────────────────────────
+
+    getWeekStart() {
+        const today = new Date();
+        const sunday = new Date(today);
+        sunday.setDate(today.getDate() - today.getDay());
+        return sunday.toISOString().split('T')[0];
     },
     
     getGreeting() {
@@ -558,28 +570,17 @@ const Dashboard = {
             'settings': { name: 'Configurações', icon: '⚙️', gradient: 'from-gray-500 to-slate-600' },
             'updates': { name: 'Atualizações', icon: '🔄', gradient: 'from-blue-500 to-indigo-600' }
         };
-        
         return tools[toolId] || { name: toolId, icon: '🛠️', gradient: 'from-gray-400 to-gray-600' };
     },
     
     formatGameScore(gameId, score) {
         if (score === null || score === undefined) return '---';
-
         if (gameId === 'termo') {
-            // score é um número: a menor quantidade de tentativas para acertar (recorde)
-            if (typeof score === 'number' && score > 0) {
-                return `${score}/6`;
-            }
-            return '---';
+            return (typeof score === 'number' && score > 0) ? `${score}/6` : '---';
         }
-
         if (gameId === '2048') {
-            if (typeof score === 'number' && score > 0) {
-                return score.toLocaleString('pt-BR');
-            }
-            return '---';
+            return (typeof score === 'number' && score > 0) ? score.toLocaleString('pt-BR') : '---';
         }
-
         if (!score) return '---';
         return score.toString();
     },
@@ -594,12 +595,14 @@ const Dashboard = {
             notesStats: { total: 0, pinned: 0 },
             tasksStats: { total: 0, completed: 0 },
             weeklyActivity: {},
+            weeklyHistory: {},
+            currentWeekStart: null,
             dailyActivity: {}
         };
-        // Garantir compatibilidade com saves antigos que não tinham dailyActivity
-        if (!this.stats.dailyActivity) {
-            this.stats.dailyActivity = {};
-        }
+
+        if (!this.stats.dailyActivity)    this.stats.dailyActivity = {};
+        if (!this.stats.weeklyHistory)    this.stats.weeklyHistory = {};
+        if (!this.stats.currentWeekStart) this.stats.currentWeekStart = null;
     },
     
     saveStats() {
@@ -608,18 +611,32 @@ const Dashboard = {
     
     updateStats() {
         const today = new Date().toISOString().split('T')[0];
-        
+        const weekStart = this.getWeekStart();
+
+        // ── Virada de semana ─────────────────────────────────────────────
+        if (this.stats.currentWeekStart !== weekStart) {
+            const hadData = Object.values(this.stats.weeklyActivity).some(v => v > 0);
+            if (this.stats.currentWeekStart && hadData) {
+                if (!this.stats.weeklyHistory) this.stats.weeklyHistory = {};
+                this.stats.weeklyHistory[this.stats.currentWeekStart] = { ...this.stats.weeklyActivity };
+                const histKeys = Object.keys(this.stats.weeklyHistory).sort();
+                while (histKeys.length > 52) delete this.stats.weeklyHistory[histKeys.shift()];
+                console.log(`📦 Semana ${this.stats.currentWeekStart} arquivada no histórico`);
+            }
+            this.stats.weeklyActivity = {};
+            this.stats.currentWeekStart = weekStart;
+        }
+
+        // ── Streak diário ────────────────────────────────────────────────
         if (this.stats.lastAccessDate !== today) {
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);
             const yesterdayStr = yesterday.toISOString().split('T')[0];
-            
             if (this.stats.lastAccessDate === yesterdayStr) {
                 this.stats.dailyStreak++;
             } else if (this.stats.lastAccessDate !== today) {
                 this.stats.dailyStreak = 1;
             }
-            
             this.stats.lastAccessDate = today;
         }
         
@@ -628,16 +645,11 @@ const Dashboard = {
             this.stats.weeklyActivity[dayOfWeek] = 0;
         }
         
-        // Registrar atividade pela data completa (corrige bug do calendário)
-        if (!this.stats.dailyActivity) {
-            this.stats.dailyActivity = {};
-        }
-        // Só marca como ativo se ainda não foi marcado hoje (evita incremento a cada render)
+        if (!this.stats.dailyActivity) this.stats.dailyActivity = {};
         if (!this.stats.dailyActivity[today]) {
             this.stats.dailyActivity[today] = 1;
         }
         
-        // Limpar entradas com mais de 35 dias para não acumular lixo
         const cutoff = new Date();
         cutoff.setDate(cutoff.getDate() - 35);
         Object.keys(this.stats.dailyActivity).forEach(key => {
@@ -648,32 +660,21 @@ const Dashboard = {
     },
     
     trackToolAccess(toolId) {
-        if (!this.stats.toolAccess[toolId]) {
-            this.stats.toolAccess[toolId] = 0;
-        }
+        if (!this.stats.toolAccess[toolId]) this.stats.toolAccess[toolId] = 0;
         this.stats.toolAccess[toolId]++;
         this.saveStats();
     },
 
-    // Salva o recorde do Termo: menor número de tentativas para acertar
-    // Chame com: Dashboard.saveTermoBestScore(4) quando o jogador acertar na 4ª tentativa
     saveTermoBestScore(attempts) {
         if (!attempts || attempts < 1 || attempts > 6) return;
         const current = Utils.loadData('termo_best');
-        // Recorde = menor tentativa (ex: acertar em 2 é melhor que em 4)
-        if (!current || attempts < current) {
-            Utils.saveData('termo_best', attempts);
-        }
+        if (!current || attempts < current) Utils.saveData('termo_best', attempts);
     },
 
-    // Salva recorde do 2048
-    // Chame com: Dashboard.save2048Highscore(score) quando o jogo terminar
     save2048Highscore(score) {
         if (!score || score <= 0) return;
         const current = Utils.loadData('game_2048_highscore') || 0;
-        if (score > current) {
-            Utils.saveData('game_2048_highscore', score);
-        }
+        if (score > current) Utils.saveData('game_2048_highscore', score);
     }
 };
 

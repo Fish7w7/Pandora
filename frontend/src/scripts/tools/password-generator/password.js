@@ -1,6 +1,7 @@
+/*══════════════════════════════
 // GERADOR DE SENHAS ULTRA OTIMIZADO
 // Performance maximizada + features completas
-
+═════════════════════════════════*/
 const PasswordGenerator = {
     config: {
         length: 16,
@@ -102,8 +103,9 @@ const PasswordGenerator = {
             `;
         }
     },
-    
+    /*══════════════════════════════
     // Renderização principal
+    ══════════════════════════════*/
     render() {
         return `
             <div class="max-w-4xl mx-auto">

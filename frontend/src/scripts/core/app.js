@@ -1,10 +1,10 @@
-/* 
+/* ══════════════════════════════════════════════════
    APP.JS  v3.0.0
    Core da Aplicação com Dashboard e Tracking
- */
+ ═══════════════════════════════════════════════════*/
 
 const App = {
-    version: '3.0.2', 
+    version: '3.1.2', 
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
@@ -29,15 +29,12 @@ const App = {
     init() {
         console.log(`🐱 NyanTools v${this.version} iniciando... にゃん~`);
         
-        // Aplicar tema antes de mostrar
         this.applyThemeOnStart();
         
-        // Delay para loading screen
         setTimeout(() => {
             this.hideLoading();
             this.checkAuth();
             
-            // Auto-update check (se habilitado)
             if (window.AutoUpdater?.getAutoCheckSetting?.()) {
                 setTimeout(() => AutoUpdater.checkForUpdates(true), 3000);
             }
@@ -46,7 +43,6 @@ const App = {
         this.setupGlobalListeners();
     },
     
-    // Aplicar tema ao iniciar (otimizado)
     applyThemeOnStart() {
         const applyTheme = () => {
             const savedTheme = window.Utils?.loadData('app_theme') || 'light';
@@ -64,7 +60,6 @@ const App = {
         window.addEventListener('load', applyTheme, { once: true });
     },
     
-    // Esconder loading
     hideLoading() {
         const loadingScreen = document.getElementById('loading-screen');
         if (!loadingScreen) return;
@@ -73,20 +68,17 @@ const App = {
         setTimeout(() => loadingScreen.style.display = 'none', 500);
     },
     
-    // Verificar autenticação
     checkAuth() {
         const savedUser = Auth.getStoredUser();
         savedUser ? this.showMainApp(savedUser) : this.showLogin();
     },
     
-    // Mostrar tela de login
     showLogin() {
         const loginScreen = document.getElementById('login-screen');
         if (!loginScreen) return;
         
         loginScreen.classList.remove('hidden');
         
-        // Setup do formulário e foco
         setTimeout(() => {
             if (typeof window.setupLoginForm === 'function') {
                 window.setupLoginForm();
@@ -114,12 +106,53 @@ const App = {
         if (userDisplay) userDisplay.textContent = user.username;
         
         this.renderNavMenu();
-        Router.navigate('home');       
+        Router.navigate('home');
         this.initNewSystems();
+        this.checkWhatsNew();
     },
     
+    // Verificar se a versão mudou e mostrar "O que há de novo"
+    checkWhatsNew() {
+        const lastSeenVersion = Utils.loadData('last_seen_version');
+        const currentVersion  = this.version;
+
+        if (lastSeenVersion && lastSeenVersion !== currentVersion) {
+            setTimeout(() => this._showWhatsNewModal(lastSeenVersion, currentVersion), 1200);
+        }
+
+        // Sempre atualizar a versão vista
+        Utils.saveData('last_seen_version', currentVersion);
+    },
+
+    _showWhatsNewModal(fromVersion, toVersion) {
+        const modal = document.getElementById('whats-new-modal');
+        if (!modal) return;
+
+        // Preencher versão
+        const versionEl = modal.querySelector('[data-whats-new-version]');
+        if (versionEl) versionEl.textContent = `v${toVersion}`;
+
+        const fromEl = modal.querySelector('[data-whats-new-from]');
+        if (fromEl) fromEl.textContent = `v${fromVersion}`;
+
+        const listEl = modal.querySelector('[data-whats-new-list]');
+        if (listEl && window.AutoUpdater) {
+            const release = AutoUpdater.changelog.find(r => r.version === toVersion);
+            if (release) {
+                listEl.innerHTML = release.changes.map(c => `
+                    <div class="flex items-start gap-2.5 py-2" style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <span class="shrink-0 mt-0.5 text-base leading-none">${c.type}</span>
+                        <span class="text-sm text-gray-300 leading-snug">${c.text}</span>
+                    </div>
+                `).join('');
+            }
+        }
+
+        modal.classList.remove('hidden');
+        modal.querySelector('[data-whats-new-card]')?.classList.add('whats-new-enter');
+    },
+
     initNewSystems() {
-        // Inicializar Dashboard
         if (window.Dashboard) {
             console.log('📊 Inicializando Dashboard...');
             Dashboard.init();
@@ -127,7 +160,6 @@ const App = {
             console.warn('⚠️ Dashboard não encontrado');
         }
         
-        // Inicializar Atalhos de Teclado
         if (window.KeyboardShortcuts) {
             console.log('⌨️ Inicializando Atalhos de Teclado...');
             KeyboardShortcuts.init();
@@ -156,21 +188,29 @@ const App = {
                 Dashboard.stats.totalTime++;
                 Dashboard.stats.weeklyActivity[dayOfWeek] = 
                     (Dashboard.stats.weeklyActivity[dayOfWeek] || 0) + 1;
+
+                if (!Dashboard.stats.dailyActivity) Dashboard.stats.dailyActivity = {};
+                Dashboard.stats.dailyActivity[today] =
+                    (Dashboard.stats.dailyActivity[today] || 0) + 1;
                 
-                // Salvar a cada 5 minutos
                 if (Dashboard.stats.totalTime % 5 === 0) {
                     Dashboard.saveStats();
                     console.log('💾 Stats salvas:', Dashboard.stats.totalTime, 'minutos');
+                }
+
+                if (Router.currentRoute === 'home' && Dashboard.refreshWeeklyChart) {
+                    Dashboard.refreshWeeklyChart();
                 }
             }
         }, 60000); // 1 minuto
     },
     
-    // Renderizar menu de navegação (otimizado)
+    // Renderizar menu de navegação
     renderNavMenu() {
         const navMenu = document.getElementById('nav-menu');
         if (!navMenu) return;
         
+        const hasUpdate = window.AutoUpdater?.updateAvailable;
         navMenu.innerHTML = this.tools.map(tool => `
             <div class="nav-item flex items-center p-3 mb-2 rounded-lg cursor-pointer ${this.currentTool === tool.id ? 'active' : ''}"
                  data-tool="${tool.id}"
@@ -180,6 +220,7 @@ const App = {
                     <span class="font-medium block">${tool.name}</span>
                     <span class="text-xs text-white/70">${tool.description}</span>
                 </div>
+                ${hasUpdate && tool.id === 'settings' ? '<span class="nav-update-badge" title="Atualização disponível"></span>' : ''}
             </div>
         `).join('');
     },
@@ -193,9 +234,8 @@ const App = {
         });
     },
     
-    // Listeners globais (otimizado)
+    // Listeners globais
     setupGlobalListeners() {
-        // Logout
         const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => this.handleLogout());
@@ -206,7 +246,7 @@ const App = {
         window.addEventListener('offline', () => this.handleConnectionChange(false));
     },
     
-    // Handler de logout (otimizado)
+    // Handler de logout
     handleLogout() {
         if (!confirm('Deseja realmente sair? にゃん~')) return;
         
@@ -224,7 +264,6 @@ const App = {
         
         Auth.logout();
         
-        // Limpar formulário
         const loginForm = document.getElementById('login-form');
         if (loginForm) loginForm.reset();
         
@@ -251,7 +290,7 @@ const App = {
     }
 };
 
-// Easter Egg (otimizado)
+// Easter Egg (Tem que arrumar depois, pq tá bugado)
 function showEasterEgg() {
     const messages = [
         "🐱 NYAN NYAN! にゃん~",

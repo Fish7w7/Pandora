@@ -6,7 +6,6 @@ const Tasks = {
     modalOpen: false,
     currentTask: null,
     
-    // Emojis de prioridade
     priorityEmojis: {
         high: '🔴',
         medium: '🟡',
@@ -326,52 +325,64 @@ const Tasks = {
     },
     
     renderPrioritySelector(priority) {
-        // BUG FIX: Classes dinâmicas não funcionam com Tailwind
-        // Solução: usar classes fixas completas
         const priorities = [
-            { 
-                value: 'high', 
-                emoji: '🔴', 
-                label: 'Alta',
-                checkedClasses: 'border-red-500 bg-red-50 dark:bg-red-900/20',
-                hoverClasses: 'hover:border-red-300 dark:hover:border-red-700'
-            },
-            { 
-                value: 'medium', 
-                emoji: '🟡', 
-                label: 'Média',
-                checkedClasses: 'border-yellow-500 bg-yellow-50 dark:bg-yellow-900/20',
-                hoverClasses: 'hover:border-yellow-300 dark:hover:border-yellow-700'
-            },
-            { 
-                value: 'low', 
-                emoji: '🟢', 
-                label: 'Baixa',
-                checkedClasses: 'border-green-500 bg-green-50 dark:bg-green-900/20',
-                hoverClasses: 'hover:border-green-300 dark:hover:border-green-700'
-            }
+            { value: 'high',   label: 'Alta'  },
+            { value: 'medium', label: 'Média' },
+            { value: 'low',    label: 'Baixa' }
         ];
-        
+
         return `
             <div>
                 <label class="block text-gray-800 dark:text-gray-200 font-bold mb-3 text-lg">🔴 Prioridade</label>
-                <div class="grid grid-cols-3 gap-3">
-                    ${priorities.map(p => `
-                        <label class="relative cursor-pointer">
-                            <input type="radio" 
-                                   name="priority" 
-                                   value="${p.value}" 
-                                   ${priority === p.value ? 'checked' : ''}
-                                   class="peer sr-only">
-                            <div class="peer-checked:${p.checkedClasses} border-2 border-gray-300 dark:border-gray-600 rounded-xl p-4 text-center transition-all ${p.hoverClasses}">
-                                <div class="text-3xl mb-2">${p.emoji}</div>
-                                <div class="font-bold text-gray-800 dark:text-gray-200">${p.label}</div>
-                            </div>
-                        </label>
-                    `).join('')}
+                <div class="grid grid-cols-3 gap-3" id="task-priority-selector">
+                    ${priorities.map(p => this._renderPriorityBtn(p, priority)).join('')}
                 </div>
+                <input type="hidden" id="task-priority" value="${priority}">
             </div>
         `;
+    },
+
+    _renderPriorityBtn(p, selected) {
+        const isSelected = p.value === selected;
+
+        const colorMap = {
+            high:   { dot: '#ef4444', activeBg: '#ef4444', activeBorder: '#dc2626' },
+            medium: { dot: '#eab308', activeBg: '#eab308', activeBorder: '#ca8a04' },
+            low:    { dot: '#22c55e', activeBg: '#22c55e', activeBorder: '#16a34a' },
+        };
+        const c = colorMap[p.value];
+
+        const activeStyle  = `background:${c.activeBg}; border-color:${c.activeBorder}; color:#fff;`;
+        const inactiveStyle = `background:#374151; border-color:#4b5563; color:#d1d5db;`;
+
+        return `
+            <button type="button"
+                    onclick="Tasks.selectPriority('${p.value}')"
+                    data-priority="${p.value}"
+                    style="${isSelected ? activeStyle : inactiveStyle}"
+                    class="border-2 rounded-xl p-4 text-center transition-all ${isSelected ? 'shadow-lg scale-105' : 'hover:brightness-125'}">
+                <div class="mb-2 flex justify-center">
+                    <div style="width:28px; height:28px; border-radius:50%; background:${isSelected ? 'rgba(255,255,255,0.35)' : c.dot}; border: 2px solid ${isSelected ? 'rgba(255,255,255,0.5)' : 'transparent'}"></div>
+                </div>
+                <div class="font-bold text-sm">${p.label}</div>
+                ${isSelected ? '<div class="text-xs mt-1 opacity-75">✔ Selecionada</div>' : ''}
+            </button>
+        `;
+    },
+
+    selectPriority(value) {
+        const input = document.getElementById('task-priority');
+        if (input) input.value = value;
+
+        const container = document.getElementById('task-priority-selector');
+        if (container) {
+            const priorities = [
+                { value: 'high',   label: 'Alta'  },
+                { value: 'medium', label: 'Média' },
+                { value: 'low',    label: 'Baixa' }
+            ];
+            container.innerHTML = priorities.map(p => this._renderPriorityBtn(p, value)).join('');
+        }
     },
     
     openCreateModal() {
@@ -401,7 +412,7 @@ const Tasks = {
         
         const title = document.getElementById('task-title')?.value.trim();
         const description = document.getElementById('task-description')?.value.trim() || '';
-        const priority = document.querySelector('input[name="priority"]:checked')?.value || 'medium';
+        const priority = document.getElementById('task-priority')?.value || 'medium';
         
         if (!title) {
             Utils.showNotification('⚠️ Digite um título', 'warning');

@@ -1,6 +1,7 @@
+/*══════════════════════════════
 // FORCA - NyanTools にゃん~
 // Versão Otimizada v2.0
-
+══════════════════════════════*/
 const Forca = {
     // Lista de palavras com dificuldade
     words: [
@@ -70,9 +71,9 @@ const Forca = {
         insane: { emoji: '💀', label: 'INSANO', color: 'bg-red-100 text-red-700' }
     },
     
-    // ============================================
+    // ══════════════════════════════
     // RENDER PRINCIPAL
-    // ============================================
+    // ══════════════════════════════
     
     render() {
         if (!this.isReady || !this.currentWord) {
@@ -408,9 +409,9 @@ const Forca = {
         `;
     },
     
-    // ============================================
+    // ══════════════════════════════
     // INICIALIZAÇÃO
-    // ============================================
+    // ══════════════════════════════
     
     init() {
         console.log('🎯 Inicializando Forca...');
@@ -448,9 +449,9 @@ const Forca = {
         }
     },
     
-    // ============================================
+    // ══════════════════════════════
     // LÓGICA DO JOGO
-    // ============================================
+    // ══════════════════════════════
     
     guessLetter(letter) {
         if (!this.currentWord || this.gameOver || this.guessedLetters.includes(letter)) return;
@@ -529,9 +530,9 @@ const Forca = {
         this.saveGameState();
     },
     
-    // ============================================
+    // ══════════════════════════════
     // UTILITÁRIOS
-    // ============================================
+    // ══════════════════════════════
     
     getDailyWord() {
         const today = this.getToday();

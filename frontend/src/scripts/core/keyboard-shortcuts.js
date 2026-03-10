@@ -15,7 +15,8 @@ const KeyboardShortcuts = {
         'ctrl+t': { tool: 'tasks', name: 'Tarefas' },
         'ctrl+s': { tool: 'settings', name: 'Configurações' },
         'ctrl+/': { action: 'showHelp', name: 'Mostrar Atalhos' },
-        'escape': { action: 'closeModals', name: 'Fechar Modais' }
+        'escape': { action: 'closeModals', name: 'Fechar Modais' },
+        'ctrl+shift+u': { action: 'toggleDevMode', name: 'Dev Mode (Updater)' }
     },
     
     isModalOpen: false,
@@ -70,6 +71,19 @@ const KeyboardShortcuts = {
             this.showHelpModal();
         } else if (shortcut.action === 'closeModals') {
             this.closeAllModals();
+        } else if (shortcut.action === 'toggleDevMode') {
+            if (window.AutoUpdater) {
+                if (!AutoUpdater._isDevEnv) {
+                    console.warn('⚠️ Dev mode indisponível em produção');
+                    return;
+                }
+                AutoUpdater._devMode = !AutoUpdater._devMode;
+                Utils?.showNotification(
+                    AutoUpdater._devMode ? '🔧 Dev mode ativado' : '🔧 Dev mode desativado',
+                    'info'
+                );
+                Router?.render();
+            }
         }
     },
     
@@ -160,6 +174,7 @@ const KeyboardShortcuts = {
                             ${this.renderShortcutItem('Ctrl + S', 'Configurações', '⚙️')}
                             ${this.renderShortcutItem('Ctrl + /', 'Mostrar Atalhos', '❓')}
                             ${this.renderShortcutItem('Esc', 'Fechar Modais', '❌')}
+                            ${this.renderShortcutItem('Ctrl + Shift + U', 'Dev Mode Updater', '🔧')}
                         </div>
                     </div>
                     

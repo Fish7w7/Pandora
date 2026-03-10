@@ -1,6 +1,6 @@
 {
-  "version": "3.0.2",
-  "buildDate": "2026-02-21",
+  "version": "3.1.2",
+  "buildDate": "2026-02-22",
   "changelog": [
     "✨ Dashboard: Histórico de Uso redesenhado com grid 5×7 e alinhamento correto por dia da semana",
     "✨ Dashboard: Gráfico semanal com barras proporcionais e labels de tempo",
@@ -14,7 +14,7 @@
     "✨ Electron: Menu padrão removido (File/Edit/View/Window/Help)"
   ],
   "tag_name": "v3.0.2",
-  "releaseDate": "2026-02-22",
+  "releaseDate": "2026-02-24",
   "name": "NyanTools v3.0.2 - Nyan Patch にゃん~",
   "codename": "Nyan",
   "body": "## 🐛 NyanTools v3.0.2 – Nyan Patch にゃん~\n\n**PATCH:** Melhorias de UI, correções de dark mode e novas funcionalidades de notificações.\n\n### ✨ MELHORIAS\n\n#### 📊 Dashboard\n- **Histórico de Uso redesenhado:** Grid de 5×7 dias com alinhamento correto por dia da semana.\n- **Gráfico semanal corrigido:** Barras usam inline styles, imunes ao dark theme CSS.\n- **Sequência linkada:** Contador de sequência do histórico sincronizado com o card de stats.\n- **Ferramentas Mais Usadas:** Configurações e Atualizações removidas da lista.\n\n#### 🔔 Notificações (Settings)\n- **Tipos de Alerta:** Novos toggles individuais para Confirmações, Erros, Informações e Alertas.\n- **Histórico Recente:** Histórico de notificações com visualização das últimas 20 entradas.\n- **Toggle Salvar Histórico:** Opção para ativar/desativar o registro no histórico.\n- **Limpar histórico:** Botão para apagar o histórico de notificações.\n\n#### 🔑 Gerador de Senhas\n- **Cards idênticos em ambos os temas:** Dark mode agora exibe os gradientes coloridos igual ao light mode.\n\n#### 🖥️ Electron\n- **Menu removido:** Barra de menu padrão (File/Edit/View/Window/Help) removida via `Menu.setApplicationMenu(null)`.\n\n---\n\n**Versão Anterior:** [v3.0.1](https://github.com/Fish7w7/Pandora/releases/tag/v3.0.1)\n**Codename:** Nyan 🐱",

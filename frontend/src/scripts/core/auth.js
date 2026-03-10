@@ -1,7 +1,7 @@
-/* 
+/* ════════════════════════════════════
    AUTH.JS OPTIMIZED v2.7.0
    Sistema de Autenticação Otimizado
- */
+ ══════════════════════════════════════*/
 
 const Auth = {
     storageKey: 'toolbox_user',
@@ -39,7 +39,7 @@ const Auth = {
         localStorage.removeItem(this.storageKey);
     },
     
-    // Salvar/Obter usuário (otimizado)
+    // Salvar/Obter usuário
     saveUser(user) {
         try {
             localStorage.setItem(this.storageKey, JSON.stringify(user));

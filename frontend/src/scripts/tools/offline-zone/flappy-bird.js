@@ -1,6 +1,7 @@
+/*══════════════════════════════
 // FLAPPY NYAN - NyanTools にゃん~
 // Versão Melhorada v3.0
-
+══════════════════════════════*/
 
 const FlappyBird = {
     canvas: null,
@@ -38,9 +39,9 @@ const FlappyBird = {
     animationFrame: null,
     lastTime: 0,
 
-    // ============================================
+    // ══════════════════════════════
     // RENDER PRINCIPAL
-    // ============================================
+    // ══════════════════════════════
 
     render() {
         this.highScore = Utils.loadData('flappy_bird_highscore') || 0;
@@ -144,9 +145,9 @@ const FlappyBird = {
         `;
     },
 
-    // ============================================
+    // ══════════════════════════════
     // INICIALIZAÇÃO
-    // ============================================
+    // ══════════════════════════════
 
     init() {
         this.canvas = document.getElementById('flappy-canvas');
@@ -230,9 +231,9 @@ const FlappyBird = {
         });
     },
 
-    // ============================================
+    // ══════════════════════════════
     // CONTROLE DO JOGO
-    // ============================================
+    // ══════════════════════════════
 
     startGame() {
         if (this.isPlaying) return;
@@ -309,9 +310,9 @@ const FlappyBird = {
         }
     },
 
-    // ============================================
+    // ══════════════════════════════
     // LOOP DE JOGO
-    // ============================================
+    // ══════════════════════════════
 
     gameLoop(currentTime = 0) {
         if (!this.isPlaying || this.isPaused || this.gameOver) return;
@@ -356,7 +357,7 @@ const FlappyBird = {
         this.frameCount++;
         // Spawn baseado em distância mínima, não em frames fixos
         // Garante espaçamento consistente independente da velocidade
-        const minDistance = 220; // px mínimos entre canos
+        const minDistance = 220;
         const lastPipe = this.pipes[this.pipes.length - 1];
         const canSpawn = !lastPipe || lastPipe.x <= this.canvas.width - minDistance;
         if (canSpawn && this.frameCount > 60) {
@@ -432,9 +433,9 @@ const FlappyBird = {
         return false;
     },
 
-    // ============================================
+    // ══════════════════════════════
     // DESENHO
-    // ============================================
+    // ══════════════════════════════
 
     draw() {
         this.drawBackground();
@@ -727,12 +728,12 @@ const FlappyBird = {
         ctx.fillText('Pressione P para continuar', this.canvas.width / 2, this.canvas.height / 2 + 35);
     },
 
-    // ============================================
+    // ══════════════════════════════
     // FINALIZAÇÃO
-    // ============================================
+    // ══════════════════════════════
 
     endGame() {
-        if (this.gameOver) return; // já processado, evita dupla chamada
+        if (this.gameOver) return;
         this.gameOver = true;
         this.isPlaying = false;
         this.isPaused = false;
@@ -839,9 +840,9 @@ const FlappyBird = {
         ctx.fillText('Toque para jogar novamente', cx, cy + panelH / 2 - 20);
     },
 
-    // ============================================
+    // ══════════════════════════════
     // UTILITÁRIOS
-    // ============================================
+    // ══════════════════════════════
 
     createScoreEffect() {
         for (let i = 0; i < 10; i++) {
@@ -878,9 +879,9 @@ const FlappyBird = {
         if (pauseBtnEl && pauseBtn !== undefined) pauseBtnEl.style.display = pauseBtn;
     },
 
-    // ============================================
+    // ══════════════════════════════
     // CLEANUP - chamado ao sair da tela
-    // ============================================
+    // ══════════════════════════════
 
     cleanup() {
         if (this.animationFrame) {

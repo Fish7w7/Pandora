@@ -369,7 +369,6 @@ const Notes = {
             // Pins sempre no topo
             if (a.pinned && !b.pinned) return -1;
             if (!a.pinned && b.pinned) return 1;
-            // Depois por data de criação (mais recente primeiro)
             return b.created - a.created;
         });
     },
@@ -429,7 +428,7 @@ const Notes = {
     
     init() {
         this.loadNotes();
-        this.sortNotes(); // Ordenar ao iniciar
+        this.sortNotes();
         this.modalOpen = false;
         console.log('📝 Notas carregadas:', this.notes.length);
     }

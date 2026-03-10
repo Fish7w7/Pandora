@@ -1,9 +1,8 @@
+/*═════════════════════════════════════════════
 // SISTEMA DE CONFIGURAÇÕES - NyanTools にゃん~
 // Versão Renovada v3.0
-
-// ============================================
-// THEME MANAGER
-// ============================================
+═══════════════════════════════════════════════
+*/
 
 const ThemeManager = {
     currentTheme: 'purple',
@@ -81,9 +80,9 @@ const ThemeManager = {
     }
 };
 
-// ============================================
+// ══════════════════════════════
 // RENDER DE TEMAS (funções auxiliares)
-// ============================================
+// ══════════════════════════════
 
 function renderThemeSelector() {
     const currentId = Utils.loadData('app_color_theme') || 'purple';
@@ -132,9 +131,9 @@ function renderThemeSelector() {
     `;
 }
 
-// ============================================
+// ══════════════════════════════
 // SETTINGS PRINCIPAL
-// ============================================
+// ══════════════════════════════
 
 const Settings = {
     currentTab: 'appearance',
@@ -147,9 +146,9 @@ const Settings = {
         { id: 'about',         name: 'Sobre',          icon: 'ℹ️'  }
     ],
 
-    // ============================================
+    // ══════════════════════════════
     // RENDER PRINCIPAL
-    // ============================================
+    // ══════════════════════════════
 
     render() {
         return `
@@ -204,9 +203,9 @@ const Settings = {
         return (renderers[this.currentTab] || (() => ''))();
     },
 
-    // ============================================
+    // ══════════════════════════════
     // TAB: APARÊNCIA
-    // ============================================
+    // ══════════════════════════════
 
     renderAppearance() {
         const theme = Utils.loadData('app_theme') || 'light';
@@ -262,9 +261,9 @@ const Settings = {
         `;
     },
 
-    // ============================================
+    // ══════════════════════════════
     // TAB: ATUALIZAÇÕES
-    // ============================================
+    // ══════════════════════════════
 
     renderUpdates() {
         return AutoUpdater?.render() || `
@@ -275,9 +274,9 @@ const Settings = {
         `;
     },
 
-    // ============================================
+    // ══════════════════════════════
     // TAB: NOTIFICAÇÕES
-    // ============================================
+    // ══════════════════════════════
 
     renderNotifications() {
         const notifEnabled = Utils.loadData('notifications_enabled') !== false;
@@ -402,9 +401,9 @@ const Settings = {
         `;
     },
 
-    // ============================================
+    // ══════════════════════════════
     // TAB: DADOS
-    // ============================================
+    // ══════════════════════════════
 
     renderData() {
         const storageKB = this._getStorageKB();
@@ -487,9 +486,9 @@ const Settings = {
         `;
     },
 
-    // ============================================
+    // ══════════════════════════════
     // TAB: SOBRE
-    // ============================================
+    // ══════════════════════════════
 
     renderAbout() {
         const year = new Date().getFullYear();
@@ -620,6 +619,38 @@ const Settings = {
                     </div>
                 </div>
 
+                <!-- Cobaias de Teste -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 p-5 text-white">
+                        <div class="flex items-center gap-3">
+                            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-2xl shadow-inner">🐾</div>
+                            <div>
+                                <h3 class="text-xl font-black">Cobaias de Teste</h3>
+                                <p class="text-sm opacity-80 mt-0.5">As corajosas almas que testam o app antes de todo mundo にゃん~</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            ${[
+                                { name: 'Pietro', role: 'Beta Tester', emoji: '🧪', desc: 'Testa tudo e encontra os bugs mais insanos' },
+                            ].map(t => `
+                                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                                    <div class="w-10 h-10 bg-gradient-to-br from-pink-400 to-purple-500 rounded-xl flex items-center justify-center text-xl shadow">${t.emoji}</div>
+                                    <div>
+                                        <div class="font-bold text-gray-800 text-sm">${t.name}</div>
+                                        <div class="text-xs text-purple-600 font-semibold">${t.role}</div>
+                                        <div class="text-xs text-gray-400 mt-0.5">${t.desc}</div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                        <p class="text-xs text-gray-400 text-center mt-4 font-medium">
+                            🙏 Obrigado por ajudar a tornar o NyanTools melhor!
+                        </p>
+                    </div>
+                </div>
+
                 <!-- Licença -->
                 <div class="bg-gray-50 border border-gray-200 rounded-2xl p-5 flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -635,9 +666,9 @@ const Settings = {
         `;
     },
 
-    // ============================================
+    // ══════════════════════════════
     // ACTIONS
-    // ============================================
+    // ══════════════════════════════
 
     init() {
         this.loadSettings();
@@ -692,7 +723,6 @@ const Settings = {
 
     toggleNotifType(typeId, enabled) {
         Utils.saveData(typeId, enabled);
-        // Salva silenciosamente sem re-render (evita reset dos outros toggles)
     },
 
     clearNotificationHistory() {
@@ -782,9 +812,9 @@ const Settings = {
     }
 };
 
-// ============================================
+// ══════════════════════════════
 // AUTO-INICIALIZAÇÃO
-// ============================================
+// ══════════════════════════════
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => ThemeManager.init());
