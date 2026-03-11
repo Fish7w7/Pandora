@@ -1,0 +1,317 @@
+/* ═══════════════════════════════════════════════════
+   COMMAND-PALETTE.CSS v1.0 — NyanTools にゃん~
+   Ctrl+P — Command Palette
+   ═══════════════════════════════════════════════════ */
+
+/* ─── OVERLAY ────────────────────────────────────────── */
+#cmd-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.75);
+    align-items: flex-start;
+    justify-content: center;
+    padding-top: 12vh;
+}
+
+#cmd-overlay.open {
+    display: flex;
+    animation: cmdOverlayIn 0.2s ease;
+}
+
+@keyframes cmdOverlayIn {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ─── PAINEL PRINCIPAL ───────────────────────────────── */
+#cmd-panel {
+    width: 100%;
+    max-width: 580px;
+    margin: 0 1rem;
+    background: #0e0e16;
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    border-radius: 16px;
+    box-shadow:
+        0 32px 80px rgba(0, 0, 0, 0.7),
+        0 0 0 1px rgba(168, 85, 247, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    overflow: hidden;
+    animation: cmdPanelIn 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes cmdPanelIn {
+    from { opacity: 0; transform: translateY(-16px) scale(0.97); }
+    to   { opacity: 1; transform: translateY(0)     scale(1); }
+}
+
+/* ─── INPUT AREA ─────────────────────────────────────── */
+#cmd-input-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0 1rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+#cmd-search-icon {
+    color: rgba(255, 255, 255, 0.3);
+    flex-shrink: 0;
+    transition: color 0.2s;
+}
+
+#cmd-overlay.has-query #cmd-search-icon {
+    color: var(--theme-primary, #a855f7);
+}
+
+#cmd-input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    padding: 1rem 0;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    color: white;
+    caret-color: var(--theme-primary, #a855f7);
+}
+
+#cmd-input::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+}
+
+#cmd-kbd-esc {
+    font-size: 0.65rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    padding: 3px 7px;
+    color: rgba(255, 255, 255, 0.3);
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+    letter-spacing: 0.02em;
+}
+
+/* ─── RESULTADOS ─────────────────────────────────────── */
+#cmd-results {
+    max-height: 380px;
+    overflow-y: auto;
+    padding: 0.5rem 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.1) transparent;
+}
+
+#cmd-results::-webkit-scrollbar       { width: 4px; }
+#cmd-results::-webkit-scrollbar-track { background: transparent; }
+#cmd-results::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); border-radius: 4px; }
+
+/* ─── GRUPO / CATEGORIA ──────────────────────────────── */
+.cmd-group {
+    padding: 0 0.5rem;
+    margin-bottom: 0.25rem;
+}
+
+.cmd-group-label {
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.25);
+    padding: 0.5rem 0.5rem 0.25rem;
+    font-family: 'DM Sans', sans-serif;
+}
+
+/* ─── ITEM INDIVIDUAL ────────────────────────────────── */
+.cmd-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.55rem 0.625rem;
+    border-radius: 10px;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: background 0.1s, border-color 0.1s;
+    position: relative;
+}
+
+.cmd-item:hover,
+.cmd-item.selected {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.08);
+}
+
+.cmd-item.selected {
+    background: rgba(168, 85, 247, 0.12);
+    border-color: rgba(168, 85, 247, 0.2);
+}
+
+/* Ícone do item */
+.cmd-item-icon {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.07);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1rem;
+    flex-shrink: 0;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.cmd-item.selected .cmd-item-icon {
+    background: rgba(168, 85, 247, 0.2);
+    transform: scale(1.05);
+}
+
+/* Texto */
+.cmd-item-body {
+    flex: 1;
+    min-width: 0;
+}
+
+.cmd-item-name {
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.85);
+    font-family: 'DM Sans', sans-serif;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.2;
+}
+
+.cmd-item.selected .cmd-item-name {
+    color: white;
+}
+
+.cmd-item-sub {
+    font-size: 0.7rem;
+    color: rgba(255, 255, 255, 0.3);
+    font-family: 'DM Sans', sans-serif;
+    margin-top: 1px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Highlight de match */
+.cmd-highlight {
+    color: var(--theme-primary-light, #c084fc);
+    font-weight: 700;
+}
+
+/* Atalho à direita */
+.cmd-item-kbd {
+    font-size: 0.62rem;
+    font-weight: 700;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 5px;
+    padding: 2px 6px;
+    color: rgba(255, 255, 255, 0.25);
+    font-family: 'JetBrains Mono', monospace;
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
+.cmd-item.selected .cmd-item-kbd {
+    background: rgba(168, 85, 247, 0.15);
+    border-color: rgba(168, 85, 247, 0.25);
+    color: rgba(192, 132, 252, 0.8);
+}
+
+/* Seta de "ir" no item selecionado */
+.cmd-item-arrow {
+    font-size: 0.7rem;
+    color: rgba(168, 85, 247, 0.5);
+    flex-shrink: 0;
+    opacity: 0;
+    transition: opacity 0.1s, transform 0.1s;
+    transform: translateX(-4px);
+}
+
+.cmd-item.selected .cmd-item-arrow {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* ─── ESTADO VAZIO ───────────────────────────────────── */
+#cmd-empty {
+    display: none;
+    text-align: center;
+    padding: 2.5rem 1rem;
+}
+
+#cmd-empty.show {
+    display: block;
+}
+
+#cmd-empty-icon {
+    font-size: 2rem;
+    margin-bottom: 0.5rem;
+    opacity: 0.4;
+}
+
+#cmd-empty-text {
+    font-size: 0.8rem;
+    color: rgba(255, 255, 255, 0.25);
+    font-family: 'DM Sans', sans-serif;
+}
+
+/* ─── FOOTER ─────────────────────────────────────────── */
+#cmd-footer {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.625rem 1rem;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.2);
+}
+
+.cmd-footer-hint {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    font-size: 0.65rem;
+    color: rgba(255, 255, 255, 0.2);
+    font-family: 'DM Sans', sans-serif;
+}
+
+.cmd-footer-hint kbd {
+    font-size: 0.6rem;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-family: 'JetBrains Mono', monospace;
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.cmd-footer-sep {
+    width: 1px;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+/* ─── DIVIDER ENTRE GRUPOS ───────────────────────────── */
+.cmd-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.05);
+    margin: 0.25rem 0.5rem;
+}
+
+/* ─── ANIMAÇÃO DO PAINEL (só o painel, não cada item) ── */
+
+/* Isolar repaints do results container */
+#cmd-results {
+    contain: content;
+}
+
+/* Evitar repaint de toda a lista ao trocar selected */
+.cmd-item {
+    contain: layout style;
+}

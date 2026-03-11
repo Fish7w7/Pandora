@@ -532,10 +532,10 @@ const Dashboard = {
     
     getGreeting() {
         const hour = new Date().getHours();
-        if (hour < 6) return 'Boa madrugada';
-        if (hour < 12) return 'Bom dia';
-        if (hour < 18) return 'Boa tarde';
-        return 'Boa noite';
+        if (hour >= 0  && hour < 6)  return '🌙 Boa madrugada';
+        if (hour >= 6  && hour < 12) return '☀️ Bom dia';
+        if (hour >= 12 && hour < 18) return '🌤️ Boa tarde';
+        return '🌙 Boa noite';
     },
     
     formatTime(minutes) {

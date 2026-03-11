@@ -1,6 +1,6 @@
 // ════════════════════════════════════
 // PRELOAD.JS — Ponte segura Electron ↔ Frontend
-// NyanTools にゃん~ v3.0.2
+// NyanTools にゃん~ v3.2.0
 // ════════════════════════════════════
 
 const { contextBridge, ipcRenderer } = require('electron');
@@ -55,7 +55,7 @@ async function invoke(channel, ...args) {
 try {
     contextBridge.exposeInMainWorld('electronAPI', {
 
-        version: '3.0.2',
+        version: '3.2.0',
         isReady: true,
 
         checkForUpdates: () => invoke('check-for-updates'),
@@ -98,14 +98,14 @@ try {
         }
     });
 
-    console.log('✅ [Preload v3.0.2] API exposta com sucesso');
+    console.log('✅ [Preload v3.2.0] API exposta com sucesso');
 
 } catch (error) {
     console.error('❌ [Preload] ERRO CRÍTICO:', error);
     try {
         contextBridge.exposeInMainWorld('electronAPI', {
             isReady: false,
-            version: '3.0.2-fallback',
+            version: '3.2.0-fallback',
             error: error.message
         });
     } catch (fallbackError) {

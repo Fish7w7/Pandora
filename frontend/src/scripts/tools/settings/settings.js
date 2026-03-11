@@ -1,6 +1,6 @@
 /*═════════════════════════════════════════════
 // SISTEMA DE CONFIGURAÇÕES - NyanTools にゃん~
-// Versão Renovada v3.0
+// Versão Renovada v3.1.2
 ═══════════════════════════════════════════════
 */
 
@@ -209,6 +209,7 @@ const Settings = {
 
     renderAppearance() {
         const theme = Utils.loadData('app_theme') || 'light';
+        const focusActive = window.FocusMode?.active || false;
 
         return `
             <div class="space-y-5">
@@ -224,6 +225,48 @@ const Settings = {
                     <div class="grid grid-cols-2 gap-3">
                         ${this._renderModeCard('light', 'Claro', '☀️', 'Interface limpa e brilhante', 'from-gray-50 to-gray-100', theme, false)}
                         ${this._renderModeCard('dark',  'Escuro', '🌙', 'Reduz fadiga ocular', 'from-gray-700 to-gray-900', theme, true)}
+                    </div>
+                </div>
+
+                <!-- Modo Foco -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center gap-3 mb-5">
+                        <span class="text-2xl">🎯</span>
+                        <div>
+                            <h3 class="font-black text-gray-800 flex items-center gap-2">
+                                Modo Foco
+                                <span style="display:inline-flex;align-items:center;gap:0.3rem;font-size:0.7rem;font-weight:700;background:linear-gradient(135deg,rgba(168,85,247,0.15),rgba(236,72,153,0.15));border:1px solid rgba(168,85,247,0.3);color:#c084fc;border-radius:99px;padding:2px 8px;letter-spacing:0.04em;text-transform:uppercase;">NOVO</span>
+                            </h3>
+                            <p class="text-sm text-gray-500">Esconde a sidebar para maximizar o espaço de trabalho</p>
+                        </div>
+                    </div>
+
+                    <!-- Toggle principal -->
+                    ${this._renderToggleRow(
+                        'Ativar Modo Foco',
+                        'A sidebar some e o conteúdo ocupa toda a largura',
+                        '🎯',
+                        focusActive,
+                        `FocusMode[this.checked ? 'enable' : 'disable']()`
+                    )}
+
+                    <!-- Info cards -->
+                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                        <div class="bg-gray-50 rounded-xl p-3 text-center">
+                            <div class="text-xl mb-1">⌨️</div>
+                            <div class="text-xs font-bold text-gray-700">Atalho</div>
+                            <kbd class="text-xs bg-white border border-gray-200 rounded px-2 py-0.5 font-mono text-gray-600 shadow-sm">Ctrl+Shift+F</kbd>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-3 text-center">
+                            <div class="text-xl mb-1">🖱️</div>
+                            <div class="text-xs font-bold text-gray-700">Sidebar temporária</div>
+                            <div class="text-xs text-gray-500 mt-0.5">Passe o mouse na borda esquerda</div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-3 text-center">
+                            <div class="text-xl mb-1">💾</div>
+                            <div class="text-xs font-bold text-gray-700">Estado salvo</div>
+                            <div class="text-xs text-gray-500 mt-0.5">Reabre no mesmo modo</div>
+                        </div>
                     </div>
                 </div>
 
@@ -519,7 +562,7 @@ const Settings = {
                         <p class="text-gray-400 mt-1 mb-4">にゃん~ Sua caixa de ferramentas purr-feita!</p>
                         <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm font-bold">
                             <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                            Versão ${App?.version || '2.7.1'}
+                            Versão ${App?.version || '3.2.0'}
                         </div>
                     </div>
                 </div>
@@ -714,15 +757,6 @@ const Settings = {
         Utils.saveData('notification_history_enabled', enabled);
         Utils.showNotification(enabled ? '📋 Histórico ativado' : '📋 Histórico desativado', 'info');
         Router?.render();
-    },
-
-    clearNotificationHistory() {
-        Utils.saveData('notification_history', []);
-        Router?.render();
-    },
-
-    toggleNotifType(typeId, enabled) {
-        Utils.saveData(typeId, enabled);
     },
 
     clearNotificationHistory() {

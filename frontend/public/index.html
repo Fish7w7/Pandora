@@ -19,6 +19,8 @@
     <link rel="stylesheet" href="../src/styles/dark-theme.css">
     <link rel="stylesheet" href="../src/styles/theme-system.css">
     <link rel="stylesheet" href="../src/styles/density-fix.css">
+    <link rel="stylesheet" href="../src/styles/focus-mode.css">
+    <link rel="stylesheet" href="../src/styles/command-palette.css">
 
     <style>
         /* ─── Tipografia base */
@@ -295,7 +297,7 @@
             <div class="mt-6 text-center">
                 <div class="inline-flex items-center gap-2 text-white/20 text-xs font-semibold tracking-widest">
                     <span class="w-8 h-px bg-white/10 block"></span>
-                    <span>v3.1.2</span>
+                    <span>v3.2.0</span>
                     <span class="w-8 h-px bg-white/10 block"></span>
                 </div>
             </div>
@@ -311,25 +313,40 @@
         <!-- Sidebar -->
         <aside id="sidebar" class="text-white">
             <!-- Cabeçalho da sidebar -->
-            <div class="p-5 border-b border-white/15">
-                <h1 class="font-display text-xl font-black flex items-center gap-2 tracking-tight">
-                    🐱 NyanTools
-                </h1>
-                <p class="text-xs text-white/50 mt-1">
-                    にゃん~ Usuário: <span id="user-display" class="text-white/80 font-semibold"></span>
-                </p>
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <span class="sidebar-logo-icon">🐱</span>
+                    <div>
+                        <div class="sidebar-logo-name">NyanTools</div>
+                        <div class="sidebar-logo-sub">にゃん~</div>
+                    </div>
+                </div>
+                <div class="sidebar-user">
+                    <div class="sidebar-user-avatar" id="user-avatar">?</div>
+                    <div class="sidebar-user-info">
+                        <div class="sidebar-user-name" id="user-display">Usuário</div>
+                        <div class="sidebar-user-status">
+                            <span class="sidebar-user-dot"></span>
+                            <span>Online</span>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <!-- Menu de navegação -->
-            <nav id="nav-menu" class="flex-1 overflow-y-auto p-3">
+            <nav id="nav-menu" class="flex-1 overflow-y-auto sidebar-nav">
                 <!-- Itens inseridos pelo JavaScript -->
             </nav>
 
             <!-- Botão de sair -->
-            <div class="p-3 border-t border-white/15">
-                <button id="logout-btn"
-                        class="w-full py-2.5 px-4 bg-red-500/80 hover:bg-red-500 rounded-xl transition-all text-sm font-bold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-red-500/20">
-                    <span>にゃん~ Sair</span>
+            <div class="sidebar-footer">
+                <button id="logout-btn" class="sidebar-logout-btn">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                        <polyline points="16 17 21 12 16 7"/>
+                        <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    <span>Sair da conta</span>
                 </button>
             </div>
         </aside>
@@ -348,7 +365,7 @@
     ═══════════════════════════════════════ -->
     <div id="whats-new-modal"
          class="hidden fixed inset-0 z-[9998] flex items-end justify-center sm:items-center p-4"
-         style="background: rgba(0,0,0,0.55); backdrop-filter: blur(6px);"
+         style="background: rgba(0,0,0,0.82);"
          onclick="if(event.target===this) document.getElementById('whats-new-modal').classList.add('hidden')">
 
         <div data-whats-new-card
@@ -369,7 +386,7 @@
                     </div>
                 </div>
                 <button onclick="document.getElementById('whats-new-modal').classList.add('hidden')"
-                        class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 transition-all text-lg leading-none">
+                        class="w-8 h-8 rounded-lg flex items-center justify-center text-gray-500 hover:text-white hover:bg-white/10 text-lg leading-none">
                     ✕
                 </button>
             </div>
@@ -392,12 +409,12 @@
             <div class="px-6 pb-5 pt-3 flex items-center gap-3"
                  style="border-top: 1px solid rgba(255,255,255,0.07);">
                 <button onclick="document.getElementById('whats-new-modal').classList.add('hidden')"
-                        class="flex-1 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95"
+                        class="flex-1 py-2.5 rounded-xl font-bold text-sm active:scale-95"
                         style="background: rgba(255,255,255,0.06); color: rgba(255,255,255,0.7);">
                     Fechar
                 </button>
                 <button onclick="Router?.navigate('settings'); setTimeout(() => Settings?.switchTab?.('updates'), 100); document.getElementById('whats-new-modal').classList.add('hidden')"
-                        class="flex-1 py-2.5 rounded-xl font-bold text-sm transition-all active:scale-95"
+                        class="flex-1 py-2.5 rounded-xl font-bold text-sm active:scale-95"
                         style="background: #10b981; color: #fff;">
                     Ver changelog completo
                 </button>
@@ -424,6 +441,8 @@
     <script src="../src/scripts/tools/offline-zone/flappy-bird.js"></script>
     <script src="../src/scripts/tools/offline-zone/tictactoe.js"></script>
     <script src="../src/scripts/tools/settings/settings.js"></script>
+    <script src="../src/scripts/core/focus-mode.js"></script>
+    <script src="../src/scripts/core/command-palette.js"></script>
     <script src="../src/scripts/core/app.js"></script>
     <script src="../src/scripts/tools/updater/updater.js"></script>
     <script src="../src/scripts/tools/notes/notes.js"></script>

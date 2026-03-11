@@ -1,75 +1,136 @@
 {
-  "version": "3.1.2",
-  "buildDate": "2026-02-22",
+  "version": "3.2.0",
+  "buildDate": "2026-03-11",
   "changelog": [
-    "✨ Dashboard: Histórico de Uso redesenhado com grid 5×7 e alinhamento correto por dia da semana",
-    "✨ Dashboard: Gráfico semanal com barras proporcionais e labels de tempo",
-    "✨ Dashboard: Sequência do histórico sincronizada com card de stats",
-    "✨ Dashboard: Configurações e Atualizações removidas de Ferramentas Mais Usadas",
-    "✨ Notificações: Tipos de Alerta com toggles individuais (Confirmações, Erros, Info, Alertas)",
-    "✨ Notificações: Histórico Recente com últimas 20 entradas",
-    "✨ Notificações: Toggle para ativar/desativar salvamento do histórico",
-    "✨ Notificações: Botão para limpar histórico",
-    "✨ Gerador de Senhas: Cards com visual idêntico em light e dark mode",
-    "✨ Electron: Menu padrão removido (File/Edit/View/Window/Help)"
+    "✨ Dashboard: live tracking do gráfico semanal em tempo real",
+    "✨ Dashboard: arquivamento automático de semanas anteriores (weeklyHistory)",
+    "✨ Dashboard: dailyActivity incrementado por minuto — calendário reflete tempo real",
+    "🐛 Dashboard: bug de virada de semana — gráfico acumulava dados da semana passada",
+    "🐛 Tasks: priority selector invisível no dark mode — reescrito com inline styles",
+    "🐛 Dashboard: barra de progresso desaparecia no dark mode — inline styles aplicados",
+    "✨ Modo Foco: sidebar oculta com peek ao passar o mouse na borda esquerda (Ctrl+Shift+F)",
+    "✨ Modo Foco: header minimalista fixo com indicador de ferramenta ativa",
+    "✨ Modo Foco: estado persistido no localStorage",
+    "✨ Sidebar: redesign completo com logo, avatar do usuário e status Online",
+    "✨ Sidebar: itens agrupados (Ferramentas, Entretenimento, Organização, Sistema)",
+    "✨ Settings: card de Modo Foco adicionado na aba Aparência",
+    "✨ Command Palette: busca universal com Ctrl+P — ferramentas, notas, tarefas e ações",
+    "✨ Command Palette: navegação por teclado (↑↓ / Enter / Esc) e highlight de match",
+    "✨ Command Palette: ações dinâmicas (dark mode, modo foco, backup, atalhos)",
+    "✨ Easter Egg: ativado por 5 cliques no logo 🐱 — modal animado",
+    "🐛 Logout: confirm() nativo substituído por modal dark glass estilizado",
+    "🐛 Toast de atalhos: ícone real da ferramenta em vez de emoji fixo ⚡",
+    "⚡ Performance: backdrop-filter removido de overlays — CPU 13% → ~5% no Electron",
+    "⚡ Performance: delegação de eventos e debounce no Command Palette"
   ],
-  "tag_name": "v3.0.2",
-  "releaseDate": "2026-02-24",
-  "name": "NyanTools v3.0.2 - Nyan Patch にゃん~",
-  "codename": "Nyan",
-  "body": "## 🐛 NyanTools v3.0.2 – Nyan Patch にゃん~\n\n**PATCH:** Melhorias de UI, correções de dark mode e novas funcionalidades de notificações.\n\n### ✨ MELHORIAS\n\n#### 📊 Dashboard\n- **Histórico de Uso redesenhado:** Grid de 5×7 dias com alinhamento correto por dia da semana.\n- **Gráfico semanal corrigido:** Barras usam inline styles, imunes ao dark theme CSS.\n- **Sequência linkada:** Contador de sequência do histórico sincronizado com o card de stats.\n- **Ferramentas Mais Usadas:** Configurações e Atualizações removidas da lista.\n\n#### 🔔 Notificações (Settings)\n- **Tipos de Alerta:** Novos toggles individuais para Confirmações, Erros, Informações e Alertas.\n- **Histórico Recente:** Histórico de notificações com visualização das últimas 20 entradas.\n- **Toggle Salvar Histórico:** Opção para ativar/desativar o registro no histórico.\n- **Limpar histórico:** Botão para apagar o histórico de notificações.\n\n#### 🔑 Gerador de Senhas\n- **Cards idênticos em ambos os temas:** Dark mode agora exibe os gradientes coloridos igual ao light mode.\n\n#### 🖥️ Electron\n- **Menu removido:** Barra de menu padrão (File/Edit/View/Window/Help) removida via `Menu.setApplicationMenu(null)`.\n\n---\n\n**Versão Anterior:** [v3.0.1](https://github.com/Fish7w7/Pandora/releases/tag/v3.0.1)\n**Codename:** Nyan 🐱",
+  "tag_name": "v3.2.0",
+  "releaseDate": "2026-03-11",
+  "name": "NyanTools v3.2.0 – Sakura にゃん~",
+  "codename": "Sakura",
+  "body": "## 🌸 NyanTools v3.2.0 – Sakura にゃん~\n\n**MINOR:** Dashboard Live Tracking, Bug Fixes de UI/Dark Mode, Modo Foco, Sidebar Redesign, Command Palette e melhorias de performance.\n\n### ✨ NOVIDADES\n\n#### 📊 Dashboard Live Tracking\n- **Gráfico ao vivo:** gráfico semanal atualiza em tempo real a cada minuto, sem precisar navegar para fora e voltar.\n- **Calendário real:** `dailyActivity` incrementado por minuto — o calendário agora reflete o tempo de uso real da sessão.\n- **Histórico de semanas:** dados arquivados automaticamente em `weeklyHistory` com até 52 semanas (base para resumo mensal/anual futuro).\n\n#### ⌨️ Command Palette (Ctrl+P)\n- **Busca universal:** ferramentas, notas, tarefas e ações em tempo real com uma tecla.\n- **Navegação por teclado:** ↑↓ para navegar, Enter para executar, Esc para fechar.\n- **Highlight de match:** texto encontrado destacado em roxo nos resultados.\n- **Ações dinâmicas:** toggle de dark mode e modo foco refletem o estado atual.\n\n#### 🎯 Modo Foco (Ctrl+Shift+F)\n- **Sidebar oculta:** maximiza o espaço de conteúdo com transição suave.\n- **Peek:** passe o mouse na borda esquerda para ver a sidebar como painel flutuante.\n- **Header minimalista:** botão NyanTools, ferramenta ativa, usuário e botão de saída.\n- **Estado persistido:** o modo foco é salvo entre sessões via localStorage.\n\n#### 🎨 Sidebar Redesign\n- **Novo header:** logo 🐱 animado, avatar com inicial do usuário e status Online.\n- **Navegação agrupada:** Ferramentas, Entretenimento, Organização e Sistema.\n- **Micro-interações:** itens deslizam levemente ao hover (`translateX(2px)`).\n\n#### 🐱 Easter Egg\n- **Gatilho:** 5 cliques no logo 🐱 da sidebar em até 2.5s.\n- **Modal animado:** substitui o antigo `alert()` com card dark glass.\n\n### 🐛 CORREÇÕES\n- **Dashboard:** bug de virada de semana — gráfico acumulava indefinidamente dados de semanas anteriores.\n- **Tasks:** priority selector completamente invisível no dark mode — reescrito com inline styles.\n- **Dashboard:** barra de progresso (taxa de conclusão) desaparecia no dark mode.\n- **Logout:** diálogo `confirm()` nativo substituído por modal dark glass estilizado.\n- **Toast de atalhos:** agora exibe o ícone real da ferramenta em vez do emoji fixo ⚡.\n\n### ⚡ PERFORMANCE\n- **backdrop-filter removido** de todos os overlays — redução de 13% → ~5% de CPU no Electron.\n- **Delegação de eventos** no Command Palette — N listeners → 2 listeners por abertura.\n- **Debounce de 60ms** no input — evita re-render do DOM a cada tecla.\n\n---\n\n**Versão Anterior:** [v3.0.2](https://github.com/Fish7w7/Pandora/releases/tag/v3.0.2)\n**Codename:** Sakura 🌸\n**Autores:** Gabriel & Clara",
   "previousVersion": {
-    "version": "3.0.1",
-    "tag": "v3.0.1",
-    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.1"
+    "version": "3.0.2",
+    "tag": "v3.0.2",
+    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.2"
   },
-  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.2",
-  "releaseNotesUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.2",
-  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.2",
+  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.2.0",
+  "releaseNotesUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.2.0",
+  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.2.0",
   "statistics": {
-    "filesNew": 0,
+    "filesNew": 4,
     "filesRewritten": 0,
-    "filesModified": 6,
-    "bugsFixed": 4,
-    "featuresAdded": 6
+    "filesModified": 10,
+    "bugsFixed": 10,
+    "featuresAdded": 12
   },
   "filesModified": [
+    "frontend/src/scripts/core/app.js",
+    "frontend/src/scripts/core/keyboard-shortcuts.js",
     "frontend/src/scripts/tools/dashboard/dashboard.js",
+    "frontend/src/scripts/tools/tasks/tasks.js",
     "frontend/src/scripts/tools/settings/settings.js",
-    "frontend/src/scripts/tools/password/password.js",
-    "frontend/src/scripts/utils/helpers.js",
-    "frontend/src/styles/dark-theme.css",
-    "backend/main.js",
+    "frontend/src/styles/main.css",
+    "frontend/src/styles/focus-mode.css",
+    "frontend/index.html",
+    "frontend/src/scripts/updater/updater.js",
     "version.json"
+  ],
+  "filesNew": [
+    "frontend/src/scripts/core/command-palette.js",
+    "frontend/src/styles/command-palette.css",
+    "frontend/src/scripts/core/focus-mode.js",
+    "frontend/src/styles/focus-mode.css"
   ],
   "bugFixes": [
     {
-      "id": "dashboard-weekly-chart-dark",
-      "description": "Gráfico semanal invisível no dark mode",
+      "id": "BUG-12",
+      "description": "Gráfico semanal mostrava dados da semana passada após virada de semana",
       "status": "✅ Corrigido",
       "file": "dashboard.js",
-      "solution": "Barras usam inline styles ao invés de classes Tailwind, imunes ao dark theme CSS"
+      "solution": "getWeekStart() + detecção em updateStats() + reset de weeklyActivity com arquivamento em weeklyHistory"
     },
     {
-      "id": "password-cards-dark-mode",
-      "description": "Cards do gerador de senhas sem gradiente colorido no dark mode",
+      "id": "BUG-13",
+      "description": "Gráfico semanal só atualizava ao sair e voltar da aba",
       "status": "✅ Corrigido",
-      "file": "password.js",
-      "solution": "Cards usam inline styles via JS, dark theme CSS não interfere mais"
+      "file": "dashboard.js / app.js",
+      "solution": "refreshWeeklyChart() chamado a cada minuto pelo intervalo do app.js"
     },
     {
-      "id": "dashboard-tools-settings-entry",
-      "description": "Configurações aparecia na lista de Ferramentas Mais Usadas",
+      "id": "BUG-14",
+      "description": "dailyActivity nunca incrementado durante sessão — calendário não refletia tempo real",
+      "status": "✅ Corrigido",
+      "file": "app.js",
+      "solution": "Incremento de dailyActivity[today] adicionado ao intervalo de 1 minuto"
+    },
+    {
+      "id": "BUG-15",
+      "description": "Priority selector invisível no dark mode — estado de seleção nunca refletido visualmente",
+      "status": "✅ Corrigido",
+      "file": "tasks.js",
+      "solution": "Padrão peer-checked substituído por botões com inline styles + hidden input"
+    },
+    {
+      "id": "BUG-16",
+      "description": "Barra de progresso (taxa de conclusão) desaparecia no dark mode",
       "status": "✅ Corrigido",
       "file": "dashboard.js",
-      "solution": "delete normalized.settings e delete normalized.updates em normalizeToolAccess()"
+      "solution": "Classes Tailwind da trilha e preenchimento trocadas por inline styles com cores hardcoded"
     },
     {
-      "id": "calendar-day-alignment",
-      "description": "Calendário do histórico marcava dia errado da semana",
+      "id": "BUG-17",
+      "description": "Sidebar reservava 280px de espaço no flex mesmo em modo foco",
       "status": "✅ Corrigido",
-      "file": "dashboard.js",
-      "solution": "startDate calculado com base no getDay() de today para alinhamento correto"
+      "file": "focus-mode.css",
+      "solution": "width: 0 !important + overflow: visible + filhos com width: var(--sidebar-width)"
+    },
+    {
+      "id": "BUG-18",
+      "description": "Toggle button flutuava no centro da tela em modo foco",
+      "status": "✅ Corrigido",
+      "file": "focus-mode.css",
+      "solution": "display: none !important em modo foco — botão Sair do Foco no header é suficiente"
+    },
+    {
+      "id": "BUG-19",
+      "description": "border-left do theme-system.css quebrava o visual do item ativo no novo design da sidebar",
+      "status": "✅ Corrigido",
+      "file": "main.css",
+      "solution": ".nav-item.active { border-left: none !important } no main.css"
+    },
+    {
+      "id": "BUG-22",
+      "description": "Diálogo confirm() nativo do browser no logout",
+      "status": "✅ Corrigido",
+      "file": "app.js",
+      "solution": "Modal dark glass customizado com animação spring e botões estilizados"
+    },
+    {
+      "id": "BUG-23",
+      "description": "Easter Egg existia no código mas nunca era ativado",
+      "status": "✅ Corrigido",
+      "file": "app.js",
+      "solution": "Gatilho de 5 cliques no logo da sidebar com feedback visual e reset por timeout"
     }
   ]
 }

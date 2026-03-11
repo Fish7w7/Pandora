@@ -1,7 +1,7 @@
-// Sistema de Atalhos de Teclado にゃん~ - v3.0.0 - Phoenix Update
+// Sistema de Atalhos de Teclado にゃん~ - v3.1.2
 const KeyboardShortcuts = {
     shortcuts: {
-        // Mapeamento de atalhos para IDs do router antigo
+        // Mapeamento de atalhos para IDs do router
         'ctrl+1': { tool: 'home', name: 'Dashboard' },
         'ctrl+2': { tool: 'password', name: 'Gerador de Senhas' },
         'ctrl+3': { tool: 'weather', name: 'Clima' },
@@ -16,13 +16,14 @@ const KeyboardShortcuts = {
         'ctrl+s': { tool: 'settings', name: 'Configurações' },
         'ctrl+/': { action: 'showHelp', name: 'Mostrar Atalhos' },
         'escape': { action: 'closeModals', name: 'Fechar Modais' },
-        'ctrl+shift+u': { action: 'toggleDevMode', name: 'Dev Mode (Updater)' }
+        'ctrl+shift+u': { action: 'toggleDevMode', name: 'Dev Mode (Updater)' },
+        'ctrl+shift+f': { action: 'toggleFocusMode', name: 'Modo Foco' },
     },
     
     isModalOpen: false,
     
     init() {
-        console.log('⌨️ Inicializando Atalhos de Teclado v3.0.2...');
+        console.log('⌨️ Inicializando Atalhos de Teclado v3.2.0...');
         this.setupListeners();
         console.log('✅ Atalhos ativados! Pressione Ctrl+/ para ver todos.');
     },
@@ -71,6 +72,10 @@ const KeyboardShortcuts = {
             this.showHelpModal();
         } else if (shortcut.action === 'closeModals') {
             this.closeAllModals();
+        } else if (shortcut.action === 'toggleFocusMode') {
+            if (window.FocusMode) {
+                FocusMode.toggle();
+            }
         } else if (shortcut.action === 'toggleDevMode') {
             if (window.AutoUpdater) {
                 if (!AutoUpdater._isDevEnv) {
@@ -92,8 +97,12 @@ const KeyboardShortcuts = {
         if (window.Router && typeof Router.navigate === 'function') {
             Router.navigate(toolId);
             
+            // Pegar ícone da ferramenta
+            const tool = window.App?.tools?.find(t => t.id === toolId);
+            const toolIcon = tool?.icon || '⚡';
+
             // Feedback visual
-            this.showFlash(toolName);
+            this.showFlash(toolName, toolIcon);
             
             console.log(`⚡ Navegando para: ${toolName}`);
         } else {
@@ -101,21 +110,97 @@ const KeyboardShortcuts = {
         }
     },
     
-    showFlash(toolName) {
+    showFlash(toolName, toolIcon = '⚡') {
+        // Remover flash anterior se ainda existir
+        document.getElementById('kb-flash-toast')?.remove();
+
         const flash = document.createElement('div');
-        flash.className = 'fixed top-20 left-1/2 transform -translate-x-1/2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl shadow-2xl font-bold z-50 animate-flash';
+        flash.id = 'kb-flash-toast';
         flash.innerHTML = `
-            <div class="flex items-center gap-2">
-                <span>⚡</span>
-                <span>${toolName}</span>
-            </div>
+            <span class="kb-flash-icon">${toolIcon}</span>
+            <span class="kb-flash-text">${toolName}</span>
+            <kbd class="kb-flash-kbd">⌨️</kbd>
         `;
-        
+
+        // Injetar estilos se ainda não existirem
+        if (!document.getElementById('kb-flash-style')) {
+            const style = document.createElement('style');
+            style.id = 'kb-flash-style';
+            style.textContent = `
+                #kb-flash-toast {
+                    position: fixed;
+                    bottom: 1.5rem;
+                    left: 50%;
+                    transform: translateX(-50%) translateY(80px);
+                    z-index: 9999;
+                    display: flex;
+                    align-items: center;
+                    gap: 0.625rem;
+                    padding: 0.6rem 1rem 0.6rem 0.75rem;
+                    background: rgba(15, 15, 20, 0.96);
+                    border: 1px solid rgba(255, 255, 255, 0.1);
+                    border-radius: 12px;
+                    box-shadow: 0 8px 32px rgba(0,0,0,0.4), 0 0 0 1px rgba(255,255,255,0.04);
+                    font-family: 'DM Sans', sans-serif;
+                    font-size: 0.8rem;
+                    font-weight: 600;
+                    color: rgba(255, 255, 255, 0.85);
+                    white-space: nowrap;
+                    pointer-events: none;
+                    opacity: 0;
+                    transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.25s ease;
+                }
+                #kb-flash-toast.show {
+                    transform: translateX(-50%) translateY(0);
+                    opacity: 1;
+                }
+                #kb-flash-toast.hide {
+                    transform: translateX(-50%) translateY(12px);
+                    opacity: 0;
+                    transition: transform 0.2s ease, opacity 0.2s ease;
+                }
+                .kb-flash-icon {
+                    font-size: 1rem;
+                    line-height: 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    width: 28px;
+                    height: 28px;
+                    background: rgba(255,255,255,0.08);
+                    border-radius: 7px;
+                    flex-shrink: 0;
+                }
+                .kb-flash-text {
+                    color: rgba(255,255,255,0.9);
+                }
+                .kb-flash-kbd {
+                    font-size: 0.65rem;
+                    background: rgba(255,255,255,0.07);
+                    border: 1px solid rgba(255,255,255,0.12);
+                    border-radius: 5px;
+                    padding: 2px 6px;
+                    font-family: monospace;
+                    color: rgba(255,255,255,0.35);
+                    margin-left: 0.125rem;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
         document.body.appendChild(flash);
-        
+
+        // Animar entrada
+        requestAnimationFrame(() => {
+            requestAnimationFrame(() => flash.classList.add('show'));
+        });
+
+        // Animar saída
         setTimeout(() => {
-            flash.remove();
-        }, 1500);
+            flash.classList.remove('show');
+            flash.classList.add('hide');
+            setTimeout(() => flash.remove(), 250);
+        }, 1400);
     },
     
     showHelpModal() {
@@ -123,7 +208,7 @@ const KeyboardShortcuts = {
         
         const modal = document.createElement('div');
         modal.id = 'shortcuts-modal';
-        modal.className = 'fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 animate-fadeIn';
+        modal.className = 'fixed inset-0 bg-black/60 flex items-center justify-center z-50 animate-fadeIn';
         modal.onclick = (e) => {
             if (e.target === modal) this.closeHelpModal();
         };
@@ -137,7 +222,7 @@ const KeyboardShortcuts = {
                             <h2 class="text-3xl font-black">Atalhos de Teclado</h2>
                         </div>
                         <button onclick="KeyboardShortcuts.closeHelpModal()" 
-                                class="text-white/80 hover:text-white text-2xl font-bold transition-colors">
+                                class="text-white/80 hover:text-white text-2xl font-bold">
                             ✕
                         </button>
                     </div>
@@ -170,11 +255,12 @@ const KeyboardShortcuts = {
                             <span>Ações Rápidas</span>
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            ${this.renderShortcutItem('Ctrl + P', 'Command Palette', '🔍')}
                             ${this.renderShortcutItem('Ctrl + T', 'Tarefas', '✅')}
                             ${this.renderShortcutItem('Ctrl + S', 'Configurações', '⚙️')}
                             ${this.renderShortcutItem('Ctrl + /', 'Mostrar Atalhos', '❓')}
                             ${this.renderShortcutItem('Esc', 'Fechar Modais', '❌')}
-                            ${this.renderShortcutItem('Ctrl + Shift + U', 'Dev Mode Updater', '🔧')}
+                            ${this.renderShortcutItem('Ctrl + Shift + F', 'Modo Foco', '🎯')}
                         </div>
                     </div>
                     
@@ -186,6 +272,8 @@ const KeyboardShortcuts = {
                                 <p class="text-sm text-gray-600">
                                     Atalhos não funcionam quando você está digitando em campos de texto. 
                                     Use <kbd class="px-2 py-1 bg-white rounded border shadow-sm">Ctrl + /</kbd> a qualquer momento para ver esta ajuda!
+                                    <br><br>
+                                    Use <kbd class="px-2 py-1 bg-white rounded border shadow-sm">Ctrl + Shift + F</kbd> para ativar o <strong>Modo Foco</strong> e maximizar o espaço de trabalho. Passe o mouse na borda esquerda para revelar a sidebar temporariamente.
                                 </p>
                             </div>
                         </div>
@@ -200,7 +288,7 @@ const KeyboardShortcuts = {
     
     renderShortcutItem(keys, description, icon) {
         return `
-            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-all">
+            <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100">
                 <div class="flex items-center gap-2">
                     <span class="text-xl">${icon}</span>
                     <span class="font-semibold text-gray-700">${description}</span>

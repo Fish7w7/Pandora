@@ -66,12 +66,12 @@ function createWindow() {
 
     const indexPath = path.join(__dirname, '../../frontend/public/index.html');
 
-    console.log('🐱 NyanTools v3.0.2 (Nyan Patch)');
+    console.log('🐱 NyanTools 3.2.0 (Nyan Sakura)');
     console.log('📁 Diretório:', __dirname);
     console.log('📄 Carregando:', indexPath);
 
     // Remove menubar padrão do Electron
-    //Menu.setApplicationMenu(null);
+    Menu.setApplicationMenu(null);
 
     mainWindow.loadFile(indexPath);
 
@@ -357,7 +357,7 @@ ipcMain.handle('open-downloads-folder', async () => {
 // ─── LIFECYCLE ───────────────────────────────────────────────────────────────
 
 app.whenReady().then(() => {
-    console.log('🐱 NyanTools v3.0.2 - Nyan Patch');
+    console.log('🐱 NyanTools v3.2.0 - Nyan Sakura');
     console.log('📁 App path:', app.getAppPath());
     console.log('💻 Plataforma:', process.platform);
     console.log('📥 Downloads:', app.getPath('downloads'));

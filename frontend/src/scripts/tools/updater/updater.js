@@ -5,7 +5,7 @@
 
 const AutoUpdater = {
     // currentVersion é lido do version.json no init() — fonte única
-    currentVersion: '3.1.2',
+    currentVersion: '3.2.0',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -29,10 +29,32 @@ const AutoUpdater = {
 
     changelog: [
         {
-            version: '3.0.2',
-            date: '2026-02-22T12:00:00',
+            version: '3.2.0',
+            date: '2026-03-11T12:00:00',
             label: 'Atual',
             labelColor: 'bg-green-500',
+            author: 'Gabriel & Clara',
+            changes: [
+                { type: '✨', text: 'Command Palette: busca universal com Ctrl+P — ferramentas, notas, tarefas e ações em tempo real' },
+                { type: '✨', text: 'Command Palette: navegação por teclado (↑↓ / Enter / Esc) e highlight de match' },
+                { type: '✨', text: 'Command Palette: ações dinâmicas (toggle dark mode, modo foco, exportar backup, atalhos)' },
+                { type: '✨', text: 'Modo Foco: sidebar oculta com peek ao passar o mouse na borda esquerda (Ctrl+Shift+F)' },
+                { type: '✨', text: 'Modo Foco: header minimalista fixo com indicador de ferramenta ativa' },
+                { type: '✨', text: 'Sidebar: redesign completo com logo, avatar do usuário e status Online' },
+                { type: '✨', text: 'Sidebar: itens de navegação agrupados (Ferramentas, Entretenimento, Organização, Sistema)' },
+                { type: '✨', text: 'Easter Egg: ativado por 5 cliques no logo 🐱 — modal animado com "Aviso Importante"' },
+                { type: '✨', text: 'Settings: card de Modo Foco adicionado na aba Aparência' },
+                { type: '🐛', text: 'Logout: substituído confirm() nativo por modal dark glass estilizado' },
+                { type: '🐛', text: 'Toast de atalhos: ícone real da ferramenta em vez de emoji fixo ⚡' },
+                { type: '⚡', text: 'Performance: backdrop-filter removido de overlays — CPU 13% → ~5% no Electron' },
+                { type: '⚡', text: 'Performance: delegação de eventos e debounce no Command Palette' },
+            ]
+        },
+        {
+            version: '3.0.2',
+            date: '2026-02-22T12:00:00',
+            label: null,
+            labelColor: '',
             author: 'Clara',
             changes: [
                 { type: '✨', text: 'Dashboard: Histórico de Uso redesenhado com grid 5×7 e alinhamento correto por dia da semana' },
@@ -45,25 +67,6 @@ const AutoUpdater = {
                 { type: '✨', text: 'Notificações: Botão para limpar histórico' },
                 { type: '✨', text: 'Gerador de Senhas: Cards com visual idêntico em light e dark mode' },
                 { type: '✨', text: 'Electron: Menu padrão removido (File/Edit/View/Window/Help)' }
-            ]
-        },
-        {
-            version: '3.0.1',
-            date: '2026-02-21T12:00:00',
-            label: null,
-            labelColor: '',
-            author: 'Clara',
-            changes: [
-                { type: '🐛', text: 'Cobrinha: spam de game over ao reiniciar corrigido' },
-                { type: '🐛', text: 'Dashboard: bug de logout com tela desalinhada corrigido' },
-                { type: '🐛', text: 'Dashboard: tracking de atividade limpo corretamente no logout' },
-                { type: '🐛', text: 'Notas: dark mode completo implementado' },
-                { type: '🐛', text: 'Notas: ordenação por pins corrigida' },
-                { type: '🐛', text: 'Notas: formatação de data agora exibe o ano corretamente' },
-                { type: '🐛', text: 'Tarefas: dark mode completo implementado' },
-                { type: '🐛', text: 'Tarefas: classes de prioridade do Tailwind corrigidas (eram dinâmicas)' },
-                { type: '🐛', text: 'Tarefas: prioridade padrão "média" ao criar nova tarefa' },
-                { type: '🐛', text: 'Layout: conflito entre Tailwind hidden e CSS flex do #main-app corrigido' }
             ]
         },
     ],
