@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="../src/styles/theme-system.css">
     <link rel="stylesheet" href="../src/styles/density-fix.css">
     <link rel="stylesheet" href="../src/styles/focus-mode.css">
+    <link rel="stylesheet" href="../src/styles/profile.css">
     <link rel="stylesheet" href="../src/styles/command-palette.css">
 
     <style>
@@ -297,7 +298,7 @@
             <div class="mt-6 text-center">
                 <div class="inline-flex items-center gap-2 text-white/20 text-xs font-semibold tracking-widest">
                     <span class="w-8 h-px bg-white/10 block"></span>
-                    <span>v3.2.0</span>
+                    <span>v3.3.0</span>
                     <span class="w-8 h-px bg-white/10 block"></span>
                 </div>
             </div>
@@ -321,7 +322,7 @@
                         <div class="sidebar-logo-sub">にゃん~</div>
                     </div>
                 </div>
-                <div class="sidebar-user">
+                <div class="sidebar-user" id="sidebar-user-btn" onclick="Router.navigate('profile')" title="Ver perfil" style="cursor:pointer;">
                     <div class="sidebar-user-avatar" id="user-avatar">?</div>
                     <div class="sidebar-user-info">
                         <div class="sidebar-user-name" id="user-display">Usuário</div>
@@ -330,6 +331,9 @@
                             <span>Online</span>
                         </div>
                     </div>
+                    <svg class="sidebar-user-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="9 18 15 12 9 6"/>
+                    </svg>
                 </div>
             </div>
 
@@ -441,8 +445,12 @@
     <script src="../src/scripts/tools/offline-zone/flappy-bird.js"></script>
     <script src="../src/scripts/tools/offline-zone/tictactoe.js"></script>
     <script src="../src/scripts/tools/settings/settings.js"></script>
+    <script src="../src/scripts/tools/profile/profile.js"></script>
     <script src="../src/scripts/core/focus-mode.js"></script>
     <script src="../src/scripts/core/command-palette.js"></script>
+    <script src="../src/scripts/core/favorites.js"></script>
+    <script src="../src/scripts/core/achievements.js"></script>
+    <script src="../src/scripts/core/beta-testers.js"></script>
     <script src="../src/scripts/core/app.js"></script>
     <script src="../src/scripts/tools/updater/updater.js"></script>
     <script src="../src/scripts/tools/notes/notes.js"></script>

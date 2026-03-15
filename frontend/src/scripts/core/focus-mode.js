@@ -160,9 +160,10 @@ const FocusMode = {
             originalNavigate(toolId);
             // Atualizar indicador após navegação
             setTimeout(() => this._updateToolIndicator(toolId), 50);
-            // Se estava no peek, fechar sidebar
+            // Se estava no peek, fechar sidebar após delay — dá tempo de escolher outra tool
             if (this.active && this.peeking) {
-                setTimeout(() => this._endPeek(), 300);
+                clearTimeout(this._peekTimeout);
+                this._peekTimeout = setTimeout(() => this._endPeek(), 1200);
             }
         };
     },
@@ -205,6 +206,10 @@ const FocusMode = {
     _startPeek() {
         if (!this.active) return;
         clearTimeout(this._peekTimeout);
+
+        // Cancelar fechamento em andamento
+        document.body.classList.remove('sidebar-closing');
+
         this.peeking = true;
         document.body.classList.add('sidebar-peek');
     },
@@ -212,13 +217,25 @@ const FocusMode = {
     _schedulePeekEnd() {
         if (!this.active) return;
         clearTimeout(this._peekTimeout);
-        this._peekTimeout = setTimeout(() => this._endPeek(), 400);
+        this._peekTimeout = setTimeout(() => this._endPeek(), 700);
     },
 
     _endPeek() {
-        if (!this.active) return;
+        if (!this.active || !this.peeking) return;
         this.peeking = false;
-        document.body.classList.remove('sidebar-peek');
+
+        // 1. Fade-out do conteúdo (150ms)
+        document.body.classList.add('sidebar-closing');
+
+        // 2. Após fade-out, iniciar slide de fechamento
+        setTimeout(() => {
+            document.body.classList.remove('sidebar-peek');
+
+            // 3. Após slide completo, limpar tudo
+            setTimeout(() => {
+                document.body.classList.remove('sidebar-closing');
+            }, 320);
+        }, 150);
     },
 
     // ──────────────────────────────────────────────────────

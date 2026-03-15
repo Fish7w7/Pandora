@@ -21,23 +21,42 @@ const MiniGame = {
         speed: 100,
         initialSnakeLength: 3
     },
-    
-    // Cores do jogo (tema dark otimizado)
+
+    // Itens especiais de comida
+    foodTypes: {
+        normal: { color: '#ef4444', glow: 'rgba(239,68,68,0.6)',  points: 10, symbol: '🍎', chance: 1.00 },
+        star:   { color: '#f59e0b', glow: 'rgba(245,158,11,0.7)', points: 20, symbol: '⭐', chance: 0.20 },
+        gem:    { color: '#8b5cf6', glow: 'rgba(139,92,246,0.8)', points: 30, symbol: '💎', chance: 0.07 },
+    },
+    currentFoodType: 'normal',
+
+    // Partículas de estrela no fundo (geradas uma vez)
+    _stars: null,
+
+    // Cores do jogo
     colors: {
-        background: '#0f172a',
-        grid: 'rgba(148, 163, 184, 0.1)',
-        snakeHead: '#10b981',
-        snakeBody: '#059669',
-        snakeBodyGradient: '#047857',
-        food: '#ef4444',
-        foodGlow: 'rgba(239, 68, 68, 0.5)'
+        background:         '#080d1a',
+        bgGlow1:            'rgba(16,185,129,0.04)',
+        bgGlow2:            'rgba(139,92,246,0.04)',
+        grid:               'rgba(148,163,184,0.05)',
+        snakeHead:          '#10b981',
+        snakeBody:          '#059669',
+        snakeBodyGradient:  '#047857',
+        food:               '#ef4444',
+        foodGlow:           'rgba(239,68,68,0.5)'
     },
     
     render() {
         this.highScore = Utils.loadData('snake_highscore') || 0;
         
         return `
-            <div class="max-w-3xl mx-auto">
+            <div class="max-w-3xl mx-auto" style="position:relative;">
+                <!-- Fundo decorativo — visível só no tema claro -->
+                <div style="
+                    position:fixed; inset:0; z-index:-1; pointer-events:none;
+                    background: radial-gradient(ellipse at 30% 20%, rgba(16,185,129,0.06) 0%, transparent 50%),
+                                radial-gradient(ellipse at 70% 80%, rgba(5,150,105,0.04) 0%, transparent 50%);
+                "></div>
                 ${this.renderHeader()}
                 ${this.renderGameContainer()}
                 ${this.renderStats()}
@@ -48,54 +67,83 @@ const MiniGame = {
     renderHeader() {
         return `
             <div class="text-center mb-4">
-                <div class="inline-flex items-center gap-3 mb-2">
-                    <div class="text-4xl">🐍</div>
-                    <h1 class="text-3xl font-black bg-gradient-to-r from-green-600 via-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                <div class="inline-flex items-center gap-3 mb-1">
+                    <div class="text-3xl">🐍</div>
+                    <h1 class="text-2xl font-black bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400 bg-clip-text text-transparent">
                         Cobrinha にゃん~
                     </h1>
                 </div>
-                <p class="text-gray-600 dark:text-gray-400 text-sm">Use as setas do teclado ou clique nos botões</p>
+                <p class="text-gray-500 dark:text-gray-400 text-xs">Use as setas do teclado ou clique nos botões</p>
             </div>
         `;
     },
-    
+
     renderGameContainer() {
         return `
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 mb-4 border dark:border-gray-700">
+            <div style="
+                background: linear-gradient(135deg, #0d1117 0%, #0f172a 50%, #0d1117 100%);
+                border: 1px solid rgba(16,185,129,0.15);
+                border-radius: 20px;
+                padding: 1rem;
+                margin-bottom: 1rem;
+                box-shadow: 0 0 40px rgba(16,185,129,0.05), 0 20px 60px rgba(0,0,0,0.5);
+            ">
                 ${this.renderScoreDisplay()}
                 ${this.renderCanvas()}
                 ${this.renderControls()}
             </div>
         `;
     },
-    
+
     renderScoreDisplay() {
+        const foodType = this.foodTypes[this.currentFoodType] || this.foodTypes.normal;
+        const multiplierBadge = this.currentFoodType !== 'normal'
+            ? `<span style="
+                background: linear-gradient(135deg, ${foodType.color}33, ${foodType.color}22);
+                border: 1px solid ${foodType.color}66;
+                color: ${foodType.color};
+                font-size: 0.65rem; font-weight: 800;
+                padding: 2px 8px; border-radius: 999px;
+                margin-left: 0.5rem;
+              ">${foodType.symbol} x${foodType.points / 10}</span>`
+            : '';
+
         return `
-            <div class="flex justify-between items-center mb-4 gap-3">
-                <div class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-4 py-3 rounded-xl shadow-md">
-                    <div class="text-xs font-semibold opacity-90">Pontuação</div>
-                    <div class="text-2xl font-black" id="score">0</div>
+            <div style="display:flex; gap:0.75rem; margin-bottom:0.75rem;">
+                <div style="
+                    flex:1; background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(5,150,105,0.1));
+                    border:1px solid rgba(16,185,129,0.2); border-radius:12px; padding:0.625rem 0.875rem;
+                ">
+                    <div style="font-size:0.65rem; font-weight:700; color:rgba(16,185,129,0.7); text-transform:uppercase; letter-spacing:0.08em;">Pontuação</div>
+                    <div style="font-size:1.4rem; font-weight:900; color:white; line-height:1;" id="score">0</div>
+                    ${multiplierBadge}
                 </div>
-                <div class="flex-1 bg-gradient-to-r from-orange-500 to-amber-600 text-white px-4 py-3 rounded-xl shadow-md">
-                    <div class="text-xs font-semibold opacity-90">🏆 Recorde</div>
-                    <div class="text-2xl font-black">${this.highScore}</div>
+                <div style="
+                    flex:1; background:linear-gradient(135deg,rgba(245,158,11,0.15),rgba(217,119,6,0.1));
+                    border:1px solid rgba(245,158,11,0.2); border-radius:12px; padding:0.625rem 0.875rem;
+                ">
+                    <div style="font-size:0.65rem; font-weight:700; color:rgba(245,158,11,0.7); text-transform:uppercase; letter-spacing:0.08em;">🏆 Recorde</div>
+                    <div style="font-size:1.4rem; font-weight:900; color:white; line-height:1;">${this.highScore}</div>
                 </div>
             </div>
         `;
     },
-    
+
     renderCanvas() {
         return `
-            <div class="relative bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 rounded-xl p-3 shadow-inner mb-4">
-                <canvas id="game-canvas" width="400" height="400" 
-                        class="mx-auto rounded-lg shadow-2xl border border-slate-700"
-                        style="image-rendering: pixelated; image-rendering: crisp-edges; display: block;">
+            <div style="position:relative; border-radius:12px; overflow:hidden; margin-bottom:0.75rem;
+                        box-shadow: 0 0 0 1px rgba(16,185,129,0.1), inset 0 0 40px rgba(0,0,0,0.4);">
+                <canvas id="game-canvas" width="400" height="400"
+                        style="display:block; margin:0 auto; image-rendering:pixelated; image-rendering:crisp-edges; background:#080d1a; border-radius:4px;">
                 </canvas>
-                <div id="game-overlay" class="absolute inset-0 flex items-center justify-center bg-black/50 rounded-xl hidden">
-                    <div class="text-center text-white">
-                        <div class="text-6xl mb-4">⏸️</div>
-                        <div class="text-2xl font-bold">Pausado</div>
-                        <div class="text-sm mt-2 opacity-75">Pressione Iniciar para continuar</div>
+                <div id="game-overlay" style="
+                    display:none; position:absolute; inset:0; align-items:center; justify-content:center;
+                    background:rgba(0,0,0,0.65); backdrop-filter:blur(4px);
+                ">
+                    <div style="text-align:center; color:white;">
+                        <div style="font-size:3rem; margin-bottom:0.5rem;">⏸️</div>
+                        <div style="font-size:1.2rem; font-weight:900;">Pausado</div>
+                        <div style="font-size:0.75rem; opacity:0.6; margin-top:0.25rem;">Pressione Iniciar para continuar</div>
                     </div>
                 </div>
             </div>
@@ -104,51 +152,60 @@ const MiniGame = {
     
     renderControls() {
         return `
-            <div class="flex flex-col gap-3 mb-4">
-                <div class="flex gap-2">
-                    <button id="start-btn" 
-                            onclick="MiniGame.startGame()" 
-                            class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white px-6 py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
-                        <span class="text-xl">▶️</span>
-                        <span>Iniciar</span>
-                    </button>
-                    <button id="pause-btn" 
-                            onclick="MiniGame.pauseGame()" 
-                            class="flex-1 bg-gradient-to-r from-orange-500 to-amber-600 text-white px-6 py-3 rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2">
-                        <span class="text-xl">⏸️</span>
-                        <span>Pausar</span>
-                    </button>
-                </div>
+            <div style="display:flex; gap:0.5rem;">
+                <button id="start-btn" onclick="MiniGame.startGame()" style="
+                    flex:1; background:linear-gradient(135deg,#10b981,#059669);
+                    border:none; border-radius:10px; color:white;
+                    padding:0.6rem; font-size:0.875rem; font-weight:700;
+                    cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.375rem;
+                    box-shadow:0 4px 16px rgba(16,185,129,0.3);
+                ">▶ Iniciar</button>
+                <button id="pause-btn" onclick="MiniGame.pauseGame()" style="
+                    flex:1; background:linear-gradient(135deg,#f59e0b,#d97706);
+                    border:none; border-radius:10px; color:white;
+                    padding:0.6rem; font-size:0.875rem; font-weight:700;
+                    cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.375rem;
+                    box-shadow:0 4px 16px rgba(245,158,11,0.3);
+                ">⏸ Pausar</button>
             </div>
         `;
     },
-    
+
     renderStats() {
         return `
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-4 text-center border dark:border-gray-700">
-                <div class="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-2">Controles</div>
-                <div class="flex justify-center gap-2">
-                    <button onclick="MiniGame.changeDirection('up')" 
-                            class="w-12 h-12 bg-gray-200 dark:bg-gray-700 hover:bg-green-500 dark:hover:bg-green-600 hover:text-white rounded-lg transition-all flex items-center justify-center">
-                        <span class="text-xl">⬆️</span>
-                    </button>
+            <div style="
+                background:linear-gradient(135deg,#0d1117,#0f172a);
+                border:1px solid rgba(255,255,255,0.07);
+                border-radius:16px; padding:0.875rem; text-align:center;
+            ">
+                <div style="font-size:0.65rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.3); margin-bottom:0.75rem;">Controles</div>
+                <div style="display:flex; flex-direction:column; align-items:center; gap:0.375rem;">
+                    <button onclick="MiniGame.changeDirection('up')" style="
+                        width:36px; height:36px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+                        border-radius:8px; color:white; cursor:pointer; font-size:0.875rem;
+                    ">↑</button>
+                    <div style="display:flex; gap:0.375rem;">
+                        <button onclick="MiniGame.changeDirection('left')" style="
+                            width:36px; height:36px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+                            border-radius:8px; color:white; cursor:pointer; font-size:0.875rem;
+                        ">←</button>
+                        <button onclick="MiniGame.changeDirection('down')" style="
+                            width:36px; height:36px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+                            border-radius:8px; color:white; cursor:pointer; font-size:0.875rem;
+                        ">↓</button>
+                        <button onclick="MiniGame.changeDirection('right')" style="
+                            width:36px; height:36px; background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
+                            border-radius:8px; color:white; cursor:pointer; font-size:0.875rem;
+                        ">→</button>
+                    </div>
                 </div>
-                <div class="flex justify-center gap-2 mt-2">
-                    <button onclick="MiniGame.changeDirection('left')" 
-                            class="w-12 h-12 bg-gray-200 dark:bg-gray-700 hover:bg-green-500 dark:hover:bg-green-600 hover:text-white rounded-lg transition-all flex items-center justify-center">
-                        <span class="text-xl">⬅️</span>
-                    </button>
-                    <button onclick="MiniGame.changeDirection('down')" 
-                            class="w-12 h-12 bg-gray-200 dark:bg-gray-700 hover:bg-green-500 dark:hover:bg-green-600 hover:text-white rounded-lg transition-all flex items-center justify-center">
-                        <span class="text-xl">⬇️</span>
-                    </button>
-                    <button onclick="MiniGame.changeDirection('right')" 
-                            class="w-12 h-12 bg-gray-200 dark:bg-gray-700 hover:bg-green-500 dark:hover:bg-green-600 hover:text-white rounded-lg transition-all flex items-center justify-center">
-                        <span class="text-xl">➡️</span>
-                    </button>
+                <div style="margin-top:0.75rem; font-size:0.65rem; color:rgba(255,255,255,0.2);">
+                    Use setas ou WASD · Espaço para pausar
                 </div>
-                <div class="mt-3 text-xs text-gray-500 dark:text-gray-400">
-                    Use setas ou WASD • Espaço para pausar
+                <div style="margin-top:0.5rem; display:flex; justify-content:center; gap:1rem;">
+                    <span style="font-size:0.65rem; color:rgba(255,255,255,0.25);">🍎 +10pts</span>
+                    <span style="font-size:0.65rem; color:rgba(245,158,11,0.5);">⭐ +20pts</span>
+                    <span style="font-size:0.65rem; color:rgba(139,92,246,0.5);">💎 +30pts</span>
                 </div>
             </div>
         `;
@@ -156,17 +213,176 @@ const MiniGame = {
     
     init() {
         this.canvas = document.getElementById('game-canvas');
-        if (!this.canvas) {
-            console.error('Canvas não encontrado');
-            return;
-        }
-        
+        if (!this.canvas) { console.error('Canvas não encontrado'); return; }
         this.ctx = this.canvas.getContext('2d');
+        this._generateStars();
         this.resetGame();
         this.setupKeyboardListeners();
         this.draw();
-        
         console.log('🐍 Cobrinha inicializado');
+    },
+
+    _generateStars() {
+        this._stars = Array.from({ length: 40 }, () => ({
+            x: Math.random() * 400,
+            y: Math.random() * 400,
+            r: Math.random() * 1.2 + 0.3,
+            a: Math.random() * 0.5 + 0.1,
+        }));
+    },
+
+    draw() {
+        if (!this.ctx) return;
+        this.drawBackground();
+        this.drawGrid();
+        this.drawFood();
+        this.drawSnake();
+    },
+
+    drawBackground() {
+        const ctx = this.ctx;
+        // Fundo base
+        ctx.fillStyle = this.colors.background;
+        ctx.fillRect(0, 0, 400, 400);
+
+        // Brilhos atmosféricos nos cantos
+        const g1 = ctx.createRadialGradient(0, 0, 0, 0, 0, 200);
+        g1.addColorStop(0, this.colors.bgGlow1);
+        g1.addColorStop(1, 'transparent');
+        ctx.fillStyle = g1;
+        ctx.fillRect(0, 0, 400, 400);
+
+        const g2 = ctx.createRadialGradient(400, 400, 0, 400, 400, 220);
+        g2.addColorStop(0, this.colors.bgGlow2);
+        g2.addColorStop(1, 'transparent');
+        ctx.fillStyle = g2;
+        ctx.fillRect(0, 0, 400, 400);
+
+        // Estrelas
+        if (this._stars) {
+            this._stars.forEach(s => {
+                ctx.globalAlpha = s.a;
+                ctx.fillStyle = '#ffffff';
+                ctx.beginPath();
+                ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            ctx.globalAlpha = 1;
+        }
+    },
+
+    drawGrid() {
+        this.ctx.strokeStyle = this.colors.grid;
+        this.ctx.lineWidth = 0.5;
+        for (let i = 0; i <= this.config.gridSize; i++) {
+            const pos = i * this.config.cellSize;
+            this.ctx.beginPath();
+            this.ctx.moveTo(pos, 0);
+            this.ctx.lineTo(pos, 400);
+            this.ctx.stroke();
+            this.ctx.beginPath();
+            this.ctx.moveTo(0, pos);
+            this.ctx.lineTo(400, pos);
+            this.ctx.stroke();
+        }
+    },
+
+    drawSnake() {
+        this.snake.forEach((segment, index) => {
+            const isHead = index === 0;
+            const x = segment.x * this.config.cellSize;
+            const y = segment.y * this.config.cellSize;
+            const cs = this.config.cellSize;
+
+            if (isHead) {
+                this.ctx.shadowBlur = 16;
+                this.ctx.shadowColor = this.colors.snakeHead;
+                const gradient = this.ctx.createRadialGradient(x+cs/2, y+cs/2, 2, x+cs/2, y+cs/2, cs/2);
+                gradient.addColorStop(0, '#34d399');
+                gradient.addColorStop(1, this.colors.snakeHead);
+                this.ctx.fillStyle = gradient;
+                this._roundRect(x+1, y+1, cs-2, cs-2, 5);
+                this.ctx.shadowBlur = 0;
+
+                // Olhos
+                this.ctx.fillStyle = '#ffffff';
+                this.ctx.fillRect(x+5, y+6, 3, 3);
+                this.ctx.fillRect(x+12, y+6, 3, 3);
+                this.ctx.fillStyle = '#000000';
+                this.ctx.fillRect(x+6, y+7, 2, 2);
+                this.ctx.fillRect(x+13, y+7, 2, 2);
+            } else {
+                const ratio = index / this.snake.length;
+                this.ctx.shadowBlur = 4;
+                this.ctx.shadowColor = this.colors.snakeBody;
+                const gradient = this.ctx.createLinearGradient(x, y, x+cs, y+cs);
+                gradient.addColorStop(0, this.colors.snakeBody);
+                gradient.addColorStop(1, this.colors.snakeBodyGradient);
+                this.ctx.fillStyle = gradient;
+                this.ctx.globalAlpha = 1 - (ratio * 0.35);
+                this._roundRect(x+2, y+2, cs-4, cs-4, 4);
+                this.ctx.globalAlpha = 1;
+
+                // Escama sutil no centro
+                if (index % 2 === 0) {
+                    this.ctx.fillStyle = 'rgba(255,255,255,0.06)';
+                    this._roundRect(x+5, y+5, cs-10, cs-10, 2);
+                }
+            }
+        });
+        this.ctx.shadowBlur = 0;
+    },
+
+    // Helper: retângulo com bordas arredondadas
+    _roundRect(x, y, w, h, r) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(x + r, y);
+        this.ctx.lineTo(x + w - r, y);
+        this.ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+        this.ctx.lineTo(x + w, y + h - r);
+        this.ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+        this.ctx.lineTo(x + r, y + h);
+        this.ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+        this.ctx.lineTo(x, y + r);
+        this.ctx.quadraticCurveTo(x, y, x + r, y);
+        this.ctx.closePath();
+        this.ctx.fill();
+    },
+
+    drawFood() {
+        const ft = this.foodTypes[this.currentFoodType] || this.foodTypes.normal;
+        const x = this.food.x * this.config.cellSize + 10;
+        const y = this.food.y * this.config.cellSize + 10;
+        const pulse = Math.sin(Date.now() / 220) * 2 + 8;
+
+        this.ctx.shadowBlur = this.currentFoodType === 'gem' ? 30 : 18;
+        this.ctx.shadowColor = ft.glow;
+        this.ctx.fillStyle = ft.color;
+        this.ctx.beginPath();
+        this.ctx.arc(x, y, pulse, 0, Math.PI * 2);
+        this.ctx.fill();
+        this.ctx.shadowBlur = 0;
+
+        // Brilho
+        this.ctx.fillStyle = 'rgba(255,255,255,0.35)';
+        this.ctx.beginPath();
+        this.ctx.arc(x - 2, y - 2, 3, 0, Math.PI * 2);
+        this.ctx.fill();
+
+        // Haste da maçã / detalhe
+        this.ctx.fillStyle = '#10b981';
+        this.ctx.fillRect(x - 1, y - pulse - 2, 2, 3);
+
+        // Anel extra para itens especiais
+        if (this.currentFoodType !== 'normal') {
+            this.ctx.strokeStyle = ft.color;
+            this.ctx.lineWidth = 1.5;
+            this.ctx.globalAlpha = 0.4;
+            this.ctx.beginPath();
+            this.ctx.arc(x, y, pulse + 5, 0, Math.PI * 2);
+            this.ctx.stroke();
+            this.ctx.globalAlpha = 1;
+        }
     },
     
     setupKeyboardListeners() {
@@ -314,12 +530,12 @@ const MiniGame = {
     
     showOverlay() {
         const overlay = document.getElementById('game-overlay');
-        if (overlay) overlay.classList.remove('hidden');
+        if (overlay) overlay.style.display = 'flex';
     },
-    
+
     hideOverlay() {
         const overlay = document.getElementById('game-overlay');
-        if (overlay) overlay.classList.add('hidden');
+        if (overlay) overlay.style.display = 'none';
     },
     
     update() {
@@ -334,8 +550,14 @@ const MiniGame = {
         this.snake.unshift(head);
         
         if (head.x === this.food.x && head.y === this.food.y) {
-            this.score += 10;
+            const ft = this.foodTypes[this.currentFoodType] || this.foodTypes.normal;
+            this.score += ft.points;
             this.updateScore();
+
+            if (this.currentFoodType !== 'normal') {
+                Utils.showNotification?.(`${ft.symbol} +${ft.points} pontos! にゃん~`, 'success');
+            }
+
             this.spawnFood();
             
             if (this.score % 50 === 0 && this.config.speed > 50) {
@@ -374,108 +596,16 @@ const MiniGame = {
         
         return this.snake.some(segment => segment.x === head.x && segment.y === head.y);
     },
-    
-    draw() {
-        if (!this.ctx) return;
-        
-        this.drawBackground();
-        this.drawGrid();
-        this.drawFood();
-        this.drawSnake();
-    },
-    
-    drawBackground() {
-        this.ctx.fillStyle = this.colors.background;
-        this.ctx.fillRect(0, 0, 400, 400);
-    },
-    
-    drawGrid() {
-        this.ctx.strokeStyle = this.colors.grid;
-        this.ctx.lineWidth = 1;
-        
-        for (let i = 0; i <= this.config.gridSize; i++) {
-            const pos = i * this.config.cellSize;
-            this.ctx.beginPath();
-            this.ctx.moveTo(pos, 0);
-            this.ctx.lineTo(pos, 400);
-            this.ctx.stroke();
-            this.ctx.beginPath();
-            this.ctx.moveTo(0, pos);
-            this.ctx.lineTo(400, pos);
-            this.ctx.stroke();
-        }
-    },
-    
-    drawSnake() {
-        this.snake.forEach((segment, index) => {
-            const isHead = index === 0;
-            const x = segment.x * this.config.cellSize;
-            const y = segment.y * this.config.cellSize;
-            
-            if (isHead) {
-                const gradient = this.ctx.createRadialGradient(
-                    x + 10, y + 10, 2,
-                    x + 10, y + 10, 10
-                );
-                gradient.addColorStop(0, '#34d399');
-                gradient.addColorStop(1, this.colors.snakeHead);
-                
-                this.ctx.shadowBlur = 15;
-                this.ctx.shadowColor = this.colors.snakeHead;
-                this.ctx.fillStyle = gradient;
-                this.ctx.fillRect(x + 1, y + 1, 18, 18);
-                
-                this.ctx.shadowBlur = 0;
-                this.ctx.fillStyle = '#ffffff';
-                this.ctx.fillRect(x + 5, y + 6, 3, 3);
-                this.ctx.fillRect(x + 12, y + 6, 3, 3);
-                this.ctx.fillStyle = '#000000';
-                this.ctx.fillRect(x + 6, y + 7, 2, 2);
-                this.ctx.fillRect(x + 13, y + 7, 2, 2);
-            } else {
-                const ratio = index / this.snake.length;
-                this.ctx.shadowBlur = 5;
-                this.ctx.shadowColor = this.colors.snakeBody;
-                
-                const gradient = this.ctx.createLinearGradient(x, y, x + 20, y + 20);
-                gradient.addColorStop(0, this.colors.snakeBody);
-                gradient.addColorStop(1, this.colors.snakeBodyGradient);
-                
-                this.ctx.fillStyle = gradient;
-                this.ctx.globalAlpha = 1 - (ratio * 0.3);
-                this.ctx.fillRect(x + 2, y + 2, 16, 16);
-                this.ctx.globalAlpha = 1;
-            }
-        });
-        
-        this.ctx.shadowBlur = 0;
-    },
-    
-    drawFood() {
-        const x = this.food.x * this.config.cellSize + 10;
-        const y = this.food.y * this.config.cellSize + 10;
-        
-        const pulseSize = Math.sin(Date.now() / 200) * 2 + 8;
-        
-        this.ctx.shadowBlur = 20;
-        this.ctx.shadowColor = this.colors.foodGlow;
-        
-        this.ctx.fillStyle = this.colors.food;
-        this.ctx.beginPath();
-        this.ctx.arc(x, y, pulseSize, 0, Math.PI * 2);
-        this.ctx.fill();
-        
-        this.ctx.shadowBlur = 0;
-        this.ctx.fillStyle = 'rgba(255, 255, 255, 0.4)';
-        this.ctx.beginPath();
-        this.ctx.arc(x - 2, y - 2, 3, 0, Math.PI * 2);
-        this.ctx.fill();
-        
-        this.ctx.fillStyle = '#10b981';
-        this.ctx.fillRect(x - 1, y - pulseSize - 2, 2, 3);
-    },
-    
+
     spawnFood() {
+        const r = Math.random();
+        if (r < this.foodTypes.gem.chance) {
+            this.currentFoodType = 'gem';
+        } else if (r < this.foodTypes.star.chance) {
+            this.currentFoodType = 'star';
+        } else {
+            this.currentFoodType = 'normal';
+        }
         do {
             this.food = {
                 x: Math.floor(Math.random() * this.config.gridSize),
@@ -483,7 +613,7 @@ const MiniGame = {
             };
         } while (this.snake.some(s => s.x === this.food.x && s.y === this.food.y));
     },
-    
+
     changeDirection(newDirection) {
         if (!this.isPlaying || this.isPaused || this._isGameOver) return;
         

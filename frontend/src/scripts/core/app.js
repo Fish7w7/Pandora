@@ -4,7 +4,7 @@
  ═══════════════════════════════════════════════════*/
 
 const App = {
-    version: '3.2.0', 
+    version: '3.3.0', 
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
@@ -105,7 +105,15 @@ const App = {
         if (loginScreen) loginScreen.classList.add('hidden');
         if (mainApp) mainApp.classList.add('visible');
         if (userDisplay) userDisplay.textContent = user.username;
-        if (userAvatar) userAvatar.textContent = user.username.charAt(0).toUpperCase();
+        if (userAvatar) {
+            const savedAvatar = Utils.loadData('nyan_profile_avatar');
+            if (savedAvatar) {
+                userAvatar.innerHTML = `<img src="${savedAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="Avatar"/>`;
+            } else {
+                userAvatar.innerHTML = '';
+                userAvatar.textContent = user.username.charAt(0).toUpperCase();
+            }
+        }
         
         this.renderNavMenu();
         Router.navigate('home');
@@ -191,6 +199,25 @@ const App = {
         } else {
             console.warn('⚠️ CommandPalette não encontrado');
         }
+
+        // ── Favoritos ────────────────────────────────────────
+        if (window.Favorites) {
+            console.log('⭐ Inicializando Favoritos...');
+            Favorites.init();
+        } else {
+            console.warn('⚠️ Favorites não encontrado');
+        }
+
+        // ── Mini Perfil ──────────────────────────────────────
+        if (window.UserProfile) {
+            UserProfile.init();
+        }
+
+        // ── Conquistas ───────────────────────────────────────
+        if (window.Achievements) Achievements.init();
+
+        // ── Beta Testers (Konami Easter Egg) ─────────────────
+        if (window.BetaTesters) BetaTesters.init();
         
         // Iniciar tracking de atividade
         this.startActivityTracking();
@@ -263,7 +290,9 @@ const App = {
 
         const toolMap = Object.fromEntries(this.tools.map(t => [t.id, t]));
 
-        navMenu.innerHTML = groups.map(group => {
+        const favSection = window.Favorites ? Favorites.renderSection() : '';
+
+        navMenu.innerHTML = favSection + groups.map(group => {
             const items = group.items.map(id => {
                 const tool = toolMap[id];
                 if (!tool) return '';
@@ -289,6 +318,14 @@ const App = {
 
             return `<div class="nav-group">${groupLabel}${items}</div>`;
         }).join('');
+
+        // Re-injetar estrelas e drag-drop após render
+        if (window.Favorites) {
+            setTimeout(() => {
+                Favorites.injectStars();
+                Favorites.setupDragDrop();
+            }, 0);
+        }
     },
     
     // Atualizar navegação ativa
@@ -572,6 +609,20 @@ function showEasterEgg() {
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => App.init());
 
-// Exports
+// Abrir links externos no navegador padrão
+document.addEventListener('click', (e) => {
+    const link = e.target.closest('a[href]');
+    if (!link) return;
+    const href = link.getAttribute('href');
+    if (href && (href.startsWith('http://') || href.startsWith('https://'))) {
+        e.preventDefault();
+        if (window.electronAPI?.openExternal) {
+            window.electronAPI.openExternal(href);
+        } else {
+            window.open(href, '_blank', 'noopener');
+        }
+    }
+});
+
 window.App = App;
 window.showEasterEgg = showEasterEgg;

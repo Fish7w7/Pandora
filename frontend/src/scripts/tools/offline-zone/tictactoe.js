@@ -12,9 +12,9 @@ const TicTacToe = {
     scores: { X: 0, O: 0, draws: 0 },
     
     difficultyConfig: {
-        easy: { icon: '😊', label: 'Fácil', desc: 'Mayara é lerda' },
-        medium: { icon: '🤔', label: 'Médio', desc: 'Mayara usa estratégia básica' },
-        hard: { icon: '😈', label: 'Difícil', desc: 'Mayara pós-término' }
+        easy:   { icon: '😊', label: 'Fácil',  desc: 'Defende mas não ataca' },
+        medium: { icon: '🤔', label: 'Médio',  desc: 'Ataca e defende bem' },
+        hard:   { icon: '😈', label: 'Difícil', desc: 'Quase perfeita — raramente erra' }
     },
     
     winningLines: [
@@ -33,7 +33,7 @@ const TicTacToe = {
         }
         
         return `
-            <div class="max-w-4xl mx-auto">
+            <div class="max-w-lg mx-auto">
                 ${this.renderHeader()}
                 ${this.renderScoreBoard()}
                 ${this.renderGameContainer()}
@@ -44,7 +44,7 @@ const TicTacToe = {
     
     renderModeSelection() {
         return `
-            <div class="max-w-4xl mx-auto">
+            <div class="max-w-xl mx-auto">
                 ${this.renderModeHeader()}
                 ${this.renderModeCards()}
             </div>
@@ -53,10 +53,10 @@ const TicTacToe = {
     
     renderModeHeader() {
         return `
-            <div class="text-center mb-12">
-                <div class="text-8xl mb-6">🎮</div>
-                <h1 class="text-5xl font-black text-gray-800 mb-4">Jogo da Velha にゃん~</h1>
-                <p class="text-xl text-gray-600">Escolha o modo de jogo</p>
+            <div class="text-center mb-8">
+                <div class="text-5xl mb-3">🎮</div>
+                <h1 class="text-3xl font-black text-gray-800 mb-2">Jogo da Velha にゃん~</h1>
+                <p class="text-gray-600">Escolha o modo de jogo</p>
             </div>
         `;
     },
@@ -73,10 +73,10 @@ const TicTacToe = {
     renderPvPCard() {
         return `
             <button onclick="TicTacToe.selectMode('pvp')" 
-                    class="group bg-gradient-to-br from-purple-500 to-pink-600 rounded-3xl p-12 text-white shadow-2xl hover:shadow-purple-500/50 transform hover:scale-105 transition-all">
-                <div class="text-8xl mb-6 group-hover:scale-110 transition-transform">👥</div>
-                <h2 class="text-3xl font-black mb-4">2 Jogadores</h2>
-                <p class="text-purple-100 text-lg mb-6">Jogue contra um amigo no mesmo computador</p>
+                    class="group bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-7 text-white shadow-xl hover:shadow-purple-500/50 transform hover:scale-105 transition-all">
+                <div class="text-5xl mb-3 group-hover:scale-110 transition-transform">👥</div>
+                <h2 class="text-xl font-black mb-2">2 Jogadores</h2>
+                <p class="text-purple-100 text-sm mb-4">Jogue contra um amigo no mesmo computador</p>
                 ${this.renderModeFeatures([
                     'Modo clássico',
                     'Revezamento de turnos',
@@ -89,13 +89,13 @@ const TicTacToe = {
     renderPvCCard() {
         return `
             <button onclick="TicTacToe.selectMode('pvc')" 
-                    class="group bg-gradient-to-br from-blue-500 to-cyan-600 rounded-3xl p-12 text-white shadow-2xl hover:shadow-blue-500/50 transform hover:scale-105 transition-all">
-                <div class="text-8xl mb-6 group-hover:scale-110 transition-transform">🤖</div>
-                <h2 class="text-3xl font-black mb-4">vs Mayara</h2>
-                <p class="text-blue-100 text-lg mb-6">Desafie a inteligência da Mayara (ela é meio burra...)</p>
+                    class="group bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl p-7 text-white shadow-xl hover:shadow-blue-500/50 transform hover:scale-105 transition-all">
+                <div class="text-5xl mb-3 group-hover:scale-110 transition-transform">🤖</div>
+                <h2 class="text-xl font-black mb-2">vs Mayara</h2>
+                <p class="text-blue-100 text-sm mb-4">Desafie a inteligência da Mayara (ela é meio burra...)</p>
                 ${this.renderModeFeatures([
                     '3 níveis de dificuldade',
-                    'Mayara inteligente (Minimax)',
+                    'IA com Minimax',
                     'Desafio progressivo'
                 ])}
             </button>
@@ -121,17 +121,17 @@ const TicTacToe = {
         const modeName = this.gameMode === 'pvp' ? '👥 Modo: 2 Jogadores' : `🤖 Modo: vs Mayara (${this.difficultyConfig[this.difficulty].label})`;
         
         return `
-            <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center justify-between mb-5">
                 <div>
-                    <h1 class="text-4xl font-black text-gray-800 flex items-center gap-3">
+                    <h1 class="text-2xl font-black text-gray-800 flex items-center gap-2">
                         <span class="text-red-500">❌</span>
                         <span>Jogo da Velha</span>
                         <span class="text-blue-500">⭕</span>
                     </h1>
-                    <p class="text-gray-600 mt-2">${modeName}</p>
+                    <p class="text-gray-500 text-sm mt-1">${modeName}</p>
                 </div>
                 <button onclick="TicTacToe.changeMode()" 
-                        class="px-6 py-3 bg-gray-200 hover:bg-gray-300 rounded-xl font-bold transition-all flex items-center gap-2">
+                        class="px-4 py-2 bg-gray-200 hover:bg-gray-300 rounded-xl font-bold text-sm transition-all flex items-center gap-2">
                     <span>🔄</span>
                     <span>Trocar Modo</span>
                 </button>
@@ -141,7 +141,7 @@ const TicTacToe = {
     
     renderScoreBoard() {
         return `
-            <div class="grid grid-cols-3 gap-4 mb-8">
+            <div class="grid grid-cols-3 gap-3 mb-5">
                 ${this.renderScoreCard('X', this.gameMode === 'pvp' ? 'Jogador X' : 'Você', 'from-red-500 to-pink-600', '❌')}
                 ${this.renderScoreCard('draws', 'Empates', 'from-gray-500 to-gray-600', '🤝')}
                 ${this.renderScoreCard('O', this.gameMode === 'pvp' ? 'Jogador O' : 'Mayara', 'from-blue-500 to-cyan-600', '⭕')}
@@ -153,17 +153,17 @@ const TicTacToe = {
         const score = key === 'draws' ? this.scores.draws : this.scores[key];
         
         return `
-            <div class="bg-gradient-to-br ${gradient} rounded-2xl p-6 text-white text-center shadow-xl">
-                <div class="text-5xl mb-2">${emoji}</div>
-                <div class="text-sm font-semibold opacity-90">${label}</div>
-                <div class="text-4xl font-black">${score}</div>
+            <div class="bg-gradient-to-br ${gradient} rounded-xl p-4 text-white text-center shadow-lg">
+                <div class="text-3xl mb-1">${emoji}</div>
+                <div class="text-xs font-semibold opacity-90">${label}</div>
+                <div class="text-2xl font-black">${score}</div>
             </div>
         `;
     },
     
     renderGameContainer() {
         return `
-            <div class="bg-white rounded-3xl shadow-2xl p-8">
+            <div class="bg-white rounded-2xl shadow-xl p-5">
                 ${this.renderGameStatus()}
                 ${this.renderBoard()}
                 ${this.renderControls()}
@@ -181,11 +181,11 @@ const TicTacToe = {
     renderGameOverStatus() {
         if (this.winner === 'draw') {
             return `
-                <div class="bg-gradient-to-br from-yellow-50 to-orange-50 border-3 border-yellow-300 rounded-2xl p-8 mb-8 animate-fadeIn">
+                <div class="bg-gradient-to-br from-yellow-50 to-orange-50 border-2 border-yellow-300 rounded-xl p-5 mb-5 animate-fadeIn">
                     <div class="text-center">
-                        <div class="text-8xl mb-4">🤝</div>
-                        <h3 class="text-3xl font-black text-yellow-800 mb-2">Empate!</h3>
-                        <p class="text-yellow-700">Ninguém venceu desta vez</p>
+                        <div class="text-5xl mb-2">🤝</div>
+                        <h3 class="text-xl font-black text-yellow-800 mb-1">Empate!</h3>
+                        <p class="text-yellow-700 text-sm">Ninguém venceu desta vez</p>
                     </div>
                 </div>
             `;
@@ -196,11 +196,11 @@ const TicTacToe = {
         const gradient = this.winner === 'X' ? 'from-red-50 to-pink-50 border-red-300' : 'from-blue-50 to-cyan-50 border-blue-300';
         
         return `
-            <div class="bg-gradient-to-br ${gradient} border-3 rounded-2xl p-8 mb-8 animate-fadeIn">
+            <div class="bg-gradient-to-br ${gradient} border-2 rounded-xl p-5 mb-5 animate-fadeIn">
                 <div class="text-center">
-                    <div class="text-8xl mb-4 animate-bounce">${emoji}</div>
-                    <h3 class="text-3xl font-black text-gray-800 mb-2">${winnerName}!</h3>
-                    <p class="text-gray-700">Parabéns pela vitória にゃん~</p>
+                    <div class="text-5xl mb-2 animate-bounce">${emoji}</div>
+                    <h3 class="text-xl font-black text-gray-800 mb-1">${winnerName}!</h3>
+                    <p class="text-gray-700 text-sm">Parabéns pela vitória にゃん~</p>
                 </div>
             </div>
         `;
@@ -212,12 +212,12 @@ const TicTacToe = {
         const gradient = this.currentPlayer === 'X' ? 'from-red-500 to-pink-600' : 'from-blue-500 to-cyan-600';
         
         return `
-            <div class="text-center mb-8">
-                <div class="inline-flex items-center gap-4 bg-gradient-to-r ${gradient} text-white px-8 py-4 rounded-2xl shadow-xl">
-                    <div class="text-4xl">${emoji}</div>
+            <div class="text-center mb-5">
+                <div class="inline-flex items-center gap-3 bg-gradient-to-r ${gradient} text-white px-6 py-3 rounded-xl shadow-lg">
+                    <div class="text-2xl">${emoji}</div>
                     <div class="text-left">
-                        <div class="text-sm font-semibold opacity-90">Vez de:</div>
-                        <div class="text-2xl font-black">${currentPlayerName}</div>
+                        <div class="text-xs font-semibold opacity-90">Vez de:</div>
+                        <div class="text-lg font-black">${currentPlayerName}</div>
                     </div>
                 </div>
             </div>
@@ -226,8 +226,8 @@ const TicTacToe = {
     
     renderBoard() {
         return `
-            <div class="max-w-xl mx-auto mb-8">
-                <div class="grid grid-cols-3 gap-4">
+            <div class="max-w-xs mx-auto mb-5">
+                <div class="grid grid-cols-3 gap-3">
                     ${this.board.map((cell, index) => this.renderCell(cell, index)).join('')}
                 </div>
             </div>
@@ -238,13 +238,13 @@ const TicTacToe = {
         const isEmpty = cell === null;
         const symbol = cell === 'X' ? '❌' : (cell === 'O' ? '⭕' : '');
         const bgColor = cell === 'X' ? 'from-red-100 to-pink-100' : (cell === 'O' ? 'from-blue-100 to-cyan-100' : 'from-gray-100 to-gray-200');
-        const hoverEffect = isEmpty && !this.gameOver ? 'hover:from-purple-100 hover:to-pink-100 hover:scale-110 cursor-pointer' : 'cursor-not-allowed';
+        const hoverEffect = isEmpty && !this.gameOver ? 'hover:from-purple-100 hover:to-pink-100 hover:scale-105 cursor-pointer' : 'cursor-not-allowed';
         
         return `
             <button 
                 onclick="TicTacToe.makeMove(${index})"
                 ${!isEmpty || this.gameOver ? 'disabled' : ''}
-                class="aspect-square bg-gradient-to-br ${bgColor} rounded-2xl shadow-lg ${hoverEffect} transition-all transform active:scale-95 flex items-center justify-center text-7xl font-bold">
+                class="aspect-square bg-gradient-to-br ${bgColor} rounded-xl shadow-md ${hoverEffect} transition-all transform active:scale-95 flex items-center justify-center text-4xl font-bold">
                 ${symbol}
             </button>
         `;
@@ -252,14 +252,14 @@ const TicTacToe = {
     
     renderControls() {
         return `
-            <div class="flex gap-4 justify-center">
+            <div class="flex gap-3 justify-center">
                 <button onclick="TicTacToe.resetGame()" 
-                        class="px-8 py-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                        class="px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
                     <span>🔄</span>
                     <span>Novo Jogo</span>
                 </button>
                 <button onclick="TicTacToe.resetScores()" 
-                        class="px-8 py-4 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
+                        class="px-6 py-3 bg-gradient-to-r from-red-500 to-pink-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
                     <span>🗑️</span>
                     <span>Zerar Placar</span>
                 </button>
@@ -269,13 +269,12 @@ const TicTacToe = {
     
     renderDifficultySettings() {
         return `
-            <div class="mt-8 bg-white rounded-2xl shadow-2xl p-8">
-                <h3 class="text-2xl font-black text-gray-800 mb-6 flex items-center gap-2">
+            <div class="mt-4 bg-white rounded-2xl shadow-xl p-5">
+                <h3 class="text-lg font-black text-gray-800 mb-4 flex items-center gap-2">
                     <span>🎚️</span>
                     <span>Dificuldade da Mayara</span>
                 </h3>
-                
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="grid grid-cols-3 gap-3">
                     ${Object.entries(this.difficultyConfig).map(([level, config]) => 
                         this.renderDifficultyCard(level, config)
                     ).join('')}
@@ -290,10 +289,10 @@ const TicTacToe = {
         
         return `
             <button onclick="TicTacToe.setDifficulty('${level}')" 
-                    class="p-6 rounded-xl border-3 transition-all ${borderClass}">
-                <div class="text-4xl mb-3">${config.icon}</div>
-                <div class="font-bold text-lg mb-2">${config.label}</div>
-                <div class="text-sm text-gray-600">${config.desc}</div>
+                    class="p-4 rounded-xl border-2 transition-all ${borderClass}">
+                <div class="text-3xl mb-2">${config.icon}</div>
+                <div class="font-bold text-sm mb-1">${config.label}</div>
+                <div class="text-xs text-gray-600">${config.desc}</div>
             </button>
         `;
     },
@@ -366,12 +365,9 @@ const TicTacToe = {
     
     getAIMove() {
         switch(this.difficulty) {
-            case 'easy':
-                return this.getRandomMove();
-            case 'medium':
-                return this.getMediumMove();
-            case 'hard':
-                return this.getMinimaxMove();
+            case 'easy':   return this.getEasyMove();
+            case 'medium': return this.getMediumMove();
+            case 'hard':   return this.getMinimaxMove();
         }
     },
     
@@ -384,8 +380,23 @@ const TicTacToe = {
         return available[Math.floor(Math.random() * available.length)];
     },
     
+    // FÁCIL: bloqueia vitória iminente do jogador, mas não ataca.
+    getEasyMove() {
+        for (let i = 0; i < 9; i++) {
+            if (this.board[i] === null) {
+                this.board[i] = 'X';
+                if (this.checkWinner()) {
+                    this.board[i] = null;
+                    return i;
+                }
+                this.board[i] = null;
+            }
+        }
+        return this.getRandomMove();
+    },
+    
     getMediumMove() {
-        // 1. Tentar vencer
+        // Tentar vencer
         for (let i = 0; i < 9; i++) {
             if (this.board[i] === null) {
                 this.board[i] = 'O';
@@ -397,7 +408,7 @@ const TicTacToe = {
             }
         }
         
-        // 2. Bloquear vitória
+        // Bloquear vitória
         for (let i = 0; i < 9; i++) {
             if (this.board[i] === null) {
                 this.board[i] = 'X';
@@ -409,17 +420,93 @@ const TicTacToe = {
             }
         }
         
-        // 3. Centro
+        // Centro
         if (this.board[4] === null) return 4;
         
-        // 4. Cantos
+        // Cantos
         const corners = [0, 2, 6, 8].filter(i => this.board[i] === null);
         if (corners.length > 0) {
             return corners[Math.floor(Math.random() * corners.length)];
         }
         
-        // 5. Qualquer
         return this.getRandomMove();
+    },
+    
+    // DIFÍCIL: Minimax com 25% de chance de errar.
+    getMinimaxMove() {
+        const emptyCells = this.board.filter(cell => cell === null).length;
+                if (Math.random() < 0.25) {
+            return this.getRandomMove();
+        }
+        
+        if (emptyCells === 9) {
+            return Math.random() < 0.7 ? 4 : [0, 2, 6, 8][Math.floor(Math.random() * 4)];
+        }
+        
+        if (emptyCells === 8) {
+            if (this.board[4] === 'X') {
+                const corners = [0, 2, 6, 8];
+                return corners[Math.floor(Math.random() * corners.length)];
+            }
+            if ([0, 2, 6, 8].some(i => this.board[i] === 'X')) {
+                return 4;
+            }
+        }
+        
+        let bestScore = -Infinity;
+        let bestMove = null;
+        const moveOrder = [4, 0, 2, 6, 8, 1, 3, 5, 7];
+        
+        for (let i of moveOrder) {
+            if (this.board[i] === null) {
+                this.board[i] = 'O';
+                let score = this.minimax(0, false, -Infinity, Infinity);
+                this.board[i] = null;
+                
+                if (score > bestScore) {
+                    bestScore = score;
+                    bestMove = i;
+                }
+            }
+        }
+        
+        return bestMove;
+    },
+
+    getMediumMove() {
+        // Tentar vencer
+        for (let i = 0; i < 9; i++) {
+            if (this.board[i] === null) {
+                this.board[i] = 'O';
+                if (this.checkWinner()) {
+                    this.board[i] = null;
+                    return i;
+                }
+                this.board[i] = null;
+            }
+        }
+        
+        // Bloquear vitória
+        for (let i = 0; i < 9; i++) {
+            if (this.board[i] === null) {
+                this.board[i] = 'X';
+                if (this.checkWinner()) {
+                    this.board[i] = null;
+                    return i;
+                }
+                this.board[i] = null;
+            }
+        }
+        
+        // Centro
+        if (this.board[4] === null) return 4;
+        
+        // Cantos
+        const corners = [0, 2, 6, 8].filter(i => this.board[i] === null);
+        if (corners.length > 0) {
+            return corners[Math.floor(Math.random() * corners.length)];
+        }
+                return this.getRandomMove();
     },
     
     getMinimaxMove() {

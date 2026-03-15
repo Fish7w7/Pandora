@@ -183,6 +183,7 @@ const CommandPalette = {
             'temp-email':   'Ctrl+7', 'music':        'Ctrl+8',
             'offline':      'Ctrl+9', 'notes':        'Ctrl+0',
             'tasks':        'Ctrl+T', 'settings':     'Ctrl+S',
+            'profile':      'Ctrl+U',
         };
         return tools.map(t => ({
             type:     'tool',
@@ -286,7 +287,7 @@ const CommandPalette = {
 
     _match(item, q) {
         if (!q) return true;
-        const haystack = `${item.name} ${item.sub || ''}`.toLowerCase();
+        const haystack = `${item.name} ${item.sub || ''} ${item.id || ''}`.toLowerCase();
         return haystack.includes(q.toLowerCase());
     },
 

@@ -1,3 +1,8 @@
+// Force UTF-8 output on Windows
+if (process.platform === 'win32') {
+    try { require('child_process').execSync('chcp 65001', {stdio:'ignore'}); } catch(_) {}
+}
+
 const { app, BrowserWindow, ipcMain, dialog, shell, Menu } = require('electron');
 const path = require('path');
 const fs = require('fs').promises;
@@ -7,7 +12,7 @@ const crypto = require('crypto');
 
 // ─── PERFORMANCE ────────────────────────────────────────────────────────────
 
-console.log('🔧 Aplicando otimizacoes de performance...');
+console.log('[*] Aplicando otimizacoes de performance...');
 
 app.disableHardwareAcceleration();
 
@@ -20,7 +25,10 @@ const performanceFlags = [
     'disable-setuid-sandbox',
     'disable-background-timer-throttling',
     'disable-backgrounding-occluded-windows',
-    'disable-renderer-backgrounding'
+    'disable-renderer-backgrounding',
+    'disable-gpu-sandbox',
+    'log-level=3',                 // suprimir warnings do Chromium
+    'disable-logging',             // suprimir logs internos do GPU
 ];
 
 performanceFlags.forEach(flag => app.commandLine.appendSwitch(flag));
@@ -39,7 +47,7 @@ function createWindow() {
     const hasPreload  = fsSync.existsSync(preloadPath);
 
     if (!hasPreload) {
-        console.warn('⚠️ preload.js não encontrado - API nativa desabilitada');
+        console.warn('[!] preload.js não encontrado - API nativa desabilitada');
     }
 
     mainWindow = new BrowserWindow({
@@ -61,17 +69,17 @@ function createWindow() {
         backgroundColor: '#1a1a2e',
         show: false,
         icon: iconPath,
-        title: 'NyanTools にゃん~'
+        title: 'NyanTools nyan~'
     });
 
     const indexPath = path.join(__dirname, '../../frontend/public/index.html');
 
-    console.log('🐱 NyanTools 3.2.0 (Nyan Sakura)');
-    console.log('📁 Diretório:', __dirname);
-    console.log('📄 Carregando:', indexPath);
+    console.log('[~] NyanTools 3.3.0');
+    console.log('[>] Diretório:', __dirname);
+    console.log('[>] Carregando:', indexPath);
 
     // Remove menubar padrão do Electron
-    Menu.setApplicationMenu(null);
+    //Menu.setApplicationMenu(null);
 
     mainWindow.loadFile(indexPath);
 
@@ -79,7 +87,7 @@ function createWindow() {
         setTimeout(() => {
             if (!mainWindow?.isDestroyed()) {
                 mainWindow.show();
-                console.log('✅ NyanTools iniciado! にゃん~');
+                console.log('[OK] NyanTools iniciado! nyan~');
             }
         }, 50);
     });
@@ -127,7 +135,7 @@ const UPDATE_CHECK_COOLDOWN = 300000;
 
 ipcMain.handle('reset-update-cooldown', () => {
     lastUpdateCheck = 0;
-    console.log('🔄 Cooldown de atualização resetado (Force Check)');
+    console.log('[~] Cooldown de atualização resetado (Force Check)');
     return { success: true };
 });
 
@@ -144,7 +152,7 @@ ipcMain.handle('check-for-updates', async () => {
     }
 
     lastUpdateCheck = now;
-    console.log('🔍 Verificando atualizações...');
+    console.log('[?] Verificando atualizações...');
 
     // Tentar GitHub API com retry + backoff
     const URLS = [
@@ -173,7 +181,7 @@ ipcMain.handle('check-for-updates', async () => {
                     data._fromFallback = true;
                 }
 
-                console.log('✅ Versão disponível:', data.tag_name, isFallback ? '(fallback)' : '');
+                console.log('[OK] Versão disponível:', data.tag_name, isFallback ? '(fallback)' : '');
                 return { success: true, data, fromFallback: !!data._fromFallback };
 
             } catch (error) {
@@ -182,7 +190,7 @@ ipcMain.handle('check-for-updates', async () => {
                     await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
                     continue;
                 }
-                console.error('❌ Todas as tentativas falharam:', error.message);
+                console.error('[X] Todas as tentativas falharam:', error.message);
                 return {
                     success: false,
                     error: error.name === 'AbortError' ? 'Timeout na requisição' : error.message
@@ -196,7 +204,7 @@ ipcMain.handle('check-for-updates', async () => {
 
 ipcMain.handle('download-update', async (event, downloadUrl, fileName) => {
     try {
-        console.log('📥 Iniciando download:', fileName);
+        console.log('[v] Iniciando download:', fileName);
 
         const downloadsPath = app.getPath('downloads');
         const filePath      = path.join(downloadsPath, fileName);
@@ -245,7 +253,7 @@ ipcMain.handle('download-update', async (event, downloadUrl, fileName) => {
 
                 response.on('end', () => {
                     file.end();
-                    console.log('✅ Download concluído:', filePath);
+                    console.log('[OK] Download concluído:', filePath);
 
                     if (mainWindow && !mainWindow.isDestroyed()) {
                         mainWindow.webContents.send('download-progress', {
@@ -281,7 +289,7 @@ ipcMain.handle('download-update', async (event, downloadUrl, fileName) => {
         });
 
     } catch (error) {
-        console.error('❌ Erro no download:', error.message);
+        console.error('[X] Erro no download:', error.message);
         return { success: false, error: error.message };
     }
 });
@@ -294,16 +302,16 @@ ipcMain.handle('verify-sha256', async (event, filePath, expectedHash) => {
             return { success: false, error: 'Arquivo não encontrado' };
         }
 
-        console.log('🔐 Verificando integridade SHA256...');
+        console.log('[#] Verificando integridade SHA256...');
         const fileBuffer = await fs.readFile(filePath);
         const hash       = crypto.createHash('sha256').update(fileBuffer).digest('hex');
         const match      = hash.toLowerCase() === expectedHash.toLowerCase();
 
-        console.log(match ? '✅ Hash verificado' : `❌ Hash inválido: esperado ${expectedHash}, obtido ${hash}`);
+        console.log(match ? '[OK] Hash verificado' : `[X] Hash inválido: esperado ${expectedHash}, obtido ${hash}`);
         return { success: true, match, hash };
 
     } catch (error) {
-        console.error('❌ Erro na verificação SHA256:', error.message);
+        console.error('[X] Erro na verificação SHA256:', error.message);
         return { success: false, error: error.message };
     }
 });
@@ -316,7 +324,7 @@ ipcMain.handle('install-update', async (event, filePath) => {
             throw new Error('Arquivo de atualização não encontrado');
         }
 
-        console.log('🔧 Preparando instalação:', filePath);
+        console.log('[*] Preparando instalação:', filePath);
 
         const result = await dialog.showMessageBox(mainWindow, {
             type: 'question',
@@ -338,7 +346,7 @@ ipcMain.handle('install-update', async (event, filePath) => {
         return { success: false, cancelled: true };
 
     } catch (error) {
-        console.error('❌ Erro ao instalar:', error.message);
+        console.error('[X] Erro ao instalar:', error.message);
         return { success: false, error: error.message };
     }
 });
@@ -357,10 +365,10 @@ ipcMain.handle('open-downloads-folder', async () => {
 // ─── LIFECYCLE ───────────────────────────────────────────────────────────────
 
 app.whenReady().then(() => {
-    console.log('🐱 NyanTools v3.2.0 - Nyan Sakura');
-    console.log('📁 App path:', app.getAppPath());
+    console.log('[~] NyanTools v3.3.0');
+    console.log('[>] App path:', app.getAppPath());
     console.log('💻 Plataforma:', process.platform);
-    console.log('📥 Downloads:', app.getPath('downloads'));
+    console.log('[v] Downloads:', app.getPath('downloads'));
 
     createWindow();
 
@@ -382,9 +390,9 @@ process.on('uncaughtException', (error) => {
     if (error.message.includes('GPU') ||
         error.message.includes('gpu_process_host') ||
         error.message.includes('ECONNRESET')) return;
-    console.error('❌ Erro não capturado:', error.message);
+    console.error('[X] Erro não capturado:', error.message);
 });
 
 process.on('unhandledRejection', (reason) => {
-    console.error('❌ Promise rejeitada:', reason);
+    console.error('[X] Promise rejeitada:', reason);
 });

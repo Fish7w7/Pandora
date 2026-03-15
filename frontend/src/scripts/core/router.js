@@ -20,7 +20,8 @@ const Router = {
         'settings': 'Settings',
         'updates': 'AutoUpdater',
         'notes': 'Notes',
-        'tasks': 'Tasks'
+        'tasks': 'Tasks',
+        'profile': 'Profile'
     },
     
     // Navegação otimizada

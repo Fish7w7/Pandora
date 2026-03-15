@@ -55,7 +55,7 @@ async function invoke(channel, ...args) {
 try {
     contextBridge.exposeInMainWorld('electronAPI', {
 
-        version: '3.2.0',
+        version: '3.3.0',
         isReady: true,
 
         checkForUpdates: () => invoke('check-for-updates'),
@@ -81,6 +81,7 @@ try {
         },
 
         openDownloadsFolder: () => invoke('open-downloads-folder'),
+        openExternal: (url) => invoke('open-external', url),
         resetUpdateCooldown: () => invoke('reset-update-cooldown'),
         isDevEnvironment: () => invoke('is-dev-environment'),
         onDownloadProgress: (callback) => {
@@ -98,14 +99,14 @@ try {
         }
     });
 
-    console.log('✅ [Preload v3.2.0] API exposta com sucesso');
+    console.log('✅ [Preload v3.3.0] API exposta com sucesso');
 
 } catch (error) {
     console.error('❌ [Preload] ERRO CRÍTICO:', error);
     try {
         contextBridge.exposeInMainWorld('electronAPI', {
             isReady: false,
-            version: '3.2.0-fallback',
+            version: '3.3.0-fallback',
             error: error.message
         });
     } catch (fallbackError) {

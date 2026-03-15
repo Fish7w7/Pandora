@@ -1,136 +1,130 @@
 {
-  "version": "3.2.0",
-  "buildDate": "2026-03-11",
+  "version": "3.3.0",
+  "buildDate": "2026-03-14",
   "changelog": [
-    "✨ Dashboard: live tracking do gráfico semanal em tempo real",
-    "✨ Dashboard: arquivamento automático de semanas anteriores (weeklyHistory)",
-    "✨ Dashboard: dailyActivity incrementado por minuto — calendário reflete tempo real",
-    "🐛 Dashboard: bug de virada de semana — gráfico acumulava dados da semana passada",
-    "🐛 Tasks: priority selector invisível no dark mode — reescrito com inline styles",
-    "🐛 Dashboard: barra de progresso desaparecia no dark mode — inline styles aplicados",
-    "✨ Modo Foco: sidebar oculta com peek ao passar o mouse na borda esquerda (Ctrl+Shift+F)",
-    "✨ Modo Foco: header minimalista fixo com indicador de ferramenta ativa",
-    "✨ Modo Foco: estado persistido no localStorage",
-    "✨ Sidebar: redesign completo com logo, avatar do usuário e status Online",
-    "✨ Sidebar: itens agrupados (Ferramentas, Entretenimento, Organização, Sistema)",
-    "✨ Settings: card de Modo Foco adicionado na aba Aparência",
-    "✨ Command Palette: busca universal com Ctrl+P — ferramentas, notas, tarefas e ações",
-    "✨ Command Palette: navegação por teclado (↑↓ / Enter / Esc) e highlight de match",
-    "✨ Command Palette: ações dinâmicas (dark mode, modo foco, backup, atalhos)",
-    "✨ Easter Egg: ativado por 5 cliques no logo 🐱 — modal animado",
-    "🐛 Logout: confirm() nativo substituído por modal dark glass estilizado",
-    "🐛 Toast de atalhos: ícone real da ferramenta em vez de emoji fixo ⚡",
-    "⚡ Performance: backdrop-filter removido de overlays — CPU 13% → ~5% no Electron",
-    "⚡ Performance: delegação de eventos e debounce no Command Palette"
+    "✨ Perfil: aba dedicada com foto de perfil (upload local), editar nome e trocar senha",
+    "✨ Perfil: tab de Estatísticas com tempo total, dias ativos, sequência e acessos",
+    "✨ Perfil: top 5 ferramentas favoritas com barra de progresso",
+    "✨ Perfil: gráfico de atividade semanal",
+    "✨ Conquistas: sistema de badges — Primeiro Passo, Centenário, Semana de Fogo, Maratonista, Coruja Noturna",
+    "✨ Conquistas: notificação ao desbloquear + barra de progresso para conquistas parciais",
+    "✨ Favoritos: seção ⭐ no topo da sidebar com até 5 ferramentas",
+    "✨ Favoritos: estrela no hover de cada item para favoritar/desfavoritar",
+    "✨ Favoritos: drag-to-reorder dentro da seção",
+    "✨ Sidebar: avatar do usuário atualiza em tempo real ao trocar foto no Perfil",
+    "✨ Sidebar: clique no card do usuário navega para o Perfil",
+    "✨ Modo Foco: animação de abertura com spring (cubic-bezier) e fade-in dos itens",
+    "✨ Modo Foco: animação de fechamento com fade-out sequenciado antes do slide",
+    "✨ Modo Foco: indicador visual roxo na borda esquerda (peek zone)",
+    "✨ Modo Foco: delay de 1.2s para fechar após navegar — dá tempo de escolher outra tool",
+    "✨ Easter Egg: Konami Code (↑↑↓↓←→←→BA) abre modal 'Cobaias de Teste'",
+    "✨ Easter Egg: fotos reais dos beta testers com links para Instagram e GitHub",
+    "✨ Links externos: abrem no navegador padrão do sistema em vez do Electron",
+    "✨ Command Palette: Perfil adicionado com atalho Ctrl+U",
+    "✨ Jogo da Cobrinha: redesign visual com arena espacial, estrelas e brilhos atmosféricos",
+    "✨ Jogo da Cobrinha: itens especiais de comida (⭐ x2pts, 💎 x3pts) com anel pulsante",
+    "✨ Jogo da Cobrinha: fundo escuro hardcoded — funciona corretamente no tema claro",
+    "✨ Jogo da Cobrinha: auto-cleanup ao trocar tema — sem gameLoop órfão",
+    "✨ Jogo da Velha: layout reduzido e dificuldades rebalanceadas",
+    "✨ Jogo da Velha: Fácil vencível, Médio equilibrado, Difícil com 25% de erro aleatório",
+    "🐛 Sidebar: scroll lagado removido — will-change e transforms de hover eliminados",
+    "🐛 Modo Foco: CPU alto ao abrir sidebar resolvido — overflow:visible removido",
+    "🐛 Settings: trocar tema durante o jogo não bugar mais a Cobrinha",
+    "⚡ Performance: will-change removido de .tool-card e .nav-item",
+    "⚡ Performance: linha pulsante da peek zone substituída por indicador estático"
   ],
-  "tag_name": "v3.2.0",
-  "releaseDate": "2026-03-11",
-  "name": "NyanTools v3.2.0 – Sakura にゃん~",
-  "codename": "Sakura",
-  "body": "## 🌸 NyanTools v3.2.0 – Sakura にゃん~\n\n**MINOR:** Dashboard Live Tracking, Bug Fixes de UI/Dark Mode, Modo Foco, Sidebar Redesign, Command Palette e melhorias de performance.\n\n### ✨ NOVIDADES\n\n#### 📊 Dashboard Live Tracking\n- **Gráfico ao vivo:** gráfico semanal atualiza em tempo real a cada minuto, sem precisar navegar para fora e voltar.\n- **Calendário real:** `dailyActivity` incrementado por minuto — o calendário agora reflete o tempo de uso real da sessão.\n- **Histórico de semanas:** dados arquivados automaticamente em `weeklyHistory` com até 52 semanas (base para resumo mensal/anual futuro).\n\n#### ⌨️ Command Palette (Ctrl+P)\n- **Busca universal:** ferramentas, notas, tarefas e ações em tempo real com uma tecla.\n- **Navegação por teclado:** ↑↓ para navegar, Enter para executar, Esc para fechar.\n- **Highlight de match:** texto encontrado destacado em roxo nos resultados.\n- **Ações dinâmicas:** toggle de dark mode e modo foco refletem o estado atual.\n\n#### 🎯 Modo Foco (Ctrl+Shift+F)\n- **Sidebar oculta:** maximiza o espaço de conteúdo com transição suave.\n- **Peek:** passe o mouse na borda esquerda para ver a sidebar como painel flutuante.\n- **Header minimalista:** botão NyanTools, ferramenta ativa, usuário e botão de saída.\n- **Estado persistido:** o modo foco é salvo entre sessões via localStorage.\n\n#### 🎨 Sidebar Redesign\n- **Novo header:** logo 🐱 animado, avatar com inicial do usuário e status Online.\n- **Navegação agrupada:** Ferramentas, Entretenimento, Organização e Sistema.\n- **Micro-interações:** itens deslizam levemente ao hover (`translateX(2px)`).\n\n#### 🐱 Easter Egg\n- **Gatilho:** 5 cliques no logo 🐱 da sidebar em até 2.5s.\n- **Modal animado:** substitui o antigo `alert()` com card dark glass.\n\n### 🐛 CORREÇÕES\n- **Dashboard:** bug de virada de semana — gráfico acumulava indefinidamente dados de semanas anteriores.\n- **Tasks:** priority selector completamente invisível no dark mode — reescrito com inline styles.\n- **Dashboard:** barra de progresso (taxa de conclusão) desaparecia no dark mode.\n- **Logout:** diálogo `confirm()` nativo substituído por modal dark glass estilizado.\n- **Toast de atalhos:** agora exibe o ícone real da ferramenta em vez do emoji fixo ⚡.\n\n### ⚡ PERFORMANCE\n- **backdrop-filter removido** de todos os overlays — redução de 13% → ~5% de CPU no Electron.\n- **Delegação de eventos** no Command Palette — N listeners → 2 listeners por abertura.\n- **Debounce de 60ms** no input — evita re-render do DOM a cada tecla.\n\n---\n\n**Versão Anterior:** [v3.0.2](https://github.com/Fish7w7/Pandora/releases/tag/v3.0.2)\n**Codename:** Sakura 🌸\n**Autores:** Gabriel & Clara",
+  "tag_name": "v3.3.0",
+  "releaseDate": "2026-03-14",
+  "name": "NyanTools v3.3.0 – Kitsune にゃん~",
+  "codename": "Kitsune",
+  "body": "## 🦊 NyanTools v3.3.0 – Kitsune にゃん~\n\n**MINOR:** Sistema de Perfil, Conquistas, Favoritos na Sidebar, Easter Egg Konami, animações do Modo Foco e redesign da Cobrinha.\n\n### ✨ NOVIDADES\n\n#### 👤 Sistema de Perfil\n- Aba dedicada acessada pelo card do usuário na sidebar.\n- Upload de foto de perfil (salvo em base64 no localStorage, máx. 2MB).\n- Editar nome de usuário com atualização em tempo real na sidebar.\n- Trocar senha com validação (atual + nova + confirmar).\n- Tab de Estatísticas: tempo total, dias ativos, sequência, acessos totais.\n- Top 5 ferramentas com barra de progresso e gráfico semanal.\n\n#### 🏆 Conquistas\n- 5 badges desbloqueáveis automaticamente por comportamento.\n- Primeiro Passo 🐣, Centenário 🖱️, Semana de Fogo 🔥, Maratonista ⏱️, Coruja Noturna 🌙.\n- Barra de progresso para conquistas parciais.\n- Notificação toast ao desbloquear.\n\n#### ⭐ Favoritos na Sidebar\n- Seção de favoritos no topo com até 5 ferramentas.\n- Estrela aparece no hover de cada item para favoritar/desfavoritar.\n- Drag-to-reorder dentro da seção.\n- Contador badge (ex: 2/5).\n\n#### 🐾 Easter Egg — Cobaias de Teste\n- Ativado pelo Konami Code: ↑↑↓↓←→←→BA.\n- Modal com abas individuais para cada beta tester.\n- Fotos reais, links para Instagram e GitHub.\n\n#### 🎯 Modo Foco — Animações\n- Abertura com curva spring, fade-in escalonado dos itens da sidebar.\n- Fechamento com fade-out do conteúdo antes do slide.\n- Indicador visual estático na borda esquerda.\n- Delay de 1.2s após clicar numa ferramenta antes de fechar.\n\n#### 🐍 Cobrinha — Redesign\n- Arena espacial com estrelas estáticas e brilhos atmosféricos.\n- Itens especiais: ⭐ (x2pts, 20% de chance) e 💎 (x3pts, 7% de chance).\n- Fundo escuro hardcoded — funciona no tema claro sem distorção visual.\n- Auto-cleanup ao trocar tema — sem mais gameLoop órfão.\n\n### 🐛 CORREÇÕES\n- Sidebar: scroll lagado corrigido — transforms e will-change removidos dos itens.\n- Modo Foco: CPU alto ao abrir peek corrigido — overflow:visible eliminado.\n- Cobrinha: jogo não buga mais ao trocar tema pelo Command Palette.\n- Links externos agora abrem no navegador padrão do sistema.\n\n### ⚡ PERFORMANCE\n- will-change removido de .tool-card e .nav-icon:hover.\n- Peek zone sem animation CSS em loop — indicador estático.\n\n---\n\n**Versão Anterior:** [v3.2.0](https://github.com/Fish7w7/Pandora/releases/tag/v3.2.0)\n**Codename:** Kitsune 🦊\n**Autores:** Gabriel & Clara",
   "previousVersion": {
-    "version": "3.0.2",
-    "tag": "v3.0.2",
-    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.0.2"
+    "version": "3.2.0",
+    "tag": "v3.2.0",
+    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.2.0"
   },
-  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.2.0",
-  "releaseNotesUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.2.0",
-  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.2.0",
+  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.3.0",
+  "releaseNotesUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.3.0",
+  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.3.0",
   "statistics": {
-    "filesNew": 4,
-    "filesRewritten": 0,
-    "filesModified": 10,
-    "bugsFixed": 10,
-    "featuresAdded": 12
+    "filesNew": 6,
+    "filesRewritten": 2,
+    "filesModified": 14,
+    "bugsFixed": 7,
+    "featuresAdded": 20
   },
+  "filesNew": [
+    "frontend/src/scripts/tools/profile/profile.js",
+    "frontend/src/styles/profile.css",
+    "frontend/src/scripts/core/achievements.js",
+    "frontend/src/scripts/core/favorites.js",
+    "frontend/src/scripts/core/beta-testers.js",
+    "frontend/src/scripts/core/router.js"
+  ],
   "filesModified": [
     "frontend/src/scripts/core/app.js",
-    "frontend/src/scripts/core/keyboard-shortcuts.js",
-    "frontend/src/scripts/tools/dashboard/dashboard.js",
-    "frontend/src/scripts/tools/tasks/tasks.js",
-    "frontend/src/scripts/tools/settings/settings.js",
-    "frontend/src/styles/main.css",
-    "frontend/src/styles/focus-mode.css",
-    "frontend/index.html",
-    "frontend/src/scripts/updater/updater.js",
-    "version.json"
-  ],
-  "filesNew": [
     "frontend/src/scripts/core/command-palette.js",
-    "frontend/src/styles/command-palette.css",
+    "frontend/src/scripts/core/keyboard-shortcuts.js",
     "frontend/src/scripts/core/focus-mode.js",
-    "frontend/src/styles/focus-mode.css"
+    "frontend/src/styles/focus-mode.css",
+    "frontend/src/styles/main.css",
+    "frontend/src/scripts/tools/settings/settings.js",
+    "frontend/src/scripts/tools/offline-zone/game.js",
+    "frontend/src/scripts/tools/offline-zone/tictactoe.js",
+    "frontend/public/index.html",
+    "backend/src/main.js",
+    "backend/src/preload.js",
+    "version.json"
   ],
   "bugFixes": [
     {
-      "id": "BUG-12",
-      "description": "Gráfico semanal mostrava dados da semana passada após virada de semana",
-      "status": "✅ Corrigido",
-      "file": "dashboard.js",
-      "solution": "getWeekStart() + detecção em updateStats() + reset de weeklyActivity com arquivamento em weeklyHistory"
-    },
-    {
-      "id": "BUG-13",
-      "description": "Gráfico semanal só atualizava ao sair e voltar da aba",
-      "status": "✅ Corrigido",
-      "file": "dashboard.js / app.js",
-      "solution": "refreshWeeklyChart() chamado a cada minuto pelo intervalo do app.js"
-    },
-    {
-      "id": "BUG-14",
-      "description": "dailyActivity nunca incrementado durante sessão — calendário não refletia tempo real",
-      "status": "✅ Corrigido",
-      "file": "app.js",
-      "solution": "Incremento de dailyActivity[today] adicionado ao intervalo de 1 minuto"
-    },
-    {
-      "id": "BUG-15",
-      "description": "Priority selector invisível no dark mode — estado de seleção nunca refletido visualmente",
-      "status": "✅ Corrigido",
-      "file": "tasks.js",
-      "solution": "Padrão peer-checked substituído por botões com inline styles + hidden input"
-    },
-    {
-      "id": "BUG-16",
-      "description": "Barra de progresso (taxa de conclusão) desaparecia no dark mode",
-      "status": "✅ Corrigido",
-      "file": "dashboard.js",
-      "solution": "Classes Tailwind da trilha e preenchimento trocadas por inline styles com cores hardcoded"
-    },
-    {
-      "id": "BUG-17",
-      "description": "Sidebar reservava 280px de espaço no flex mesmo em modo foco",
-      "status": "✅ Corrigido",
-      "file": "focus-mode.css",
-      "solution": "width: 0 !important + overflow: visible + filhos com width: var(--sidebar-width)"
-    },
-    {
-      "id": "BUG-18",
-      "description": "Toggle button flutuava no centro da tela em modo foco",
-      "status": "✅ Corrigido",
-      "file": "focus-mode.css",
-      "solution": "display: none !important em modo foco — botão Sair do Foco no header é suficiente"
-    },
-    {
-      "id": "BUG-19",
-      "description": "border-left do theme-system.css quebrava o visual do item ativo no novo design da sidebar",
+      "id": "BUG-24",
+      "description": "Scroll da sidebar lagado — transforms de hover causavam repaints constantes",
       "status": "✅ Corrigido",
       "file": "main.css",
-      "solution": ".nav-item.active { border-left: none !important } no main.css"
+      "solution": "will-change e transform removidos de .nav-item:hover e .nav-icon:hover"
     },
     {
-      "id": "BUG-22",
-      "description": "Diálogo confirm() nativo do browser no logout",
+      "id": "BUG-25",
+      "description": "CPU alto ao abrir peek no Modo Foco",
       "status": "✅ Corrigido",
-      "file": "app.js",
-      "solution": "Modal dark glass customizado com animação spring e botões estilizados"
+      "file": "focus-mode.css",
+      "solution": "overflow:visible + width:0 substituídos por position:fixed com largura real"
     },
     {
-      "id": "BUG-23",
-      "description": "Easter Egg existia no código mas nunca era ativado",
+      "id": "BUG-26",
+      "description": "Jogo da Cobrinha bugava ao trocar tema pelo Command Palette",
+      "status": "✅ Corrigido",
+      "file": "game.js / settings.js",
+      "solution": "Auto-cleanup quando canvas é removido do DOM + MiniGame.cleanup() no setTheme"
+    },
+    {
+      "id": "BUG-27",
+      "description": "Links externos abriam dentro do Electron em vez do navegador",
+      "status": "✅ Corrigido",
+      "file": "app.js / main.js / preload.js",
+      "solution": "shell.openExternal via IPC exposto pelo preload"
+    },
+    {
+      "id": "BUG-28",
+      "description": "Foto de perfil não aparecia na sidebar ao reiniciar o app",
       "status": "✅ Corrigido",
       "file": "app.js",
-      "solution": "Gatilho de 5 cliques no logo da sidebar com feedback visual e reset por timeout"
+      "solution": "showMainApp() lê nyan_profile_avatar do localStorage e injeta img no avatar"
+    },
+    {
+      "id": "BUG-29",
+      "description": "Canvas da Cobrinha aparecia branco/com divisórias no tema claro",
+      "status": "✅ Corrigido",
+      "file": "game.js",
+      "solution": "background:#080d1a no elemento canvas + fillRect imediato no init()"
+    },
+    {
+      "id": "BUG-30",
+      "description": "Emojis corrompidos no console do Windows",
+      "status": "✅ Corrigido",
+      "file": "main.js",
+      "solution": "Emojis substituídos por ASCII nos logs + chcp 65001 no boot"
     }
   ]
 }

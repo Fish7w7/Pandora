@@ -562,7 +562,7 @@ const Settings = {
                         <p class="text-gray-400 mt-1 mb-4">にゃん~ Sua caixa de ferramentas purr-feita!</p>
                         <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm font-bold">
                             <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                            Versão ${App?.version || '3.2.0'}
+                            Versão ${App?.version || '3.3.0'}
                         </div>
                     </div>
                 </div>
@@ -662,37 +662,6 @@ const Settings = {
                     </div>
                 </div>
 
-                <!-- Cobaias de Teste -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="bg-gradient-to-r from-pink-500 via-purple-500 to-indigo-500 p-5 text-white">
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-xl flex items-center justify-center text-2xl shadow-inner">🐾</div>
-                            <div>
-                                <h3 class="text-xl font-black">Cobaias de Teste</h3>
-                                <p class="text-sm opacity-80 mt-0.5">As corajosas almas que testam o app antes de todo mundo にゃん~</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="p-5">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            ${[
-                                { name: 'Pietro', role: 'Beta Tester', emoji: '🧪', desc: 'Testa tudo e encontra os bugs mais insanos' },
-                            ].map(t => `
-                                <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
-                                    <div class="w-10 h-10 bg-gradient-to-br from-pink-400 to-purple-500 rounded-xl flex items-center justify-center text-xl shadow">${t.emoji}</div>
-                                    <div>
-                                        <div class="font-bold text-gray-800 text-sm">${t.name}</div>
-                                        <div class="text-xs text-purple-600 font-semibold">${t.role}</div>
-                                        <div class="text-xs text-gray-400 mt-0.5">${t.desc}</div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                        <p class="text-xs text-gray-400 text-center mt-4 font-medium">
-                            🙏 Obrigado por ajudar a tornar o NyanTools melhor!
-                        </p>
-                    </div>
-                </div>
 
                 <!-- Licença -->
                 <div class="bg-gray-50 border border-gray-200 rounded-2xl p-5 flex items-center justify-between">
@@ -731,6 +700,8 @@ const Settings = {
             document.body.classList.remove('dark-theme');
             Utils.showNotification?.('☀️ Tema claro ativado', 'success');
         }
+        // Limpar MiniGame antes de re-renderizar para evitar loop órfão
+        if (window.MiniGame?.cleanup) MiniGame.cleanup();
         Router?.render();
     },
 

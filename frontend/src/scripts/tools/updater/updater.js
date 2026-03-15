@@ -4,8 +4,7 @@
 ═══════════════════════════════════════════════════════*/
 
 const AutoUpdater = {
-    // currentVersion é lido do version.json no init() — fonte única
-    currentVersion: '3.2.0',
+    currentVersion: '3.3.0',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -28,11 +27,30 @@ const AutoUpdater = {
     // ──────────────────────────────────────────────────────────────────
 
     changelog: [
+    {
+        version: '3.3.0',
+        date: '2026-03-14T12:00:00',
+        label: 'Atual',
+        labelColor: 'bg-green-500',
+        author: 'Gabriel & Clara',
+        changes: [
+            { type: '✨', text: 'Perfil: nova aba com upload de foto, edição de conta, estatísticas detalhadas e gráficos de uso' },
+            { type: '✨', text: 'Conquistas: sistema de badges desbloqueáveis com barra de progresso e notificações' },
+            { type: '✨', text: 'Favoritos: nova seção na sidebar para fixar até 5 ferramentas com suporte a drag-to-reorder' },
+            { type: '✨', text: 'Modo Foco: animações fluidas (spring/fade), indicador visual e delay inteligente ao fechar' },
+            { type: '✨', text: 'Cobrinha: redesign espacial com novos itens e fundo fixo para evitar bugs no tema claro' },
+            { type: '✨', text: 'Jogo da Velha: layout mais compacto e IA rebalanceada nas três dificuldades' },
+            { type: '✨', text: 'UX: atalho no Command Palette (Ctrl+U) e links externos abrem no navegador do sistema' },
+            { type: '✨', text: 'Easter Egg: Konami Code desbloqueia modal com informações das cobaias de teste' },
+            { type: '🐛', text: 'Correções: resolução de lag na sidebar, CPU no Modo Foco e auto-cleanup ao fechar jogos' },
+            { type: '⚡', text: 'Performance: remoção de transforms custosos (will-change) e otimização de animações' }
+        ]
+    },
         {
             version: '3.2.0',
             date: '2026-03-11T12:00:00',
-            label: 'Atual',
-            labelColor: 'bg-green-500',
+            label: null,
+            labelColor: '',
             author: 'Gabriel & Clara',
             changes: [
                 { type: '✨', text: 'Command Palette: busca universal com Ctrl+P — ferramentas, notas, tarefas e ações em tempo real' },
@@ -48,25 +66,6 @@ const AutoUpdater = {
                 { type: '🐛', text: 'Toast de atalhos: ícone real da ferramenta em vez de emoji fixo ⚡' },
                 { type: '⚡', text: 'Performance: backdrop-filter removido de overlays — CPU 13% → ~5% no Electron' },
                 { type: '⚡', text: 'Performance: delegação de eventos e debounce no Command Palette' },
-            ]
-        },
-        {
-            version: '3.0.2',
-            date: '2026-02-22T12:00:00',
-            label: null,
-            labelColor: '',
-            author: 'Clara',
-            changes: [
-                { type: '✨', text: 'Dashboard: Histórico de Uso redesenhado com grid 5×7 e alinhamento correto por dia da semana' },
-                { type: '✨', text: 'Dashboard: Gráfico semanal com barras proporcionais e labels de tempo visíveis no dark mode' },
-                { type: '✨', text: 'Dashboard: Sequência do histórico sincronizada com o card de stats' },
-                { type: '✨', text: 'Dashboard: Configurações e Atualizações removidas de Ferramentas Mais Usadas' },
-                { type: '✨', text: 'Notificações: Tipos de Alerta com toggles individuais (Confirmações, Erros, Info, Alertas)' },
-                { type: '✨', text: 'Notificações: Histórico Recente com últimas 20 entradas' },
-                { type: '✨', text: 'Notificações: Toggle para ativar/desativar salvamento do histórico' },
-                { type: '✨', text: 'Notificações: Botão para limpar histórico' },
-                { type: '✨', text: 'Gerador de Senhas: Cards com visual idêntico em light e dark mode' },
-                { type: '✨', text: 'Electron: Menu padrão removido (File/Edit/View/Window/Help)' }
             ]
         },
     ],

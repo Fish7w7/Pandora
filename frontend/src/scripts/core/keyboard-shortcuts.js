@@ -14,6 +14,7 @@ const KeyboardShortcuts = {
         'ctrl+0': { tool: 'notes', name: 'Notas Rápidas' },
         'ctrl+t': { tool: 'tasks', name: 'Tarefas' },
         'ctrl+s': { tool: 'settings', name: 'Configurações' },
+        'ctrl+u': { tool: 'profile', name: 'Perfil' },
         'ctrl+/': { action: 'showHelp', name: 'Mostrar Atalhos' },
         'escape': { action: 'closeModals', name: 'Fechar Modais' },
         'ctrl+shift+u': { action: 'toggleDevMode', name: 'Dev Mode (Updater)' },
@@ -23,7 +24,7 @@ const KeyboardShortcuts = {
     isModalOpen: false,
     
     init() {
-        console.log('⌨️ Inicializando Atalhos de Teclado v3.2.0...');
+        console.log('⌨️ Inicializando Atalhos de Teclado v3.3.0...');
         this.setupListeners();
         console.log('✅ Atalhos ativados! Pressione Ctrl+/ para ver todos.');
     },
@@ -258,6 +259,7 @@ const KeyboardShortcuts = {
                             ${this.renderShortcutItem('Ctrl + P', 'Command Palette', '🔍')}
                             ${this.renderShortcutItem('Ctrl + T', 'Tarefas', '✅')}
                             ${this.renderShortcutItem('Ctrl + S', 'Configurações', '⚙️')}
+                            ${this.renderShortcutItem('Ctrl + U', 'Perfil', '👤')}
                             ${this.renderShortcutItem('Ctrl + /', 'Mostrar Atalhos', '❓')}
                             ${this.renderShortcutItem('Esc', 'Fechar Modais', '❌')}
                             ${this.renderShortcutItem('Ctrl + Shift + F', 'Modo Foco', '🎯')}
