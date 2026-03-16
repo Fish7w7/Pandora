@@ -4,7 +4,7 @@
 ═══════════════════════════════════════════════════════*/
 
 const AutoUpdater = {
-    currentVersion: '3.4.1',
+    currentVersion: '3.4.2',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -28,10 +28,22 @@ const AutoUpdater = {
 
     changelog: [
     {
-        version: '3.4.1',
-        date: '2026-03-15T21:00:00',
+        version: '3.4.2',
+        date: '2026-03-16T03:00:00',
         label: 'Atual',
         labelColor: 'bg-green-500',
+        author: 'Clara',
+        changes: [
+            { type: '🐛', text: 'Updater: botão "Baixar e Instalar" abria o GitHub em vez de baixar — fluxo nativo corrigido' },
+            { type: '🐛', text: 'Updater: verificação não detectava nova versão disponível em builds instalados (3.4.0 → 3.4.1)' },
+            { type: '⚡', text: 'Updater: fallback automático para GitHub API quando o updater nativo não responde em 8s' },
+        ]
+    },
+    {
+        version: '3.4.1',
+        date: '2026-03-15T21:00:00',
+        label: null,
+        labelColor: '',
         author: 'Clara',
         changes: [
             { type: '🎨', text: 'Redesign completo: Gerador de Senhas, Tradutor, Email Temporário, Player de Música e Zona Offline' },
@@ -42,23 +54,6 @@ const AutoUpdater = {
             { type: '🐛', text: 'Settings: CPU alto ao entrar na aba Sobre corrigido — animate-pulse + backdrop-blur removidos' },
             { type: '🐛', text: 'Perfil: foto da aba Perfil dava zoom ao clicar em "Escolher arquivo" — comportamento corrigido' },
             { type: '⚡', text: 'Dark theme: CSS reduzido de 839 para 479 linhas, removendo regras obsoletas e duplicadas' },
-        ]
-    },
-    {
-        version: '3.4.0',
-        date: '2026-03-15T12:00:00',
-        label: null,
-        labelColor: '',
-        author: 'Gabriel',
-        changes: [
-            { type: '✨', text: 'Auto-update nativo: detecta, baixa e instala novas versões automaticamente (electron-updater)' },
-            { type: '✨', text: 'Auto-update: modal dark glass de confirmação antes de iniciar o download' },
-            { type: '✨', text: 'Auto-update: barra de progresso em tempo real com velocidade e tempo restante' },
-            { type: '✨', text: 'Dashboard: calendário real do mês atual com intensidade de cor por tempo de uso' },
-            { type: '✨', text: 'Notas e Tarefas: modais dark glass substituindo confirm() nativo' },
-            { type: '🐛', text: 'Updater: seção "O que há de novo" aparecia em branco — parser reescrito + fallback local' },
-            { type: '🐛', text: 'Updater: card de update invisível no dark theme — cores totalmente theme-aware' },
-            { type: '🐛', text: 'Dashboard: Atividade Semanal divergia do Histórico de Uso — dados sincronizados' },
         ]
     },
 ],
@@ -598,12 +593,42 @@ const AutoUpdater = {
         this.checking = true;
         if (!silent) Router?.render();
 
+        let usingNative = false;
         try {
             let data;
 
             if (window.electronAPI?.isReady) {
                 const result = await window.electronAPI.checkForUpdates();
                 if (!result.success) throw new Error(result.error);
+
+                // Updater nativo em produção — eventos IPC cuidam de tudo via _handleNativeStatus
+                // Em dev o autoUpdater não funciona, então fazemos fallback para GitHub API
+                if (result.usingNativeUpdater) {
+                    usingNative = true;
+                    // Timeout de segurança: se o evento IPC não chegar em 8s, faz fallback
+                    setTimeout(async () => {
+                        if (!this.checking) return; // evento já chegou, tudo certo
+                        console.log('[Updater] Native updater sem resposta, usando fallback GitHub API...');
+                        usingNative = false;
+                        try {
+                            const res = await fetch(this.updateUrl, {
+                                headers: { 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'NyanTools-Updater' }
+                            });
+                            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                            const data = await res.json();
+                            this._cacheVersion(data);
+                            Utils.saveData('last_update_check', { date: Date.now(), version: this.currentVersion });
+                            this._processVersionData(data, silent);
+                        } catch (e) {
+                            console.warn('[Updater] Fallback também falhou:', e.message);
+                        } finally {
+                            this.checking = false;
+                            Router?.render();
+                        }
+                    }, 8000);
+                    return;
+                }
+
                 data = result.data;
             } else {
                 // Fallback direto (ambiente web/dev sem Electron)
@@ -622,8 +647,11 @@ const AutoUpdater = {
             console.error('❌ Erro ao verificar atualizações:', error);
             if (!silent) Utils.showNotification('❌ Erro ao verificar atualizações', 'error');
         } finally {
-            this.checking = false;
-            if (!silent) Router?.render();
+            // Se usando updater nativo, não limpar checking — _handleNativeStatus vai fazer isso
+            if (!usingNative) {
+                this.checking = false;
+                if (!silent) Router?.render();
+            }
         }
     },
 

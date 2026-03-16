@@ -1,7 +1,7 @@
 {
   "name": "nyantools",
-  "version": "3.4.1",
-  "description": "NyanTools - Your purr-fect toolkit にゃん~ | Redesign de Ferramentas, Fixes de CPU e Dark Theme Otimizado",
+  "version": "3.4.2",
+  "description": "NyanTools - Your purr-fect toolkit にゃん~ | Correções críticas no sistema de auto-update",
   "main": "backend/src/main.js",
   "scripts": {
     "start": "electron .",

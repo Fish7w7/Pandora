@@ -36,7 +36,7 @@ async function invoke(channel, ...args) {
 try {
     contextBridge.exposeInMainWorld('electronAPI', {
 
-        version: '3.4.1',
+        version: '3.4.2',
         isReady: true,
 
         checkForUpdates: () => invoke('check-for-updates'),
@@ -74,14 +74,14 @@ try {
         }
     });
 
-    console.log('✅ [Preload v3.4.1] API exposta com sucesso');
+    console.log('✅ [Preload v3.4.2] API exposta com sucesso');
 
 } catch (error) {
     console.error('❌ [Preload] ERRO CRÍTICO:', error);
     try {
         contextBridge.exposeInMainWorld('electronAPI', {
             isReady: false,
-            version: '3.4.1-fallback',
+            version: '3.4.2-fallback',
             error: error.message
         });
     } catch (fallbackError) {

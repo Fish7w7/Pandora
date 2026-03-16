@@ -1,63 +1,32 @@
 {
-  "version": "3.4.1",
-  "buildDate": "2026-03-15",
+  "version": "3.4.2",
+  "buildDate": "2026-03-16",
   "changelog": [
-    "🎨 Redesign completo: Gerador de Senhas, Tradutor, Email Temporário, Player de Música e Zona Offline",
-    "✨ Gerador de Senhas: modo Frase-Senha, sintaxe colorida, análise em modal dark glass",
-    "✨ Zona Offline: tecla Esc para sair de qualquer jogo, hint visual no header",
-    "✨ Perfil: clique na foto do hero abre lightbox, clique na foto da aba Perfil abre o picker",
-    "✨ Links dos Beta Testers: corrigido — agora abrem no navegador padrão do sistema",
-    "🐛 Settings: CPU alto ao entrar na aba Sobre corrigido — animate-pulse + backdrop-blur removidos",
-    "🐛 Perfil: foto da aba Perfil dava zoom ao clicar em 'Escolher arquivo' — comportamento corrigido",
-    "⚡ Dark theme: CSS reduzido de 839 para 479 linhas, removendo regras obsoletas e duplicadas"
+    "🐛 Updater: botão 'Baixar e Instalar' abria o GitHub em vez de baixar — fluxo nativo corrigido",
+    "🐛 Updater: verificação não detectava nova versão disponível em builds instalados (3.4.0 → 3.4.1)",
+    "⚡ Updater: fallback automático para GitHub API quando o updater nativo não responde em 8s"
   ],
-  "tag_name": "v3.4.1",
-  "releaseDate": "2026-03-15",
-  "name": "NyanTools v3.4.1 – Tanuki にゃん~",
+  "tag_name": "v3.4.2",
+  "releaseDate": "2026-03-16",
+  "name": "NyanTools v3.4.2 – Tanuki にゃん~",
   "codename": "Tanuki",
-  "body": "## 🦝 NyanTools v3.4.1 – Tanuki にゃん~\n\n**PATCH:** Redesign de 5 ferramentas, fixes de perfil e CPU, e limpeza do dark theme.\n\n### 🎨 REDESIGNS\n\n#### Gerador de Senhas\n- Modo Frase-Senha (passphrase) com palavras separáveis.\n- Sintaxe colorida por tipo de caractere.\n- Análise de força em modal dark glass.\n\n#### Tradutor\n- Layout compacto com seletores de idioma com flag.\n- Botão swap circular entre os idiomas.\n- Botões 'Ouvir original' e 'Ouvir tradução' distintos.\n\n#### Email Temporário\n- Três opções em cards compactos em linha.\n- Links externos via `window.electronAPI.openExternal`.\n\n#### Player de Música\n- Capa pequena ao lado das informações da faixa.\n- Gradientes simplificados, layout mais limpo.\n\n#### Zona Offline\n- Cards com hover rico: glow colorido por jogo, shine overlay, dot accent.\n- Animações de entrada escalonadas (`ozFadeUp`).\n\n### ✨ NOVIDADES\n- Zona Offline: tecla **Esc** para sair de qualquer jogo, com hint visual no header.\n- Perfil: clique na foto do hero abre o lightbox; clique na foto da aba Perfil abre o picker.\n- Links dos Beta Testers: corrigido — agora abrem no navegador padrão do sistema.\n\n### 🐛 CORREÇÕES\n- Settings: CPU subia para ~12% ao entrar na aba Sobre — `animate-pulse` + `backdrop-blur` removidos do badge de versão.\n- Perfil: foto da aba Perfil dava zoom ao clicar em 'Escolher arquivo' — `<input type=\"file\">` movido para fora do wrapper.\n\n### ⚡ PERFORMANCE\n- Dark theme CSS reduzido de 839 para 479 linhas — seções obsoletas (`.option-card`, `[data-option-id]`, `.note-card[data-color]`, `.tech-card`) e regras duplicadas removidas.\n\n---\n\n**Versão Anterior:** [v3.4.0](https://github.com/Fish7w7/Pandora/releases/tag/v3.4.0)\n**Codename:** Tanuki 🦝\n**Autor:** Gabriel",
+  "body": "## 🦝 NyanTools v3.4.2 – Tanuki にゃん~\n\n**PATCH:** Correções críticas no sistema de auto-update.\n\n### 🐛 CORREÇÕES\n- Updater: botão 'Baixar e Instalar' abria a página do GitHub em vez de iniciar o download automático.\n- Updater: ao clicar em Verificar em builds instalados, o app não detectava a nova versão disponível — o evento IPC era emitido corretamente pelo main.js mas o frontend não processava a resposta.\n\n### ⚡ MELHORIA\n- Updater: fallback automático para GitHub API quando o updater nativo não emite resposta em 8 segundos.\n\n---\n\n**Versão Anterior:** v3.4.1\n**Codename:** Tanuki 🦝\n**Autor:** Clara",
   "previousVersion": {
-    "version": "3.4.0",
-    "tag": "v3.4.0",
-    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.4.0"
+    "version": "3.4.1",
+    "tag": "v3.4.1",
+    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.4.1"
   },
-  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.4.1",
-  "releaseNotesUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.4.1",
-  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.4.1",
+  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.4.2",
+  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.4.2",
   "statistics": {
     "filesNew": 0,
-    "filesRewritten": 5,
-    "filesModified": 4,
+    "filesRewritten": 0,
+    "filesModified": 1,
     "bugsFixed": 2,
-    "featuresAdded": 3
+    "featuresAdded": 0
   },
   "filesModified": [
-    "frontend/src/scripts/tools/password/password.js",
-    "frontend/src/scripts/tools/translator/translator.js",
-    "frontend/src/scripts/tools/temp-email/temp-email.js",
-    "frontend/src/scripts/tools/music/music.js",
-    "frontend/src/scripts/tools/offline-zone/offline.js",
-    "frontend/src/scripts/tools/offline-zone/flappy-bird.js",
-    "frontend/src/scripts/tools/profile/profile.js",
-    "frontend/src/scripts/tools/settings/settings.js",
-    "frontend/src/styles/profile.css",
-    "frontend/src/styles/dark-theme.css",
+    "frontend/src/scripts/tools/updater/updater.js",
     "version.json"
-  ],
-  "bugFixes": [
-    {
-      "id": "BUG-35",
-      "description": "CPU alto (~12%) ao entrar na aba Sobre nas configurações",
-      "status": "✅ Corrigido",
-      "file": "settings.js",
-      "solution": "animate-pulse (Tailwind) substituído por @keyframes aboutPulse com só opacity; backdrop-blur removido do badge de versão"
-    },
-    {
-      "id": "BUG-36",
-      "description": "Foto da aba Perfil dava zoom ao clicar em 'Escolher arquivo'",
-      "status": "✅ Corrigido",
-      "file": "profile.js / profile.css",
-      "solution": "input[type=file] movido para fora do profile-avatar-wrap; transform:scale removido do .profile-avatar-preview:hover, substituído por box-shadow glow"
-    }
   ]
 }

@@ -1,14 +1,9 @@
 {
-  "version": "3.4.1",
-  "buildDate": "2026-03-15",
+  "version": "3.4.2",
+  "buildDate": "2026-03-16",
   "changelog": [
-    "🎨 Redesign completo: Gerador de Senhas, Tradutor, Email Temporário, Player de Música e Zona Offline",
-    "✨ Gerador de Senhas: modo Frase-Senha, sintaxe colorida, análise em modal dark glass",
-    "✨ Zona Offline: tecla Esc para sair de qualquer jogo, hint visual no header",
-    "✨ Perfil: clique na foto do hero abre lightbox, clique na foto da aba Perfil abre o picker",
-    "✨ Links dos Beta Testers: corrigido — agora abrem no navegador padrão do sistema",
-    "🐛 Settings: CPU alto ao entrar na aba Sobre corrigido — animate-pulse + backdrop-blur removidos",
-    "🐛 Perfil: foto da aba Perfil dava zoom ao clicar em 'Escolher arquivo' — comportamento corrigido",
-    "⚡ Dark theme: CSS reduzido de 839 para 479 linhas, removendo regras obsoletas e duplicadas"
+    "🐛 Updater: botão 'Baixar e Instalar' abria o GitHub em vez de baixar — fluxo nativo corrigido",
+    "🐛 Updater: verificação não detectava nova versão disponível em builds instalados (3.4.0 → 3.4.1)",
+    "⚡ Updater: fallback automático para GitHub API quando o updater nativo não responde em 8s"
   ]
 }

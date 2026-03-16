@@ -4,7 +4,7 @@
  ═══════════════════════════════════════════════════*/
 
 const App = {
-    version: '3.4.1', 
+    version: '3.4.2', 
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
