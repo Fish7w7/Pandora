@@ -1,288 +1,225 @@
-// ZONA OFFLINE - NyanTools にゃん~
-// Versão Otimizada v2.0
+/* OFFLINE.JS v2.0.0 — NyanTools にゃん~ */
 
 const OfflineZone = {
     currentGame: null,
-    
-    // Configuração dos jogos
+
     games: {
-        tictactoe: {
-            name: 'Jogo da Velha',
-            icon: '❌⭕',
-            desc: '2 Jogadores ou vs Mayara 🤖',
-            gradient: 'from-blue-500 to-cyan-600',
-            shadow: 'hover:shadow-blue-500/50'
-        },
-        snake: {
-            name: 'Jogo da Cobrinha',
-            icon: '🐍',
-            desc: 'Clássico jogo arcade',
-            gradient: 'from-green-500 to-emerald-600',
-            shadow: 'hover:shadow-green-500/50'
-        },
-        termo: {
-            name: 'Termo',
-            icon: '📤',
-            desc: 'Wordle em português • Nova palavra a cada 24h',
-            gradient: 'from-yellow-400 to-orange-500',
-            shadow: 'hover:shadow-yellow-500/50'
-        },
-        forca: {
-            name: 'Forca',
-            icon: '🎯',
-            desc: 'Adivinhe a palavra • Nova palavra a cada 24h',
-            gradient: 'from-indigo-500 to-blue-600',
-            shadow: 'hover:shadow-indigo-500/50'
-        },
-        flappy: {
-            name: 'Flappy Bird',
-            icon: '🦅',
-            desc: 'O jogo mais viciante de todos!',
-            gradient: 'from-orange-400 to-red-500',
-            shadow: 'hover:shadow-orange-500/50'
-        },
-        game2048: {
-            name: '2048',
-            icon: '🔢',
-            desc: 'Una os números e chegue ao 2048!',
-            gradient: 'from-purple-500 to-violet-600',
-            shadow: 'hover:shadow-purple-500/50'
-        },
-        memory: {
-            name: 'Memória',
-            icon: '🧠',
-            desc: 'Encontre os pares',
-            gradient: 'from-purple-500 to-pink-600',
-            shadow: '',
-            comingSoon: true
-        }
+        tictactoe: { name: 'Jogo da Velha', icon: '❌⭕', desc: '2 jogadores ou vs Mayara 🤖',           color: '#3b82f6', glow: 'rgba(59,130,246,0.35)' },
+        snake:     { name: 'Cobrinha',       icon: '🐍',   desc: 'Clássico jogo arcade',                  color: '#22c55e', glow: 'rgba(34,197,94,0.35)'  },
+        termo:     { name: 'Termo',          icon: '📤',   desc: 'Wordle em português · nova palavra/24h', color: '#f59e0b', glow: 'rgba(245,158,11,0.35)' },
+        forca:     { name: 'Forca',          icon: '🎯',   desc: 'Adivinhe a palavra · nova palavra/24h',  color: '#6366f1', glow: 'rgba(99,102,241,0.35)' },
+        flappy:    { name: 'Flappy Bird',    icon: '🦅',   desc: 'O jogo mais viciante de todos!',        color: '#f97316', glow: 'rgba(249,115,22,0.35)' },
+        game2048:  { name: '2048',           icon: '🔢',   desc: 'Una os números e chegue ao 2048!',      color: '#a855f7', glow: 'rgba(168,85,247,0.35)' },
+        memory:    { name: 'Memória',        icon: '🧠',   desc: 'Encontre os pares',                     color: '#ec4899', glow: 'rgba(236,72,153,0.35)', comingSoon: true }
     },
-    
-    // ══════════════════════════════
-    // RENDER PRINCIPAL
-    // ══════════════════════════════
-    
+
     render() {
-        if (this.currentGame) {
-            return this.renderGame();
-        }
-        if (this.currentGame === 'flappy') {
-            return this.renderFlappy();
-        }
-        
-        return `
-            <div class="max-w-6xl mx-auto">
-                ${this.renderHeader()}
-                ${this.renderGamesGrid()}
-                ${this.renderInfoBox()}
-            </div>
-        `;
-    },
-    
-    renderHeader() {
-        const isOnline = App?.isOnline ?? true;
-        const statusColor = isOnline ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700';
-        const statusDot = isOnline ? 'bg-green-500' : 'bg-red-500';
-        const statusText = isOnline ? '🟢 Online' : '🔴 Offline - Aproveite os jogos!';
-        
-        return `
-            <div class="text-center mb-8">
-                <h1 class="text-5xl font-black text-gray-800 mb-3">📶 Zona Offline</h1>
-                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full ${statusColor}">
-                    <div class="w-3 h-3 rounded-full ${statusDot} animate-pulse"></div>
-                    <span class="font-semibold">${statusText}</span>
-                </div>
-            </div>
-        `;
-    },
-    
-    renderGamesGrid() {
-        return `
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                ${Object.entries(this.games).map(([id, game]) => 
-                    this.renderGameCard(id, game)
-                ).join('')}
-            </div>
-        `;
-    },
-    
-    renderGameCard(id, game) {
-        if (game.comingSoon) {
-            return this.renderComingSoonCard(game);
-        }
-        
-        return `
-            <div class="group bg-gradient-to-br ${game.gradient} rounded-2xl p-6 text-white shadow-xl ${game.shadow} hover:shadow-2xl transform hover:scale-105 transition-all duration-300 cursor-pointer"
-                 onclick="OfflineZone.startGame('${id}')">
-                <div class="text-6xl mb-4 group-hover:scale-110 transition-transform">${game.icon}</div>
-                <h3 class="text-2xl font-bold mb-2">${game.name}</h3>
-                <p class="text-white/90 mb-4 text-sm">${game.desc}</p>
-                <button class="w-full bg-white/20 hover:bg-white/30 backdrop-blur-sm py-3 rounded-xl font-bold transition-all flex items-center justify-center gap-2">
-                    <span>▶️</span>
-                    <span>Jogar</span>
-                </button>
-            </div>
-        `;
-    },
-    
-    renderComingSoonCard(game) {
-        return `
-            <div class="bg-gradient-to-br ${game.gradient} rounded-2xl p-6 text-white shadow-xl opacity-60 cursor-not-allowed">
-                <div class="text-6xl mb-4">${game.icon}</div>
-                <h3 class="text-2xl font-bold mb-2">${game.name}</h3>
-                <p class="text-white/90 mb-4 text-sm">${game.desc}</p>
-                <button class="w-full bg-white/20 py-3 rounded-xl font-bold flex items-center justify-center gap-2" disabled>
-                    <span>🚧</span>
-                    <span>Em Breve</span>
-                </button>
-            </div>
-        `;
-    },
-    
-    renderInfoBox() {
-        return `
-            <div class="mt-8 bg-blue-50 border-2 border-blue-200 rounded-2xl p-6">
-                <div class="flex items-start gap-4">
-                    <div class="text-4xl">💡</div>
-                    <div>
-                        <h3 class="text-xl font-bold text-blue-900 mb-2">Jogos Offline</h3>
-                        <p class="text-blue-800">
-                            Todos os jogos funcionam sem conexão à internet! Perfeito para quando você está sem wifi ou dados móveis.
-                        </p>
+        if (this.currentGame) return this._renderGame();
+
+        const d      = document.body.classList.contains('dark-theme');
+        const bg     = d ? '#0d0d18'                 : '#f8fafc';
+        const card   = d ? 'rgba(255,255,255,0.04)'  : '#ffffff';
+        const border = d ? 'rgba(255,255,255,0.08)'  : 'rgba(0,0,0,0.08)';
+        const text   = d ? '#f1f5f9'                 : '#0f172a';
+        const sub    = d ? 'rgba(255,255,255,0.38)'  : 'rgba(0,0,0,0.42)';
+
+        const isOnline    = App?.isOnline ?? true;
+        const statusColor = isOnline ? '#22c55e' : '#ef4444';
+        const statusLabel = isOnline ? 'Online' : 'Offline';
+
+        const cards = Object.entries(this.games).map(([id, g], i) => {
+            const delay = `${i * 40}ms`;
+
+            if (g.comingSoon) return `
+                <div style="
+                    background:${card}; border:1px solid ${border}; border-radius:18px;
+                    padding:1.5rem 1.25rem; display:flex; flex-direction:column; gap:0.5rem;
+                    opacity:0.42; cursor:not-allowed; position:relative; overflow:hidden;
+                    animation:ozFadeUp 0.4s ease both; animation-delay:${delay};
+                ">
+                    <div style="font-size:2.4rem; line-height:1; margin-bottom:0.25rem;">${g.icon}</div>
+                    <div style="font-size:0.92rem; font-weight:800; color:${text}; font-family:'Syne',sans-serif;">${g.name}</div>
+                    <div style="font-size:0.72rem; color:${sub}; line-height:1.45; flex:1;">${g.desc}</div>
+                    <div style="margin-top:0.25rem; padding:0.45rem; border-radius:8px; background:rgba(128,128,128,0.1);
+                                font-size:0.72rem; font-weight:700; color:${sub}; text-align:center; letter-spacing:0.04em;">
+                        🚧 EM BREVE
                     </div>
+                </div>`;
+
+            return `
+                <div class="oz-card" id="oz-${id}" onclick="OfflineZone.startGame('${id}')" style="
+                    background:${card}; border:1px solid ${border}; border-radius:18px;
+                    padding:1.5rem 1.25rem; display:flex; flex-direction:column; gap:0.5rem;
+                    cursor:pointer; position:relative; overflow:hidden;
+                    transition:transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s, border-color 0.2s;
+                    animation:ozFadeUp 0.4s ease both; animation-delay:${delay};
+                "
+                onmouseenter="
+                    this.style.transform='translateY(-4px) scale(1.02)';
+                    this.style.boxShadow='0 16px 40px ${g.glow}';
+                    this.style.borderColor='${g.color}55';
+                    this.querySelector('.oz-shine').style.opacity='1';
+                    this.querySelector('.oz-play').style.background='${g.color}';
+                    this.querySelector('.oz-play').style.color='white';
+                    this.querySelector('.oz-play').style.borderColor='${g.color}';
+                "
+                onmouseleave="
+                    this.style.transform='';
+                    this.style.boxShadow='';
+                    this.style.borderColor='${border}';
+                    this.querySelector('.oz-shine').style.opacity='0';
+                    this.querySelector('.oz-play').style.background='transparent';
+                    this.querySelector('.oz-play').style.color='${g.color}';
+                    this.querySelector('.oz-play').style.borderColor='${g.color}33';
+                ">
+
+                    <!-- Shine overlay -->
+                    <div class="oz-shine" style="
+                        position:absolute; inset:0; opacity:0; transition:opacity 0.2s; pointer-events:none;
+                        background:linear-gradient(135deg, ${g.color}0d 0%, transparent 60%);
+                    "></div>
+
+                    <!-- Dot accent -->
+                    <div style="
+                        position:absolute; top:1rem; right:1rem;
+                        width:7px; height:7px; border-radius:50%;
+                        background:${g.color}; opacity:0.5;
+                    "></div>
+
+                    <div style="font-size:2.4rem; line-height:1; margin-bottom:0.25rem; position:relative;">${g.icon}</div>
+                    <div style="font-size:0.92rem; font-weight:800; color:${text}; font-family:'Syne',sans-serif; position:relative;">${g.name}</div>
+                    <div style="font-size:0.72rem; color:${sub}; line-height:1.45; flex:1; position:relative;">${g.desc}</div>
+
+                    <div class="oz-play" style="
+                        margin-top:0.25rem; padding:0.5rem; border-radius:9px;
+                        border:1px solid ${g.color}33; background:transparent;
+                        font-size:0.72rem; font-weight:800; color:${g.color};
+                        text-align:center; letter-spacing:0.05em; text-transform:uppercase;
+                        transition:all 0.18s; position:relative;
+                    ">▶ Jogar</div>
+                </div>`;
+        }).join('');
+
+        return `
+        <style>
+            @keyframes ozFadeUp { from { opacity:0; transform:translateY(14px) } to { opacity:1; transform:none } }
+            @keyframes ozPulse  { 0%,100% { opacity:1 } 50% { opacity:0.4 } }
+        </style>
+
+        <div style="max-width:700px; margin:0 auto; font-family:'DM Sans',sans-serif;">
+
+            <!-- Header -->
+            <div style="text-align:center; margin-bottom:2rem;">
+                <div style="font-size:3rem; margin-bottom:0.625rem; animation:ozFadeUp 0.35s ease both;">📶</div>
+                <h1 style="
+                    font-family:'Syne',sans-serif; font-size:2rem; font-weight:900; margin:0 0 0.625rem;
+                    background:linear-gradient(135deg,#a855f7,#ec4899); -webkit-background-clip:text;
+                    -webkit-text-fill-color:transparent; background-clip:text;
+                    animation:ozFadeUp 0.35s ease 0.05s both;
+                ">Zona Offline</h1>
+                <div style="
+                    display:inline-flex; align-items:center; gap:0.5rem;
+                    font-size:0.75rem; font-weight:700; color:${statusColor};
+                    animation:ozFadeUp 0.35s ease 0.1s both;
+                ">
+                    <span style="width:7px;height:7px;border-radius:50%;background:${statusColor};display:inline-block;animation:ozPulse 2s infinite;"></span>
+                    ${statusLabel} · ${Object.values(this.games).filter(g => !g.comingSoon).length} jogos disponíveis
                 </div>
             </div>
-        `;
+
+            <!-- Grid -->
+            <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem;">
+                ${cards}
+            </div>
+
+        </div>`;
     },
-    
-    renderGame() {
+
+    _renderGame() {
         const game = this.games[this.currentGame];
         if (!game) return '';
-        
+        const d      = document.body.classList.contains('dark-theme');
+        const text   = d ? '#f1f5f9'               : '#0f172a';
+        const btnBg  = d ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.05)';
+        const btnBdr = d ? 'rgba(255,255,255,0.1)'  : 'rgba(0,0,0,0.09)';
+        const btnClr = d ? 'rgba(255,255,255,0.6)'  : 'rgba(0,0,0,0.55)';
+
+        const content = ({
+            tictactoe: () => TicTacToe?.render()  || this._loading('Jogo da Velha'),
+            snake:     () => MiniGame?.render()    || this._loading('Cobrinha'),
+            termo:     () => Termo?.render()       || this._loading('Termo'),
+            forca:     () => Forca?.render()       || this._loading('Forca'),
+            flappy:    () => typeof FlappyBird !== 'undefined' ? FlappyBird.render() : this._loading('Flappy Bird'),
+            game2048:  () => Game2048?.render()    || this._loading('2048')
+        })[this.currentGame]?.() || '';
+
         return `
-            <div class="max-w-4xl mx-auto">
-                ${this.renderGameHeader(game)}
-                ${this.renderGameContent()}
-            </div>
-        `;
-    },
-    
-    renderGameHeader(game) {
-        return `
-            <div class="flex items-center justify-between mb-6">
-                <h1 class="text-4xl font-black text-gray-800">${game.icon} ${game.name}</h1>
-                <button onclick="OfflineZone.backToMenu()" 
-                        class="px-6 py-3 bg-gray-200 hover:bg-gray-300 rounded-xl font-bold transition-all flex items-center gap-2">
-                    <span>⬅️</span>
-                    <span>Voltar</span>
-                </button>
-            </div>
-        `;
-    },
-    
-    renderGameContent() {
-        const renderers = {
-            tictactoe: () => TicTacToe?.render() || this.renderLoading('Jogo da Velha'),
-            snake: () => MiniGame?.render() || this.renderLoading('Cobrinha'),
-            termo: () => Termo?.render() || this.renderLoading('Termo'),
-            forca: () => Forca?.render() || this.renderLoading('Forca'),
-            flappy: () => FlappyBird?.render() || this.renderLoading('Flappy Bird'),
-            game2048: () => Game2048?.render() || this.renderLoading('2048')
-        };
-        
-        const renderer = renderers[this.currentGame];
-        return renderer ? renderer() : '';
-    },
-    
-    renderLoading(gameName) {
-        return `<p class="text-center text-gray-600">Carregando ${gameName}...</p>`;
-    },
-    
-    // ══════════════════════════════
-    // CONTROLE DE JOGOS
-    // ══════════════════════════════
-    
-    init() {
-        // Não faz nada - método de compatibilidade
-    },
-    
-    startGame(game) {
-        this.currentGame = game;
-        
-        // Inicializar jogo específico
-        this.initializeGame(game);
-        
-        Router?.render();
-        
-        // Post-render initialization
-        if (game === 'snake') {
-            setTimeout(() => MiniGame?.init(), 100);
-        } else if (game === 'flappy') {
-            setTimeout(() => FlappyBird?.init(), 100);
-        } else if (game === 'game2048') {
-            setTimeout(() => Game2048?.init(), 100);
-        }
-    },
-    
-    initializeGame(game) {
-        const initializers = {
-            tictactoe: () => {
-                if (TicTacToe) {
-                    TicTacToe.gameMode = null;
-                    TicTacToe.resetGame();
-                    TicTacToe.resetScores();
-                }
-            },
-            snake: () => {
-                MiniGame?.resetGame();
-            },
-            termo: () => {
-                if (Termo) {
-                    Termo.isReady = false;
-                    Router?.render();
-                    setTimeout(() => Termo.init(), 100);
-                }
-            },
-            forca: () => {
-                if (Forca) {
-                    Forca.isReady = false;
-                    Router?.render();
-                    setTimeout(() => Forca.init(), 100);
-                }
-            },
-            flappy: () => {
-                // Inicializado no post-render
-            },
-            game2048: () => {
-                if (Game2048) {
-                    Game2048.loadGameState();
-                    setTimeout(() => Game2048.init(), 100);
-                }
-            }
-        };
-        
-        const initializer = initializers[game];
-        if (initializer) initializer();
-    },
-    
-    renderFlappy() {
-        return `
-            <div class="max-w-4xl mx-auto">
-                <div class="flex items-center justify-between mb-6">
-                    <h1 class="text-4xl font-black text-gray-800">🐦 Flappy Bird</h1>
-                    <button onclick="OfflineZone.backToMenu()" 
-                            class="px-6 py-3 bg-gray-200 hover:bg-gray-300 rounded-xl font-bold transition-all flex items-center gap-2">
-                        <span>⬅️</span>
-                        <span>Voltar</span>
+        <div style="max-width:860px; margin:0 auto; font-family:'DM Sans',sans-serif;">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:1.25rem;">
+                <div style="display:flex; align-items:center; gap:0.75rem;">
+                    <div style="
+                        width:40px; height:40px; border-radius:12px;
+                        background:${game.color}22; border:1px solid ${game.color}44;
+                        display:flex; align-items:center; justify-content:center; font-size:1.3rem;
+                    ">${game.icon}</div>
+                    <h1 style="font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:900; color:${text}; margin:0;">
+                        ${game.name}
+                    </h1>
+                </div>
+                <div style="display:flex; align-items:center; gap:0.75rem;">
+                    <span style="font-size:0.7rem; font-weight:600; color:${d?'rgba(255,255,255,0.25)':'rgba(0,0,0,0.3)'}; display:flex; align-items:center; gap:0.3rem;">
+                        <kbd style="background:${btnBg}; border:1px solid ${btnBdr}; border-radius:5px; padding:2px 7px; font-family:monospace; font-size:0.68rem;">Esc</kbd>
+                        para sair
+                    </span>
+                    <button onclick="OfflineZone.backToMenu()"
+                            style="padding:0.5rem 1rem; border-radius:10px; border:1px solid ${btnBdr}; background:${btnBg}; color:${btnClr}; font-size:0.8rem; font-weight:700; cursor:pointer; font-family:'DM Sans',sans-serif; transition:all 0.15s; display:flex; align-items:center; gap:0.375rem;"
+                            onmouseover="this.style.background='${d?'rgba(255,255,255,0.11)':'rgba(0,0,0,0.1)'}'"
+                            onmouseout="this.style.background='${btnBg}'">
+                        ⬅️ Voltar
                     </button>
                 </div>
-                ${typeof FlappyBird !== 'undefined' ? FlappyBird.render() : '<p class="text-center text-gray-600">Carregando Flappy Bird...</p>'}
             </div>
-        `;
+            ${content}
+        </div>`;
     },
-    
+
+    _loading(name) {
+        return `<p style="text-align:center; opacity:0.4; font-family:'DM Sans',sans-serif; padding:2rem 0;">Carregando ${name}...</p>`;
+    },
+
+    init() {},
+
+    startGame(game) {
+        this.currentGame = game;
+        this._initGame(game);
+        Router?.render();
+        this._escHandler = e => { if (e.key === 'Escape') this.backToMenu(); };
+        document.addEventListener('keydown', this._escHandler);
+        if (game === 'snake')         setTimeout(() => MiniGame?.init(), 100);
+        else if (game === 'flappy')   setTimeout(() => FlappyBird?.init(), 100);
+        else if (game === 'game2048') setTimeout(() => Game2048?.init(), 100);
+    },
+
+    _initGame(game) {
+        if (game === 'tictactoe' && TicTacToe) {
+            TicTacToe.gameMode = null; TicTacToe.resetGame(); TicTacToe.resetScores();
+        } else if (game === 'snake') {
+            MiniGame?.resetGame();
+        } else if (game === 'termo' && Termo) {
+            Termo.isReady = false; setTimeout(() => Termo.init(), 100);
+        } else if (game === 'forca' && Forca) {
+            Forca.isReady = false; setTimeout(() => Forca.init(), 100);
+        } else if (game === 'game2048' && Game2048) {
+            Game2048.loadGameState(); setTimeout(() => Game2048.init(), 100);
+        }
+    },
+
     backToMenu() {
         this.currentGame = null;
+        if (this._escHandler) {
+            document.removeEventListener('keydown', this._escHandler);
+            this._escHandler = null;
+        }
         Router?.render();
     }
 };

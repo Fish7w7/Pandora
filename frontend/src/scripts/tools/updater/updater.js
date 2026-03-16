@@ -4,7 +4,7 @@
 ═══════════════════════════════════════════════════════*/
 
 const AutoUpdater = {
-    currentVersion: '3.3.0',
+    currentVersion: '3.4.1',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -28,47 +28,40 @@ const AutoUpdater = {
 
     changelog: [
     {
-        version: '3.3.0',
-        date: '2026-03-14T12:00:00',
+        version: '3.4.1',
+        date: '2026-03-15T21:00:00',
         label: 'Atual',
         labelColor: 'bg-green-500',
-        author: 'Gabriel & Clara',
+        author: 'Clara',
         changes: [
-            { type: '✨', text: 'Perfil: nova aba com upload de foto, edição de conta, estatísticas detalhadas e gráficos de uso' },
-            { type: '✨', text: 'Conquistas: sistema de badges desbloqueáveis com barra de progresso e notificações' },
-            { type: '✨', text: 'Favoritos: nova seção na sidebar para fixar até 5 ferramentas com suporte a drag-to-reorder' },
-            { type: '✨', text: 'Modo Foco: animações fluidas (spring/fade), indicador visual e delay inteligente ao fechar' },
-            { type: '✨', text: 'Cobrinha: redesign espacial com novos itens e fundo fixo para evitar bugs no tema claro' },
-            { type: '✨', text: 'Jogo da Velha: layout mais compacto e IA rebalanceada nas três dificuldades' },
-            { type: '✨', text: 'UX: atalho no Command Palette (Ctrl+U) e links externos abrem no navegador do sistema' },
-            { type: '✨', text: 'Easter Egg: Konami Code desbloqueia modal com informações das cobaias de teste' },
-            { type: '🐛', text: 'Correções: resolução de lag na sidebar, CPU no Modo Foco e auto-cleanup ao fechar jogos' },
-            { type: '⚡', text: 'Performance: remoção de transforms custosos (will-change) e otimização de animações' }
+            { type: '🎨', text: 'Redesign completo: Gerador de Senhas, Tradutor, Email Temporário, Player de Música e Zona Offline' },
+            { type: '✨', text: 'Gerador de Senhas: modo Frase-Senha, sintaxe colorida, análise em modal dark glass' },
+            { type: '✨', text: 'Zona Offline: tecla Esc para sair de qualquer jogo, hint visual no header' },
+            { type: '✨', text: 'Perfil: clique na foto do hero abre lightbox, clique na foto da aba Perfil abre o picker' },
+            { type: '✨', text: 'Links dos Beta Testers: corrigido — agora abrem no navegador padrão do sistema' },
+            { type: '🐛', text: 'Settings: CPU alto ao entrar na aba Sobre corrigido — animate-pulse + backdrop-blur removidos' },
+            { type: '🐛', text: 'Perfil: foto da aba Perfil dava zoom ao clicar em "Escolher arquivo" — comportamento corrigido' },
+            { type: '⚡', text: 'Dark theme: CSS reduzido de 839 para 479 linhas, removendo regras obsoletas e duplicadas' },
         ]
     },
-        {
-            version: '3.2.0',
-            date: '2026-03-11T12:00:00',
-            label: null,
-            labelColor: '',
-            author: 'Gabriel & Clara',
-            changes: [
-                { type: '✨', text: 'Command Palette: busca universal com Ctrl+P — ferramentas, notas, tarefas e ações em tempo real' },
-                { type: '✨', text: 'Command Palette: navegação por teclado (↑↓ / Enter / Esc) e highlight de match' },
-                { type: '✨', text: 'Command Palette: ações dinâmicas (toggle dark mode, modo foco, exportar backup, atalhos)' },
-                { type: '✨', text: 'Modo Foco: sidebar oculta com peek ao passar o mouse na borda esquerda (Ctrl+Shift+F)' },
-                { type: '✨', text: 'Modo Foco: header minimalista fixo com indicador de ferramenta ativa' },
-                { type: '✨', text: 'Sidebar: redesign completo com logo, avatar do usuário e status Online' },
-                { type: '✨', text: 'Sidebar: itens de navegação agrupados (Ferramentas, Entretenimento, Organização, Sistema)' },
-                { type: '✨', text: 'Easter Egg: ativado por 5 cliques no logo 🐱 — modal animado com "Aviso Importante"' },
-                { type: '✨', text: 'Settings: card de Modo Foco adicionado na aba Aparência' },
-                { type: '🐛', text: 'Logout: substituído confirm() nativo por modal dark glass estilizado' },
-                { type: '🐛', text: 'Toast de atalhos: ícone real da ferramenta em vez de emoji fixo ⚡' },
-                { type: '⚡', text: 'Performance: backdrop-filter removido de overlays — CPU 13% → ~5% no Electron' },
-                { type: '⚡', text: 'Performance: delegação de eventos e debounce no Command Palette' },
-            ]
-        },
-    ],
+    {
+        version: '3.4.0',
+        date: '2026-03-15T12:00:00',
+        label: null,
+        labelColor: '',
+        author: 'Gabriel',
+        changes: [
+            { type: '✨', text: 'Auto-update nativo: detecta, baixa e instala novas versões automaticamente (electron-updater)' },
+            { type: '✨', text: 'Auto-update: modal dark glass de confirmação antes de iniciar o download' },
+            { type: '✨', text: 'Auto-update: barra de progresso em tempo real com velocidade e tempo restante' },
+            { type: '✨', text: 'Dashboard: calendário real do mês atual com intensidade de cor por tempo de uso' },
+            { type: '✨', text: 'Notas e Tarefas: modais dark glass substituindo confirm() nativo' },
+            { type: '🐛', text: 'Updater: seção "O que há de novo" aparecia em branco — parser reescrito + fallback local' },
+            { type: '🐛', text: 'Updater: card de update invisível no dark theme — cores totalmente theme-aware' },
+            { type: '🐛', text: 'Dashboard: Atividade Semanal divergia do Histórico de Uso — dados sincronizados' },
+        ]
+    },
+],
 
     // ──────────────────────────────────────────────────────────────────
     // RENDER PRINCIPAL
@@ -225,51 +218,101 @@ const AutoUpdater = {
         // ── Update disponível ──
         if (this.updateAvailable) {
             const asset = this.getDownloadAsset();
-            const releaseChanges = this.latestVersion?.body
+
+            // Tentar extrair do body da API do GitHub
+            let releaseChanges = this.latestVersion?.body
                 ? this._parseReleaseBody(this.latestVersion.body)
-                : null;
+                : [];
+
+            // Se não veio nada do body (fallback via version.json ou body vazio),
+            // usar o changelog local do objeto changelog[]
+            if (releaseChanges.length === 0) {
+                const latestTag = (this.latestVersion?.tag_name || '').replace('v', '');
+                const localEntry = this.changelog.find(c => c.version === latestTag);
+                if (localEntry?.changes?.length > 0) {
+                    releaseChanges = localEntry.changes.map(c => `${c.type} ${c.text}`);
+                }
+            }
+
+            const hasChanges = releaseChanges.length > 0;
+            const isDark = document.body.classList.contains('dark-theme');
+
+            // Cores do card — adaptadas ao tema
+            const card = isDark ? {
+                bg:         'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(5,150,105,0.08))',
+                border:     '2px solid rgba(16,185,129,0.35)',
+                title:      '#6ee7b7',
+                subtitle:   '#34d399',
+                strong:     '#a7f3d0',
+                boxBg:      'rgba(255,255,255,0.06)',
+                labelClr:   '#6ee7b7',
+                textClr:    '#d1fae5',
+                moreClr:    '#4ade80',
+                assetBg:    'rgba(255,255,255,0.07)',
+                assetName:  '#e5e7eb',
+                assetSize:  '#9ca3af',
+                btnSnooze:  'background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.7); border:1px solid rgba(255,255,255,0.15);',
+                btnDetails: 'background:rgba(16,185,129,0.1); color:#6ee7b7; border:1px solid rgba(16,185,129,0.3);',
+            } : {
+                bg:         'linear-gradient(135deg, #ecfdf5, #f0fdfa)',
+                border:     '2px solid #6ee7b7',
+                title:      '#065f46',
+                subtitle:   '#047857',
+                strong:     '#065f46',
+                boxBg:      'rgba(255,255,255,0.75)',
+                labelClr:   '#047857',
+                textClr:    '#065f46',
+                moreClr:    '#059669',
+                assetBg:    'rgba(255,255,255,0.75)',
+                assetName:  '#1f2937',
+                assetSize:  '#6b7280',
+                btnSnooze:  'background:#fff; color:#374151; border:1px solid #d1d5db;',
+                btnDetails: 'background:#fff; color:#047857; border:1px solid #6ee7b7;',
+            };
 
             return `
-                <div style="background: linear-gradient(135deg, #ecfdf5, #f0fdfa); border: 2px solid #6ee7b7; border-radius: 1rem; padding: 1.5rem;">
+                <div style="background:${card.bg}; border:${card.border}; border-radius:1rem; padding:1.5rem;">
                     <div style="display:flex; align-items:flex-start; gap:1rem;">
                         <div style="width:3rem; height:3rem; background:#10b981; border-radius:0.75rem; display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0;">🎉</div>
                         <div style="flex:1; min-width:0;">
-                            <div style="font-weight:900; color:#065f46; font-size:1.1rem;">Nova versão disponível!</div>
-                            <div style="color:#047857; font-size:0.875rem; margin-top:0.125rem; margin-bottom:0.75rem;">
-                                <strong>${this.latestVersion?.tag_name}</strong> pronta para instalar
-                                ${this.latestVersion?._fromFallback ? '<span style="font-size:0.75rem; color:#059669; margin-left:0.25rem;">(via fallback)</span>' : ''}
+                            <div style="font-weight:900; color:${card.title}; font-size:1.1rem;">Nova versão disponível!</div>
+                            <div style="color:${card.subtitle}; font-size:0.875rem; margin-top:0.125rem; margin-bottom:0.75rem;">
+                                <strong style="color:${card.strong};">${this.latestVersion?.tag_name}</strong> pronta para instalar
+                                ${this.latestVersion?._fromFallback ? `<span style="font-size:0.75rem; margin-left:0.25rem;">(via fallback)</span>` : ''}
                             </div>
 
-                            ${releaseChanges ? `
-                                <div style="background:rgba(255,255,255,0.7); border-radius:0.75rem; padding:0.75rem; margin-bottom:0.75rem;">
-                                    <div style="font-size:0.7rem; font-weight:900; color:#047857; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.5rem;">O que há de novo</div>
+                            ${hasChanges ? `
+                                <div style="background:${card.boxBg}; border-radius:0.75rem; padding:0.75rem; margin-bottom:0.75rem;">
+                                    <div style="font-size:0.7rem; font-weight:900; color:${card.labelClr}; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:0.5rem;">O que há de novo</div>
                                     ${releaseChanges.slice(0, 4).map(c => `
-                                        <div style="font-size:0.75rem; color:#065f46; display:flex; align-items:flex-start; gap:0.375rem; margin-bottom:0.25rem;">
+                                        <div style="font-size:0.75rem; color:${card.textClr}; display:flex; align-items:flex-start; gap:0.375rem; margin-bottom:0.25rem;">
                                             <span style="flex-shrink:0;">•</span><span>${c}</span>
                                         </div>`).join('')}
-                                    ${releaseChanges.length > 4 ? `<div style="font-size:0.75rem; color:#059669; margin-top:0.25rem;">+${releaseChanges.length - 4} mais...</div>` : ''}
+                                    ${releaseChanges.length > 4 ? `<div style="font-size:0.75rem; color:${card.moreClr}; margin-top:0.25rem;">+${releaseChanges.length - 4} mais...</div>` : ''}
                                 </div>
                             ` : ''}
 
                             ${asset ? `
-                                <div style="display:flex; align-items:center; gap:0.5rem; background:rgba(255,255,255,0.7); border-radius:0.5rem; padding:0.5rem 0.75rem; margin-bottom:0.75rem; font-size:0.875rem;">
+                                <div style="display:flex; align-items:center; gap:0.5rem; background:${card.assetBg}; border-radius:0.5rem; padding:0.5rem 0.75rem; margin-bottom:0.75rem; font-size:0.875rem;">
                                     <span>📦</span>
-                                    <span style="font-weight:600; color:#1f2937;">${asset.name}</span>
-                                    <span style="color:#6b7280; margin-left:auto;">${this.formatBytes(asset.size)}</span>
+                                    <span style="font-weight:600; color:${card.assetName};">${asset.name}</span>
+                                    <span style="color:${card.assetSize}; margin-left:auto;">${this.formatBytes(asset.size)}</span>
                                 </div>
                             ` : ''}
 
                             <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-                                <button onclick="AutoUpdater.downloadAndInstall()"
-                                        style="flex:1; min-width:140px; background:#10b981; color:#fff; border:none; padding:0.625rem 1rem; border-radius:0.75rem; font-weight:700; font-size:0.875rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.5rem;">
+                                <button onclick="AutoUpdater._confirmDownload()"
+                                        style="flex:1; min-width:140px; background:#10b981; color:#fff; border:none; padding:0.625rem 1rem; border-radius:0.75rem; font-weight:700; font-size:0.875rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:0.5rem; box-shadow:0 4px 14px rgba(16,185,129,0.35); transition:filter 0.15s;"
+                                        onmouseover="this.style.filter='brightness(1.1)'"
+                                        onmouseout="this.style.filter=''">
                                     <span>⬇️</span><span>Baixar e Instalar</span>
                                 </button>
                                 <button onclick="AutoUpdater._snoozeUpdate()"
-                                        style="background:#fff; color:#374151; border:1px solid #d1d5db; padding:0.625rem 1rem; border-radius:0.75rem; font-weight:700; font-size:0.875rem; cursor:pointer;">
+                                        style="${card.btnSnooze} padding:0.625rem 1rem; border-radius:0.75rem; font-weight:700; font-size:0.875rem; cursor:pointer;">
                                     🔕 Lembrar amanhã
                                 </button>
                                 <button onclick="AutoUpdater.viewReleaseNotes()"
-                                        style="background:#fff; color:#047857; border:1px solid #6ee7b7; padding:0.625rem 1rem; border-radius:0.75rem; font-weight:700; font-size:0.875rem; cursor:pointer;">
+                                        style="${card.btnDetails} padding:0.625rem 1rem; border-radius:0.75rem; font-weight:700; font-size:0.875rem; cursor:pointer;">
                                     📖 Detalhes
                                 </button>
                             </div>
@@ -409,7 +452,6 @@ const AutoUpdater = {
         this.cleanIncompatibleCache();
         if (window.App?.version) {
             this.currentVersion = window.App.version;
-            console.log('📦 Versão do App.version:', this.currentVersion);
         } else {
             const versionPaths = ['./version.json', '../version.json'];
             for (const vpath of versionPaths) {
@@ -417,24 +459,99 @@ const AutoUpdater = {
                     const res = await fetch(vpath);
                     if (!res.ok) continue;
                     const data = await res.json();
-                    if (data.version) {
-                        this.currentVersion = data.version;
-                        console.log('📦 Versão do version.json:', this.currentVersion);
-                        break;
-                    }
+                    if (data.version) { this.currentVersion = data.version; break; }
                 } catch (_) {}
             }
         }
 
+        // Ouvir eventos nativos do electron-updater (main → renderer)
+        if (window.electronAPI?.onUpdaterStatus) {
+            window.electronAPI.onUpdaterStatus((status) => {
+                this._handleNativeStatus(status);
+            });
+        }
+
+        // Ouvir progresso de download nativo
+        if (window.electronAPI?.onDownloadProgress) {
+            window.electronAPI.onDownloadProgress((data) => {
+                this.downloadProgress  = data.progress;
+                this.downloadedBytes   = data.downloadedBytes;
+                this.totalBytes        = data.totalBytes;
+                this.downloadSpeed     = data.speedBps     || 0;
+                this.downloadRemaining = data.remainingSecs || 0;
+
+                const bar    = document.getElementById('download-progress-bar');
+                const status = document.getElementById('download-status');
+                const pctEl  = document.getElementById('download-pct');
+
+                if (!bar) { Router?.render(); return; }
+                bar.style.width = data.progress + '%';
+                if (pctEl) pctEl.textContent = data.progress + '%';
+                if (status) {
+                    const speedStr  = this._formatSpeed(data.speedBps);
+                    const remaining = this._formatRemaining(data.remainingSecs);
+                    status.textContent = `${this._formatBytes(data.downloadedBytes)} / ${this._formatBytes(data.totalBytes)}`
+                        + (speedStr  ? ` · ${speedStr}`            : '')
+                        + (remaining ? ` · ~${remaining} restantes` : '');
+                }
+            });
+        }
+
         // Verificar snooze
         const snooze = Utils.loadData('update_snooze');
-        if (snooze && Date.now() < snooze) {
-            console.log('🔕 Update em snooze até', new Date(snooze).toLocaleString('pt-BR'));
-            return;
-        }
+        if (snooze && Date.now() < snooze) return;
 
         if (this.getAutoCheckSetting() && this.canCheckNow()) {
             setTimeout(() => this.checkForUpdates(true), 3000);
+        }
+    },
+
+    // Processar eventos nativos do autoUpdater
+    _handleNativeStatus(status) {
+        switch (status.event) {
+            case 'checking':
+                this.checking = true;
+                Router?.render();
+                break;
+
+            case 'update-available':
+                this.checking = false;
+                this.updateAvailable = true;
+                this.downloading = false;  // usuário decide quando baixar
+                this.latestVersion = {
+                    tag_name: `v${status.version}`,
+                    name: `NyanTools v${status.version}`,
+                    body: status.releaseNotes || '',
+                    html_url: this.githubReleasesUrl,
+                    _fromNativeUpdater: true
+                };
+                Utils.saveData('last_update_check', { date: Date.now(), version: this.currentVersion });
+                if (!this._snoozed) {
+                    Utils.showNotification(`🎉 Nova versão disponível: v${status.version}`, 'success');
+                }
+                Router?.render();
+                break;
+
+            case 'up-to-date':
+                this.checking = false;
+                Utils.showNotification('✅ Você está na versão mais recente!', 'success');
+                Router?.render();
+                break;
+
+            case 'update-downloaded':
+                this.downloading = false;
+                this.downloadProgress = 100;
+                this._logInstall(this.currentVersion, status.version || '');
+                Utils.showNotification(`🎉 v${status.version} baixada! Reiniciando em 5s...`, 'success');
+                Router?.render();
+                break;
+
+            case 'error':
+                this.checking  = false;
+                this.downloading = false;
+                console.warn('[Updater] Erro nativo:', status.message);
+                Router?.render();
+                break;
         }
     },
 
@@ -512,6 +629,11 @@ const AutoUpdater = {
 
     _processVersionData(data, silent) {
         if (!data) return;
+
+        // Se veio do native updater (check-for-updates retornou usingNativeUpdater),
+        // não precisamos processar — os eventos IPC cuidam de tudo
+        if (data.usingNativeUpdater) return;
+
         const latest = (data.tag_name || data.version || '').replace('v', '');
         if (!latest) return;
 
@@ -519,7 +641,6 @@ const AutoUpdater = {
             this.updateAvailable = true;
             this.latestVersion   = data;
             if (!silent) {
-                // Mostrar até 3 itens do changelog na notificação
                 const changes = this._parseReleaseBody(data.body || '').slice(0, 3);
                 const preview = changes.length > 0 ? '\n' + changes.map(c => `• ${c}`).join('\n') : '';
                 Utils.showNotification(`🎉 Nova versão disponível: v${latest}${preview}`, 'success');
@@ -569,74 +690,132 @@ const AutoUpdater = {
     // DOWNLOAD
     // ──────────────────────────────────────────────────────────────────
 
-    async downloadAndInstall() {
-        const asset = this.getDownloadAsset();
-        if (!asset) {
-            Utils.showNotification('❌ Nenhum instalador encontrado para sua plataforma', 'error');
-            return;
-        }
+    _confirmDownload() {
+        const version = this.latestVersion?.tag_name || 'nova versão';
+        document.getElementById('nyan-update-confirm')?.remove();
 
+        const modal = document.createElement('div');
+        modal.id = 'nyan-update-confirm';
+        modal.style.cssText = `
+            position:fixed;inset:0;z-index:99999;
+            display:flex;align-items:center;justify-content:center;
+            background:rgba(0,0,0,0.7);
+            animation:ucFadeIn 0.2s ease;
+        `;
+        modal.innerHTML = `
+            <style>
+                @keyframes ucFadeIn  { from{opacity:0} to{opacity:1} }
+                @keyframes ucSlideUp { from{opacity:0;transform:translateY(24px) scale(0.96)} to{opacity:1;transform:none} }
+                #uc-card { animation:ucSlideUp 0.28s cubic-bezier(0.34,1.56,0.64,1); }
+                #uc-cancel:hover { background:rgba(255,255,255,0.1)!important; color:white!important; }
+                #uc-confirm:hover { filter:brightness(1.12); }
+            </style>
+            <div id="uc-card" style="
+                background:linear-gradient(145deg,#0e0e1a,#14102a);
+                border:1px solid rgba(168,85,247,0.3);
+                border-radius:20px; padding:2rem;
+                width:100%; max-width:380px; margin:0 1rem;
+                box-shadow:0 32px 80px rgba(0,0,0,0.75), 0 0 0 1px rgba(168,85,247,0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+                font-family:'DM Sans',sans-serif;
+            ">
+                <div style="width:52px;height:52px;border-radius:14px;background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);display:flex;align-items:center;justify-content:center;font-size:1.6rem;margin-bottom:1.25rem;">⬇️</div>
+
+                <div style="font-size:1.05rem;font-weight:800;color:white;margin-bottom:0.4rem;font-family:'Syne',sans-serif;">
+                    Instalar ${version}?
+                </div>
+                <div style="font-size:0.82rem;color:rgba(255,255,255,0.45);line-height:1.6;margin-bottom:0.75rem;">
+                    O app será baixado e instalado automaticamente.<br>
+                    Ao terminar, o NyanTools reinicia sozinho. にゃん~
+                </div>
+
+                <div style="background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:10px;padding:0.65rem 0.9rem;margin-bottom:1.5rem;display:flex;align-items:center;gap:0.6rem;">
+                    <span style="font-size:1rem;">💾</span>
+                    <span style="font-size:0.78rem;color:rgba(255,255,255,0.5);">Seus dados não serão apagados</span>
+                </div>
+
+                <div style="display:flex;gap:0.625rem;">
+                    <button id="uc-cancel" style="
+                        flex:1;padding:0.65rem;border-radius:10px;
+                        background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+                        color:rgba(255,255,255,0.55);font-size:0.875rem;font-weight:600;
+                        cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;">Agora não</button>
+                    <button id="uc-confirm" style="
+                        flex:1;padding:0.65rem;border-radius:10px;
+                        background:linear-gradient(135deg,#10b981,#059669);
+                        border:1px solid rgba(16,185,129,0.4);
+                        color:white;font-size:0.875rem;font-weight:700;
+                        cursor:pointer;font-family:'DM Sans',sans-serif;
+                        box-shadow:0 4px 16px rgba(16,185,129,0.3);transition:filter 0.15s;">⬇️ Baixar agora</button>
+                </div>
+            </div>
+        `;
+
+        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+        modal.querySelector('#uc-cancel').addEventListener('click', () => modal.remove());
+        modal.querySelector('#uc-confirm').addEventListener('click', () => {
+            modal.remove();
+            this.downloadAndInstall();
+        });
+
+        document.body.appendChild(modal);
+    },
+
+    async downloadAndInstall() {
         this.downloading      = true;
         this.downloadProgress = 0;
         this.downloadedBytes  = 0;
-        this.totalBytes       = asset.size || 0;
+        this.totalBytes       = 0;
         Router?.render();
 
         try {
-            if (window.electronAPI?.isReady) {
-                const cleanup = window.electronAPI.onDownloadProgress((data) => {
-                    this.downloadProgress  = data.progress;
-                    this.downloadedBytes   = data.downloadedBytes;
-                    this.totalBytes        = data.totalBytes;
-                    this.downloadSpeed     = data.speedBps     || 0;
-                    this.downloadRemaining = data.remainingSecs || 0;
+            if (this.latestVersion?._fromNativeUpdater && window.electronAPI?.startUpdateDownload) {
+                // electron-updater real: dispara o download no main process
+                const result = await window.electronAPI.startUpdateDownload();
+                if (!result?.success) throw new Error(result?.error || 'Falha ao iniciar download');
+                // progresso chega via onDownloadProgress (registrado no init())
+            } else if (this.latestVersion?._fromNativeUpdater) {
+                // Simulação / dev sem electron-updater real: animar barra localmente
+                this.totalBytes = 80 * 1024 * 1024;
+                let pct = 0;
+                const interval = setInterval(() => {
+                    pct = Math.min(pct + Math.random() * 4, 100);
+                    this.downloadProgress = Math.round(pct);
+                    this.downloadedBytes  = Math.round((pct / 100) * this.totalBytes);
+                    this.downloadSpeed    = (2 + Math.random() * 3) * 1024 * 1024;
+                    this.downloadRemaining = Math.ceil(((100 - pct) / 100 * this.totalBytes) / this.downloadSpeed);
 
-                    // Se o card não existe ainda (usuário saiu da aba), re-renderizar
                     const bar    = document.getElementById('download-progress-bar');
-                    const status = document.getElementById('download-status');
                     const pctEl  = document.getElementById('download-pct');
+                    const status = document.getElementById('download-status');
+                    if (!bar) { Router?.render(); return; }
+                    bar.style.width = Math.round(pct) + '%';
+                    if (pctEl) pctEl.textContent = Math.round(pct) + '%';
+                    if (status) status.textContent =
+                        `${this._formatBytes(this.downloadedBytes)} / ${this._formatBytes(this.totalBytes)}`
+                        + ` · ${this._formatSpeed(this.downloadSpeed)}`
+                        + ` · ~${this._formatRemaining(this.downloadRemaining)} restantes`;
 
-                    if (!bar) {
-                        Router?.render();
-                        return;
+                    if (pct >= 100) {
+                        clearInterval(interval);
+                        this.downloading = false;
+                        this._handleNativeStatus({ event: 'update-downloaded', version: this.latestVersion.tag_name.replace('v','') });
                     }
-
-                    bar.style.width = data.progress + '%';
-                    if (pctEl) pctEl.textContent = data.progress + '%';
-                    if (status) {
-                        const speedStr  = this._formatSpeed(data.speedBps);
-                        const remaining = this._formatRemaining(data.remainingSecs);
-                        status.textContent = `${this._formatBytes(data.downloadedBytes)} / ${this._formatBytes(data.totalBytes)}`
-                            + (speedStr  ? ` · ${speedStr}`            : '')
-                            + (remaining ? ` · ~${remaining} restantes` : '');
-                    }
-                });
-
-                const result = await window.electronAPI.downloadUpdate(
-                    asset.browser_download_url,
-                    asset.name
-                );
-                cleanup();
-                this.downloading = false;
-
-                if (!result.success) throw new Error(result.error);
-
-                this._logInstall(this.currentVersion, this.latestVersion?.tag_name?.replace('v','') || '');
-
-                const install = await window.electronAPI.installUpdate(result.filePath);
-                if (install.success) Utils.showNotification('🎉 Instalando...', 'success');
-
+                }, 200);
             } else {
-                window.open(asset.browser_download_url, '_blank');
-                Utils.showNotification('🌐 Download iniciado no navegador!', 'success');
+                // Fallback sem electron-updater: abrir GitHub Releases no navegador
+                const url = this.latestVersion?.html_url || this.githubReleasesUrl;
+                if (window.electronAPI?.openExternal) {
+                    window.electronAPI.openExternal(url);
+                } else {
+                    window.open(url, '_blank');
+                }
+                Utils.showNotification('🌐 Abrindo página de download...', 'info');
                 this.downloading = false;
+                Router?.render();
             }
-
-            Router?.render();
-
         } catch (error) {
-            console.error('❌ Erro no download:', error);
-            Utils.showNotification('❌ Erro ao baixar atualização', 'error');
+            console.error('❌ Erro ao iniciar download:', error);
+            Utils.showNotification('❌ Erro ao iniciar download: ' + error.message, 'error');
             this.downloading = false;
             Router?.render();
         }
@@ -690,13 +869,25 @@ const AutoUpdater = {
 
     _parseReleaseBody(body) {
         if (!body) return [];
-        // Extrair linhas com bullet points do markdown
-        return body
-            .split('\n')
-            .filter(l => l.trim().startsWith('-') || l.trim().startsWith('*') || l.trim().startsWith('✅'))
-            .map(l => l.replace(/^[-*✅]\s*\*?\*?/, '').replace(/\*\*$/, '').trim())
-            .filter(l => l.length > 0)
-            .slice(0, 10);
+        const lines = body.split('\n');
+        const results = [];
+
+        for (const raw of lines) {
+            const l = raw.trim();
+            // Bullet points: - item, * item, • item
+            if (/^[-*•]\s+/.test(l)) {
+                const text = l.replace(/^[-*•]\s+/, '').replace(/\*\*/g, '').trim();
+                if (text.length > 0) results.push(text);
+            }
+            // Linhas com emojis de changelog: ✨ Coisa: detalhe
+            else if (/^[✨🐛⚡🔧🎉🏆⭐🎯🐾]\s+/.test(l)) {
+                const text = l.replace(/\*\*/g, '').trim();
+                if (text.length > 0) results.push(text);
+            }
+            if (results.length >= 10) break;
+        }
+
+        return results;
     },
 
     _formatBytes(bytes) {

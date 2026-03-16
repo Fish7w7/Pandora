@@ -31,7 +31,7 @@ const Profile = {
 
             <!-- ── HERO ── -->
             <div class="profile-hero">
-                <div class="profile-avatar-wrap" onclick="Profile._openAvatarPicker()" title="Trocar foto">
+                <div class="profile-avatar-wrap" onclick="${avatar ? 'Profile._openLightbox()' : 'Profile._openAvatarPicker()'}" title="${avatar ? 'Ver foto' : 'Adicionar foto'}">
                     ${avatar
                         ? `<img src="${avatar}" class="profile-avatar-img" alt="Avatar"/>`
                         : `<div class="profile-avatar-initial">${initial}</div>`
@@ -42,9 +42,9 @@ const Profile = {
                             <circle cx="12" cy="13" r="4"/>
                         </svg>
                     </div>
-                    <input type="file" id="avatar-file-input" accept="image/*" style="display:none"
-                           onchange="Profile._onAvatarFileChange(event)"/>
                 </div>
+                <input type="file" id="avatar-file-input" accept="image/*" style="display:none"
+                       onchange="Profile._onAvatarFileChange(event)"/>
 
                 <div class="profile-hero-info">
                     <div class="profile-hero-badge">✦ Membro</div>
@@ -83,7 +83,10 @@ const Profile = {
             <div class="profile-card">
                 <div class="profile-card-title">Foto de Perfil</div>
                 <div class="profile-avatar-section">
-                    <div class="profile-avatar-preview" id="avatar-preview-wrap" onclick="Profile._openAvatarPicker()">
+                    <div class="profile-avatar-preview" id="avatar-preview-wrap"
+                         onclick="Profile._openAvatarPicker()"
+                         title="Clique para trocar a foto"
+                         style="cursor:pointer;">
                         ${this._renderAvatarPreview(username)}
                     </div>
                     <div class="profile-avatar-actions">
@@ -284,6 +287,57 @@ const Profile = {
 
     _openAvatarPicker() {
         document.getElementById('avatar-file-input')?.click();
+    },
+
+    _avatarPreviewClick() {
+        const avatar = Utils.loadData(this.KEYS.avatar);
+        if (avatar) this._openLightbox();
+        else this._openAvatarPicker();
+    },
+
+    _openLightbox() {
+        const avatar = Utils.loadData(this.KEYS.avatar);
+        if (!avatar) return;
+
+        document.getElementById('nyan-avatar-lightbox')?.remove();
+
+        const lb = document.createElement('div');
+        lb.id = 'nyan-avatar-lightbox';
+        lb.style.cssText = `
+            position:fixed;inset:0;z-index:999999;
+            display:flex;align-items:center;justify-content:center;
+            background:rgba(0,0,0,0.88);
+            animation:lbFadeIn 0.2s ease;
+            cursor:zoom-out;
+        `;
+        lb.innerHTML = `
+            <style>
+                @keyframes lbFadeIn  { from{opacity:0} to{opacity:1} }
+                @keyframes lbZoomIn  { from{opacity:0;transform:scale(0.85)} to{opacity:1;transform:scale(1)} }
+            </style>
+            <div style="position:relative;animation:lbZoomIn 0.25s cubic-bezier(0.34,1.2,0.64,1);">
+                <img src="${avatar}"
+                     style="max-width:90vw;max-height:85vh;border-radius:16px;
+                            box-shadow:0 32px 80px rgba(0,0,0,0.8);
+                            display:block;object-fit:contain;"
+                     alt="Avatar"/>
+                <button onclick="document.getElementById('nyan-avatar-lightbox').remove()"
+                        style="position:absolute;top:-12px;right:-12px;
+                               width:32px;height:32px;border-radius:50%;
+                               background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);
+                               color:white;font-size:14px;cursor:pointer;
+                               display:flex;align-items:center;justify-content:center;
+                               transition:background 0.15s;"
+                        onmouseover="this.style.background='rgba(255,255,255,0.25)'"
+                        onmouseout="this.style.background='rgba(255,255,255,0.12)'">✕</button>
+            </div>
+        `;
+
+        lb.addEventListener('click', e => { if (e.target === lb) lb.remove(); });
+        document.addEventListener('keydown', function esc(e) {
+            if (e.key === 'Escape') { lb.remove(); document.removeEventListener('keydown', esc); }
+        });
+        document.body.appendChild(lb);
     },
 
     _onAvatarFileChange(e) {

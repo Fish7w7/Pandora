@@ -7,25 +7,6 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 // ─── VALIDAÇÕES DE SEGURANÇA ─────────────────────────────────────────────────
 
-function isValidUrl(url) {
-    try {
-        const { protocol, hostname } = new URL(url);
-        return protocol === 'https:' && (
-            hostname === 'github.com' ||
-            hostname === 'objects.githubusercontent.com' ||
-            hostname.endsWith('.github.com')
-        );
-    } catch { return false; }
-}
-
-function isValidFileName(fileName) {
-    if (typeof fileName !== 'string' || fileName.length === 0 || fileName.length > 255) return false;
-    if (/[/\\.]\./.test(fileName)) return false; // path traversal
-    if (!fileName.startsWith('NyanTools-')) return false;
-    const validExts = ['.exe', '.dmg', '.AppImage', '.deb', '.rpm'];
-    return validExts.some(ext => fileName.toLowerCase().endsWith(ext));
-}
-
 function isValidFilePath(filePath) {
     if (typeof filePath !== 'string' || filePath.length === 0) return false;
     return !filePath.replace(/\\/g, '/').includes('/../');
@@ -55,30 +36,24 @@ async function invoke(channel, ...args) {
 try {
     contextBridge.exposeInMainWorld('electronAPI', {
 
-        version: '3.3.0',
+        version: '3.4.1',
         isReady: true,
 
         checkForUpdates: () => invoke('check-for-updates'),
 
-        downloadUpdate: async (downloadUrl, fileName) => {
-            if (!isValidUrl(downloadUrl)) {
-                console.warn('⚠️ downloadUpdate: URL rejeitada —', downloadUrl);
-                return { success: false, error: 'URL inválida ou não permitida' };
-            }
-            if (!isValidFileName(fileName)) {
-                console.warn('⚠️ downloadUpdate: nome de arquivo rejeitado —', fileName);
-                return { success: false, error: 'Nome de arquivo inválido' };
-            }
-            return invoke('download-update', downloadUrl, fileName);
+        // v3.4.0 — electron-updater: escutar eventos nativos do autoUpdater
+        onUpdaterStatus: (callback) => {
+            if (typeof callback !== 'function') return () => {};
+            const handler = (_event, data) => callback(data);
+            ipcRenderer.on('updater-status', handler);
+            return () => ipcRenderer.removeListener('updater-status', handler);
         },
 
-        installUpdate: async (filePath) => {
-            if (!isValidFilePath(filePath)) {
-                console.warn('⚠️ installUpdate: caminho rejeitado —', filePath);
-                return { success: false, error: 'Caminho de arquivo inválido' };
-            }
-            return invoke('install-update', filePath);
-        },
+        // v3.4.0 — instalar update já baixado e reiniciar
+        installUpdateNow: () => invoke('install-update-now'),
+
+        // v3.4.0 — iniciar download quando usuário confirmar
+        startUpdateDownload: () => invoke('start-update-download'),
 
         openDownloadsFolder: () => invoke('open-downloads-folder'),
         openExternal: (url) => invoke('open-external', url),
@@ -99,14 +74,14 @@ try {
         }
     });
 
-    console.log('✅ [Preload v3.3.0] API exposta com sucesso');
+    console.log('✅ [Preload v3.4.1] API exposta com sucesso');
 
 } catch (error) {
     console.error('❌ [Preload] ERRO CRÍTICO:', error);
     try {
         contextBridge.exposeInMainWorld('electronAPI', {
             isReady: false,
-            version: '3.3.0-fallback',
+            version: '3.4.1-fallback',
             error: error.message
         });
     } catch (fallbackError) {
@@ -117,4 +92,5 @@ try {
 // ─── CLEANUP ─────────────────────────────────────────────────────────────────
 window.addEventListener('beforeunload', () => {
     ipcRenderer.removeAllListeners('download-progress');
+    ipcRenderer.removeAllListeners('updater-status');
 });

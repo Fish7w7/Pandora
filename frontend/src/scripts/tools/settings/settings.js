@@ -560,10 +560,11 @@ const Settings = {
                         <div class="text-7xl mb-4">🐱</div>
                         <h2 class="text-4xl font-black">NyanTools</h2>
                         <p class="text-gray-400 mt-1 mb-4">にゃん~ Sua caixa de ferramentas purr-feita!</p>
-                        <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-1.5 rounded-full text-sm font-bold">
-                            <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                            Versão ${App?.version || '3.3.0'}
+                        <div class="inline-flex items-center gap-2 bg-white/10 px-4 py-1.5 rounded-full text-sm font-bold">
+                            <span style="width:8px;height:8px;border-radius:50%;background:#34d399;display:inline-block;animation:aboutPulse 2s ease-in-out infinite;"></span>
+                            Versão ${App?.version || '3.4.1'}
                         </div>
+                        <style>@keyframes aboutPulse{0%,100%{opacity:1}50%{opacity:0.35}}</style>
                     </div>
                 </div>
 

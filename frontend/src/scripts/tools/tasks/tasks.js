@@ -466,13 +466,73 @@ const Tasks = {
         Router.render();
     },
     
+    // Modal de confirmação dark glass (substitui confirm() nativo)
+    _showConfirm({ icon = '⚠️', title, message, confirmLabel = 'Confirmar', confirmColor = 'rgba(239,68,68,0.85)', onConfirm }) {
+        document.getElementById('nyan-confirm-modal')?.remove();
+        const modal = document.createElement('div');
+        modal.id = 'nyan-confirm-modal';
+        modal.style.cssText = `
+            position:fixed;inset:0;z-index:99999;
+            display:flex;align-items:center;justify-content:center;
+            background:rgba(0,0,0,0.65);
+            animation:ncFadeIn 0.2s ease;
+        `;
+        modal.innerHTML = `
+            <style>
+                @keyframes ncFadeIn  { from{opacity:0} to{opacity:1} }
+                @keyframes ncSlideUp { from{opacity:0;transform:translateY(20px) scale(0.97)} to{opacity:1;transform:none} }
+                #nc-card { animation:ncSlideUp 0.25s cubic-bezier(0.34,1.56,0.64,1); }
+                #nc-cancel:hover  { background:rgba(255,255,255,0.1)!important;color:white!important; }
+                #nc-confirm:hover { filter:brightness(1.15); }
+            </style>
+            <div id="nc-card" style="
+                background:linear-gradient(145deg,#0e0e1a,#14102a);
+                border:1px solid rgba(168,85,247,0.25);
+                border-radius:16px;padding:1.75rem;
+                width:100%;max-width:320px;margin:0 1rem;
+                box-shadow:0 32px 80px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.05);
+                font-family:'DM Sans',sans-serif;
+            ">
+                <div style="font-size:2rem;margin-bottom:0.75rem;">${icon}</div>
+                <div style="font-size:1rem;font-weight:800;color:white;margin-bottom:0.375rem;font-family:'Syne',sans-serif;">${title}</div>
+                <div style="font-size:0.8rem;color:rgba(255,255,255,0.45);line-height:1.5;margin-bottom:1.5rem;">${message}</div>
+                <div style="display:flex;gap:0.625rem;">
+                    <button id="nc-cancel" style="
+                        flex:1;padding:0.6rem;border-radius:10px;
+                        background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
+                        color:rgba(255,255,255,0.6);font-size:0.875rem;font-weight:600;
+                        cursor:pointer;font-family:'DM Sans',sans-serif;">Cancelar</button>
+                    <button id="nc-confirm" style="
+                        flex:1;padding:0.6rem;border-radius:10px;
+                        background:${confirmColor};border:1px solid rgba(255,255,255,0.15);
+                        color:white;font-size:0.875rem;font-weight:700;
+                        cursor:pointer;font-family:'DM Sans',sans-serif;
+                        box-shadow:0 4px 16px rgba(0,0,0,0.3);">${confirmLabel}</button>
+                </div>
+            </div>
+        `;
+        modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
+        modal.querySelector('#nc-cancel').addEventListener('click', () => modal.remove());
+        modal.querySelector('#nc-confirm').addEventListener('click', () => {
+            modal.remove();
+            onConfirm();
+        });
+        document.body.appendChild(modal);
+    },
+
     deleteTask(id) {
-        if (!confirm('🗑️ Deseja realmente excluir esta tarefa?')) return;
-        
-        this.tasks = this.tasks.filter(t => t.id !== id);
-        this.saveTasks();
-        Utils.showNotification('🗑️ Tarefa excluída! にゃん~', 'info');
-        Router.render();
+        this._showConfirm({
+            icon: '🗑️',
+            title: 'Excluir tarefa?',
+            message: 'Essa ação não pode ser desfeita. にゃん~',
+            confirmLabel: 'Excluir',
+            onConfirm: () => {
+                this.tasks = this.tasks.filter(t => t.id !== id);
+                this.saveTasks();
+                Utils.showNotification('🗑️ Tarefa excluída! にゃん~', 'info');
+                Router.render();
+            }
+        });
     },
     
     setFilter(filter) {
@@ -525,13 +585,18 @@ const Tasks = {
             Utils.showNotification('⚠️ Nenhuma tarefa concluída para limpar', 'warning');
             return;
         }
-        
-        if (!confirm(`🗑️ Deseja excluir ${count} tarefa${count > 1 ? 's' : ''} concluída${count > 1 ? 's' : ''}?`)) return;
-        
-        this.tasks = this.tasks.filter(t => !t.completed);
-        this.saveTasks();
-        Utils.showNotification(`🗑️ ${count} tarefa${count > 1 ? 's' : ''} excluída${count > 1 ? 's' : ''}! にゃん~`, 'info');
-        Router.render();
+        this._showConfirm({
+            icon: '🗑️',
+            title: `Limpar ${count} tarefa${count > 1 ? 's' : ''}?`,
+            message: `Serão excluídas <strong style="color:white;">${count} tarefa${count > 1 ? 's' : ''} concluída${count > 1 ? 's' : ''}</strong>. Essa ação não pode ser desfeita.`,
+            confirmLabel: 'Limpar',
+            onConfirm: () => {
+                this.tasks = this.tasks.filter(t => !t.completed);
+                this.saveTasks();
+                Utils.showNotification(`🗑️ ${count} tarefa${count > 1 ? 's' : ''} excluída${count > 1 ? 's' : ''}! にゃん~`, 'info');
+                Router.render();
+            }
+        });
     },
     
     formatDate(timestamp) {

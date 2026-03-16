@@ -1,7 +1,7 @@
 {
   "name": "nyantools",
-  "version": "3.3.0",
-  "description": "NyanTools - Your purr-fect toolkit にゃん~ | Agora com Tema Escuro e Novos Jogos!",
+  "version": "3.4.1",
+  "description": "NyanTools - Your purr-fect toolkit にゃん~ | Redesign de Ferramentas, Fixes de CPU e Dark Theme Otimizado",
   "main": "backend/src/main.js",
   "scripts": {
     "start": "electron .",
@@ -49,9 +49,18 @@
     "electron": "^27.0.0",
     "electron-builder": "^24.6.4"
   },
+  "dependencies": {
+    "electron-updater": "^6.1.7"
+  },
   "build": {
     "appId": "com.nyantools.app",
     "productName": "NyanTools",
+    "publish": {
+      "provider": "github",
+      "owner": "Fish7w7",
+      "repo": "Pandora",
+      "releaseType": "release"
+    },
     "directories": {
       "output": "dist"
     },
@@ -84,15 +93,13 @@
       "publisherName": "Fish7w7"
     },
     "nsis": {
-      "oneClick": false,
-      "allowToChangeInstallationDirectory": true,
+      "oneClick": true,
+      "allowToChangeInstallationDirectory": false,
       "createDesktopShortcut": true,
       "createStartMenuShortcut": true,
       "shortcutName": "NyanTools",
       "installerIcon": "frontend/public/assets/icons/icon.ico",
       "uninstallerIcon": "frontend/public/assets/icons/icon.ico",
-      "installerHeader": "frontend/public/assets/icons/icon.ico",
-      "installerSidebar": "frontend/public/assets/icons/icon.ico",
       "deleteAppDataOnUninstall": false,
       "perMachine": false,
       "allowElevation": true,

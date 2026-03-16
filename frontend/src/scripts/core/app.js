@@ -4,7 +4,7 @@
  ═══════════════════════════════════════════════════*/
 
 const App = {
-    version: '3.3.0', 
+    version: '3.4.1', 
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
@@ -236,18 +236,20 @@ const App = {
             if (window.Dashboard) {
                 const today = new Date().toISOString().split('T')[0];
                 const dayOfWeek = new Date().getDay();
-                
+
+                // totalTime e dailyActivity são as fontes de verdade
                 Dashboard.stats.totalTime++;
-                Dashboard.stats.weeklyActivity[dayOfWeek] = 
-                    (Dashboard.stats.weeklyActivity[dayOfWeek] || 0) + 1;
 
                 if (!Dashboard.stats.dailyActivity) Dashboard.stats.dailyActivity = {};
                 Dashboard.stats.dailyActivity[today] =
                     (Dashboard.stats.dailyActivity[today] || 0) + 1;
-                
+
+                // weeklyActivity é derivado do dailyActivity — manter em sincronia
+                Dashboard.stats.weeklyActivity[dayOfWeek] =
+                    Dashboard.stats.dailyActivity[today];
+
                 if (Dashboard.stats.totalTime % 5 === 0) {
                     Dashboard.saveStats();
-                    console.log('💾 Stats salvas:', Dashboard.stats.totalTime, 'minutos');
                 }
 
                 if (Router.currentRoute === 'home' && Dashboard.refreshWeeklyChart) {

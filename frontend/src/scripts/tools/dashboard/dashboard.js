@@ -179,9 +179,11 @@ const Dashboard = {
     
     renderActivityCalendar() {
         const today = new Date();
+        const year  = today.getFullYear();
+        const month = today.getMonth(); // 0-indexed
         const DAYS_LABEL = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
-        const isDark = document.body.classList.contains('dark-theme');
 
+        const isDark = document.body.classList.contains('dark-theme');
         const c = isDark ? {
             border:      'rgba(255,255,255,0.07)',
             title:       '#e5e7eb',
@@ -199,80 +201,107 @@ const Dashboard = {
             badge_bg:    'rgba(168,85,247,0.12)',
             badge_color: '#7c3aed',
             badge_bdr:   'rgba(168,85,247,0.25)',
-            cell_empty:  '#f3f4f6',
-            cell_border: '1px solid #e5e7eb',
-            cell_future: '#f9fafb',
+            cell_empty:  '#e2e8f0',
+            cell_border: '1px solid #cbd5e1',
+            cell_future: '#f1f5f9',
         };
-        
-        const todayDow = today.getDay();
-        const daysBack = 4 * 7 + todayDow;
-        const startDate = new Date(today);
-        startDate.setDate(today.getDate() - daysBack);
 
-        const totalCells = 5 * 7;
-        const cells = [];
-        for (let i = 0; i < totalCells; i++) {
-            const d = new Date(startDate);
-            d.setDate(startDate.getDate() + i);
-            cells.push(d);
-        }
+        // Calcular dias do mês
+        const daysInMonth  = new Date(year, month + 1, 0).getDate();
+        const firstDayOfWeek = new Date(year, month, 1).getDay(); // 0=Dom
+        const monthName = today.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
 
-        const weeks = [];
-        for (let w = 0; w < 5; w++) {
-            weeks.push(cells.slice(w * 7, w * 7 + 7));
-        }
+        // Construir grade: células vazias antes do dia 1 + dias do mês
+        // Grade organizada em semanas (linhas), cada semana = 7 colunas
+        const totalCells = firstDayOfWeek + daysInMonth;
+        const totalRows  = Math.ceil(totalCells / 7);
 
+        // Contar dias ativos no mês
         let activeDays = 0;
-        for (const d of cells) {
-            const key = d.toISOString().split('T')[0];
-            if ((this.stats.dailyActivity && this.stats.dailyActivity[key]) > 0) activeDays++;
+        for (let d = 1; d <= daysInMonth; d++) {
+            const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+            if ((this.stats.dailyActivity?.[key] || 0) > 0) activeDays++;
         }
 
+        // Headers dos dias da semana
         const weekDayHeaders = DAYS_LABEL.map(l =>
-            `<div style="text-align:center;font-size:11px;font-weight:700;color:${c.label};width:28px">${l}</div>`
+            `<div style="text-align:center;font-size:11px;font-weight:700;color:${c.label};width:28px;">${l}</div>`
         ).join('');
 
-        const gridRows = weeks.map(week => {
-            const cellsHtml = week.map(date => {
-                const dateKey = date.toISOString().split('T')[0];
-                const mins = (this.stats.dailyActivity && this.stats.dailyActivity[dateKey]) || 0;
+        // Construir linhas da grade
+        const rows = [];
+        for (let row = 0; row < totalRows; row++) {
+            const cells = [];
+            for (let col = 0; col < 7; col++) {
+                const cellIndex = row * 7 + col;
+                const dayNum = cellIndex - firstDayOfWeek + 1;
+
+                if (dayNum < 1 || dayNum > daysInMonth) {
+                    // Célula vazia (fora do mês)
+                    cells.push(`<div style="width:28px;height:28px;"></div>`);
+                    continue;
+                }
+
+                const dateKey  = `${year}-${String(month + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+                const cellDate = new Date(year, month, dayNum);
+                const mins     = this.stats.dailyActivity?.[dateKey] || 0;
                 const hasActivity = mins > 0;
-                const isToday = date.toDateString() === today.toDateString();
-                const isFuture = date > today;
+                const isToday  = dayNum === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+                const isFuture = cellDate > today;
 
                 let bg, ring = '', opacity = '';
                 if (isFuture) {
-                    bg = `background:${c.cell_future};`;
-                    opacity = 'opacity:0.4;';
+                    bg      = `background:${c.cell_future};`;
+                    opacity = 'opacity:0.35;';
                 } else if (isToday && hasActivity) {
-                    bg = 'background:linear-gradient(135deg,#a855f7,#ec4899);';
+                    bg   = 'background:linear-gradient(135deg,#a855f7,#ec4899);';
                     ring = 'outline:2.5px solid #ec4899;outline-offset:2px;';
                 } else if (isToday) {
-                    bg = 'background:rgba(168,85,247,0.2);';
+                    bg   = 'background:rgba(168,85,247,0.2);';
                     ring = 'outline:2.5px solid #a855f7;outline-offset:2px;';
                 } else if (hasActivity) {
-                    bg = 'background:rgba(34,197,94,0.85);';
+                    // Intensidade baseada em tempo: verde claro (<30min) → verde forte (≥120min)
+                    const intensity = Math.min(mins / 120, 1);
+                    const alpha = 0.4 + intensity * 0.55;
+                    bg = `background:rgba(34,197,94,${alpha.toFixed(2)});`;
                 } else {
                     bg = `background:${c.cell_empty};`;
                 }
 
-                const titleDate = date.toLocaleDateString('pt-BR', { day:'2-digit', month:'short' });
-                const titleMsg = isFuture ? titleDate : hasActivity ? `${titleDate} • ${this.formatTime(mins)}` : `${titleDate} • sem atividade`;
+                const borderStyle = (!hasActivity && !isToday && !isFuture) ? `border:${c.cell_border};` : '';
+                const titleDate   = cellDate.toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
+                const titleMsg    = isFuture
+                    ? titleDate
+                    : hasActivity
+                        ? `${titleDate} • ${this.formatTime(mins)}`
+                        : `${titleDate} • sem atividade`;
 
-                return `<div style="width:28px;height:28px;border-radius:6px;${bg}${ring}${opacity}${!hasActivity && !isToday && !isFuture ? c.cell_border : ''}cursor:pointer;transition:transform 0.15s;"
-                             onmouseenter="this.style.transform='scale(1.25)'"
-                             onmouseleave="this.style.transform='scale(1)'"
-                             title="${titleMsg}"></div>`;
-            }).join('');
-            return `<div style="display:flex;gap:4px;">${cellsHtml}</div>`;
-        }).join('');
+                // Número do dia pequeno dentro da célula
+                const numColor = isToday
+                    ? 'white'
+                    : hasActivity
+                        ? 'rgba(255,255,255,0.9)'
+                        : isDark ? 'rgba(255,255,255,0.4)' : '#64748b';
+                const dayLabel = `<span style="font-size:8px;font-weight:700;color:${numColor};line-height:1;">${dayNum}</span>`;
+
+                cells.push(`
+                    <div style="width:28px;height:28px;border-radius:6px;${bg}${ring}${opacity}${borderStyle}
+                                cursor:pointer;transition:transform 0.15s;position:relative;
+                                display:flex;align-items:flex-start;justify-content:flex-end;padding:2px 3px;"
+                         onmouseenter="this.style.transform='scale(1.25)'"
+                         onmouseleave="this.style.transform='scale(1)'"
+                         title="${titleMsg}">${isFuture ? '' : dayLabel}</div>
+                `);
+            }
+            rows.push(`<div style="display:flex;gap:4px;">${cells.join('')}</div>`);
+        }
 
         return `
             <div style="margin-top:24px;padding-top:20px;border-top:1px solid ${c.border}">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
                     <div style="display:flex;align-items:center;gap:10px;">
-                        <span style="font-size:15px;font-weight:900;color:${c.title};letter-spacing:0.04em">HISTÓRICO DE USO</span>
-                        <span style="font-size:11px;font-weight:600;background:${c.badge_bg};color:${c.badge_color};padding:3px 10px;border-radius:20px;border:1px solid ${c.badge_bdr}">35 dias</span>
+                        <span style="font-size:15px;font-weight:900;color:${c.title};letter-spacing:0.04em;">HISTÓRICO DE USO</span>
+                        <span style="font-size:11px;font-weight:600;background:${c.badge_bg};color:${c.badge_color};padding:3px 10px;border-radius:20px;border:1px solid ${c.badge_bdr};text-transform:capitalize;">${monthName}</span>
                     </div>
                     <div style="display:flex;gap:20px;">
                         <div style="text-align:center;">
@@ -291,21 +320,25 @@ const Dashboard = {
                 </div>
 
                 <div style="display:flex;flex-direction:column;gap:4px;">
-                    ${gridRows}
+                    ${rows.join('')}
                 </div>
 
                 <div style="display:flex;align-items:center;gap:16px;margin-top:12px;flex-wrap:wrap;">
                     <div style="display:flex;align-items:center;gap:5px;">
                         <div style="width:11px;height:11px;border-radius:3px;background:${c.cell_empty};border:${c.cell_border}"></div>
-                        <span style="font-size:11px;color:${c.label}">Sem uso</span>
+                        <span style="font-size:11px;color:${c.label};">Sem uso</span>
                     </div>
                     <div style="display:flex;align-items:center;gap:5px;">
-                        <div style="width:11px;height:11px;border-radius:3px;background:rgba(34,197,94,0.85)"></div>
-                        <span style="font-size:11px;color:${c.label}">Ativo</span>
+                        <div style="width:11px;height:11px;border-radius:3px;background:rgba(34,197,94,0.5);"></div>
+                        <span style="font-size:11px;color:${c.label};">&lt; 30 min</span>
                     </div>
                     <div style="display:flex;align-items:center;gap:5px;">
-                        <div style="width:11px;height:11px;border-radius:3px;background:linear-gradient(135deg,#a855f7,#ec4899)"></div>
-                        <span style="font-size:11px;color:${c.label}">Hoje</span>
+                        <div style="width:11px;height:11px;border-radius:3px;background:rgba(34,197,94,0.95);"></div>
+                        <span style="font-size:11px;color:${c.label};">≥ 2h</span>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:5px;">
+                        <div style="width:11px;height:11px;border-radius:3px;background:linear-gradient(135deg,#a855f7,#ec4899);"></div>
+                        <span style="font-size:11px;color:${c.label};">Hoje</span>
                     </div>
                 </div>
             </div>
@@ -621,10 +654,25 @@ const Dashboard = {
                 this.stats.weeklyHistory[this.stats.currentWeekStart] = { ...this.stats.weeklyActivity };
                 const histKeys = Object.keys(this.stats.weeklyHistory).sort();
                 while (histKeys.length > 52) delete this.stats.weeklyHistory[histKeys.shift()];
-                console.log(`📦 Semana ${this.stats.currentWeekStart} arquivada no histórico`);
             }
             this.stats.weeklyActivity = {};
             this.stats.currentWeekStart = weekStart;
+        }
+
+        // ── Recalcular weeklyActivity a partir do dailyActivity ──────────
+        // dailyActivity é a fonte de verdade (chave YYYY-MM-DD).
+        // weeklyActivity (chave 0-6) é reconstruído para evitar divergência.
+        if (this.stats.dailyActivity) {
+            const rebuilt = {};
+            const ws = new Date(weekStart + 'T00:00:00');
+            for (let i = 0; i < 7; i++) {
+                const d = new Date(ws);
+                d.setDate(ws.getDate() + i);
+                const key = d.toISOString().split('T')[0];
+                const mins = this.stats.dailyActivity[key] || 0;
+                if (mins > 0) rebuilt[i] = mins;
+            }
+            this.stats.weeklyActivity = rebuilt;
         }
 
         // ── Streak diário ────────────────────────────────────────────────
@@ -639,23 +687,19 @@ const Dashboard = {
             }
             this.stats.lastAccessDate = today;
         }
-        
-        const dayOfWeek = new Date().getDay();
-        if (!this.stats.weeklyActivity[dayOfWeek]) {
-            this.stats.weeklyActivity[dayOfWeek] = 0;
-        }
-        
+
         if (!this.stats.dailyActivity) this.stats.dailyActivity = {};
         if (!this.stats.dailyActivity[today]) {
             this.stats.dailyActivity[today] = 1;
         }
-        
+
+        // ── Poda de dados antigos (365 dias) ─────────────────────────────
         const cutoff = new Date();
-        cutoff.setDate(cutoff.getDate() - 35);
+        cutoff.setDate(cutoff.getDate() - 365);
         Object.keys(this.stats.dailyActivity).forEach(key => {
             if (new Date(key) < cutoff) delete this.stats.dailyActivity[key];
         });
-        
+
         this.saveStats();
     },
     

@@ -261,12 +261,12 @@ body.dark-theme .profile-root {
     cursor: pointer;
     flex-shrink: 0;
     border: 2px solid var(--p-accent-border);
-    transition: border-color 0.2s, transform 0.2s;
+    transition: border-color 0.2s, box-shadow 0.2s;
     box-shadow: 0 4px 12px rgba(124,58,237,0.15);
 }
 .profile-avatar-preview:hover {
     border-color: var(--p-accent);
-    transform: scale(1.03);
+    box-shadow: 0 0 0 3px rgba(124,58,237,0.2), 0 4px 12px rgba(124,58,237,0.2);
 }
 
 .profile-avatar-img-lg { width: 100%; height: 100%; object-fit: cover; }

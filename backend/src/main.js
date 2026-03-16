@@ -3,12 +3,9 @@ if (process.platform === 'win32') {
     try { require('child_process').execSync('chcp 65001', {stdio:'ignore'}); } catch(_) {}
 }
 
-const { app, BrowserWindow, ipcMain, dialog, shell, Menu } = require('electron');
+const { app, BrowserWindow, ipcMain, shell, Menu } = require('electron');
 const path = require('path');
-const fs = require('fs').promises;
 const fsSync = require('fs');
-const https = require('https');
-const crypto = require('crypto');
 
 // ─── PERFORMANCE ────────────────────────────────────────────────────────────
 
@@ -74,7 +71,7 @@ function createWindow() {
 
     const indexPath = path.join(__dirname, '../../frontend/public/index.html');
 
-    console.log('[~] NyanTools 3.3.0');
+    console.log('[~] NyanTools v3.4.1');
     console.log('[>] Diretório:', __dirname);
     console.log('[>] Carregando:', indexPath);
 
@@ -128,14 +125,97 @@ function getIconPath() {
     return iconPath;
 }
 
-// ─── AUTO-UPDATE: VERIFICAR ──────────────────────────────────────────────────
+// ─── AUTO-UPDATE (electron-updater) ─────────────────────────────────────────
 
-let lastUpdateCheck = 0;
+const { autoUpdater } = require('electron-updater');
+
+// Configuração
+autoUpdater.autoDownload    = false;  // usuário decide quando baixar
+autoUpdater.autoInstallOnAppQuit = false; // instala ao reiniciar, não ao fechar
+autoUpdater.allowPrerelease = false;
+autoUpdater.logger          = null;   // evitar logs verbosos no console
+
+// Cooldown: não verificar mais de 1x a cada 5 min (segurança extra)
+let lastUpdateCheck    = 0;
 const UPDATE_CHECK_COOLDOWN = 300000;
+
+function setupAutoUpdater() {
+    // ── Handlers de eventos ──
+
+    autoUpdater.on('checking-for-update', () => {
+        console.log('[?] electron-updater: verificando...');
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('updater-status', { event: 'checking' });
+        }
+    });
+
+    autoUpdater.on('update-available', (info) => {
+        console.log('[!] Update disponível:', info.version);
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('updater-status', {
+                event: 'update-available',
+                version: info.version,
+                releaseNotes: info.releaseNotes || ''
+            });
+        }
+    });
+
+    autoUpdater.on('update-not-available', () => {
+        console.log('[OK] App atualizado.');
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('updater-status', { event: 'up-to-date' });
+        }
+    });
+
+    autoUpdater.on('download-progress', (info) => {
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('download-progress', {
+                progress:       Math.round(info.percent),
+                downloadedBytes: info.transferred,
+                totalBytes:     info.total,
+                speedBps:       info.bytesPerSecond,
+                remainingSecs:  info.total > 0 && info.bytesPerSecond > 0
+                    ? Math.ceil((info.total - info.transferred) / info.bytesPerSecond)
+                    : 0
+            });
+        }
+    });
+
+    autoUpdater.on('update-downloaded', (info) => {
+        console.log('[OK] Download concluído:', info.version);
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('updater-status', {
+                event: 'update-downloaded',
+                version: info.version
+            });
+        }
+
+        // Reinicia e instala automaticamente após 5 segundos
+        setTimeout(() => {
+            console.log('[*] Reiniciando para instalar v' + info.version + '...');
+            autoUpdater.quitAndInstall(true, true);
+        }, 5000);
+    });
+
+    autoUpdater.on('error', (err) => {
+        // Ignorar erros esperados em dev ou sem assinatura
+        const msg = err?.message || '';
+        if (msg.includes('dev-app-update') || msg.includes('ERR_NETWORK') || msg.includes('net::')) {
+            console.log('[~] AutoUpdater ignorado (dev/sem rede)');
+            return;
+        }
+        console.error('[X] AutoUpdater erro:', msg);
+        if (mainWindow && !mainWindow.isDestroyed()) {
+            mainWindow.webContents.send('updater-status', { event: 'error', message: msg });
+        }
+    });
+}
+
+// ── IPC: verificar updates manualmente pelo frontend ──
 
 ipcMain.handle('reset-update-cooldown', () => {
     lastUpdateCheck = 0;
-    console.log('[~] Cooldown de atualização resetado (Force Check)');
+    console.log('[~] Cooldown de atualização resetado');
     return { success: true };
 });
 
@@ -143,216 +223,70 @@ ipcMain.handle('is-dev-environment', () => {
     return { isDev: process.env.NODE_ENV === 'development' };
 });
 
+// Frontend pede para iniciar o download (após confirmação do usuário)
+ipcMain.handle('start-update-download', async () => {
+    try {
+        await autoUpdater.downloadUpdate();
+        return { success: true };
+    } catch (err) {
+        return { success: false, error: err.message };
+    }
+});
+
+// Frontend pede check manual (botão "Verificar" no updater.js)
 ipcMain.handle('check-for-updates', async () => {
     const now = Date.now();
-
     if (now - lastUpdateCheck < UPDATE_CHECK_COOLDOWN) {
         return { success: false, rateLimited: true,
                  error: 'Aguarde alguns minutos antes de verificar novamente' };
     }
-
     lastUpdateCheck = now;
-    console.log('[?] Verificando atualizações...');
 
-    // Tentar GitHub API com retry + backoff
-    const URLS = [
-        'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
-        'https://raw.githubusercontent.com/Fish7w7/Pandora/main/version.json'
-    ];
-
-    for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+        await autoUpdater.checkForUpdates();
+        return { success: true, usingNativeUpdater: true };
+    } catch (err) {
+        // Fallback: consultar GitHub API diretamente para só mostrar info de versão
+        console.log('[~] autoUpdater.checkForUpdates() falhou, usando fallback GitHub API');
+        const URLS = [
+            'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
+            'https://raw.githubusercontent.com/Fish7w7/Pandora/main/version.json'
+        ];
         for (const url of URLS) {
             try {
                 const controller = new AbortController();
                 const tid = setTimeout(() => controller.abort(), 10000);
-
                 const isFallback = url.includes('raw.githubusercontent');
                 const headers = isFallback
                     ? { 'User-Agent': 'NyanTools-Updater' }
                     : { 'User-Agent': 'NyanTools-Updater', 'Accept': 'application/vnd.github.v3+json' };
-
                 const response = await fetch(url, { signal: controller.signal, headers });
                 clearTimeout(tid);
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
-
+                if (!response.ok) continue;
                 const data = await response.json();
                 if (isFallback && data.version && !data.tag_name) {
-                    data.tag_name = `v${data.version}`;
+                    data.tag_name   = `v${data.version}`;
                     data._fromFallback = true;
                 }
-
-                console.log('[OK] Versão disponível:', data.tag_name, isFallback ? '(fallback)' : '');
+                console.log('[OK] Fallback GitHub API:', data.tag_name);
                 return { success: true, data, fromFallback: !!data._fromFallback };
-
-            } catch (error) {
-                const isLast = attempt === 2 && url === URLS[URLS.length - 1];
-                if (!isLast) {
-                    await new Promise(r => setTimeout(r, Math.pow(2, attempt) * 1000));
-                    continue;
-                }
-                console.error('[X] Todas as tentativas falharam:', error.message);
-                return {
-                    success: false,
-                    error: error.name === 'AbortError' ? 'Timeout na requisição' : error.message
-                };
-            }
+            } catch (_) {}
         }
+        return { success: false, error: err.message };
     }
 });
 
-// ─── AUTO-UPDATE: DOWNLOAD COM VELOCIDADE, RESUME E CANCELAMENTO ─────────────
-
-ipcMain.handle('download-update', async (event, downloadUrl, fileName) => {
+// Frontend pede instalação imediata (se download já concluiu)
+ipcMain.handle('install-update-now', () => {
     try {
-        console.log('[v] Iniciando download:', fileName);
-
-        const downloadsPath = app.getPath('downloads');
-        const filePath      = path.join(downloadsPath, fileName);
-
-        if (fsSync.existsSync(filePath)) {
-            try { fsSync.unlinkSync(filePath); } catch (_) {}
-        }
-
-        return new Promise((resolve, reject) => {
-            const file = fsSync.createWriteStream(filePath);
-            let downloadedBytes  = 0;
-            let lastProgressTime = Date.now();
-            let lastBytes        = 0;
-            const THROTTLE       = 100;
-
-            const handleResponse = (response) => {
-                const totalBytes = parseInt(response.headers['content-length'], 10) || 0;
-
-                response.pipe(file);
-
-                response.on('data', (chunk) => {
-                    downloadedBytes += chunk.length;
-                    const now = Date.now();
-
-                    if (now - lastProgressTime >= THROTTLE) {
-                        const progress   = totalBytes > 0 ? Math.round((downloadedBytes / totalBytes) * 100) : 0;
-                        const elapsed    = (now - lastProgressTime) / 1000;
-                        const bytesDelta = downloadedBytes - lastBytes;
-                        const speedBps   = elapsed > 0 ? bytesDelta / elapsed : 0;
-                        const remaining  = speedBps > 0 ? (totalBytes - downloadedBytes) / speedBps : 0;
-
-                        if (mainWindow && !mainWindow.isDestroyed()) {
-                            mainWindow.webContents.send('download-progress', {
-                                progress,
-                                downloadedBytes,
-                                totalBytes,
-                                speedBps,
-                                remainingSecs: Math.ceil(remaining)
-                            });
-                        }
-
-                        lastProgressTime = now;
-                        lastBytes        = downloadedBytes;
-                    }
-                });
-
-                response.on('end', () => {
-                    file.end();
-                    console.log('[OK] Download concluído:', filePath);
-
-                    if (mainWindow && !mainWindow.isDestroyed()) {
-                        mainWindow.webContents.send('download-progress', {
-                            progress: 100, downloadedBytes, totalBytes, speedBps: 0, remainingSecs: 0
-                        });
-                    }
-
-                    resolve({ success: true, filePath });
-                });
-
-                response.on('error', (err) => {
-                    file.close();
-                    try { fsSync.unlinkSync(filePath); } catch (_) {}
-                    reject(err);
-                });
-            };
-
-            const makeRequest = (url) => {
-                https.get(url, (response) => {
-                    if (response.statusCode === 302 || response.statusCode === 301) {
-                        makeRequest(response.headers.location);
-                    } else {
-                        handleResponse(response);
-                    }
-                }).on('error', (err) => {
-                    file.close();
-                    try { fsSync.unlinkSync(filePath); } catch (_) {}
-                    reject(err);
-                });
-            };
-
-            makeRequest(downloadUrl);
-        });
-
-    } catch (error) {
-        console.error('[X] Erro no download:', error.message);
-        return { success: false, error: error.message };
+        autoUpdater.quitAndInstall(true, true);
+        return { success: true };
+    } catch (err) {
+        return { success: false, error: err.message };
     }
 });
 
-// ─── AUTO-UPDATE: VERIFICAR SHA256 ───────────────────────────────────────────
-
-ipcMain.handle('verify-sha256', async (event, filePath, expectedHash) => {
-    try {
-        if (!fsSync.existsSync(filePath)) {
-            return { success: false, error: 'Arquivo não encontrado' };
-        }
-
-        console.log('[#] Verificando integridade SHA256...');
-        const fileBuffer = await fs.readFile(filePath);
-        const hash       = crypto.createHash('sha256').update(fileBuffer).digest('hex');
-        const match      = hash.toLowerCase() === expectedHash.toLowerCase();
-
-        console.log(match ? '[OK] Hash verificado' : `[X] Hash inválido: esperado ${expectedHash}, obtido ${hash}`);
-        return { success: true, match, hash };
-
-    } catch (error) {
-        console.error('[X] Erro na verificação SHA256:', error.message);
-        return { success: false, error: error.message };
-    }
-});
-
-// ─── AUTO-UPDATE: INSTALAR ───────────────────────────────────────────────────
-
-ipcMain.handle('install-update', async (event, filePath) => {
-    try {
-        if (!fsSync.existsSync(filePath)) {
-            throw new Error('Arquivo de atualização não encontrado');
-        }
-
-        console.log('[*] Preparando instalação:', filePath);
-
-        const result = await dialog.showMessageBox(mainWindow, {
-            type: 'question',
-            buttons: ['Instalar Agora', 'Cancelar'],
-            defaultId: 0,
-            title: 'Instalar Atualização',
-            message: 'Atualização baixada com sucesso!',
-            detail: 'Deseja instalar agora? O aplicativo será fechado durante a instalação.',
-            icon: getIconPath()
-        });
-
-        if (result.response === 0) {
-            isQuitting = true;
-            await shell.openPath(filePath);
-            setTimeout(() => app.quit(), 1500);
-            return { success: true };
-        }
-
-        return { success: false, cancelled: true };
-
-    } catch (error) {
-        console.error('[X] Erro ao instalar:', error.message);
-        return { success: false, error: error.message };
-    }
-});
-
-// ─── ABRIR PASTA DE DOWNLOADS ────────────────────────────────────────────────
-
+// Mantido por compatibilidade — abre pasta de downloads
 ipcMain.handle('open-downloads-folder', async () => {
     try {
         await shell.openPath(app.getPath('downloads'));
@@ -362,14 +296,28 @@ ipcMain.handle('open-downloads-folder', async () => {
     }
 });
 
+// Abrir URL no navegador padrão do sistema
+ipcMain.handle('open-external', async (_event, url) => {
+    try {
+        if (!url || typeof url !== 'string') return { success: false, error: 'URL inválida' };
+        if (!url.startsWith('http://') && !url.startsWith('https://')) {
+            return { success: false, error: 'Protocolo não permitido' };
+        }
+        await shell.openExternal(url);
+        return { success: true };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+});
+
 // ─── LIFECYCLE ───────────────────────────────────────────────────────────────
 
 app.whenReady().then(() => {
-    console.log('[~] NyanTools v3.3.0');
+    console.log('[~] NyanTools v3.4.1');
     console.log('[>] App path:', app.getAppPath());
-    console.log('💻 Plataforma:', process.platform);
-    console.log('[v] Downloads:', app.getPath('downloads'));
+    console.log('[>] Plataforma:', process.platform);
 
+    setupAutoUpdater();
     createWindow();
 
     app.on('activate', () => {

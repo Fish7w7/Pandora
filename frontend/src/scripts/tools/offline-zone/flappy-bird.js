@@ -30,124 +30,69 @@ const FlappyBird = {
     clouds: [],
     groundOffset: 0,
 
-    colors: {
-        white: '#FFFFFF', black: '#000000'
-    },
-
     particles: [],
     maxParticles: 40,
     animationFrame: null,
     lastTime: 0,
 
-    // ══════════════════════════════
-    // RENDER PRINCIPAL
-    // ══════════════════════════════
 
     render() {
         this.highScore = Utils.loadData('flappy_bird_highscore') || 0;
         return `
             <div class="max-w-4xl mx-auto">
-                ${this.renderHeader()}
-                ${this.renderScoreDisplay()}
-                ${this.renderCanvasContainer()}
-                ${this.renderControls()}
-                ${this.renderInfo()}
-            </div>
-        `;
-    },
-
-    renderHeader() {
-        return `
-            <div class="text-center mb-6">
-                <div class="inline-flex items-center gap-3 mb-3">
-                    <div class="text-5xl animate-bounce">🐱</div>
-                    <h1 class="text-4xl font-black bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 bg-clip-text text-transparent">
-                        Flappy Nyan
-                    </h1>
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center gap-3 mb-3">
+                        <div class="text-5xl animate-bounce">🐱</div>
+                        <h1 class="text-4xl font-black bg-gradient-to-r from-yellow-500 via-orange-500 to-red-500 bg-clip-text text-transparent">Flappy Nyan</h1>
+                    </div>
+                    <p class="text-gray-600 font-semibold">Desvie dos canos! にゃん~</p>
                 </div>
-                <p class="text-gray-600 font-semibold">Desvie dos canos! にゃん~</p>
-            </div>
-        `;
-    },
 
-    renderScoreDisplay() {
-        return `
-            <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl p-4 text-white shadow-xl text-center">
-                    <div class="text-xs font-semibold opacity-80 mb-1 tracking-widest">PONTUAÇÃO</div>
-                    <div class="text-5xl font-black" id="flappy-score">0</div>
-                </div>
-                <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl p-4 text-white shadow-xl text-center">
-                    <div class="text-xs font-semibold opacity-80 mb-1 tracking-widest">🏆 RECORDE</div>
-                    <div class="text-5xl font-black" id="flappy-highscore">${this.highScore}</div>
-                </div>
-            </div>
-        `;
-    },
-
-    renderCanvasContainer() {
-        return `
-            <div class="rounded-2xl shadow-2xl mb-4 relative overflow-hidden border-4 border-sky-400" style="background:#29B6F6;">
-                <canvas id="flappy-canvas"
-                        class="mx-auto cursor-pointer relative z-10 touch-none"
-                        style="display:block; image-rendering: crisp-edges; max-width:100%;">
-                </canvas>
-                <div id="flappy-overlay" class="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
-                    <div class="text-center bg-black/60 backdrop-blur-sm rounded-2xl px-8 py-6 shadow-2xl border border-white/20">
-                        <div class="text-5xl mb-3">🐱</div>
-                        <div class="text-3xl font-black text-white mb-2" style="text-shadow:2px 2px 8px #000;">PRONTO?</div>
-                        <div class="text-base font-semibold text-yellow-300">Clique ou Espaço para voar!</div>
+                <div class="grid grid-cols-2 gap-3 mb-4">
+                    <div class="bg-gradient-to-br from-blue-500 to-cyan-600 rounded-xl p-4 text-white shadow-xl text-center">
+                        <div class="text-xs font-semibold opacity-80 mb-1 tracking-widest">PONTUAÇÃO</div>
+                        <div class="text-5xl font-black" id="flappy-score">0</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-yellow-400 to-orange-500 rounded-xl p-4 text-white shadow-xl text-center">
+                        <div class="text-xs font-semibold opacity-80 mb-1 tracking-widest">🏆 RECORDE</div>
+                        <div class="text-5xl font-black" id="flappy-highscore">${this.highScore}</div>
                     </div>
                 </div>
-            </div>
-        `;
-    },
 
-    renderControls() {
-        return `
-            <div class="flex gap-2 mb-4">
-                <button onclick="FlappyBird.startGame()"
-                        id="flappy-start-btn"
-                        class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all text-lg">
-                    ▶️ Iniciar
-                </button>
-                <button onclick="FlappyBird.togglePause()"
-                        id="flappy-pause-btn"
-                        style="display:none;"
-                        class="flex-1 bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all text-lg">
-                    ⏸️ Pausar
-                </button>
-            </div>
-        `;
-    },
-
-    renderInfo() {
-        return `
-            <div class="bg-white rounded-xl shadow-lg p-4">
-                <div class="grid grid-cols-3 gap-3 text-center text-sm">
-                    <div class="bg-blue-50 rounded-lg p-3">
-                        <div class="text-2xl mb-1">🖱️</div>
-                        <div class="font-bold text-blue-800">Click</div>
-                    </div>
-                    <div class="bg-purple-50 rounded-lg p-3">
-                        <div class="text-2xl mb-1">⌨️</div>
-                        <div class="font-bold text-purple-800">Espaço</div>
-                    </div>
-                    <div class="bg-green-50 rounded-lg p-3">
-                        <div class="text-2xl mb-1">📱</div>
-                        <div class="font-bold text-green-800">Touch</div>
+                <div class="rounded-2xl shadow-2xl mb-4 relative overflow-hidden border-4 border-sky-400" style="background:#29B6F6;">
+                    <canvas id="flappy-canvas" class="mx-auto cursor-pointer relative z-10 touch-none" style="display:block;image-rendering:crisp-edges;max-width:100%;"></canvas>
+                    <div id="flappy-overlay" class="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+                        <div class="text-center bg-black/60 backdrop-blur-sm rounded-2xl px-8 py-6 shadow-2xl border border-white/20">
+                            <div class="text-5xl mb-3">🐱</div>
+                            <div class="text-3xl font-black text-white mb-2" style="text-shadow:2px 2px 8px #000;">PRONTO?</div>
+                            <div class="text-base font-semibold text-yellow-300">Clique ou Espaço para voar!</div>
+                        </div>
                     </div>
                 </div>
-                <div class="mt-3 text-center text-gray-500 text-sm">
-                    <strong>Dica:</strong> Toque rápido e ritmado para manter altitude!
+
+                <div class="flex gap-2 mb-4">
+                    <button onclick="FlappyBird.startGame()" id="flappy-start-btn"
+                            class="flex-1 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all text-lg">
+                        ▶️ Iniciar
+                    </button>
+                    <button onclick="FlappyBird.togglePause()" id="flappy-pause-btn" style="display:none;"
+                            class="flex-1 bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-4 rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95 transition-all text-lg">
+                        ⏸️ Pausar
+                    </button>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-lg p-4">
+                    <div class="grid grid-cols-3 gap-3 text-center text-sm">
+                        <div class="bg-blue-50 rounded-lg p-3"><div class="text-2xl mb-1">🖱️</div><div class="font-bold text-blue-800">Click</div></div>
+                        <div class="bg-purple-50 rounded-lg p-3"><div class="text-2xl mb-1">⌨️</div><div class="font-bold text-purple-800">Espaço</div></div>
+                        <div class="bg-green-50 rounded-lg p-3"><div class="text-2xl mb-1">📱</div><div class="font-bold text-green-800">Touch</div></div>
+                    </div>
+                    <div class="mt-3 text-center text-gray-500 text-sm"><strong>Dica:</strong> Toque rápido e ritmado para manter altitude!</div>
                 </div>
             </div>
         `;
     },
 
-    // ══════════════════════════════
-    // INICIALIZAÇÃO
-    // ══════════════════════════════
 
     init() {
         this.canvas = document.getElementById('flappy-canvas');
@@ -197,7 +142,6 @@ const FlappyBird = {
         this.canvas.addEventListener('touchstart', handleInput, { passive: false });
 
         this.keyHandler = (e) => {
-            // Auto-remove se o canvas não estiver mais na página
             if (!document.getElementById('flappy-canvas')) {
                 document.removeEventListener('keydown', this.keyHandler);
                 this.keyHandler = null;
@@ -231,9 +175,6 @@ const FlappyBird = {
         });
     },
 
-    // ══════════════════════════════
-    // CONTROLE DO JOGO
-    // ══════════════════════════════
 
     startGame() {
         if (this.isPlaying) return;
@@ -259,7 +200,12 @@ const FlappyBird = {
         this.gameOver = false;
         this.isPaused = false;
 
-        this.updateUI({ overlay: 'none', startBtn: '🔄 Reiniciar', pauseBtn: 'block' });
+        const overlayEl = document.getElementById('flappy-overlay');
+        if (overlayEl) overlayEl.style.display = 'none';
+        const startBtnEl = document.getElementById('flappy-start-btn');
+        if (startBtnEl) startBtnEl.innerHTML = '🔄 Reiniciar';
+        const pauseBtnEl = document.getElementById('flappy-pause-btn');
+        if (pauseBtnEl) pauseBtnEl.style.display = 'block';
         this.flap();
 
         this.lastTime = performance.now();
@@ -278,7 +224,6 @@ const FlappyBird = {
             this.drawPauseOverlay();
         } else {
             if (btn) btn.innerHTML = '⏸️ Pausar';
-            // BUG FIX: retomar loop via requestAnimationFrame, não chamada direta
             this.lastTime = performance.now();
             this.animationFrame = requestAnimationFrame((t) => this.gameLoop(t));
         }
@@ -310,9 +255,6 @@ const FlappyBird = {
         }
     },
 
-    // ══════════════════════════════
-    // LOOP DE JOGO
-    // ══════════════════════════════
 
     gameLoop(currentTime = 0) {
         if (!this.isPlaying || this.isPaused || this.gameOver) return;
@@ -342,7 +284,6 @@ const FlappyBird = {
         const targetRotation = Math.min(Math.max(this.bird.velocity * 4, this.bird.minRotation), this.bird.maxRotation);
         this.bird.rotation += (targetRotation - this.bird.rotation) * 0.15;
 
-        // Asa: bate rápido ao pular, relaxa gradualmente
         this.bird.wingAngle += 0.18 * deltaTime;
         if (this.bird.wingAngle > 0.4) this.bird.wingAngle = 0.4;
 
@@ -355,8 +296,6 @@ const FlappyBird = {
     updatePipes(deltaTime) {
         if (this.gameOver) return;
         this.frameCount++;
-        // Spawn baseado em distância mínima, não em frames fixos
-        // Garante espaçamento consistente independente da velocidade
         const minDistance = 220;
         const lastPipe = this.pipes[this.pipes.length - 1];
         const canSpawn = !lastPipe || lastPipe.x <= this.canvas.width - minDistance;
@@ -433,9 +372,6 @@ const FlappyBird = {
         return false;
     },
 
-    // ══════════════════════════════
-    // DESENHO
-    // ══════════════════════════════
 
     draw() {
         this.drawBackground();
@@ -487,23 +423,19 @@ const FlappyBird = {
         const ctx = this.ctx;
         const groundY = this.canvas.height - 60;
 
-        // Base terra
         ctx.fillStyle = '#795548';
         ctx.fillRect(0, groundY + 13, this.canvas.width, 47);
 
-        // Listras estáticas
         ctx.fillStyle = '#5D4037';
         for (let i = 0; i < this.canvas.width; i += 40) {
             ctx.fillRect(i, groundY + 18, 20, 42);
         }
 
-        // Grama
         ctx.fillStyle = '#66BB6A';
         ctx.fillRect(0, groundY, this.canvas.width, 15);
         ctx.fillStyle = '#43A047';
         ctx.fillRect(0, groundY + 5, this.canvas.width, 5);
 
-        // Detalhes de grama (pequenos tufos)
         ctx.fillStyle = '#81C784';
         for (let i = 8; i < this.canvas.width; i += 22) {
             ctx.fillRect(i, groundY - 3, 4, 6);
@@ -518,7 +450,6 @@ const FlappyBird = {
         ctx.translate(b.x + b.width / 2, b.y + b.height / 2);
         ctx.rotate(b.rotation * Math.PI / 180);
 
-        // Asa com animação de batida
         const wingY = Math.sin(b.wingAngle * 10) * 6;
         ctx.fillStyle = '#FF8F00';
         ctx.strokeStyle = '#E65100';
@@ -528,12 +459,10 @@ const FlappyBird = {
         ctx.fill();
         ctx.stroke();
 
-        // Sombra do corpo
         ctx.shadowColor = 'rgba(0,0,0,0.3)';
         ctx.shadowBlur = 6;
         ctx.shadowOffsetY = 3;
 
-        // Corpo com gradiente radial
         const bodyGrad = ctx.createRadialGradient(-5, -5, 1, 0, 0, b.width / 2);
         bodyGrad.addColorStop(0, '#FFF176');
         bodyGrad.addColorStop(0.5, '#FFD700');
@@ -548,31 +477,26 @@ const FlappyBird = {
 
         ctx.shadowColor = 'transparent';
 
-        // Barriga brilhante
         ctx.fillStyle = 'rgba(255,255,255,0.28)';
         ctx.beginPath();
         ctx.ellipse(2, 3, b.width / 4.5, b.height / 3.5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Olho branco
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
         ctx.arc(7, -4, 6, 0, Math.PI * 2);
         ctx.fill();
 
-        // Pupila
         ctx.fillStyle = '#111';
         ctx.beginPath();
         ctx.arc(8.5, -4, 3.2, 0, Math.PI * 2);
         ctx.fill();
 
-        // Brilho olho
         ctx.fillStyle = '#FFFFFF';
         ctx.beginPath();
         ctx.arc(9.8, -5.5, 1.4, 0, Math.PI * 2);
         ctx.fill();
 
-        // Bico
         ctx.fillStyle = '#FF7043';
         ctx.beginPath();
         ctx.moveTo(13, -2);
@@ -592,6 +516,23 @@ const FlappyBird = {
         ctx.restore();
     },
 
+    _pipeGrad(x, isTop) {
+        const ctx = this.ctx;
+        const pw = this.pipeWidth;
+        const capW = pw + 10;
+        if (isTop) {
+            const g = ctx.createLinearGradient(x, 0, x + pw, 0);
+            g.addColorStop(0, '#A5D6A7'); g.addColorStop(0.15, '#66BB6A');
+            g.addColorStop(0.5, '#388E3C'); g.addColorStop(0.85, '#2E7D32'); g.addColorStop(1, '#1B5E20');
+            return g;
+        } else {
+            const g = ctx.createLinearGradient(x - 5, 0, x - 5 + capW, 0);
+            g.addColorStop(0, '#C8E6C9'); g.addColorStop(0.15, '#81C784');
+            g.addColorStop(0.5, '#43A047'); g.addColorStop(0.85, '#388E3C'); g.addColorStop(1, '#1B5E20');
+            return g;
+        }
+    },
+
     drawPipe(pipe) {
         const ctx = this.ctx;
         const pw = this.pipeWidth;
@@ -599,45 +540,20 @@ const FlappyBird = {
         const capH = 22;
         const groundY = this.canvas.height - 60;
 
-        const makeGrad = (x) => {
-            const g = ctx.createLinearGradient(x, 0, x + pw, 0);
-            g.addColorStop(0, '#A5D6A7');
-            g.addColorStop(0.15, '#66BB6A');
-            g.addColorStop(0.5, '#388E3C');
-            g.addColorStop(0.85, '#2E7D32');
-            g.addColorStop(1, '#1B5E20');
-            return g;
-        };
-        const makeCapGrad = (x) => {
-            const g = ctx.createLinearGradient(x - 5, 0, x - 5 + capW, 0);
-            g.addColorStop(0, '#C8E6C9');
-            g.addColorStop(0.15, '#81C784');
-            g.addColorStop(0.5, '#43A047');
-            g.addColorStop(0.85, '#388E3C');
-            g.addColorStop(1, '#1B5E20');
-            return g;
-        };
-
         // ---- CANO SUPERIOR ----
         const topBodyH = pipe.topHeight - capH;
 
-        ctx.fillStyle = makeGrad(pipe.x);
+        ctx.fillStyle = this._pipeGrad(pipe.x, true);
         ctx.fillRect(pipe.x, 0, pw, topBodyH);
-
-        // Highlight lateral esquerdo
         ctx.fillStyle = 'rgba(255,255,255,0.15)';
         ctx.fillRect(pipe.x + 5, 0, 7, topBodyH);
-
-        // Borda escura direita
         ctx.fillStyle = 'rgba(0,0,0,0.2)';
         ctx.fillRect(pipe.x + pw - 5, 0, 5, topBodyH);
 
-        // Tampa superior
-        ctx.fillStyle = makeCapGrad(pipe.x);
+        ctx.fillStyle = this._pipeGrad(pipe.x, false);
         this.roundRect(ctx, pipe.x - 5, topBodyH, capW, capH, 5);
         ctx.fill();
-        ctx.strokeStyle = '#1B5E20';
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#1B5E20'; ctx.lineWidth = 1.5;
         this.roundRect(ctx, pipe.x - 5, topBodyH, capW, capH, 5);
         ctx.stroke();
         ctx.fillStyle = 'rgba(255,255,255,0.15)';
@@ -649,23 +565,20 @@ const FlappyBird = {
         const bottomBodyY = bottomCapY + capH;
         const bottomBodyH = groundY - bottomBodyY;
 
-        ctx.fillStyle = makeCapGrad(pipe.x);
+        ctx.fillStyle = this._pipeGrad(pipe.x, false);
         this.roundRect(ctx, pipe.x - 5, bottomCapY, capW, capH, 5);
         ctx.fill();
-        ctx.strokeStyle = '#1B5E20';
-        ctx.lineWidth = 1.5;
+        ctx.strokeStyle = '#1B5E20'; ctx.lineWidth = 1.5;
         this.roundRect(ctx, pipe.x - 5, bottomCapY, capW, capH, 5);
         ctx.stroke();
         ctx.fillStyle = 'rgba(255,255,255,0.15)';
         this.roundRect(ctx, pipe.x - 2, bottomCapY + 3, capW - 10, capH / 2, 3);
         ctx.fill();
 
-        ctx.fillStyle = makeGrad(pipe.x);
+        ctx.fillStyle = this._pipeGrad(pipe.x, true);
         ctx.fillRect(pipe.x, bottomBodyY, pw, bottomBodyH);
-
         ctx.fillStyle = 'rgba(255,255,255,0.15)';
         ctx.fillRect(pipe.x + 5, bottomBodyY, 7, bottomBodyH);
-
         ctx.fillStyle = 'rgba(0,0,0,0.2)';
         ctx.fillRect(pipe.x + pw - 5, bottomBodyY, 5, bottomBodyH);
     },
@@ -728,9 +641,6 @@ const FlappyBird = {
         ctx.fillText('Pressione P para continuar', this.canvas.width / 2, this.canvas.height / 2 + 35);
     },
 
-    // ══════════════════════════════
-    // FINALIZAÇÃO
-    // ══════════════════════════════
 
     endGame() {
         if (this.gameOver) return;
@@ -743,7 +653,6 @@ const FlappyBird = {
             this.animationFrame = null;
         }
 
-        // Explosão de partículas coloridas
         for (let i = 0; i < 28; i++) {
             const angle = (Math.PI * 2 * i) / 28;
             const speed = 2 + Math.random() * 3.5;
@@ -768,7 +677,6 @@ const FlappyBird = {
             if (hsEl) hsEl.textContent = this.score;
         }
 
-        // Animar partículas por um momento antes de mostrar game over
         let frames = 0;
         const animateParticles = () => {
             if (frames++ < 22) {
@@ -797,7 +705,6 @@ const FlappyBird = {
         ctx.fillStyle = 'rgba(0,0,0,0.75)';
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-        // Painel centralizado
         const panelW = Math.min(300, this.canvas.width - 40);
         const panelH = isNewRecord ? 240 : 210;
         ctx.fillStyle = 'rgba(20,20,40,0.85)';
@@ -810,7 +717,6 @@ const FlappyBird = {
 
         ctx.textAlign = 'center';
 
-        // GAME OVER
         ctx.font = 'bold 44px "Arial Black", Arial';
         ctx.strokeStyle = '#000';
         ctx.lineWidth = 5;
@@ -818,7 +724,6 @@ const FlappyBird = {
         ctx.strokeText('GAME OVER', cx, cy - panelH / 2 + 58);
         ctx.fillText('GAME OVER', cx, cy - panelH / 2 + 58);
 
-        // Score
         ctx.font = 'bold 28px Arial';
         ctx.fillStyle = '#FFD700';
         ctx.strokeStyle = '#000';
@@ -840,9 +745,6 @@ const FlappyBird = {
         ctx.fillText('Toque para jogar novamente', cx, cy + panelH / 2 - 20);
     },
 
-    // ══════════════════════════════
-    // UTILITÁRIOS
-    // ══════════════════════════════
 
     createScoreEffect() {
         for (let i = 0; i < 10; i++) {
@@ -867,21 +769,6 @@ const FlappyBird = {
             Utils.saveData?.('flappy_bird_highscore', this.highScore);
         }
     },
-
-    updateUI({ overlay, startBtn, pauseBtn }) {
-        const overlayEl = document.getElementById('flappy-overlay');
-        if (overlayEl && overlay !== undefined) overlayEl.style.display = overlay;
-
-        const startBtnEl = document.getElementById('flappy-start-btn');
-        if (startBtnEl && startBtn) startBtnEl.innerHTML = startBtn;
-
-        const pauseBtnEl = document.getElementById('flappy-pause-btn');
-        if (pauseBtnEl && pauseBtn !== undefined) pauseBtnEl.style.display = pauseBtn;
-    },
-
-    // ══════════════════════════════
-    // CLEANUP - chamado ao sair da tela
-    // ══════════════════════════════
 
     cleanup() {
         if (this.animationFrame) {
