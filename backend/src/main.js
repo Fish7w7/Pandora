@@ -6,6 +6,8 @@ if (process.platform === 'win32') {
 const { app, BrowserWindow, ipcMain, shell, Menu } = require('electron');
 const path = require('path');
 const fsSync = require('fs');
+const fs = require('fs').promises;
+const os = require('os');
 
 // ─── PERFORMANCE ────────────────────────────────────────────────────────────
 
@@ -242,38 +244,44 @@ ipcMain.handle('check-for-updates', async () => {
     }
     lastUpdateCheck = now;
 
-    try {
-        await autoUpdater.checkForUpdates();
-        return { success: true, usingNativeUpdater: true };
-    } catch (err) {
-        // Fallback: consultar GitHub API diretamente para só mostrar info de versão
-        console.log('[~] autoUpdater.checkForUpdates() falhou, usando fallback GitHub API');
-        const URLS = [
-            'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
-            'https://raw.githubusercontent.com/Fish7w7/Pandora/main/version.json'
-        ];
-        for (const url of URLS) {
-            try {
-                const controller = new AbortController();
-                const tid = setTimeout(() => controller.abort(), 10000);
-                const isFallback = url.includes('raw.githubusercontent');
-                const headers = isFallback
-                    ? { 'User-Agent': 'NyanTools-Updater' }
-                    : { 'User-Agent': 'NyanTools-Updater', 'Accept': 'application/vnd.github.v3+json' };
-                const response = await fetch(url, { signal: controller.signal, headers });
-                clearTimeout(tid);
-                if (!response.ok) continue;
-                const data = await response.json();
-                if (isFallback && data.version && !data.tag_name) {
-                    data.tag_name   = `v${data.version}`;
-                    data._fromFallback = true;
-                }
-                console.log('[OK] Fallback GitHub API:', data.tag_name);
-                return { success: true, data, fromFallback: !!data._fromFallback };
-            } catch (_) {}
+    const isDev = process.env.NODE_ENV === 'development';
+
+    // Em produção: tentar o native updater primeiro
+    if (!isDev) {
+        try {
+            await autoUpdater.checkForUpdates();
+            return { success: true, usingNativeUpdater: true };
+        } catch (err) {
+            console.log('[~] autoUpdater falhou, usando fallback:', err.message);
         }
-        return { success: false, error: err.message };
     }
+
+    // Em dev ou se native updater falhou: consultar GitHub API diretamente
+    const URLS = [
+        'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
+        'https://raw.githubusercontent.com/Fish7w7/Pandora/main/version.json'
+    ];
+    for (const url of URLS) {
+        try {
+            const controller = new AbortController();
+            const tid = setTimeout(() => controller.abort(), 10000);
+            const isFallback = url.includes('raw.githubusercontent');
+            const headers = isFallback
+                ? { 'User-Agent': 'NyanTools-Updater' }
+                : { 'User-Agent': 'NyanTools-Updater', 'Accept': 'application/vnd.github.v3+json' };
+            const response = await fetch(url, { signal: controller.signal, headers });
+            clearTimeout(tid);
+            if (!response.ok) continue;
+            const data = await response.json();
+            if (isFallback && data.version && !data.tag_name) {
+                data.tag_name = `v${data.version}`;
+                data._fromFallback = true;
+            }
+            console.log('[OK] GitHub API:', data.tag_name);
+            return { success: true, data, fromFallback: !!data._fromFallback };
+        } catch (_) {}
+    }
+    return { success: false, error: 'Não foi possível verificar atualizações' };
 });
 
 // Frontend pede instalação imediata (se download já concluiu)
@@ -282,6 +290,110 @@ ipcMain.handle('install-update-now', () => {
         autoUpdater.quitAndInstall(true, true);
         return { success: true };
     } catch (err) {
+        return { success: false, error: err.message };
+    }
+});
+
+// Baixar .exe do GitHub e instalar silenciosamente (fallback quando native updater não funciona)
+ipcMain.handle('download-and-install', async (_event, { url, filename }) => {
+    try {
+        const destPath = path.join(os.tmpdir(), filename || 'NyanTools-Setup.exe');
+        console.log('[*] Baixando update via fallback:', url);
+        console.log('[*] Destino:', destPath);
+
+        await new Promise((resolve, reject) => {
+            const https = require('https');
+            const { pipeline } = require('stream');
+
+            setTimeout(() => {
+            const doRequest = (reqUrl) => {
+                const urlObj = new URL(reqUrl);
+                const req = https.request({
+                    hostname: urlObj.hostname,
+                    path: urlObj.pathname + urlObj.search,
+                    method: 'GET',
+                    headers: { 'User-Agent': 'NyanTools-Updater' }
+                }, (res) => {
+                    if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+                        console.log('[*] Redirect:', res.headers.location.substring(0, 80) + '...');
+                        res.resume();
+                        doRequest(res.headers.location);
+                        return;
+                    }
+
+                    if (res.statusCode !== 200) { reject(new Error(`HTTP ${res.statusCode}`)); return; }
+
+                    const total = parseInt(res.headers['content-length'] || '0');
+                    console.log('[*] Content-Length:', total);
+                    let received = 0;
+                    let lastTime = Date.now();
+                    let lastBytes = 0;
+
+                    if (mainWindow && !mainWindow.isDestroyed()) {
+                        mainWindow.webContents.send('download-progress', {
+                            progress: 0, downloadedBytes: 0, totalBytes: total, speedBps: 0, remainingSecs: 0
+                        });
+                    }
+
+                    const writeStream = fsSync.createWriteStream(destPath);
+
+                    writeStream.on('error', reject);
+
+                    res.on('data', (chunk) => {
+                        received += chunk.length;
+                        const now = Date.now();
+                        const elapsed = Math.max((now - lastTime) / 1000, 0.001);
+                        const speed = Math.round((received - lastBytes) / elapsed);
+                        const pct = total > 0 ? Math.min(Math.round((received / total) * 100), 99) : 0;
+                        const remaining = speed > 0 ? Math.ceil((total - received) / speed) : 0;
+                        console.log(`[~] Progress: ${pct}% (${received}/${total})`);
+                        if (mainWindow && !mainWindow.isDestroyed()) {
+                            mainWindow.webContents.send('download-progress', {
+                                progress: pct, downloadedBytes: received, totalBytes: total,
+                                speedBps: speed, remainingSecs: remaining
+                            });
+                        }
+                        if (elapsed >= 0.1) { lastTime = now; lastBytes = received; }
+                    });
+
+                    res.on('error', reject);
+
+                    res.on('end', () => {
+                        writeStream.end(() => {
+                            console.log('[OK] Download concluído:', destPath);
+                            if (mainWindow && !mainWindow.isDestroyed()) {
+                                mainWindow.webContents.send('download-progress', {
+                                    progress: 100, downloadedBytes: received, totalBytes: received,
+                                    speedBps: 0, remainingSecs: 0
+                                });
+                                mainWindow.webContents.send('updater-status', {
+                                    event: 'update-downloaded', version: filename
+                                });
+                            }
+                            setTimeout(() => {
+                                console.log('[*] Executando installer...');
+                                const { execFile } = require('child_process');
+                                execFile(destPath, ['/S'], { detached: true, stdio: 'ignore' });
+                                setTimeout(() => app.quit(), 1000);
+                            }, 3000);
+                            resolve();
+                        });
+                    });
+
+                    res.pipe(writeStream);
+                });
+
+                req.on('error', reject);
+                req.end();
+            };
+
+            doRequest(url);
+            }, 300);
+        });
+
+        return { success: true };
+    } catch (err) {
+        console.error('[X] download-and-install erro:', err.message);
         return { success: false, error: err.message };
     }
 });

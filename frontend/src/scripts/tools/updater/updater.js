@@ -21,10 +21,11 @@ const AutoUpdater = {
     _isDevEnv: false,  
     _devEnvChecked: false,
     _simulating: false,
+    _statusListenerRegistered: false,
+    _progressListenerRegistered: false,
+    _nativeResponded: false,
 
-    // ──────────────────────────────────────────────────────────────────
     // CHANGELOG
-    // ──────────────────────────────────────────────────────────────────
 
     changelog: [
     {
@@ -58,12 +59,8 @@ const AutoUpdater = {
     },
 ],
 
-    // ──────────────────────────────────────────────────────────────────
-    // RENDER PRINCIPAL
-    // ──────────────────────────────────────────────────────────────────
 
     render() {
-        // Verificar ambiente de dev na primeira renderização (init() pode não ser chamado)
         if (!this._devEnvChecked) {
             this._devEnvChecked = true;
             if (window.electronAPI?.isDevEnvironment) {
@@ -109,7 +106,6 @@ const AutoUpdater = {
         const isDev = this._devMode && this._isDevEnv;
 
         // Calcular "dias desde último update" a partir do changelog[0]
-        // Usa apenas a parte de data (YYYY-MM-DD) para evitar problemas de timezone
         const latestEntry = this.changelog[0];
         let daysSince = null;
         if (latestEntry?.date) {
@@ -199,7 +195,6 @@ const AutoUpdater = {
             `;
         }
 
-        // ── Verificando ──
         if (this.checking) {
             const isDark = document.body.classList.contains('dark-theme');
             return `
@@ -210,7 +205,6 @@ const AutoUpdater = {
             `;
         }
 
-        // ── Update disponível ──
         if (this.updateAvailable) {
             const asset = this.getDownloadAsset();
 
@@ -220,7 +214,6 @@ const AutoUpdater = {
                 : [];
 
             // Se não veio nada do body (fallback via version.json ou body vazio),
-            // usar o changelog local do objeto changelog[]
             if (releaseChanges.length === 0) {
                 const latestTag = (this.latestVersion?.tag_name || '').replace('v', '');
                 const localEntry = this.changelog.find(c => c.version === latestTag);
@@ -291,7 +284,7 @@ const AutoUpdater = {
                                 <div style="display:flex; align-items:center; gap:0.5rem; background:${card.assetBg}; border-radius:0.5rem; padding:0.5rem 0.75rem; margin-bottom:0.75rem; font-size:0.875rem;">
                                     <span>📦</span>
                                     <span style="font-weight:600; color:${card.assetName};">${asset.name}</span>
-                                    <span style="color:${card.assetSize}; margin-left:auto;">${this.formatBytes(asset.size)}</span>
+                                    <span style="color:${card.assetSize}; margin-left:auto;">${this._formatBytes(asset.size)}</span>
                                 </div>
                             ` : ''}
 
@@ -317,7 +310,6 @@ const AutoUpdater = {
             `;
         }
 
-        // ── Atualizado ──
         return `
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center gap-4"
                  style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:1rem; padding:1.5rem; display:flex; align-items:center; gap:1rem;">
@@ -404,7 +396,6 @@ const AutoUpdater = {
         `;
     },
 
-    // Painel de desenvolvimento (visível apenas em dev mode)
     renderDevPanel() {
         if (!this._isDevEnv) return '';
 
@@ -439,12 +430,8 @@ const AutoUpdater = {
         `;
     },
 
-    // ──────────────────────────────────────────────────────────────────
-    // LÓGICA PRINCIPAL
-    // ──────────────────────────────────────────────────────────────────
 
     async init() {
-        this.cleanIncompatibleCache();
         if (window.App?.version) {
             this.currentVersion = window.App.version;
         } else {
@@ -459,15 +446,17 @@ const AutoUpdater = {
             }
         }
 
-        // Ouvir eventos nativos do electron-updater (main → renderer)
-        if (window.electronAPI?.onUpdaterStatus) {
+        // Ouvir eventos nativos do electron-updater — registrar só uma vez
+        if (window.electronAPI?.onUpdaterStatus && !this._statusListenerRegistered) {
+            this._statusListenerRegistered = true;
             window.electronAPI.onUpdaterStatus((status) => {
                 this._handleNativeStatus(status);
             });
         }
 
-        // Ouvir progresso de download nativo
-        if (window.electronAPI?.onDownloadProgress) {
+        // Ouvir progresso de download nativo — registrar só uma vez
+        if (window.electronAPI?.onDownloadProgress && !this._progressListenerRegistered) {
+            this._progressListenerRegistered = true;
             window.electronAPI.onDownloadProgress((data) => {
                 this.downloadProgress  = data.progress;
                 this.downloadedBytes   = data.downloadedBytes;
@@ -475,18 +464,22 @@ const AutoUpdater = {
                 this.downloadSpeed     = data.speedBps     || 0;
                 this.downloadRemaining = data.remainingSecs || 0;
 
-                const bar    = document.getElementById('download-progress-bar');
+                const bar   = document.getElementById('download-progress-bar');
+                const pctEl = document.getElementById('download-pct');
                 const status = document.getElementById('download-status');
-                const pctEl  = document.getElementById('download-pct');
 
-                if (!bar) { Router?.render(); return; }
+                if (!bar) {
+                    Router?.render();
+                    return;
+                }
+
                 bar.style.width = data.progress + '%';
                 if (pctEl) pctEl.textContent = data.progress + '%';
                 if (status) {
                     const speedStr  = this._formatSpeed(data.speedBps);
                     const remaining = this._formatRemaining(data.remainingSecs);
                     status.textContent = `${this._formatBytes(data.downloadedBytes)} / ${this._formatBytes(data.totalBytes)}`
-                        + (speedStr  ? ` · ${speedStr}`            : '')
+                        + (speedStr  ? ` · ${speedStr}`  : '')
                         + (remaining ? ` · ~${remaining} restantes` : '');
                 }
             });
@@ -501,7 +494,6 @@ const AutoUpdater = {
         }
     },
 
-    // Processar eventos nativos do autoUpdater
     _handleNativeStatus(status) {
         switch (status.event) {
             case 'checking':
@@ -511,6 +503,7 @@ const AutoUpdater = {
 
             case 'update-available':
                 this.checking = false;
+                this._nativeResponded = true;
                 this.updateAvailable = true;
                 this.downloading = false;  // usuário decide quando baixar
                 this.latestVersion = {
@@ -550,13 +543,6 @@ const AutoUpdater = {
         }
     },
 
-    cleanIncompatibleCache() {
-        const cache = Utils.loadData('version_cache');
-        if (cache?.data?.version && !cache.data.tag_name) {
-            localStorage.removeItem('version_cache');
-        }
-    },
-
     canCheckNow() {
         const lastCheck = Utils.loadData('last_update_check');
         if (!lastCheck) return true;
@@ -591,9 +577,9 @@ const AutoUpdater = {
         }
 
         this.checking = true;
+        this._nativeResponded = false;
         if (!silent) Router?.render();
 
-        let usingNative = false;
         try {
             let data;
 
@@ -601,37 +587,12 @@ const AutoUpdater = {
                 const result = await window.electronAPI.checkForUpdates();
                 if (!result.success) throw new Error(result.error);
 
-                // Updater nativo em produção — eventos IPC cuidam de tudo via _handleNativeStatus
-                // Em dev o autoUpdater não funciona, então fazemos fallback para GitHub API
-                if (result.usingNativeUpdater) {
-                    usingNative = true;
-                    // Timeout de segurança: se o evento IPC não chegar em 8s, faz fallback
-                    setTimeout(async () => {
-                        if (!this.checking) return; // evento já chegou, tudo certo
-                        console.log('[Updater] Native updater sem resposta, usando fallback GitHub API...');
-                        usingNative = false;
-                        try {
-                            const res = await fetch(this.updateUrl, {
-                                headers: { 'Accept': 'application/vnd.github.v3+json', 'User-Agent': 'NyanTools-Updater' }
-                            });
-                            if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                            const data = await res.json();
-                            this._cacheVersion(data);
-                            Utils.saveData('last_update_check', { date: Date.now(), version: this.currentVersion });
-                            this._processVersionData(data, silent);
-                        } catch (e) {
-                            console.warn('[Updater] Fallback também falhou:', e.message);
-                        } finally {
-                            this.checking = false;
-                            Router?.render();
-                        }
-                    }, 8000);
-                    return;
-                }
+                // Produção: native updater vai emitir eventos IPC via _handleNativeStatus
+                if (result.usingNativeUpdater) return;
 
+                // Dev/fallback: main.js já consultou GitHub API e retornou data diretamente
                 data = result.data;
             } else {
-                // Fallback direto (ambiente web/dev sem Electron)
                 const res = await fetch(this.updateUrl, {
                     headers: { 'Accept': 'application/vnd.github.v3+json' }
                 });
@@ -647,11 +608,8 @@ const AutoUpdater = {
             console.error('❌ Erro ao verificar atualizações:', error);
             if (!silent) Utils.showNotification('❌ Erro ao verificar atualizações', 'error');
         } finally {
-            // Se usando updater nativo, não limpar checking — _handleNativeStatus vai fazer isso
-            if (!usingNative) {
-                this.checking = false;
-                if (!silent) Router?.render();
-            }
+            this.checking = false;
+            if (!silent) Router?.render();
         }
     },
 
@@ -659,7 +617,6 @@ const AutoUpdater = {
         if (!data) return;
 
         // Se veio do native updater (check-for-updates retornou usingNativeUpdater),
-        // não precisamos processar — os eventos IPC cuidam de tudo
         if (data.usingNativeUpdater) return;
 
         const latest = (data.tag_name || data.version || '').replace('v', '');
@@ -714,9 +671,6 @@ const AutoUpdater = {
         return 'unknown';
     },
 
-    // ──────────────────────────────────────────────────────────────────
-    // DOWNLOAD
-    // ──────────────────────────────────────────────────────────────────
 
     _confirmDownload() {
         const version = this.latestVersion?.tag_name || 'nova versão';
@@ -792,55 +746,35 @@ const AutoUpdater = {
         this.downloading      = true;
         this.downloadProgress = 0;
         this.downloadedBytes  = 0;
-        this.totalBytes       = 0;
         Router?.render();
 
         try {
-            if (this.latestVersion?._fromNativeUpdater && window.electronAPI?.startUpdateDownload) {
-                // electron-updater real: dispara o download no main process
+            if (this._nativeResponded && window.electronAPI?.startUpdateDownload) {
+                console.log('[Updater] Usando electron-updater nativo');
                 const result = await window.electronAPI.startUpdateDownload();
-                if (!result?.success) throw new Error(result?.error || 'Falha ao iniciar download');
-                // progresso chega via onDownloadProgress (registrado no init())
-            } else if (this.latestVersion?._fromNativeUpdater) {
-                // Simulação / dev sem electron-updater real: animar barra localmente
-                this.totalBytes = 80 * 1024 * 1024;
-                let pct = 0;
-                const interval = setInterval(() => {
-                    pct = Math.min(pct + Math.random() * 4, 100);
-                    this.downloadProgress = Math.round(pct);
-                    this.downloadedBytes  = Math.round((pct / 100) * this.totalBytes);
-                    this.downloadSpeed    = (2 + Math.random() * 3) * 1024 * 1024;
-                    this.downloadRemaining = Math.ceil(((100 - pct) / 100 * this.totalBytes) / this.downloadSpeed);
-
-                    const bar    = document.getElementById('download-progress-bar');
-                    const pctEl  = document.getElementById('download-pct');
-                    const status = document.getElementById('download-status');
-                    if (!bar) { Router?.render(); return; }
-                    bar.style.width = Math.round(pct) + '%';
-                    if (pctEl) pctEl.textContent = Math.round(pct) + '%';
-                    if (status) status.textContent =
-                        `${this._formatBytes(this.downloadedBytes)} / ${this._formatBytes(this.totalBytes)}`
-                        + ` · ${this._formatSpeed(this.downloadSpeed)}`
-                        + ` · ~${this._formatRemaining(this.downloadRemaining)} restantes`;
-
-                    if (pct >= 100) {
-                        clearInterval(interval);
-                        this.downloading = false;
-                        this._handleNativeStatus({ event: 'update-downloaded', version: this.latestVersion.tag_name.replace('v','') });
-                    }
-                }, 200);
-            } else {
-                // Fallback sem electron-updater: abrir GitHub Releases no navegador
-                const url = this.latestVersion?.html_url || this.githubReleasesUrl;
-                if (window.electronAPI?.openExternal) {
-                    window.electronAPI.openExternal(url);
-                } else {
-                    window.open(url, '_blank');
-                }
-                Utils.showNotification('🌐 Abrindo página de download...', 'info');
-                this.downloading = false;
-                Router?.render();
+                if (!result?.success) throw new Error(result?.error || 'Falha ao iniciar download nativo');
+                return;
             }
+
+            const asset = this.getDownloadAsset();
+
+            if (asset?.browser_download_url) {
+                console.log('[Updater] Download direto via GitHub API:', asset.name);
+                await this._downloadFileDirect(asset.browser_download_url, asset.name, asset.size);
+                return;
+            }
+
+            console.warn('[Updater] Nenhum asset encontrado, abrindo GitHub como fallback');
+            const url = this.latestVersion?.html_url || this.githubReleasesUrl;
+            if (window.electronAPI?.openExternal) {
+                window.electronAPI.openExternal(url);
+            } else {
+                window.open(url, '_blank');
+            }
+            Utils.showNotification('🌐 Abrindo página de download...', 'info');
+            this.downloading = false;
+            Router?.render();
+
         } catch (error) {
             console.error('❌ Erro ao iniciar download:', error);
             Utils.showNotification('❌ Erro ao iniciar download: ' + error.message, 'error');
@@ -849,16 +783,27 @@ const AutoUpdater = {
         }
     },
 
-    // ──────────────────────────────────────────────────────────────────
-    // UTILITÁRIOS
-    // ──────────────────────────────────────────────────────────────────
+    async _downloadFileDirect(url, filename, totalSize) {
+        if (window.electronAPI?.downloadAndInstall) {
+            console.log('[Updater] Baixando via main process:', filename);
+            if (totalSize) this.totalBytes = totalSize;
+            const result = await window.electronAPI.downloadAndInstall(url, filename);
+            if (!result?.success) throw new Error(result?.error || 'Falha no download');
+            return;
+        }
+        // Fallback web — abre GitHub
+        const fallbackUrl = this.latestVersion?.html_url || this.githubReleasesUrl;
+        window.open(fallbackUrl, '_blank');
+        this.downloading = false;
+        Router?.render();
+    },
+
 
     viewReleaseNotes() {
         const url = this.latestVersion?.html_url || this.githubReleasesUrl;
-        try {
-            const { shell } = require('electron');
-            shell.openExternal(url);
-        } catch {
+        if (window.electronAPI?.openExternal) {
+            window.electronAPI.openExternal(url);
+        } else {
             window.open(url, '_blank');
         }
     },
@@ -902,12 +847,10 @@ const AutoUpdater = {
 
         for (const raw of lines) {
             const l = raw.trim();
-            // Bullet points: - item, * item, • item
             if (/^[-*•]\s+/.test(l)) {
                 const text = l.replace(/^[-*•]\s+/, '').replace(/\*\*/g, '').trim();
                 if (text.length > 0) results.push(text);
             }
-            // Linhas com emojis de changelog: ✨ Coisa: detalhe
             else if (/^[✨🐛⚡🔧🎉🏆⭐🎯🐾]\s+/.test(l)) {
                 const text = l.replace(/\*\*/g, '').trim();
                 if (text.length > 0) results.push(text);
@@ -926,9 +869,6 @@ const AutoUpdater = {
         return `${(bytes / Math.pow(k, i)).toFixed(1)} ${sizes[i]}`;
     },
 
-    // Mantido por compatibilidade
-    formatBytes(bytes) { return this._formatBytes(bytes); },
-
     _formatSpeed(bps) {
         if (!bps || bps <= 0) return '';
         if (bps >= 1024 * 1024) return `${(bps / 1024 / 1024).toFixed(1)} MB/s`;
@@ -944,7 +884,6 @@ const AutoUpdater = {
         return s > 0 ? `${m}m ${s}s` : `${m}m`;
     },
 
-    // ── Dev tools ──────────────────────────────────────────────────────
 
     async _forceCheck() {
         const backup = this.minCheckInterval;

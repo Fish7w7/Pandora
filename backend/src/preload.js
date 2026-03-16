@@ -41,7 +41,7 @@ try {
 
         checkForUpdates: () => invoke('check-for-updates'),
 
-        // v3.4.0 — electron-updater: escutar eventos nativos do autoUpdater
+        // electron-updater: escutar eventos nativos do autoUpdater
         onUpdaterStatus: (callback) => {
             if (typeof callback !== 'function') return () => {};
             const handler = (_event, data) => callback(data);
@@ -49,11 +49,14 @@ try {
             return () => ipcRenderer.removeListener('updater-status', handler);
         },
 
-        // v3.4.0 — instalar update já baixado e reiniciar
+        // instalar update já baixado e reiniciar
         installUpdateNow: () => invoke('install-update-now'),
 
-        // v3.4.0 — iniciar download quando usuário confirmar
+        // iniciar download quando usuário confirmar
         startUpdateDownload: () => invoke('start-update-download'),
+
+        // download direto + install silencioso (fallback quando native updater não funciona)
+        downloadAndInstall: (url, filename) => invoke('download-and-install', { url, filename }),
 
         openDownloadsFolder: () => invoke('open-downloads-folder'),
         openExternal: (url) => invoke('open-external', url),
@@ -64,9 +67,9 @@ try {
                 console.error('❌ onDownloadProgress: callback deve ser uma função');
                 return () => {};
             }
-            const throttled = throttle(callback, 100);
-            ipcRenderer.on('download-progress', throttled);
-            return () => ipcRenderer.removeListener('download-progress', throttled);
+            const handler = (_event, data) => callback(data);
+            ipcRenderer.on('download-progress', handler);
+            return () => ipcRenderer.removeListener('download-progress', handler);
         },
 
         removeDownloadProgressListener: () => {
