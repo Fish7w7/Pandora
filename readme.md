@@ -472,7 +472,7 @@ MIT License — Copyright (c) 2026 Fish7w7
 
 *Your Purr-fect Toolkit! 🐱✨*
 
-**v3.6.0 — Smooth & Pretty ✨**
+**v3.7.0 — Zona Arcade 🕹️**
 
 **[⬆ Voltar ao topo](#-nyantools-にゃん)**
 
