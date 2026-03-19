@@ -1,16 +1,5 @@
 /* ═══════════════════════════════════════════════════════
    LOGIN-INTRO.JS v1.0 — NyanTools にゃん~
-   v3.5.0 "First Impression" — Feature #69
-   Intro animada — toca 1x por dia, pulável com clique
-   ═══════════════════════════════════════════════════════
-
-   SEQUÊNCIA (2.8s total):
-   0.0s  Fundo preto aparece
-   0.2s  🐱 surge do centro com zoom spring
-   0.8s  "NyanTools" aparece letra por letra
-   1.6s  "にゃん~" fade in com brilho
-   2.2s  Tudo faz fade out suave
-   2.8s  Callback chamado (checkAuth)
    ═══════════════════════════════════════════════════════ */
 
 const LoginIntro = {
@@ -23,13 +12,11 @@ const LoginIntro = {
     // ── VERIFICAR SE DEVE TOCAR ────────────────────────
 
     _shouldPlay() {
-        // Verificar toggle nas configurações — padrão: ativado
         const disabled = window.Utils?.loadData('intro_disabled');
         return disabled !== true;
     },
 
     _markShown() {
-        // Mantido por compatibilidade, mas não é mais usado para bloquear
     },
 
     // ── TEMA ATUAL → COR DE DESTAQUE ──────────────────
@@ -208,8 +195,8 @@ const LoginIntro = {
         if (!titleEl) return;
 
         const text       = 'NyanTools';
-        const baseDelay  = 0.78; // s — começa após ícone aparecer
-        const perChar    = 0.072; // s por letra
+        const baseDelay  = 0.78;
+        const perChar    = 0.072;
 
         text.split('').forEach((char, i) => {
             const span = document.createElement('span');
@@ -246,7 +233,6 @@ const LoginIntro = {
         this._skipped  = false;
 
         if (!this._shouldPlay()) {
-            // Pular direto
             callback?.();
             return;
         }
@@ -258,18 +244,14 @@ const LoginIntro = {
 
         this._animateTitle();
 
-        // Clique → pular imediatamente
         this._el.addEventListener('click', () => this._finish());
 
-        // Auto-finalizar após 2.8s
         setTimeout(() => this._finish(), 2800);
 
         console.log('🎬 LoginIntro: intro iniciada');
     },
 
     // ── TOGGLE NAS CONFIGURAÇÕES ──────────────────────
-    // Chamado por Settings quando o toggle mudar
-
     setEnabled(enabled) {
         window.Utils?.saveData('intro_disabled', !enabled);
         window.Utils?.showNotification(

@@ -29,8 +29,6 @@ const MiniGame = {
         gem:    { color: '#8b5cf6', glow: 'rgba(139,92,246,0.8)', points: 30, symbol: '💎', chance: 0.07 },
     },
     currentFoodType: 'normal',
-
-    // Partículas de estrela no fundo (geradas uma vez)
     _stars: null,
 
     // Cores do jogo
@@ -489,8 +487,6 @@ const MiniGame = {
         if (startBtn) {
             startBtn.innerHTML = '<span class="text-xl">🔄</span><span>Reiniciar</span>';
         }
-
-        // FIX: Garante que o botão de pause resete visualmente ao reiniciar
         const pauseBtn = document.getElementById('pause-btn');
         if (pauseBtn) {
             pauseBtn.innerHTML = '<span class="text-xl">⏸️</span><span>Pausar</span>';

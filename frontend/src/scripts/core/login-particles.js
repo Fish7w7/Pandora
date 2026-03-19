@@ -1,6 +1,5 @@
 /* ═══════════════════════════════════════════════════════
    LOGIN-PARTICLES.JS v3.1 — NyanTools にゃん~
-   v3.5.0 — Render único, Math.random(), zero CPU
    ═══════════════════════════════════════════════════════ */
 
 const LoginParticles = {

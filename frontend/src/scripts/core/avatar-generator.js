@@ -1,8 +1,6 @@
 /* ═══════════════════════════════════════════════════════
    AVATAR-GENERATOR.JS v1.0.0 — NyanTools にゃん~
-   v3.6.0 "Smooth & Pretty" — Feature #70
-   Gera um avatar SVG de gatinho único por nome de usuário.
-   Zero dependências. Cacheado após primeiro render.
+    Gerador de Avatares Estilizados
    ═══════════════════════════════════════════════════════ */
 
 const AvatarGenerator = {
@@ -169,13 +167,12 @@ const AvatarGenerator = {
         return svg;
     },
 
-    // ── Gerar como data URL (para usar em <img src="..."> ) ──
+    // ── Gerar como data URL ──
     generateDataURL(username, size = 40) {
         const svg = this.generate(username, size);
         return 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(svg);
     },
 
-    // ── Invalidar cache (troca de tema) ──────────────────
     clearCache() {
         this._cache = {};
     },

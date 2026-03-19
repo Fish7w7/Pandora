@@ -4,7 +4,7 @@
  ═══════════════════════════════════════════════════*/
 
 const App = {
-    version: '3.6.0',
+    version: '3.7.0',
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
@@ -48,7 +48,6 @@ const App = {
                     setTimeout(() => AutoUpdater.checkForUpdates(true), 3000);
                 }
             }
-            // ─────────────────────────────────────────────────
         }, 2500);
         
         this.setupGlobalListeners();
@@ -136,8 +135,6 @@ const App = {
         
         this.renderNavMenu();
         this.initNewSystems();
-        // Usar render() direto — navigate('home') é bloqueado pelo guard
-        // pois currentRoute já começa como 'home'
         Router.currentRoute = 'home';
         Router.render();
         this.checkWhatsNew();
@@ -151,23 +148,16 @@ const App = {
         if (lastSeenVersion && lastSeenVersion !== currentVersion) {
             setTimeout(() => this._showWhatsNewModal(lastSeenVersion, currentVersion), 1200);
         }
-
-        // Sempre atualizar a versão vista
         Utils.saveData('last_seen_version', currentVersion);
     },
 
     _showWhatsNewModal(fromVersion, toVersion) {
         const modal = document.getElementById('whats-new-modal');
         if (!modal) return;
-
-        // Usar sempre a versão anterior do changelog como referência,
-        // evitando exibir versões intermediárias antigas salvas no localStorage
         const changelog = window.AutoUpdater?.changelog ?? [];
         const currentIdx = changelog.findIndex(r => r.version === toVersion);
         const previousEntry = currentIdx !== -1 ? changelog[currentIdx + 1] : null;
         const displayFrom = previousEntry?.version ?? fromVersion;
-
-        // Preencher versão
         const versionEl = modal.querySelector('[data-whats-new-version]');
         if (versionEl) versionEl.textContent = `v${toVersion}`;
 
@@ -233,10 +223,8 @@ const App = {
             UserProfile.init();
         }
 
-        // ── Conquistas ───────────────────────────────────────
+        // ── Conquistas & Beta Testers ──────────────────────────
         if (window.Achievements) Achievements.init();
-
-        // ── Beta Testers (Konami Easter Egg) ─────────────────
         if (window.BetaTesters) BetaTesters.init();
         
         // Iniciar tracking de atividade
@@ -256,16 +244,13 @@ const App = {
             if (window.Dashboard) {
                 const today = new Date().toISOString().split('T')[0];
                 const dayOfWeek = new Date().getDay();
-
-                // totalTime e dailyActivity são as fontes de verdade
                 Dashboard.stats.totalTime++;
 
                 if (!Dashboard.stats.dailyActivity) Dashboard.stats.dailyActivity = {};
                 Dashboard.stats.dailyActivity[today] =
                     (Dashboard.stats.dailyActivity[today] || 0) + 1;
 
-                // weeklyActivity é derivado do dailyActivity — manter em sincronia
-                Dashboard.stats.weeklyActivity[dayOfWeek] =
+                    Dashboard.stats.weeklyActivity[dayOfWeek] =
                     Dashboard.stats.dailyActivity[today];
 
                 if (Dashboard.stats.totalTime % 5 === 0) {
@@ -276,7 +261,7 @@ const App = {
                     Dashboard.refreshWeeklyChart();
                 }
             }
-        }, 60000); // 1 minuto
+        }, 60000);
     },
     
     // Renderizar menu de navegação
@@ -341,7 +326,6 @@ const App = {
             return `<div class="nav-group">${groupLabel}${items}</div>`;
         }).join('');
 
-        // Re-injetar estrelas e drag-drop após render
         if (window.Favorites) {
             setTimeout(() => {
                 Favorites.injectStars();
@@ -350,7 +334,6 @@ const App = {
         }
     },
     
-    // Atualizar navegação ativa
     updateActiveNav(toolId) {
         this.currentTool = toolId;
         
@@ -370,7 +353,7 @@ const App = {
         window.addEventListener('online', () => this.handleConnectionChange(true));
         window.addEventListener('offline', () => this.handleConnectionChange(false));
 
-        // Easter Egg — 5 cliques no logo da sidebar
+        // Easter Egg —
         this._eggClicks = 0;
         this._eggTimeout = null;
         document.addEventListener('click', (e) => {
@@ -499,13 +482,12 @@ const App = {
         }
     },
     
-    // Obter tool por ID
     getTool(toolId) {
         return this.tools.find(t => t.id === toolId);
     }
 };
 
-// Easter Egg — ativado por 5 cliques no logo 🐱
+// Easter Egg —
 function showEasterEgg() {
     // Remover modal anterior se existir
     document.getElementById('easter-egg-modal')?.remove();
@@ -609,7 +591,6 @@ function showEasterEgg() {
         </div>
     `;
 
-    // Fechar ao clicar fora
     modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.remove();
     });
@@ -630,8 +611,6 @@ function showEasterEgg() {
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => App.init());
-
-// Abrir links externos no navegador padrão
 document.addEventListener('click', (e) => {
     const link = e.target.closest('a[href]');
     if (!link) return;
@@ -648,19 +627,11 @@ document.addEventListener('click', (e) => {
 
 window.App = App;
 window.showEasterEgg = showEasterEgg;
-/* ═══════════════════════════════════════════════════════
-   #87 — RIPPLE EFFECT GLOBAL v3.6.0
-   Detecta cliques em botões e injeta a onda de ripple.
-   Só ativa em elementos com .nyan-ripple-container OU
-   nos botões principais do app.
-   ═══════════════════════════════════════════════════════ */
 document.addEventListener('click', (e) => {
     const btn = e.target.closest(
         'button[class*="bg-gradient"], .btn-primary, .btn-secondary, .btn-danger, .nyan-ripple-container'
     );
     if (!btn) return;
-
-    // Garantir que o container tem overflow:hidden (via classe)
     if (!btn.classList.contains('nyan-ripple-container')) {
         btn.classList.add('nyan-ripple-container');
     }

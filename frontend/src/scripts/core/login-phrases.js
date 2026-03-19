@@ -1,7 +1,5 @@
 /* ═══════════════════════════════════════════════════════
    LOGIN-PHRASES.JS v1.0 — NyanTools にゃん~
-   v3.5.0 "First Impression" — Feature #71
-   Frases motivacionais dinâmicas na tela de login
    ═══════════════════════════════════════════════════════ */
 
 const LoginPhrases = {
@@ -220,8 +218,6 @@ const LoginPhrases = {
         el.addEventListener('mouseleave', () => { el.style.color = 'rgba(255,255,255,0.28)'; });
 
         subtitle.insertAdjacentElement('afterend', el);
-
-        // Fade in suave
         requestAnimationFrame(() => {
             requestAnimationFrame(() => { el.style.opacity = '1'; });
         });
@@ -234,9 +230,6 @@ const LoginPhrases = {
     init() {
         // Tentar imediatamente
         setTimeout(() => this.inject(), 100);
-
-        // Reinjetar toda vez que a tela de login aparecer
-        // (ex: após logout)
         const observer = new MutationObserver(() => {
             const ls = document.getElementById('login-screen');
             if (ls && !ls.classList.contains('hidden') && !document.getElementById('login-phrase')) {

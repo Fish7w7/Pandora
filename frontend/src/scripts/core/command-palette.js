@@ -372,8 +372,6 @@ const CommandPalette = {
             });
 
             html += `</div>`;
-
-            // Divider entre grupos
             html += `<div class="cmd-divider"></div>`;
         };
 

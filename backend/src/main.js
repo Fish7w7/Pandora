@@ -73,7 +73,7 @@ function createWindow() {
 
     const indexPath = path.join(__dirname, '../../frontend/public/index.html');
 
-    console.log('[~] NyanTools v3.5.0');
+    console.log('[~] NyanTools v3.7.0');
     console.log('[>] Diretório:', __dirname);
     console.log('[>] Carregando:', indexPath);
 
@@ -137,7 +137,6 @@ autoUpdater.autoInstallOnAppQuit = false;
 autoUpdater.allowPrerelease = false;
 autoUpdater.logger          = null;
 
-// Cooldown: não verificar mais de 1x a cada 5 min (segurança extra)
 let lastUpdateCheck    = 0;
 const UPDATE_CHECK_COOLDOWN = 300000;
 
@@ -192,7 +191,6 @@ function setupAutoUpdater() {
             });
         }
 
-        // Reinicia e instala automaticamente após 5 segundos
         setTimeout(() => {
             console.log('[*] Reiniciando para instalar v' + info.version + '...');
             autoUpdater.quitAndInstall(true, true);
@@ -200,7 +198,6 @@ function setupAutoUpdater() {
     });
 
     autoUpdater.on('error', (err) => {
-        // Ignorar erros esperados em dev ou sem assinatura
         const msg = err?.message || '';
         if (msg.includes('dev-app-update') || msg.includes('ERR_NETWORK') || msg.includes('net::')) {
             console.log('[~] AutoUpdater ignorado (dev/sem rede)');
@@ -225,7 +222,6 @@ ipcMain.handle('is-dev-environment', () => {
     return { isDev: process.env.NODE_ENV === 'development' };
 });
 
-// Frontend pede para iniciar o download (após confirmação do usuário)
 ipcMain.handle('start-update-download', async () => {
     try {
         await autoUpdater.downloadUpdate();
@@ -235,7 +231,6 @@ ipcMain.handle('start-update-download', async () => {
     }
 });
 
-// Frontend pede check manual (botão "Verificar" no updater.js)
 ipcMain.handle('check-for-updates', async () => {
     const now = Date.now();
     if (now - lastUpdateCheck < UPDATE_CHECK_COOLDOWN) {
@@ -273,7 +268,6 @@ ipcMain.handle('check-for-updates', async () => {
     return { success: false, error: 'Não foi possível verificar atualizações' };
 });
 
-// Frontend pede instalação imediata (se download já concluiu)
 ipcMain.handle('install-update-now', () => {
     try {
         autoUpdater.quitAndInstall(true, true);
@@ -283,7 +277,6 @@ ipcMain.handle('install-update-now', () => {
     }
 });
 
-// Baixar .exe do GitHub e instalar silenciosamente (fallback quando native updater não funciona)
 ipcMain.handle('download-and-install', async (_event, { url, filename }) => {
     try {
         const destPath = path.join(os.tmpdir(), filename || 'NyanTools-Setup.exe');
@@ -369,9 +362,6 @@ ipcMain.handle('download-and-install', async (_event, { url, filename }) => {
                             setTimeout(() => {
                                 console.log('[*] Executando installer...');
                                 const { spawn } = require('child_process');
-                                // SEM /S — instalador com UI normal
-                                // O NSIS vai fechar o app antigo e criar atalho novo corretamente
-                                // detached: true + unref() = processo filho sobrevive após app.quit()
                                 const child = spawn(destPath, [], {
                                     detached: true,
                                     stdio:    'ignore',
@@ -402,9 +392,7 @@ ipcMain.handle('download-and-install', async (_event, { url, filename }) => {
     }
 });
 
-// ── NOVO: Download via ipcMain.on (fire-and-forget) ───────────────────────
-// Não usa invoke — não bloqueia o renderer enquanto baixa
-// Progresso e resultado chegam via webContents.send unidirecionais
+// Download via ipcMain.on (fire-and-forget) ───────────────────────
 ipcMain.on('start-download-faf', (_event, { url, filename }) => {
     const destPath = path.join(os.tmpdir(), filename || 'NyanTools-Setup.exe');
 
@@ -461,7 +449,6 @@ ipcMain.on('start-download-faf', (_event, { url, filename }) => {
                     lastTime  = now;
                     lastBytes = received;
 
-                    // Throttle: enviar IPC a cada 150ms
                     if (now - lastSent >= 150) {
                         lastSent = now;
                         if (mainWindow && !mainWindow.isDestroyed()) {
@@ -522,7 +509,6 @@ ipcMain.handle('open-downloads-folder', async () => {
     }
 });
 
-// Abrir URL no navegador padrão do sistema
 ipcMain.handle('open-external', async (_event, url) => {
     try {
         if (!url || typeof url !== 'string') return { success: false, error: 'URL inválida' };
@@ -539,7 +525,7 @@ ipcMain.handle('open-external', async (_event, url) => {
 // ─── LIFECYCLE ───────────────────────────────────────────────────────────────
 
 app.whenReady().then(() => {
-    console.log('[~] NyanTools v3.4.2');
+    console.log('[~] NyanTools v3.7.0');
     console.log('[>] App path:', app.getAppPath());
     console.log('[>] Plataforma:', process.platform);
 

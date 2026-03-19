@@ -1,7 +1,5 @@
 /* ═══════════════════════════════════════════════════════
    LOGIN-BACKGROUND.JS v1.2 — NyanTools にゃん~
-   v3.5.0 "First Impression" — Feature #67
-   Estrelas via Math.random() — sem seed, sem diagonal
    ═══════════════════════════════════════════════════════ */
 
 const LoginBackground = {
@@ -59,9 +57,6 @@ const LoginBackground = {
             canvas.height = loginScreen.offsetHeight || window.innerHeight;
             const ctx = canvas.getContext('2d');
             if (!ctx) return;
-
-            // Math.random() — sem seed, sem correlação, sem diagonal
-            // Seguro porque é render único (não há loop contínuo)
             for (let i = 0; i < 80; i++) {
                 const x  = Math.random() * canvas.width;
                 const y  = Math.random() * canvas.height;

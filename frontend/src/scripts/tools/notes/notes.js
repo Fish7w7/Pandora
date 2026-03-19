@@ -22,7 +22,7 @@ const Notes = {
     
     render() {
         this.loadNotes();
-        this.sortNotes(); // Garantir que pins fiquem no topo
+        this.sortNotes();
         
         return `
             <div class="max-w-6xl mx-auto">

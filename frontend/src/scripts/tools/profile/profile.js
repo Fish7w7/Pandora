@@ -8,7 +8,7 @@
  ═══════════════════════════════════════════════════*/
 
 const Profile = {
-    _tab: 'profile', // 'profile' | 'stats'
+    _tab: 'profile',
     _previewUrl: null,
 
     // ── STORAGE KEYS ─────────────────────────────────
@@ -450,8 +450,6 @@ const Profile = {
 
         Utils.saveData(this.KEYS.password, next);
         Utils.showNotification('✅ Senha atualizada!', 'success');
-
-        // Limpar campos
         ['profile-pass-current','profile-pass-new','profile-pass-confirm']
             .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     },

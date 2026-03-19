@@ -4,7 +4,7 @@
 ═══════════════════════════════════════════════════════*/
 
 const AutoUpdater = {
-    currentVersion: '3.6.0',
+    currentVersion: '3.7.0',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -29,10 +29,23 @@ const AutoUpdater = {
 
     changelog: [
     {
-        version: '3.6.0',
-        date: '2026-03-17T20:00:00',
+        version: '3.7.0',
+        date: '2026-03-19T20:00:00',
         label: 'Atual',
         labelColor: 'bg-green-500',
+        author: 'Clara',
+        changes: [
+            { type: '⌨️', text: 'Type Racer — jogo de digitação com 3 modos: Clássico, Maratona (60s) e Precisão com penalidade' },
+            { type: '🧠', text: 'Quiz Diário — 10 perguntas de cultura geral com seed diária, mesmo quiz para todos, renova à meia-noite' },
+            { type: '🎰', text: 'Caça-Níquel — gire os rolos, acumule chips e tente o jackpot 🐱🐱🐱 (50x)' },
+            { type: '🐛', text: 'Zona Offline: voltar pela sidebar não carrega mais o último jogo aberto' },
+        ]
+    },
+    {
+        version: '3.6.0',
+        date: '2026-03-17T20:00:00',
+        label: null,
+        labelColor: '',
         author: 'Gabriel',
         changes: [
             { type: '✨', text: 'Avatar gerado automaticamente — gatinho SVG único por nome de usuário, aparece na sidebar e no perfil' },
@@ -44,35 +57,6 @@ const AutoUpdater = {
             { type: '🧭', text: 'Histórico de navegação — Alt+← volta, Alt+→ avança entre ferramentas' },
             { type: '🐛', text: 'Barra de progresso do download corrigida — arquitetura fire-and-forget resolve o bloqueio do IPC' },
             { type: '🐛', text: 'Dashboard não carregava ao abrir o app quando Modo Foco estava ativo' },
-        ]
-    },
-    {
-        version: '3.5.0',
-        date: '2026-03-17T12:00:00',
-        label: null,
-        labelColor: '',
-        author: 'Gabriel',
-        changes: [
-            { type: '✨', text: 'Login: fundo dinâmico por horário — orbs mudam entre madrugada, manhã, tarde e noite' },
-            { type: '✨', text: 'Login: 80+ frases motivacionais com typing effect a cada abertura' },
-            { type: '✨', text: 'Login: partículas decorativas no fundo — render único, zero CPU contínuo' },
-            { type: '✨', text: 'Login: logo animado com shake no erro e pulse no sucesso' },
-            { type: '🎬', text: 'Intro animada ao abrir o app — pulável com clique, desativável nas configurações' },
-            { type: '🎨', text: 'Loading screen redesenhada com orbs, animações em stagger e barra mais elegante' },
-            { type: '⚡', text: 'Orbs estáticos sem animation — CPU ~3x menor na tela de login' },
-            { type: '🐛', text: 'Login: dot-grid removido — causava linha diagonal visível no fundo' },
-        ]
-    },
-    {
-        version: '3.4.2',
-        date: '2026-03-16T03:00:00',
-        label: null,
-        labelColor: '',
-        author: 'Clara',
-        changes: [
-            { type: '🐛', text: 'Updater: botão "Baixar e Instalar" abria o GitHub em vez de baixar — fluxo nativo corrigido' },
-            { type: '🐛', text: 'Updater: verificação não detectava nova versão disponível em builds instalados (3.4.0 → 3.4.1)' },
-            { type: '⚡', text: 'Updater: fallback automático para GitHub API quando o updater nativo não responde em 8s' },
         ]
     },
 ],
@@ -812,8 +796,6 @@ const AutoUpdater = {
         if (window.electronAPI?.startDownloadFireAndForget) {
             console.log('[Updater] Iniciando download FAF:', filename);
             if (totalSize) this.totalBytes = totalSize;
-            // Fire-and-forget — não bloqueia o renderer
-            // Progresso chega via onDownloadProgress, conclusão via onUpdaterStatus
             window.electronAPI.startDownloadFireAndForget(url, filename);
             return;
         }

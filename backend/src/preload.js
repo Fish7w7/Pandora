@@ -41,7 +41,6 @@ try {
 
         checkForUpdates: () => invoke('check-for-updates'),
 
-        // electron-updater: escutar eventos nativos do autoUpdater
         onUpdaterStatus: (callback) => {
             if (typeof callback !== 'function') return () => {};
             const handler = (_event, data) => callback(data);
@@ -49,21 +48,13 @@ try {
             return () => ipcRenderer.removeListener('updater-status', handler);
         },
 
-        // instalar update já baixado e reiniciar
         installUpdateNow: () => invoke('install-update-now'),
-
-        // iniciar download quando usuário confirmar
         startUpdateDownload: () => invoke('start-update-download'),
-
-        // download direto + install silencioso (fallback quando native updater não funciona)
         downloadAndInstall: (url, filename) => invoke('download-and-install', { url, filename }),
-
-        // NOVO: inicia download via send (fire-and-forget) — não bloqueia o renderer
-        // resultado chega via onDownloadProgress e onUpdaterStatus
         startDownloadFireAndForget: (url, filename) => {
             ipcRenderer.send('start-download-faf', { url, filename });
         },
-
+        
         openDownloadsFolder: () => invoke('open-downloads-folder'),
         openExternal: (url) => invoke('open-external', url),
         resetUpdateCooldown: () => invoke('reset-update-cooldown'),

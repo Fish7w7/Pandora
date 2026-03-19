@@ -1,7 +1,7 @@
 {
   "name": "nyantools",
-  "version": "3.6.0",
-  "description": "NyanTools - Your purr-fect toolkit にゃん~ | Smooth & Pretty — polimento visual, avatar gerado e fix do updater",
+  "version": "3.7.0",
+  "description": "NyanTools - Your purr-fect toolkit にゃん~ | Zona Arcade — Type Racer, Quiz Diário e Caça-Níquel",
   "main": "backend/src/main.js",
   "scripts": {
     "start": "electron .",

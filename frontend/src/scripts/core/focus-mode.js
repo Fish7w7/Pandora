@@ -14,7 +14,6 @@ const FocusMode = {
         this._injectHTML();
         this._setupListeners();
 
-        // Restaurar estado salvo
         const saved = Utils?.loadData(this.STORAGE_KEY);
         if (saved === true) {
             setTimeout(() => this.enable(true), 200);
@@ -94,8 +93,6 @@ const FocusMode = {
             `;
             document.body.appendChild(toast);
         }
-
-        // Toggle button na sidebar
         this._injectSidebarToggle();
     },
 
@@ -150,7 +147,6 @@ const FocusMode = {
 
     _patchRouter() {
         if (!window.Router) {
-            // Tentar novamente depois
             setTimeout(() => this._patchRouter(), 500);
             return;
         }
@@ -158,9 +154,7 @@ const FocusMode = {
         const originalNavigate = Router.navigate.bind(Router);
         Router.navigate = (toolId) => {
             originalNavigate(toolId);
-            // Atualizar indicador após navegação
             setTimeout(() => this._updateToolIndicator(toolId), 50);
-            // Se estava no peek, fechar sidebar após delay — dá tempo de escolher outra tool
             if (this.active && this.peeking) {
                 clearTimeout(this._peekTimeout);
                 this._peekTimeout = setTimeout(() => this._endPeek(), 1200);
@@ -207,7 +201,6 @@ const FocusMode = {
         if (!this.active) return;
         clearTimeout(this._peekTimeout);
 
-        // Cancelar fechamento em andamento
         document.body.classList.remove('sidebar-closing');
 
         this.peeking = true;
@@ -223,15 +216,9 @@ const FocusMode = {
     _endPeek() {
         if (!this.active || !this.peeking) return;
         this.peeking = false;
-
-        // 1. Fade-out do conteúdo (150ms)
         document.body.classList.add('sidebar-closing');
-
-        // 2. Após fade-out, iniciar slide de fechamento
         setTimeout(() => {
             document.body.classList.remove('sidebar-peek');
-
-            // 3. Após slide completo, limpar tudo
             setTimeout(() => {
                 document.body.classList.remove('sidebar-closing');
             }, 320);
@@ -341,7 +328,6 @@ const FocusMode = {
 };
 
 // ─── INTEGRAÇÃO COM KEYBOARD SHORTCUTS ───────────────────
-// Adiciona Ctrl+Shift+F ao sistema de atalhos existente
 if (window.KeyboardShortcuts) {
     KeyboardShortcuts.shortcuts['ctrl+shift+f'] = {
         action: 'toggleFocusMode',
@@ -357,10 +343,8 @@ if (window.KeyboardShortcuts) {
         originalExecute(shortcut);
     };
 } else {
-    // Fallback: listener direto
     document.addEventListener('keydown', (e) => {
         if ((e.ctrlKey || e.metaKey) && e.shiftKey && e.key.toLowerCase() === 'f') {
-            // Não ativar se estiver digitando
             const target = e.target;
             const isTyping = target.tagName === 'INPUT' ||
                              target.tagName === 'TEXTAREA' ||

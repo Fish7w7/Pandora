@@ -64,7 +64,49 @@ const Achievements = {
             desc:  'Usou o NyanTools depois da meia-noite',
             hint:  'Abra o app entre 00h e 05h',
             check: () => !!Utils.loadData('nyan_night_owl')
-        }
+        },
+        {
+            id:    'typeracer_50',
+            icon:  '⌨️',
+            name:  'Dedos Rápidos',
+            desc:  'Atingiu 50 WPM no Type Racer',
+            hint:  'Alcance 50 palavras por minuto no Type Racer',
+            check: () => (Utils.loadData('typeracer_highscore') || 0) >= 50,
+            progress: () => ({ current: Math.min(Utils.loadData('typeracer_highscore') || 0, 50), max: 50, unit: 'WPM' })
+        },
+        {
+            id:    'typeracer_80',
+            icon:  '🚀',
+            name:  'Velocidade Sônica',
+            desc:  'Atingiu 80 WPM no Type Racer',
+            hint:  'Alcance 80 palavras por minuto no Type Racer',
+            check: () => (Utils.loadData('typeracer_highscore') || 0) >= 80,
+            progress: () => ({ current: Math.min(Utils.loadData('typeracer_highscore') || 0, 80), max: 80, unit: 'WPM' })
+        },
+        {
+            id:    'quiz_perfect',
+            icon:  '🧠',
+            name:  'Gênio にゃん~',
+            desc:  'Acertou todas as 10 perguntas do Quiz Diário',
+            hint:  'Tire 10/10 no Quiz Diário',
+            check: () => (Utils.loadData('quiz_highscore') || 0) >= 10,
+        },
+        {
+            id:    'quiz_played',
+            icon:  '📚',
+            name:  'Estudioso',
+            desc:  'Jogou o Quiz Diário pela primeira vez',
+            hint:  'Complete o Quiz Diário uma vez',
+            check: () => (Utils.loadData('quiz_highscore') || 0) > 0,
+        },
+        {
+            id:    'slot_jackpot',
+            icon:  '🎰',
+            name:  'Sortudo',
+            desc:  'Acertou o jackpot 🐱🐱🐱 no Caça-Níquel',
+            hint:  'Alinhe três 🐱 no Caça-Níquel',
+            check: () => !!Utils.loadData('slot_jackpot_hit'),
+        },
     ],
 
     // ── CHECK E SAVE ──────────────────────────────
@@ -79,7 +121,6 @@ const Achievements = {
             if (ach.check(s)) {
                 unlocked[ach.id] = Date.now();
                 changed = true;
-                // Notificação de desbloqueio (exceto first_access que é silencioso)
                 if (ach.id !== 'first_access') {
                     setTimeout(() => {
                         Utils.showNotification(`${ach.icon} Conquista: ${ach.name}`, 'success');
@@ -92,7 +133,6 @@ const Achievements = {
         return unlocked;
     },
 
-    // Checar horário noturno — chamado no init do app
     checkNightOwl() {
         const hour = new Date().getHours();
         if (hour >= 0 && hour < 5) {
@@ -112,7 +152,7 @@ const Achievements = {
                 ? new Date(unlocked[ach.id]).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
                 : null;
 
-            // Barra de progresso (se tiver)
+            // Barra de progresso
             let progressHTML = '';
             if (!isUnlocked && ach.progress) {
                 const p = ach.progress(s);

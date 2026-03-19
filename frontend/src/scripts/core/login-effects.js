@@ -1,6 +1,5 @@
 /* ═══════════════════════════════════════════════════════
    LOGIN-EFFECTS.JS v2.0 — NyanTools にゃん~
-   v3.5.0 — Otimizado para software renderer
    ═══════════════════════════════════════════════════════ */
 
 const LoginEffects = {

@@ -12,7 +12,6 @@ const Termo = {
         'FORTE', 'CALMA', 'SORTE', 'TRIGO', 'BRAVO', 'PLANO', 'RISCO'
     ],
 
-    // Estado do jogo
     currentWord: '',
     guesses: [],
     currentGuess: ['', '', '', '', ''],
@@ -22,7 +21,6 @@ const Termo = {
     isReady: false,
     selectedCell: 0,
     
-    // Configurações de teclado
     keyboardRows: [
         'QWERTYUIOP'.split(''),
         'ASDFGHJKL'.split(''),
@@ -380,7 +378,6 @@ const Termo = {
         if (won) {
             this.gameOver = true;
             this.won = true;
-            // Salvar recorde: menor número de tentativas é melhor
             const attempts = this.guesses.length;
             const currentBest = Utils.loadData('termo_best');
             if (!currentBest || attempts < currentBest) {

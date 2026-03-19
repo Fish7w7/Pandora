@@ -18,7 +18,6 @@
 }
 
 #sidebar {
-    /* Sem will-change permanente — ativado só quando necessário */
     flex-shrink: 0;
     width: var(--sidebar-width);
 }

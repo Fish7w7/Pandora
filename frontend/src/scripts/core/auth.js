@@ -8,7 +8,6 @@ const Auth = {
     
     // Login com validação
     login(username, password) {
-        // Validações consolidadas
         const errors = this.validate(username, password);
         if (errors) return { success: false, error: errors };
         

@@ -1,10 +1,6 @@
 /* ══════════════════════════════════════════════════
    FAVORITES.JS  v1.2.0
    Sistema de Ferramentas Favoritas にゃん~
-   - Estrela ★ aparece no hover de cada nav-item
-   - Clique na estrela → adiciona/remove
-   - Máximo 5 favoritos
-   - Drag-to-reorder na seção de favoritos
  ═══════════════════════════════════════════════════*/
 
 const Favorites = {
@@ -50,7 +46,6 @@ const Favorites = {
     renderSection() {
         const favIds = this.load();
 
-        // Empty state — estrela ☆ com dica de como adicionar
         if (favIds.length === 0) {
             return `
                 <div class="nav-group" id="fav-group">

@@ -10,13 +10,17 @@ const OfflineZone = {
         forca:     { name: 'Forca',          icon: '🎯',   desc: 'Adivinhe a palavra · nova palavra/24h',  color: '#6366f1', glow: 'rgba(99,102,241,0.35)' },
         flappy:    { name: 'Flappy Bird',    icon: '🦅',   desc: 'O jogo mais viciante de todos!',        color: '#f97316', glow: 'rgba(249,115,22,0.35)' },
         game2048:  { name: '2048',           icon: '🔢',   desc: 'Una os números e chegue ao 2048!',      color: '#a855f7', glow: 'rgba(168,85,247,0.35)' },
-        memory:    { name: 'Memória',        icon: '🧠',   desc: 'Encontre os pares',                     color: '#ec4899', glow: 'rgba(236,72,153,0.35)', comingSoon: true }
+        typeracer: { name: 'Type Racer',  icon: '⌨️',   desc: 'Treine sua digitação · 3 modos · WPM ao vivo', color: '#ec4899', glow: 'rgba(236,72,153,0.35)' },
+        quiz:      { name: 'Quiz Diário', icon: '🧠',   desc: 'Cultura geral · 10 perguntas · renova à meia-noite', color: '#10b981', glow: 'rgba(16,185,129,0.35)' },
+        slot:      { name: 'Caça-Níquel', icon: '🎰',   desc: 'Gire os rolos e tente o jackpot com 3x 🐱', color: '#f59e0b', glow: 'rgba(245,158,11,0.35)' },
+        memory:    { name: 'Memória',     icon: '🧩',   desc: 'Encontre os pares',                     color: '#ec4899', glow: 'rgba(236,72,153,0.35)', comingSoon: true }
     },
 
     render() {
         if (this.currentGame) return this._renderGame();
 
         const d      = document.body.classList.contains('dark-theme');
+        const bg     = d ? '#0d0d18'                 : '#f8fafc';
         const card   = d ? 'rgba(255,255,255,0.04)'  : '#ffffff';
         const border = d ? 'rgba(255,255,255,0.08)'  : 'rgba(0,0,0,0.08)';
         const text   = d ? '#f1f5f9'                 : '#0f172a';
@@ -31,28 +35,26 @@ const OfflineZone = {
 
             if (g.comingSoon) return `
                 <div style="
-                    background:${card}; border:1px solid ${border};
-                    border-radius:var(--radius-xl,18px);
+                    background:${card}; border:1px solid ${border}; border-radius:18px;
                     padding:1.5rem 1.25rem; display:flex; flex-direction:column; gap:0.5rem;
                     opacity:0.42; cursor:not-allowed; position:relative; overflow:hidden;
                     animation:ozFadeUp 0.4s ease both; animation-delay:${delay};
                 ">
                     <div style="font-size:2.4rem; line-height:1; margin-bottom:0.25rem;">${g.icon}</div>
-                    <div style="font-size:var(--text-base,0.92rem); font-weight:var(--weight-black,800); color:${text}; font-family:var(--font-display,'Syne',sans-serif);">${g.name}</div>
-                    <div style="font-size:var(--text-xs,0.72rem); color:${sub}; line-height:1.45; flex:1;">${g.desc}</div>
-                    <div style="margin-top:0.25rem; padding:0.45rem; border-radius:var(--radius-sm,6px); background:rgba(128,128,128,0.1);
-                                font-size:var(--text-xs,0.72rem); font-weight:700; color:${sub}; text-align:center; letter-spacing:0.04em;">
+                    <div style="font-size:0.92rem; font-weight:800; color:${text}; font-family:'Syne',sans-serif;">${g.name}</div>
+                    <div style="font-size:0.72rem; color:${sub}; line-height:1.45; flex:1;">${g.desc}</div>
+                    <div style="margin-top:0.25rem; padding:0.45rem; border-radius:8px; background:rgba(128,128,128,0.1);
+                                font-size:0.72rem; font-weight:700; color:${sub}; text-align:center; letter-spacing:0.04em;">
                         🚧 EM BREVE
                     </div>
                 </div>`;
 
             return `
                 <div class="oz-card" id="oz-${id}" onclick="OfflineZone.startGame('${id}')" style="
-                    background:${card}; border:1px solid ${border};
-                    border-radius:var(--radius-xl,18px);
+                    background:${card}; border:1px solid ${border}; border-radius:18px;
                     padding:1.5rem 1.25rem; display:flex; flex-direction:column; gap:0.5rem;
                     cursor:pointer; position:relative; overflow:hidden;
-                    transition:transform var(--transition-spring,0.4s cubic-bezier(0.34,1.56,0.64,1)), box-shadow var(--transition-base,0.2s), border-color var(--transition-base,0.2s);
+                    transition:transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s, border-color 0.2s;
                     animation:ozFadeUp 0.4s ease both; animation-delay:${delay};
                 "
                 onmouseenter="
@@ -76,7 +78,7 @@ const OfflineZone = {
 
                     <!-- Shine overlay -->
                     <div class="oz-shine" style="
-                        position:absolute; inset:0; opacity:0; transition:opacity var(--transition-base,0.2s); pointer-events:none;
+                        position:absolute; inset:0; opacity:0; transition:opacity 0.2s; pointer-events:none;
                         background:linear-gradient(135deg, ${g.color}0d 0%, transparent 60%);
                     "></div>
 
@@ -88,16 +90,15 @@ const OfflineZone = {
                     "></div>
 
                     <div style="font-size:2.4rem; line-height:1; margin-bottom:0.25rem; position:relative;">${g.icon}</div>
-                    <div style="font-size:var(--text-base,0.92rem); font-weight:var(--weight-black,800); color:${text}; font-family:var(--font-display,'Syne',sans-serif); position:relative;">${g.name}</div>
-                    <div style="font-size:var(--text-xs,0.72rem); color:${sub}; line-height:1.45; flex:1; position:relative;">${g.desc}</div>
+                    <div style="font-size:0.92rem; font-weight:800; color:${text}; font-family:'Syne',sans-serif; position:relative;">${g.name}</div>
+                    <div style="font-size:0.72rem; color:${sub}; line-height:1.45; flex:1; position:relative;">${g.desc}</div>
 
                     <div class="oz-play" style="
-                        margin-top:0.25rem; padding:0.5rem;
-                        border-radius:var(--radius-sm,9px);
+                        margin-top:0.25rem; padding:0.5rem; border-radius:9px;
                         border:1px solid ${g.color}33; background:transparent;
-                        font-size:var(--text-xs,0.72rem); font-weight:var(--weight-black,800); color:${g.color};
+                        font-size:0.72rem; font-weight:800; color:${g.color};
                         text-align:center; letter-spacing:0.05em; text-transform:uppercase;
-                        transition:all var(--transition-fast,0.12s); position:relative;
+                        transition:all 0.18s; position:relative;
                     ">▶ Jogar</div>
                 </div>`;
         }).join('');
@@ -108,20 +109,20 @@ const OfflineZone = {
             @keyframes ozPulse  { 0%,100% { opacity:1 } 50% { opacity:0.4 } }
         </style>
 
-        <div style="max-width:700px; margin:0 auto; font-family:var(--font-body,'DM Sans',sans-serif);">
+        <div style="max-width:700px; margin:0 auto; font-family:'DM Sans',sans-serif;">
 
             <!-- Header -->
             <div style="text-align:center; margin-bottom:2rem;">
                 <div style="font-size:3rem; margin-bottom:0.625rem; animation:ozFadeUp 0.35s ease both;">📶</div>
                 <h1 style="
-                    font-family:var(--font-display,'Syne',sans-serif); font-size:var(--text-2xl,2rem); font-weight:var(--weight-black,900); margin:0 0 0.625rem;
-                    background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));
-                    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+                    font-family:'Syne',sans-serif; font-size:2rem; font-weight:900; margin:0 0 0.625rem;
+                    background:linear-gradient(135deg,#a855f7,#ec4899); -webkit-background-clip:text;
+                    -webkit-text-fill-color:transparent; background-clip:text;
                     animation:ozFadeUp 0.35s ease 0.05s both;
                 ">Zona Offline</h1>
                 <div style="
                     display:inline-flex; align-items:center; gap:0.5rem;
-                    font-size:var(--text-xs,0.75rem); font-weight:700; color:${statusColor};
+                    font-size:0.75rem; font-weight:700; color:${statusColor};
                     animation:ozFadeUp 0.35s ease 0.1s both;
                 ">
                     <span style="width:7px;height:7px;border-radius:50%;background:${statusColor};display:inline-block;animation:ozPulse 2s infinite;"></span>
@@ -152,6 +153,9 @@ const OfflineZone = {
             termo:     () => Termo?.render()       || this._loading('Termo'),
             forca:     () => Forca?.render()       || this._loading('Forca'),
             flappy:    () => typeof FlappyBird !== 'undefined' ? FlappyBird.render() : this._loading('Flappy Bird'),
+            typeracer: () => TypeRacer?.render()    || this._loading('Type Racer'),
+            quiz:      () => QuizDiario?.render()   || this._loading('Quiz Diário'),
+            slot:      () => SlotMachine?.render()  || this._loading('Caça-Níquel'),
             game2048:  () => Game2048?.render()    || this._loading('2048')
         })[this.currentGame]?.() || '';
 
@@ -189,7 +193,9 @@ const OfflineZone = {
         return `<p style="text-align:center; opacity:0.4; font-family:'DM Sans',sans-serif; padding:2rem 0;">Carregando ${name}...</p>`;
     },
 
-    init() {},
+    init() {
+        this.currentGame = null;
+    },
 
     startGame(game) {
         this.currentGame = game;
@@ -200,6 +206,9 @@ const OfflineZone = {
         if (game === 'snake')         setTimeout(() => MiniGame?.init(), 100);
         else if (game === 'flappy')   setTimeout(() => FlappyBird?.init(), 100);
         else if (game === 'game2048') setTimeout(() => Game2048?.init(), 100);
+        else if (game === 'typeracer') setTimeout(() => TypeRacer?.init(), 100);
+        else if (game === 'quiz')      setTimeout(() => QuizDiario?.init(), 100);
+        else if (game === 'slot')      setTimeout(() => SlotMachine?.init(), 100);
     },
 
     _initGame(game) {
@@ -214,6 +223,17 @@ const OfflineZone = {
         } else if (game === 'game2048' && Game2048) {
             Game2048.loadGameState(); setTimeout(() => Game2048.init(), 100);
         }
+    },
+
+    _initCurrentGame() {
+        const game = this.currentGame;
+        if (!game) return;
+        if (game === 'snake')         setTimeout(() => MiniGame?.init(), 100);
+        else if (game === 'flappy')   setTimeout(() => FlappyBird?.init(), 100);
+        else if (game === 'game2048') setTimeout(() => Game2048?.init(), 100);
+        else if (game === 'typeracer') setTimeout(() => TypeRacer?.init(), 100);
+        else if (game === 'quiz')      setTimeout(() => QuizDiario?.init(), 100);
+        else if (game === 'slot')      setTimeout(() => SlotMachine?.init(), 100);
     },
 
     backToMenu() {

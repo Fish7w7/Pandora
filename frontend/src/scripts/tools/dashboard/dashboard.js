@@ -13,7 +13,7 @@ const Dashboard = {
         currentWeekStart: null
     },
 
-    // ── #83 Helpers de card consistentes ─────────────
+    // ── Helpers de card consistentes ─────────────
     _isDark() {
         return document.body.classList.contains('dark-theme');
     },
@@ -77,8 +77,6 @@ const Dashboard = {
     },
 
     // ─── LIVE REFRESH ──────────────────────────────────────────────────────────
-    // Chamado pelo app.js a cada minuto quando o usuário está na aba Dashboard.
-    // Atualiza apenas o gráfico semanal no DOM, sem re-renderizar a página toda.
     refreshWeeklyChart() {
         const chartContainer = document.getElementById('weekly-chart-container');
         if (!chartContainer) return;
@@ -253,9 +251,6 @@ const Dashboard = {
         const daysInMonth  = new Date(year, month + 1, 0).getDate();
         const firstDayOfWeek = new Date(year, month, 1).getDay(); // 0=Dom
         const monthName = today.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
-
-        // Construir grade: células vazias antes do dia 1 + dias do mês
-        // Grade organizada em semanas (linhas), cada semana = 7 colunas
         const totalCells = firstDayOfWeek + daysInMonth;
         const totalRows  = Math.ceil(totalCells / 7);
 
@@ -266,7 +261,6 @@ const Dashboard = {
             if ((this.stats.dailyActivity?.[key] || 0) > 0) activeDays++;
         }
 
-        // Headers dos dias da semana
         const weekDayHeaders = DAYS_LABEL.map(l =>
             `<div style="text-align:center;font-size:11px;font-weight:700;color:${c.label};width:28px;">${l}</div>`
         ).join('');
@@ -280,7 +274,6 @@ const Dashboard = {
                 const dayNum = cellIndex - firstDayOfWeek + 1;
 
                 if (dayNum < 1 || dayNum > daysInMonth) {
-                    // Célula vazia (fora do mês)
                     cells.push(`<div style="width:28px;height:28px;"></div>`);
                     continue;
                 }
@@ -303,7 +296,6 @@ const Dashboard = {
                     bg   = 'background:rgba(168,85,247,0.2);';
                     ring = 'outline:2.5px solid #a855f7;outline-offset:2px;';
                 } else if (hasActivity) {
-                    // Intensidade baseada em tempo: verde claro (<30min) → verde forte (≥120min)
                     const intensity = Math.min(mins / 120, 1);
                     const alpha = 0.4 + intensity * 0.55;
                     bg = `background:rgba(34,197,94,${alpha.toFixed(2)});`;
@@ -318,8 +310,6 @@ const Dashboard = {
                     : hasActivity
                         ? `${titleDate} • ${this.formatTime(mins)}`
                         : `${titleDate} • sem atividade`;
-
-                // Número do dia pequeno dentro da célula
                 const numColor = isToday
                     ? 'white'
                     : hasActivity
@@ -457,20 +447,22 @@ const Dashboard = {
     
     renderGamesSection() {
         const games = [
-            { id: 'snake', name: 'Cobrinha', icon: '🐍', key: 'snake_highscore' },
-            { id: 'termo', name: 'Termo', icon: '🔤', key: 'termo_best' },
-            { id: '2048', name: '2048', icon: '🔢', key: 'game_2048_highscore' },
-            { id: 'flappy', name: 'Flappy Nyan', icon: '🐱', key: 'flappy_bird_highscore' }
+            { id: 'snake',     name: 'Cobrinha',    icon: '🐍', key: 'snake_highscore' },
+            { id: 'termo',     name: 'Termo',        icon: '🔤', key: 'termo_best' },
+            { id: '2048',      name: '2048',         icon: '🔢', key: 'game_2048_highscore' },
+            { id: 'flappy',    name: 'Flappy Nyan',  icon: '🐱', key: 'flappy_bird_highscore' },
+            { id: 'typeracer', name: 'Type Racer',   icon: '⌨️', key: 'typeracer_highscore' },
+            { id: 'quiz',      name: 'Quiz Diário',  icon: '🧠', key: 'quiz_highscore' },
         ];
         
         return this._section('🎮', 'Recordes dos Jogos', `
-            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;">
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.75rem;">
                 ${games.map(game => {
                     const c = this._colors();
                     const score        = Utils.loadData(game.key);
                     const displayScore = this.formatGameScore(game.id, score);
                     const hasScore     = score && displayScore !== '---';
-                    const subtitles    = { snake:'Maior pontuação', termo:'Melhor tentativa', '2048':'Maior pontuação', flappy:'Maior distância' };
+                    const subtitles    = { snake:'Maior pontuação', termo:'Melhor tentativa', '2048':'Maior pontuação', flappy:'Maior distância', typeracer:'Maior WPM', quiz:'Maior pontuação', slot:'Maior saldo' };
 
                     return `
                         <div style="
@@ -621,6 +613,15 @@ const Dashboard = {
             return (typeof score === 'number' && score > 0) ? `${score}/6` : '---';
         }
         if (gameId === '2048') {
+            return (typeof score === 'number' && score > 0) ? score.toLocaleString('pt-BR') : '---';
+        }
+        if (gameId === 'typeracer') {
+            return (typeof score === 'number' && score > 0) ? `${score} WPM` : '---';
+        }
+        if (gameId === 'quiz') {
+            return (typeof score === 'number' && score > 0) ? `${score}/10` : '---';
+        }
+        if (gameId === 'slot') {
             return (typeof score === 'number' && score > 0) ? score.toLocaleString('pt-BR') : '---';
         }
         if (!score) return '---';

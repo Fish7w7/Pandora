@@ -8,9 +8,8 @@ const Game2048 = {
     history: [],
     canUndo: false,
     
-    // CORES AJUSTADAS PARA DARK MODE
+    // Cores dos tiles (baseado no tema do NyanTools)
     tileColors: {
-        // 2 e 4 agora são mais escuros para funcionar no dark mode
         2: { bg: 'from-slate-300 to-slate-400', text: 'text-slate-800 dark:text-slate-900' },
         4: { bg: 'from-slate-400 to-slate-500', text: 'text-white' },
         8: { bg: 'from-orange-400 to-orange-500', text: 'text-white' },
