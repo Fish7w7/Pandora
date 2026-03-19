@@ -381,12 +381,12 @@ dist/
 - [x] Barra de progresso do download (fix definitivo na v3.6.0)
 - [x] Fallback automático quando native updater falha
 
-### **🚧 v3.7.0 "Zona Arcade" — Próxima**
-- [ ] Type Racer — jogo de digitação com WPM e precisão
-- [ ] Caça-Níquel — jogo casual com símbolos do NyanTools
-- [ ] Quiz Diário — 10 perguntas de cultura geral, mesmas para todos no mesmo dia
+### **✅ v3.7.0 "Zona Arcade"**
+- [x] Type Racer — jogo de digitação com WPM e precisão
+- [x] Caça-Níquel — jogo casual com símbolos do NyanTools
+- [x] Quiz Diário — 10 perguntas de cultura geral, mesmas para todos no mesmo dia
 
-### **🔮 v3.8.0 "Nyan Economy"**
+### **🚧 v3.8.0 "Nyan Economy" — Próxima**
 - [ ] Clicker Idle com moeda Nyans e upgrades
 
 ---
