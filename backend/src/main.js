@@ -26,8 +26,8 @@ const performanceFlags = [
     'disable-backgrounding-occluded-windows',
     'disable-renderer-backgrounding',
     'disable-gpu-sandbox',
-    'log-level=3',                 // suprimir warnings do Chromium
-    'disable-logging',             // suprimir logs internos do GPU
+    'log-level=3',
+    'disable-logging',
 ];
 
 performanceFlags.forEach(flag => app.commandLine.appendSwitch(flag));
@@ -73,7 +73,7 @@ function createWindow() {
 
     const indexPath = path.join(__dirname, '../../frontend/public/index.html');
 
-    console.log('[~] NyanTools v3.4.2');
+    console.log('[~] NyanTools v3.5.0');
     console.log('[>] Diretório:', __dirname);
     console.log('[>] Carregando:', indexPath);
 
@@ -132,10 +132,10 @@ function getIconPath() {
 const { autoUpdater } = require('electron-updater');
 
 // Configuração
-autoUpdater.autoDownload    = false;  // usuário decide quando baixar
-autoUpdater.autoInstallOnAppQuit = false; // instala ao reiniciar, não ao fechar
+autoUpdater.autoDownload    = false;
+autoUpdater.autoInstallOnAppQuit = false;
 autoUpdater.allowPrerelease = false;
-autoUpdater.logger          = null;   // evitar logs verbosos no console
+autoUpdater.logger          = null;
 
 // Cooldown: não verificar mais de 1x a cada 5 min (segurança extra)
 let lastUpdateCheck    = 0;
@@ -244,23 +244,11 @@ ipcMain.handle('check-for-updates', async () => {
     }
     lastUpdateCheck = now;
 
-    const isDev = process.env.NODE_ENV === 'development';
-
-    // Em produção: tentar o native updater primeiro
-    if (!isDev) {
-        try {
-            await autoUpdater.checkForUpdates();
-            return { success: true, usingNativeUpdater: true };
-        } catch (err) {
-            console.log('[~] autoUpdater falhou, usando fallback:', err.message);
-        }
-    }
-
-    // Em dev ou se native updater falhou: consultar GitHub API diretamente
     const URLS = [
         'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
         'https://raw.githubusercontent.com/Fish7w7/Pandora/main/version.json'
     ];
+
     for (const url of URLS) {
         try {
             const controller = new AbortController();
@@ -277,10 +265,11 @@ ipcMain.handle('check-for-updates', async () => {
                 data.tag_name = `v${data.version}`;
                 data._fromFallback = true;
             }
-            console.log('[OK] GitHub API:', data.tag_name);
+            console.log('[OK] GitHub API versão detectada:', data.tag_name);
             return { success: true, data, fromFallback: !!data._fromFallback };
         } catch (_) {}
     }
+
     return { success: false, error: 'Não foi possível verificar atualizações' };
 });
 
@@ -326,34 +315,41 @@ ipcMain.handle('download-and-install', async (_event, { url, filename }) => {
                     const total = parseInt(res.headers['content-length'] || '0');
                     console.log('[*] Content-Length:', total);
                     let received = 0;
-                    let lastTime = Date.now();
                     let lastBytes = 0;
+                    let lastTime  = Date.now();
+                    let lastSent  = 0; // timestamp do último IPC enviado
 
                     if (mainWindow && !mainWindow.isDestroyed()) {
                         mainWindow.webContents.send('download-progress', {
-                            progress: 0, downloadedBytes: 0, totalBytes: total, speedBps: 0, remainingSecs: 0
+                            progress: 1, downloadedBytes: 0, totalBytes: total || 75 * 1024 * 1024, speedBps: 0, remainingSecs: 0
                         });
                     }
 
                     const writeStream = fsSync.createWriteStream(destPath);
-
                     writeStream.on('error', reject);
 
                     res.on('data', (chunk) => {
                         received += chunk.length;
-                        const now = Date.now();
+                        const now  = Date.now();
                         const elapsed = Math.max((now - lastTime) / 1000, 0.001);
-                        const speed = Math.round((received - lastBytes) / elapsed);
-                        const pct = total > 0 ? Math.min(Math.round((received / total) * 100), 99) : 0;
-                        const remaining = speed > 0 ? Math.ceil((total - received) / speed) : 0;
-                        console.log(`[~] Progress: ${pct}% (${received}/${total})`);
-                        if (mainWindow && !mainWindow.isDestroyed()) {
-                            mainWindow.webContents.send('download-progress', {
-                                progress: pct, downloadedBytes: received, totalBytes: total,
-                                speedBps: speed, remainingSecs: remaining
-                            });
+                        const estimatedTotal = total > 0 ? total : 75 * 1024 * 1024;
+                        const pct     = Math.min(Math.round((received / estimatedTotal) * 100), 99);
+                        const speed   = Math.round((received - lastBytes) / elapsed);
+                        const remaining = speed > 0 && total > 0 ? Math.ceil((total - received) / speed) : 0;
+
+                        lastTime  = now;
+                        lastBytes = received;
+
+                        // Throttle: enviar IPC no máximo a cada 150ms
+                        if (now - lastSent >= 150) {
+                            lastSent = now;
+                            if (mainWindow && !mainWindow.isDestroyed()) {
+                                mainWindow.webContents.send('download-progress', {
+                                    progress: pct, downloadedBytes: received, totalBytes: estimatedTotal,
+                                    speedBps: speed, remainingSecs: remaining
+                                });
+                            }
                         }
-                        if (elapsed >= 0.1) { lastTime = now; lastBytes = received; }
                     });
 
                     res.on('error', reject);
@@ -372,9 +368,17 @@ ipcMain.handle('download-and-install', async (_event, { url, filename }) => {
                             }
                             setTimeout(() => {
                                 console.log('[*] Executando installer...');
-                                const { execFile } = require('child_process');
-                                execFile(destPath, ['/S'], { detached: true, stdio: 'ignore' });
-                                setTimeout(() => app.quit(), 1000);
+                                const { spawn } = require('child_process');
+                                // SEM /S — instalador com UI normal
+                                // O NSIS vai fechar o app antigo e criar atalho novo corretamente
+                                // detached: true + unref() = processo filho sobrevive após app.quit()
+                                const child = spawn(destPath, [], {
+                                    detached: true,
+                                    stdio:    'ignore',
+                                    shell:    false,
+                                });
+                                child.unref();
+                                setTimeout(() => app.quit(), 1500);
                             }, 3000);
                             resolve();
                         });
@@ -396,6 +400,116 @@ ipcMain.handle('download-and-install', async (_event, { url, filename }) => {
         console.error('[X] download-and-install erro:', err.message);
         return { success: false, error: err.message };
     }
+});
+
+// ── NOVO: Download via ipcMain.on (fire-and-forget) ───────────────────────
+// Não usa invoke — não bloqueia o renderer enquanto baixa
+// Progresso e resultado chegam via webContents.send unidirecionais
+ipcMain.on('start-download-faf', (_event, { url, filename }) => {
+    const destPath = path.join(os.tmpdir(), filename || 'NyanTools-Setup.exe');
+
+    const https = require('https');
+    let received = 0, lastBytes = 0, lastTime = Date.now(), lastSent = 0;
+
+    const doRequest = (reqUrl) => {
+        try {
+            const urlObj = new URL(reqUrl);
+            const req = https.request({
+                hostname: urlObj.hostname,
+                path:     urlObj.pathname + urlObj.search,
+                method:   'GET',
+                headers:  { 'User-Agent': 'NyanTools-Updater' }
+            }, (res) => {
+                if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
+                    res.resume();
+                    doRequest(res.headers.location);
+                    return;
+                }
+                if (res.statusCode !== 200) {
+                    console.error('[X] [FAF] HTTP', res.statusCode);
+                    if (mainWindow && !mainWindow.isDestroyed()) {
+                        mainWindow.webContents.send('updater-status', { event: 'error', message: `HTTP ${res.statusCode}` });
+                    }
+                    return;
+                }
+
+                const total = parseInt(res.headers['content-length'] || '0');
+
+                // Evento inicial
+                if (mainWindow && !mainWindow.isDestroyed()) {
+                    mainWindow.webContents.send('download-progress', {
+                        progress: 1, downloadedBytes: 0,
+                        totalBytes: total || 75 * 1024 * 1024,
+                        speedBps: 0, remainingSecs: 0
+                    });
+                }
+
+                const writeStream = fsSync.createWriteStream(destPath);
+                writeStream.on('error', (err) => {
+                    console.error('[X] [FAF] writeStream erro:', err.message);
+                });
+
+                res.on('data', (chunk) => {
+                    received += chunk.length;
+                    const now  = Date.now();
+                    const elapsed = Math.max((now - lastTime) / 1000, 0.001);
+                    const estimatedTotal = total > 0 ? total : 75 * 1024 * 1024;
+                    const pct     = Math.min(Math.round((received / estimatedTotal) * 100), 99);
+                    const speed   = Math.round((received - lastBytes) / elapsed);
+                    const remaining = speed > 0 && total > 0 ? Math.ceil((total - received) / speed) : 0;
+
+                    lastTime  = now;
+                    lastBytes = received;
+
+                    // Throttle: enviar IPC a cada 150ms
+                    if (now - lastSent >= 150) {
+                        lastSent = now;
+                        if (mainWindow && !mainWindow.isDestroyed()) {
+                            mainWindow.webContents.send('download-progress', {
+                                progress: pct, downloadedBytes: received,
+                                totalBytes: estimatedTotal, speedBps: speed, remainingSecs: remaining
+                            });
+                        }
+                    }
+                });
+
+                res.on('end', () => {
+                    writeStream.end(() => {
+                        console.log('[OK] [FAF] Download concluído:', destPath);
+                        if (mainWindow && !mainWindow.isDestroyed()) {
+                            mainWindow.webContents.send('download-progress', {
+                                progress: 100, downloadedBytes: received, totalBytes: received,
+                                speedBps: 0, remainingSecs: 0
+                            });
+                            mainWindow.webContents.send('updater-status', {
+                                event: 'update-downloaded', version: filename
+                            });
+                        }
+                        setTimeout(() => {
+                            const { spawn } = require('child_process');
+                            const child = spawn(destPath, [], { detached: true, stdio: 'ignore', shell: false });
+                            child.unref();
+                            setTimeout(() => app.quit(), 1500);
+                        }, 3000);
+                    });
+                });
+
+                res.pipe(writeStream);
+            });
+
+            req.on('error', (err) => {
+                console.error('[X] [FAF] Request erro:', err.message);
+                if (mainWindow && !mainWindow.isDestroyed()) {
+                    mainWindow.webContents.send('updater-status', { event: 'error', message: err.message });
+                }
+            });
+            req.end();
+        } catch (err) {
+            console.error('[X] [FAF] Erro ao iniciar request:', err.message);
+        }
+    };
+
+    doRequest(url);
 });
 
 // Mantido por compatibilidade — abre pasta de downloads

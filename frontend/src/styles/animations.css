@@ -312,3 +312,71 @@
     backface-visibility: hidden;
     perspective: 1000px;
 }
+
+/* ═══════════════════════════════════════════════════════
+   #87 — MICRO-ANIMAÇÕES DE BOTÕES v3.6.0 — NyanTools にゃん~
+   ═══════════════════════════════════════════════════════ */
+
+@keyframes nyanRipple {
+    0%   { transform: scale(0);   opacity: 0.5; }
+    60%  { transform: scale(2.5); opacity: 0.15; }
+    100% { transform: scale(4);   opacity: 0; }
+}
+
+button[class*="bg-gradient"],
+.theme-gradient-btn {
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.12s cubic-bezier(0.4,0,0.2,1),
+                box-shadow 0.2s cubic-bezier(0.4,0,0.2,1),
+                filter 0.2s;
+}
+
+button[class*="bg-gradient"]:hover,
+.theme-gradient-btn:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.08);
+    box-shadow: 0 6px 20px var(--theme-shadow, rgba(168,85,247,0.3));
+}
+
+button[class*="bg-gradient"]:active,
+.theme-gradient-btn:active {
+    transform: scale(0.96) translateY(0) !important;
+    filter: brightness(0.95);
+    box-shadow: none;
+    transition: transform 0.08s ease, filter 0.08s ease, box-shadow 0.08s ease;
+}
+
+button:not([class*="bg-gradient"]):not(.nav-item):not(.sidebar-logout-btn):not(.nav-star-btn):not(.cmd-item):active {
+    transform: scale(0.96) !important;
+    transition: transform 0.08s ease !important;
+}
+
+.nav-item:active {
+    transform: translateX(1px) scale(0.98) !important;
+    transition: transform 0.08s ease !important;
+}
+
+.sidebar-logout-btn:active {
+    transform: scale(0.97) !important;
+    transition: transform 0.08s ease !important;
+}
+
+.nyan-ripple-container {
+    position: relative;
+    overflow: hidden;
+}
+
+.nyan-ripple-wave {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    pointer-events: none;
+    animation: nyanRipple 0.5s ease-out forwards;
+    transform-origin: center;
+}
+
+#mini-player button:active {
+    transform: scale(0.88) !important;
+    transition: transform 0.08s ease !important;
+}

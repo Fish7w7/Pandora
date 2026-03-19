@@ -4,7 +4,7 @@
 ═══════════════════════════════════════════════════════*/
 
 const AutoUpdater = {
-    currentVersion: '3.4.2',
+    currentVersion: '3.6.0',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -29,32 +29,50 @@ const AutoUpdater = {
 
     changelog: [
     {
-        version: '3.4.2',
-        date: '2026-03-16T03:00:00',
+        version: '3.6.0',
+        date: '2026-03-17T20:00:00',
         label: 'Atual',
         labelColor: 'bg-green-500',
+        author: 'Gabriel',
+        changes: [
+            { type: '✨', text: 'Avatar gerado automaticamente — gatinho SVG único por nome de usuário, aparece na sidebar e no perfil' },
+            { type: '🎨', text: 'Redesign dos cards do Dashboard — dark mode consistente, gradiente do tema ativo, CSS vars' },
+            { type: '🎨', text: 'Redesign dos cards da Zona Offline — CSS vars, border-radius e transições padronizados' },
+            { type: '✨', text: 'Empty States ilustrados — Notas, Tarefas e Favoritos com mensagens contextuais e botão de ação' },
+            { type: '🎨', text: 'CSS vars de tipografia — escala de fontes, pesos e border-radius padronizados globalmente' },
+            { type: '💫', text: 'Micro-animações nos botões — scale + ripple effect em todos os botões principais' },
+            { type: '🧭', text: 'Histórico de navegação — Alt+← volta, Alt+→ avança entre ferramentas' },
+            { type: '🐛', text: 'Barra de progresso do download corrigida — arquitetura fire-and-forget resolve o bloqueio do IPC' },
+            { type: '🐛', text: 'Dashboard não carregava ao abrir o app quando Modo Foco estava ativo' },
+        ]
+    },
+    {
+        version: '3.5.0',
+        date: '2026-03-17T12:00:00',
+        label: null,
+        labelColor: '',
+        author: 'Gabriel',
+        changes: [
+            { type: '✨', text: 'Login: fundo dinâmico por horário — orbs mudam entre madrugada, manhã, tarde e noite' },
+            { type: '✨', text: 'Login: 80+ frases motivacionais com typing effect a cada abertura' },
+            { type: '✨', text: 'Login: partículas decorativas no fundo — render único, zero CPU contínuo' },
+            { type: '✨', text: 'Login: logo animado com shake no erro e pulse no sucesso' },
+            { type: '🎬', text: 'Intro animada ao abrir o app — pulável com clique, desativável nas configurações' },
+            { type: '🎨', text: 'Loading screen redesenhada com orbs, animações em stagger e barra mais elegante' },
+            { type: '⚡', text: 'Orbs estáticos sem animation — CPU ~3x menor na tela de login' },
+            { type: '🐛', text: 'Login: dot-grid removido — causava linha diagonal visível no fundo' },
+        ]
+    },
+    {
+        version: '3.4.2',
+        date: '2026-03-16T03:00:00',
+        label: null,
+        labelColor: '',
         author: 'Clara',
         changes: [
             { type: '🐛', text: 'Updater: botão "Baixar e Instalar" abria o GitHub em vez de baixar — fluxo nativo corrigido' },
             { type: '🐛', text: 'Updater: verificação não detectava nova versão disponível em builds instalados (3.4.0 → 3.4.1)' },
             { type: '⚡', text: 'Updater: fallback automático para GitHub API quando o updater nativo não responde em 8s' },
-        ]
-    },
-    {
-        version: '3.4.1',
-        date: '2026-03-15T21:00:00',
-        label: null,
-        labelColor: '',
-        author: 'Clara',
-        changes: [
-            { type: '🎨', text: 'Redesign completo: Gerador de Senhas, Tradutor, Email Temporário, Player de Música e Zona Offline' },
-            { type: '✨', text: 'Gerador de Senhas: modo Frase-Senha, sintaxe colorida, análise em modal dark glass' },
-            { type: '✨', text: 'Zona Offline: tecla Esc para sair de qualquer jogo, hint visual no header' },
-            { type: '✨', text: 'Perfil: clique na foto do hero abre lightbox, clique na foto da aba Perfil abre o picker' },
-            { type: '✨', text: 'Links dos Beta Testers: corrigido — agora abrem no navegador padrão do sistema' },
-            { type: '🐛', text: 'Settings: CPU alto ao entrar na aba Sobre corrigido — animate-pulse + backdrop-blur removidos' },
-            { type: '🐛', text: 'Perfil: foto da aba Perfil dava zoom ao clicar em "Escolher arquivo" — comportamento corrigido' },
-            { type: '⚡', text: 'Dark theme: CSS reduzido de 839 para 479 linhas, removendo regras obsoletas e duplicadas' },
         ]
     },
 ],
@@ -454,37 +472,6 @@ const AutoUpdater = {
             });
         }
 
-        // Ouvir progresso de download nativo — registrar só uma vez
-        if (window.electronAPI?.onDownloadProgress && !this._progressListenerRegistered) {
-            this._progressListenerRegistered = true;
-            window.electronAPI.onDownloadProgress((data) => {
-                this.downloadProgress  = data.progress;
-                this.downloadedBytes   = data.downloadedBytes;
-                this.totalBytes        = data.totalBytes;
-                this.downloadSpeed     = data.speedBps     || 0;
-                this.downloadRemaining = data.remainingSecs || 0;
-
-                const bar   = document.getElementById('download-progress-bar');
-                const pctEl = document.getElementById('download-pct');
-                const status = document.getElementById('download-status');
-
-                if (!bar) {
-                    Router?.render();
-                    return;
-                }
-
-                bar.style.width = data.progress + '%';
-                if (pctEl) pctEl.textContent = data.progress + '%';
-                if (status) {
-                    const speedStr  = this._formatSpeed(data.speedBps);
-                    const remaining = this._formatRemaining(data.remainingSecs);
-                    status.textContent = `${this._formatBytes(data.downloadedBytes)} / ${this._formatBytes(data.totalBytes)}`
-                        + (speedStr  ? ` · ${speedStr}`  : '')
-                        + (remaining ? ` · ~${remaining} restantes` : '');
-                }
-            });
-        }
-
         // Verificar snooze
         const snooze = Utils.loadData('update_snooze');
         if (snooze && Date.now() < snooze) return;
@@ -504,6 +491,7 @@ const AutoUpdater = {
             case 'update-available':
                 this.checking = false;
                 this._nativeResponded = true;
+                clearTimeout(this._nativeFallbackTimer); // cancela fallback desnecessário
                 this.updateAvailable = true;
                 this.downloading = false;  // usuário decide quando baixar
                 this.latestVersion = {
@@ -522,6 +510,8 @@ const AutoUpdater = {
 
             case 'up-to-date':
                 this.checking = false;
+                this._nativeResponded = true; // cancela o fallback timer
+                clearTimeout(this._nativeFallbackTimer);
                 Utils.showNotification('✅ Você está na versão mais recente!', 'success');
                 Router?.render();
                 break;
@@ -585,12 +575,17 @@ const AutoUpdater = {
 
             if (window.electronAPI?.isReady) {
                 const result = await window.electronAPI.checkForUpdates();
-                if (!result.success) throw new Error(result.error);
 
-                // Produção: native updater vai emitir eventos IPC via _handleNativeStatus
-                if (result.usingNativeUpdater) return;
+                if (!result.success) {
+                    if (result.rateLimited) {
+                        if (!silent) Utils.showNotification('⏱️ Aguarde alguns minutos para verificar novamente', 'warning');
+                        return;
+                    }
+                    throw new Error(result.error || 'Falha na verificação');
+                }
 
-                // Dev/fallback: main.js já consultou GitHub API e retornou data diretamente
+                // main.js agora sempre retorna { success:true, data } via GitHub API
+                // nunca mais retorna usingNativeUpdater:true
                 data = result.data;
             } else {
                 const res = await fetch(this.updateUrl, {
@@ -746,7 +741,37 @@ const AutoUpdater = {
         this.downloading      = true;
         this.downloadProgress = 0;
         this.downloadedBytes  = 0;
+        this.totalBytes       = 0;
+
+        // Registrar listener de progresso AQUI — garante que existe antes do FAF
+        if (window.electronAPI?.onDownloadProgress && !this._progressListenerRegistered) {
+            this._progressListenerRegistered = true;
+            window.electronAPI.onDownloadProgress((data) => {
+                this.downloadProgress  = data.progress  || 0;
+                this.downloadedBytes   = data.downloadedBytes || 0;
+                this.totalBytes        = data.totalBytes || 0;
+                this.downloadSpeed     = data.speedBps   || 0;
+                this.downloadRemaining = data.remainingSecs || 0;
+
+                const bar    = document.getElementById('download-progress-bar');
+                const pctEl  = document.getElementById('download-pct');
+                const status = document.getElementById('download-status');
+
+                if (bar) bar.style.width = this.downloadProgress + '%';
+                if (pctEl) pctEl.textContent = this.downloadProgress + '%';
+                if (status) {
+                    const speedStr  = this._formatSpeed(this.downloadSpeed);
+                    const remaining = this._formatRemaining(this.downloadRemaining);
+                    status.textContent = `${this._formatBytes(this.downloadedBytes)} / ${this._formatBytes(this.totalBytes)}`
+                        + (speedStr  ? ` · ${speedStr}`  : '')
+                        + (remaining ? ` · ~${remaining} restantes` : '');
+                }
+            });
+        }
+
         Router?.render();
+        // Aguarda DOM pintar antes de disparar o FAF
+        await new Promise(r => setTimeout(r, 80));
 
         try {
             if (this._nativeResponded && window.electronAPI?.startUpdateDownload) {
@@ -784,14 +809,21 @@ const AutoUpdater = {
     },
 
     async _downloadFileDirect(url, filename, totalSize) {
+        if (window.electronAPI?.startDownloadFireAndForget) {
+            console.log('[Updater] Iniciando download FAF:', filename);
+            if (totalSize) this.totalBytes = totalSize;
+            // Fire-and-forget — não bloqueia o renderer
+            // Progresso chega via onDownloadProgress, conclusão via onUpdaterStatus
+            window.electronAPI.startDownloadFireAndForget(url, filename);
+            return;
+        }
+        // Fallback: invoke antigo
         if (window.electronAPI?.downloadAndInstall) {
-            console.log('[Updater] Baixando via main process:', filename);
             if (totalSize) this.totalBytes = totalSize;
             const result = await window.electronAPI.downloadAndInstall(url, filename);
             if (!result?.success) throw new Error(result?.error || 'Falha no download');
             return;
         }
-        // Fallback web — abre GitHub
         const fallbackUrl = this.latestVersion?.html_url || this.githubReleasesUrl;
         window.open(fallbackUrl, '_blank');
         this.downloading = false;

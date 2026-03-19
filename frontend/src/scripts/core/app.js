@@ -1,10 +1,10 @@
 /* ══════════════════════════════════════════════════
-   APP.JS  v3.2.0
+   APP.JS  v3.5.0 "First Impression"
    Core da Aplicação com Dashboard e Tracking
  ═══════════════════════════════════════════════════*/
 
 const App = {
-    version: '3.4.2', 
+    version: '3.6.0',
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
@@ -33,11 +33,22 @@ const App = {
         
         setTimeout(() => {
             this.hideLoading();
-            this.checkAuth();
-            
-            if (window.AutoUpdater?.getAutoCheckSetting?.()) {
-                setTimeout(() => AutoUpdater.checkForUpdates(true), 3000);
+
+            // Intro animada antes do checkAuth ────
+            if (window.LoginIntro) {
+                LoginIntro.run(() => {
+                    this.checkAuth();
+                    if (window.AutoUpdater?.getAutoCheckSetting?.()) {
+                        setTimeout(() => AutoUpdater.checkForUpdates(true), 3000);
+                    }
+                });
+            } else {
+                this.checkAuth();
+                if (window.AutoUpdater?.getAutoCheckSetting?.()) {
+                    setTimeout(() => AutoUpdater.checkForUpdates(true), 3000);
+                }
             }
+            // ─────────────────────────────────────────────────
         }, 2500);
         
         this.setupGlobalListeners();
@@ -84,7 +95,12 @@ const App = {
                 window.setupLoginForm();
                 console.log('🔧 setupLoginForm() chamado');
             }
-            
+        
+            window.LoginBackground?.apply?.();
+            window.LoginPhrases?.inject?.();
+            window.LoginParticles?.inject?.();
+            window.LoginEffects?.inject?.();
+
             const usernameInput = document.getElementById('login-username');
             if (usernameInput) {
                 usernameInput.focus();
@@ -109,6 +125,9 @@ const App = {
             const savedAvatar = Utils.loadData('nyan_profile_avatar');
             if (savedAvatar) {
                 userAvatar.innerHTML = `<img src="${savedAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="Avatar"/>`;
+            } else if (window.AvatarGenerator) {
+                userAvatar.innerHTML = AvatarGenerator.generate(user.username, 30);
+                userAvatar.style.background = 'transparent';
             } else {
                 userAvatar.innerHTML = '';
                 userAvatar.textContent = user.username.charAt(0).toUpperCase();
@@ -116,8 +135,11 @@ const App = {
         }
         
         this.renderNavMenu();
-        Router.navigate('home');
         this.initNewSystems();
+        // Usar render() direto — navigate('home') é bloqueado pelo guard
+        // pois currentRoute já começa como 'home'
+        Router.currentRoute = 'home';
+        Router.render();
         this.checkWhatsNew();
     },
     
@@ -170,13 +192,6 @@ const App = {
     },
 
     initNewSystems() {
-        if (window.Dashboard) {
-            console.log('📊 Inicializando Dashboard...');
-            Dashboard.init();
-        } else {
-            console.warn('⚠️ Dashboard não encontrado');
-        }
-        
         if (window.KeyboardShortcuts) {
             console.log('⌨️ Inicializando Atalhos de Teclado...');
             KeyboardShortcuts.init();
@@ -198,6 +213,11 @@ const App = {
             CommandPalette.init();
         } else {
             console.warn('⚠️ CommandPalette não encontrado');
+        }
+
+        // ── Router (transições #61) ──────────────────────────
+        if (window.Router?.init) {
+            Router.init();
         }
 
         // ── Favoritos ────────────────────────────────────────
@@ -628,3 +648,37 @@ document.addEventListener('click', (e) => {
 
 window.App = App;
 window.showEasterEgg = showEasterEgg;
+/* ═══════════════════════════════════════════════════════
+   #87 — RIPPLE EFFECT GLOBAL v3.6.0
+   Detecta cliques em botões e injeta a onda de ripple.
+   Só ativa em elementos com .nyan-ripple-container OU
+   nos botões principais do app.
+   ═══════════════════════════════════════════════════════ */
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest(
+        'button[class*="bg-gradient"], .btn-primary, .btn-secondary, .btn-danger, .nyan-ripple-container'
+    );
+    if (!btn) return;
+
+    // Garantir que o container tem overflow:hidden (via classe)
+    if (!btn.classList.contains('nyan-ripple-container')) {
+        btn.classList.add('nyan-ripple-container');
+    }
+
+    const rect   = btn.getBoundingClientRect();
+    const size   = Math.max(rect.width, rect.height);
+    const x      = e.clientX - rect.left - size / 2;
+    const y      = e.clientY - rect.top  - size / 2;
+
+    const wave   = document.createElement('span');
+    wave.className = 'nyan-ripple-wave';
+    wave.style.cssText = `
+        width: ${size}px;
+        height: ${size}px;
+        left: ${x}px;
+        top: ${y}px;
+    `;
+
+    btn.appendChild(wave);
+    wave.addEventListener('animationend', () => wave.remove(), { once: true });
+});

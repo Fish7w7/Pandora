@@ -1,9 +1,14 @@
 {
-  "version": "3.4.2",
-  "buildDate": "2026-03-16",
+  "version": "3.6.0",
+  "buildDate": "2026-03-17",
   "changelog": [
-    "🐛 Updater: botão 'Baixar e Instalar' abria o GitHub em vez de baixar — fluxo nativo corrigido",
-    "🐛 Updater: verificação não detectava nova versão disponível em builds instalados (3.4.0 → 3.4.1)",
-    "⚡ Updater: fallback automático para GitHub API quando o updater nativo não responde em 8s"
+    "✨ Avatar gerado automaticamente — gatinho SVG único por nome, aparece na sidebar e no perfil",
+    "🎨 Redesign dos cards do Dashboard e Zona Offline — dark mode consistente e CSS vars",
+    "✨ Empty States ilustrados — Notas, Tarefas e Favoritos com mensagens e botão de ação",
+    "🎨 CSS vars de tipografia — escala de fontes e border-radius padronizados globalmente",
+    "💫 Micro-animações nos botões — scale + ripple effect em todos os botões principais",
+    "🧭 Histórico de navegação — Alt+← volta, Alt+→ avança entre ferramentas",
+    "🐛 Barra de progresso do download corrigida — fix na arquitetura IPC fire-and-forget",
+    "🐛 Dashboard não carregava ao abrir quando Modo Foco estava ativo"
   ]
 }

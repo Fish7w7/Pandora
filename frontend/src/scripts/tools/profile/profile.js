@@ -34,7 +34,9 @@ const Profile = {
                 <div class="profile-avatar-wrap" onclick="${avatar ? 'Profile._openLightbox()' : 'Profile._openAvatarPicker()'}" title="${avatar ? 'Ver foto' : 'Adicionar foto'}">
                     ${avatar
                         ? `<img src="${avatar}" class="profile-avatar-img" alt="Avatar"/>`
-                        : `<div class="profile-avatar-initial">${initial}</div>`
+                        : (window.AvatarGenerator
+                            ? AvatarGenerator.generate(username, 80)
+                            : `<div class="profile-avatar-initial">${initial}</div>`)
                     }
                     <div class="profile-avatar-overlay">
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -157,7 +159,9 @@ const Profile = {
         const initial = username.charAt(0).toUpperCase();
         return avatar
             ? `<img src="${avatar}" class="profile-avatar-img-lg" alt="Avatar"/>`
-            : `<div class="profile-avatar-initial-lg">${initial}</div>`;
+            : (window.AvatarGenerator
+                ? AvatarGenerator.generate(username, 96)
+                : `<div class="profile-avatar-initial-lg">${initial}</div>`);
     },
 
     // ── TAB: STATS ────────────────────────────────────
@@ -373,6 +377,11 @@ const Profile = {
         if (!el) return;
         if (base64) {
             el.innerHTML = `<img src="${base64}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="Avatar"/>`;
+            el.style.background = '';
+        } else if (window.AvatarGenerator) {
+            AvatarGenerator.clearCache();
+            el.innerHTML = AvatarGenerator.generate(username, 30);
+            el.style.background = 'transparent';
         } else {
             el.innerHTML = '';
             el.textContent = username.charAt(0).toUpperCase();
@@ -404,7 +413,13 @@ const Profile = {
         const avatar  = document.getElementById('user-avatar');
         if (display) display.textContent = val;
         if (avatar && !Utils.loadData(this.KEYS.avatar)) {
-            avatar.textContent = val.charAt(0).toUpperCase();
+            if (window.AvatarGenerator) {
+                AvatarGenerator.clearCache();
+                avatar.innerHTML = AvatarGenerator.generate(val, 30);
+                avatar.style.background = 'transparent';
+            } else {
+                avatar.textContent = val.charAt(0).toUpperCase();
+            }
         }
 
         Utils.showNotification('✅ Nome atualizado! にゃん~', 'success');

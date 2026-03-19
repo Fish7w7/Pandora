@@ -17,7 +17,6 @@ const OfflineZone = {
         if (this.currentGame) return this._renderGame();
 
         const d      = document.body.classList.contains('dark-theme');
-        const bg     = d ? '#0d0d18'                 : '#f8fafc';
         const card   = d ? 'rgba(255,255,255,0.04)'  : '#ffffff';
         const border = d ? 'rgba(255,255,255,0.08)'  : 'rgba(0,0,0,0.08)';
         const text   = d ? '#f1f5f9'                 : '#0f172a';
@@ -32,26 +31,28 @@ const OfflineZone = {
 
             if (g.comingSoon) return `
                 <div style="
-                    background:${card}; border:1px solid ${border}; border-radius:18px;
+                    background:${card}; border:1px solid ${border};
+                    border-radius:var(--radius-xl,18px);
                     padding:1.5rem 1.25rem; display:flex; flex-direction:column; gap:0.5rem;
                     opacity:0.42; cursor:not-allowed; position:relative; overflow:hidden;
                     animation:ozFadeUp 0.4s ease both; animation-delay:${delay};
                 ">
                     <div style="font-size:2.4rem; line-height:1; margin-bottom:0.25rem;">${g.icon}</div>
-                    <div style="font-size:0.92rem; font-weight:800; color:${text}; font-family:'Syne',sans-serif;">${g.name}</div>
-                    <div style="font-size:0.72rem; color:${sub}; line-height:1.45; flex:1;">${g.desc}</div>
-                    <div style="margin-top:0.25rem; padding:0.45rem; border-radius:8px; background:rgba(128,128,128,0.1);
-                                font-size:0.72rem; font-weight:700; color:${sub}; text-align:center; letter-spacing:0.04em;">
+                    <div style="font-size:var(--text-base,0.92rem); font-weight:var(--weight-black,800); color:${text}; font-family:var(--font-display,'Syne',sans-serif);">${g.name}</div>
+                    <div style="font-size:var(--text-xs,0.72rem); color:${sub}; line-height:1.45; flex:1;">${g.desc}</div>
+                    <div style="margin-top:0.25rem; padding:0.45rem; border-radius:var(--radius-sm,6px); background:rgba(128,128,128,0.1);
+                                font-size:var(--text-xs,0.72rem); font-weight:700; color:${sub}; text-align:center; letter-spacing:0.04em;">
                         🚧 EM BREVE
                     </div>
                 </div>`;
 
             return `
                 <div class="oz-card" id="oz-${id}" onclick="OfflineZone.startGame('${id}')" style="
-                    background:${card}; border:1px solid ${border}; border-radius:18px;
+                    background:${card}; border:1px solid ${border};
+                    border-radius:var(--radius-xl,18px);
                     padding:1.5rem 1.25rem; display:flex; flex-direction:column; gap:0.5rem;
                     cursor:pointer; position:relative; overflow:hidden;
-                    transition:transform 0.18s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s, border-color 0.2s;
+                    transition:transform var(--transition-spring,0.4s cubic-bezier(0.34,1.56,0.64,1)), box-shadow var(--transition-base,0.2s), border-color var(--transition-base,0.2s);
                     animation:ozFadeUp 0.4s ease both; animation-delay:${delay};
                 "
                 onmouseenter="
@@ -75,7 +76,7 @@ const OfflineZone = {
 
                     <!-- Shine overlay -->
                     <div class="oz-shine" style="
-                        position:absolute; inset:0; opacity:0; transition:opacity 0.2s; pointer-events:none;
+                        position:absolute; inset:0; opacity:0; transition:opacity var(--transition-base,0.2s); pointer-events:none;
                         background:linear-gradient(135deg, ${g.color}0d 0%, transparent 60%);
                     "></div>
 
@@ -87,15 +88,16 @@ const OfflineZone = {
                     "></div>
 
                     <div style="font-size:2.4rem; line-height:1; margin-bottom:0.25rem; position:relative;">${g.icon}</div>
-                    <div style="font-size:0.92rem; font-weight:800; color:${text}; font-family:'Syne',sans-serif; position:relative;">${g.name}</div>
-                    <div style="font-size:0.72rem; color:${sub}; line-height:1.45; flex:1; position:relative;">${g.desc}</div>
+                    <div style="font-size:var(--text-base,0.92rem); font-weight:var(--weight-black,800); color:${text}; font-family:var(--font-display,'Syne',sans-serif); position:relative;">${g.name}</div>
+                    <div style="font-size:var(--text-xs,0.72rem); color:${sub}; line-height:1.45; flex:1; position:relative;">${g.desc}</div>
 
                     <div class="oz-play" style="
-                        margin-top:0.25rem; padding:0.5rem; border-radius:9px;
+                        margin-top:0.25rem; padding:0.5rem;
+                        border-radius:var(--radius-sm,9px);
                         border:1px solid ${g.color}33; background:transparent;
-                        font-size:0.72rem; font-weight:800; color:${g.color};
+                        font-size:var(--text-xs,0.72rem); font-weight:var(--weight-black,800); color:${g.color};
                         text-align:center; letter-spacing:0.05em; text-transform:uppercase;
-                        transition:all 0.18s; position:relative;
+                        transition:all var(--transition-fast,0.12s); position:relative;
                     ">▶ Jogar</div>
                 </div>`;
         }).join('');
@@ -106,20 +108,20 @@ const OfflineZone = {
             @keyframes ozPulse  { 0%,100% { opacity:1 } 50% { opacity:0.4 } }
         </style>
 
-        <div style="max-width:700px; margin:0 auto; font-family:'DM Sans',sans-serif;">
+        <div style="max-width:700px; margin:0 auto; font-family:var(--font-body,'DM Sans',sans-serif);">
 
             <!-- Header -->
             <div style="text-align:center; margin-bottom:2rem;">
                 <div style="font-size:3rem; margin-bottom:0.625rem; animation:ozFadeUp 0.35s ease both;">📶</div>
                 <h1 style="
-                    font-family:'Syne',sans-serif; font-size:2rem; font-weight:900; margin:0 0 0.625rem;
-                    background:linear-gradient(135deg,#a855f7,#ec4899); -webkit-background-clip:text;
-                    -webkit-text-fill-color:transparent; background-clip:text;
+                    font-family:var(--font-display,'Syne',sans-serif); font-size:var(--text-2xl,2rem); font-weight:var(--weight-black,900); margin:0 0 0.625rem;
+                    background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));
+                    -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
                     animation:ozFadeUp 0.35s ease 0.05s both;
                 ">Zona Offline</h1>
                 <div style="
                     display:inline-flex; align-items:center; gap:0.5rem;
-                    font-size:0.75rem; font-weight:700; color:${statusColor};
+                    font-size:var(--text-xs,0.75rem); font-weight:700; color:${statusColor};
                     animation:ozFadeUp 0.35s ease 0.1s both;
                 ">
                     <span style="width:7px;height:7px;border-radius:50%;background:${statusColor};display:inline-block;animation:ozPulse 2s infinite;"></span>

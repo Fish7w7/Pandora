@@ -49,7 +49,31 @@ const Favorites = {
 
     renderSection() {
         const favIds = this.load();
-        if (favIds.length === 0) return '';
+
+        // Empty state — estrela ☆ com dica de como adicionar
+        if (favIds.length === 0) {
+            return `
+                <div class="nav-group" id="fav-group">
+                    <div class="nav-group-label fav-group-label">
+                        <span>⭐ Favoritos</span>
+                        <span class="fav-count">0/${this.MAX}</span>
+                    </div>
+                    <div style="
+                        margin:0.25rem 0.5rem 0.5rem;
+                        padding:0.625rem 0.75rem;
+                        border-radius:10px;
+                        border:1px dashed rgba(255,255,255,0.12);
+                        text-align:center;
+                    ">
+                        <div style="font-size:1.1rem;margin-bottom:0.25rem;opacity:0.4;">☆</div>
+                        <p style="font-size:0.6rem;color:rgba(255,255,255,0.3);line-height:1.4;margin:0;font-family:'DM Sans',sans-serif;">
+                            Passe o mouse em uma ferramenta e clique na ★ para fixar aqui
+                        </p>
+                    </div>
+                </div>
+                <div class="fav-divider"></div>
+            `;
+        }
 
         const toolMap = Object.fromEntries((App.tools || []).map(t => [t.id, t]));
         const items = favIds

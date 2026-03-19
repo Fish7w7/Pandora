@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.3.0-purple?style=for-the-badge&logo=electron)
+![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.6.0-purple?style=for-the-badge&logo=electron)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)
 ![Electron](https://img.shields.io/badge/Electron-27.0.0-47848F?style=for-the-badge&logo=electron)
@@ -38,21 +38,23 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
 ### 🎨 Interface Moderna
 - 🌓 **Tema Escuro/Claro** — Alternância suave com dark mode completo
 - 🎨 **8 Esquemas de Cores** — Personalize a sidebar e destaques
-- 💫 **Animações Fluidas** — Transições suaves com spring e fade
+- 💫 **Micro-animações** — Scale + ripple effect em todos os botões
 - 📱 **Design Responsivo** — Adaptado para diferentes resoluções
 - 🔔 **Notificações Modernas** — Sistema empilhado e discreto
 - ✨ **Efeitos Glass** — Backdrop blur e transparências
-- 🖋️ **Tipografia Premium** — Syne (display) + DM Sans (corpo)
+- 🖋️ **Tipografia Premium** — Syne (display) + DM Sans (corpo) com CSS vars
 
 ### 🔧 Funcionalidades do Sistema
+- 👤 **Avatar Gerado** — Gatinho SVG único por nome, aparece na sidebar e no perfil
 - 👤 **Sistema de Perfil** — Foto, nome, senha e estatísticas pessoais
 - 🏆 **Conquistas** — 5 badges desbloqueáveis por comportamento de uso
 - ⭐ **Favoritos** — Fixe até 5 ferramentas no topo da sidebar com drag-to-reorder
 - 🎯 **Modo Foco** — Sidebar oculta com peek animado (Ctrl+Shift+F)
 - 🔍 **Command Palette** — Busca universal com Ctrl+P
+- 🧭 **Histórico de Navegação** — Alt+← volta, Alt+→ avança entre ferramentas
 - 💾 **Auto-save** — Configurações e dados salvos automaticamente
-- 🔄 **Auto-update** — Sistema integrado com GitHub API + changelog
-- 🔐 **Sistema de Login** — Glassmorphism com animação de entrada
+- 🔄 **Auto-update** — Sistema integrado com GitHub API + changelog + barra de progresso
+- 🔐 **Tela de Login** — Glassmorphism com fundo dinâmico por horário e intro animada
 - 📊 **Dashboard de Estatísticas** — Uso por ferramenta, sequência de dias, recordes
 - 💾 **Backup e Restore** — Exporte/importe configurações em JSON
 - ⌨️ **Atalhos de Teclado** — Navegação rápida com Ctrl+1-9 e Ctrl+P
@@ -70,7 +72,7 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
    ```
 
 2. **Execute o Instalador**
-   - Baixe `NyanTools-3.3.0-Setup.exe`
+   - Baixe `NyanTools-3.6.0-Setup.exe`
    - Execute e siga o assistente de instalação
 
 3. **Pronto! にゃん~**
@@ -118,14 +120,14 @@ npm run dev
 - Gráfico de atividade semanal com barras animadas
 - Calendário de histórico de uso (30 dias)
 - Recordes de jogos: Cobrinha, Termo, 2048, Flappy Bird
-- Resumo de Notas e Tarefas
+- Resumo de Notas e Tarefas com progresso
 
 ### 2. 👤 Perfil
+- Avatar SVG gerado automaticamente por nome (gatinho único)
 - Upload de foto de perfil (JPG, PNG, GIF · máx. 2MB)
 - Editar nome de usuário com atualização em tempo real na sidebar
 - Trocar senha com validação
-- Tab de Estatísticas: tempo total, dias ativos, sequência, top ferramentas, gráfico semanal
-- Sistema de Conquistas integrado
+- Tab de Estatísticas: tempo total, dias ativos, sequência, top ferramentas
 
 ### 3. 🏆 Conquistas
 - 🐣 **Primeiro Passo** — Primeiro login no NyanTools
@@ -177,11 +179,13 @@ npm run dev
 - Fixar notas (pins sempre no topo)
 - Busca em tempo real por título e conteúdo
 - Cards coloridos com 5 paletas
+- Empty state ilustrado com botão de criação
 
 ### 12. ✅ Lista de Tarefas
 - Tarefas com título, descrição e prioridade (Alta/Média/Baixa)
 - Filtros: Todas / Ativas / Concluídas
 - Estatísticas: total, ativas, concluídas e % de progresso
+- Empty state contextual por filtro ativo
 
 ### 13. 📶 Zona Offline
 
@@ -197,8 +201,8 @@ Jogos sem internet:
 
 **5 Abas Completas:**
 
-- 🎨 **Aparência** — Tema Claro/Escuro + 8 esquemas de cores + Modo Foco
-- 🔄 **Atualizações** — Verificação manual/automática com timeline de changelog
+- 🎨 **Aparência** — Tema Claro/Escuro + 8 esquemas de cores + Modo Foco + Intro Animada
+- 🔄 **Atualizações** — Verificação manual/automática com timeline de changelog e barra de progresso
 - 🔔 **Notificações** — Habilitar/desabilitar por tipo
 - 💾 **Dados** — Backup/restore, limpeza de cache, resetar tudo
 - ℹ️ **Sobre** — Versão, desenvolvedores, tecnologias, licença
@@ -224,8 +228,10 @@ Jogos sem internet:
 | `Ctrl + U` | Perfil |
 | `Ctrl + P` | Command Palette |
 | `Ctrl + Shift + F` | Modo Foco |
+| `Alt + ←` | Voltar (histórico) |
+| `Alt + →` | Avançar (histórico) |
 | `Ctrl + /` | Ver todos os atalhos |
-| `Esc` | Fechar modais |
+| `Esc` | Fechar modais / sair de jogos |
 
 > Atalhos não funcionam quando você está digitando em campos de texto.
 
@@ -255,17 +261,23 @@ NyanTools/
 │       │   ├── core/
 │       │   │   ├── app.js                # Inicialização, tracking
 │       │   │   ├── auth.js               # Sistema de login
-│       │   │   ├── router.js             # Navegação SPA
+│       │   │   ├── router.js             # Navegação SPA + histórico
+│       │   │   ├── avatar-generator.js   # 🐱 Avatar SVG por nome
 │       │   │   ├── favorites.js          # ⭐ Sistema de favoritos
 │       │   │   ├── achievements.js       # 🏆 Sistema de conquistas
 │       │   │   ├── beta-testers.js       # 🐾 Easter egg Konami
 │       │   │   ├── command-palette.js    # 🔍 Busca universal
 │       │   │   ├── focus-mode.js         # 🎯 Modo foco
+│       │   │   ├── login-background.js   # 🌅 Fundo dinâmico por horário
+│       │   │   ├── login-effects.js      # ✨ Micro-interações do login
+│       │   │   ├── login-intro.js        # 🎬 Intro animada
+│       │   │   ├── login-particles.js    # 🌟 Partículas decorativas
+│       │   │   ├── login-phrases.js      # 💬 Frases motivacionais
 │       │   │   └── keyboard-shortcuts.js # ⌨️ Atalhos globais
 │       │   │
 │       │   └── tools/
 │       │       ├── dashboard/dashboard.js
-│       │       ├── profile/profile.js    # 👤 Perfil do usuário
+│       │       ├── profile/profile.js
 │       │       ├── ai-assistant/ai-chat.js
 │       │       ├── mini-game/game.js
 │       │       ├── music-player/music.js
@@ -288,11 +300,12 @@ NyanTools/
 │       └── styles/
 │           ├── main.css
 │           ├── dark-theme.css
-│           ├── theme-system.css
+│           ├── theme-system.css  # CSS vars de cor + tipografia
 │           ├── focus-mode.css
 │           ├── profile.css
 │           ├── density-fix.css
-│           └── animations.css
+│           ├── animations.css    # Micro-animações + ripple
+│           └── command-palette.css
 │
 ├── 📄 package.json
 ├── 📘 README.md
@@ -314,12 +327,12 @@ npm run build:all      # Todas as plataformas
 
 ```
 dist/
-├── NyanTools-3.3.0-Setup.exe       # Windows — instalador
-├── NyanTools 3.3.0.exe             # Windows — portátil
-├── NyanTools-3.3.0-x64.dmg        # macOS Intel
-├── NyanTools-3.3.0-arm64.dmg      # macOS Apple Silicon
-├── NyanTools-3.3.0-x64.AppImage   # Linux
-└── NyanTools-3.3.0-amd64.deb      # Linux Debian/Ubuntu
+├── NyanTools-3.6.0-Setup.exe       # Windows — instalador
+├── NyanTools 3.6.0.exe             # Windows — portátil
+├── NyanTools-3.6.0-x64.dmg        # macOS Intel
+├── NyanTools-3.6.0-arm64.dmg      # macOS Apple Silicon
+├── NyanTools-3.6.0-x64.AppImage   # Linux
+└── NyanTools-3.6.0-amd64.deb      # Linux Debian/Ubuntu
 ```
 
 ---
@@ -347,31 +360,34 @@ dist/
 
 ## 📝 Roadmap
 
-### **✅ v3.3.0 "Kitsune" — Atual**
-- [x] Sistema de Perfil com foto, nome e senha
-- [x] Estatísticas pessoais e gráficos no Perfil
-- [x] Sistema de Conquistas (5 badges)
-- [x] Favoritos na sidebar com drag-to-reorder
-- [x] Easter egg Konami Code (Cobaias de Teste)
-- [x] Modo Foco com animações spring
-- [x] Links externos abrindo no navegador padrão
-- [x] Cobrinha redesign com arena espacial e itens especiais
-- [x] Jogo da Velha rebalanceado
-- [x] Command Palette com Perfil (Ctrl+U)
+### **✅ v3.6.0 "Smooth & Pretty" — Atual**
+- [x] Avatar SVG gerado automaticamente por nome
+- [x] Redesign dos cards do Dashboard e Zona Offline
+- [x] Empty States ilustrados (Notas, Tarefas, Favoritos)
+- [x] CSS vars de tipografia globais
+- [x] Micro-animações nos botões (scale + ripple)
+- [x] Histórico de navegação (Alt+← / Alt+→)
+- [x] Barra de progresso do download corrigida
 
-### **✅ v3.2.0 "Sakura"**
-- [x] Dashboard live tracking em tempo real
-- [x] Command Palette (Ctrl+P)
-- [x] Modo Foco (Ctrl+Shift+F)
-- [x] Sidebar redesign com grupos e avatar
-- [x] Easter egg dos 5 cliques no logo
-- [x] Performance: CPU 13% → ~5%
+### **✅ v3.5.0 "First Impression"**
+- [x] Tela de login com fundo dinâmico por horário
+- [x] 80+ frases motivacionais com typing effect
+- [x] Intro animada ao abrir o app
+- [x] Loading screen redesenhada
+- [x] Partículas decorativas no fundo do login
 
-### **🚧 v3.4.0 — Próxima**
-- [ ] "O que há de novo" no updater funcionando
-- [ ] Modais estilizados substituindo confirm() nativos
-- [ ] Calendário real no histórico de uso (tipo GitHub)
-- [ ] Auto-update silencioso sem setup manual
+### **✅ v3.4.x "Tanuki"**
+- [x] Sistema de auto-update com GitHub API
+- [x] Barra de progresso do download (fix definitivo na v3.6.0)
+- [x] Fallback automático quando native updater falha
+
+### **🚧 v3.7.0 "Zona Arcade" — Próxima**
+- [ ] Type Racer — jogo de digitação com WPM e precisão
+- [ ] Caça-Níquel — jogo casual com símbolos do NyanTools
+- [ ] Quiz Diário — 10 perguntas de cultura geral, mesmas para todos no mesmo dia
+
+### **🔮 v3.8.0 "Nyan Economy"**
+- [ ] Clicker Idle com moeda Nyans e upgrades
 
 ---
 
@@ -456,7 +472,7 @@ MIT License — Copyright (c) 2026 Fish7w7
 
 *Your Purr-fect Toolkit! 🐱✨*
 
-**v3.3.0 — Kitsune 🦊**
+**v3.6.0 — Smooth & Pretty ✨**
 
 **[⬆ Voltar ao topo](#-nyantools-にゃん)**
 

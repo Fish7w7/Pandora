@@ -1,6 +1,6 @@
 // ════════════════════════════════════
 // PRELOAD.JS — Ponte segura Electron ↔ Frontend
-// NyanTools にゃん~ v3.2.0
+// NyanTools にゃん~ v3.2.1
 // ════════════════════════════════════
 
 const { contextBridge, ipcRenderer } = require('electron');
@@ -58,15 +58,17 @@ try {
         // download direto + install silencioso (fallback quando native updater não funciona)
         downloadAndInstall: (url, filename) => invoke('download-and-install', { url, filename }),
 
+        // NOVO: inicia download via send (fire-and-forget) — não bloqueia o renderer
+        // resultado chega via onDownloadProgress e onUpdaterStatus
+        startDownloadFireAndForget: (url, filename) => {
+            ipcRenderer.send('start-download-faf', { url, filename });
+        },
+
         openDownloadsFolder: () => invoke('open-downloads-folder'),
         openExternal: (url) => invoke('open-external', url),
         resetUpdateCooldown: () => invoke('reset-update-cooldown'),
         isDevEnvironment: () => invoke('is-dev-environment'),
         onDownloadProgress: (callback) => {
-            if (typeof callback !== 'function') {
-                console.error('❌ onDownloadProgress: callback deve ser uma função');
-                return () => {};
-            }
             const handler = (_event, data) => callback(data);
             ipcRenderer.on('download-progress', handler);
             return () => ipcRenderer.removeListener('download-progress', handler);
@@ -77,7 +79,7 @@ try {
         }
     });
 
-    console.log('✅ [Preload v3.4.2] API exposta com sucesso');
+    console.log('✅ [Preload v3.2.1] API exposta com sucesso');
 
 } catch (error) {
     console.error('❌ [Preload] ERRO CRÍTICO:', error);

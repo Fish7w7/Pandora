@@ -117,19 +117,44 @@ const Notes = {
     },
     
     renderEmptyState() {
+        const isSearch = !!this.searchQuery;
+        const d = document.body.classList.contains('dark-theme');
+        const card   = d ? 'rgba(255,255,255,0.04)' : '#ffffff';
+        const border = d ? 'rgba(255,255,255,0.08)'  : 'rgba(0,0,0,0.07)';
+        const text   = d ? '#f1f5f9'                 : '#0f172a';
+        const sub    = d ? 'rgba(255,255,255,0.38)'  : 'rgba(0,0,0,0.42)';
+
         return `
-            <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-16 text-center border dark:border-gray-700">
-                <div class="text-8xl mb-6 opacity-50">📝</div>
-                <h3 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-3">
-                    ${this.searchQuery ? 'Nenhuma nota encontrada' : 'Nenhuma nota ainda'}
+            <div style="
+                background:${card}; border:1px solid ${border};
+                border-radius:20px; padding:3.5rem 2rem;
+                text-align:center; max-width:400px; margin:2rem auto;
+            ">
+                <div style="font-size:2.5rem;margin-bottom:0.75rem;opacity:0.4;">📝</div>
+
+                <h3 style="font-family:var(--font-display,'Syne',sans-serif);font-size:1.15rem;font-weight:900;color:${text};margin:0 0 0.5rem;">
+                    ${isSearch ? 'Nenhuma nota encontrada' : 'Nenhuma nota ainda'}
                 </h3>
-                <p class="text-gray-600 dark:text-gray-400 mb-6">
-                    ${this.searchQuery ? 'Tente outro termo de busca' : 'Comece criando sua primeira nota!'}
+                <p style="font-size:var(--text-sm,0.78rem);color:${sub};margin:0 0 1.5rem;line-height:1.5;">
+                    ${isSearch
+                        ? `Nenhuma nota com "<strong>${this.searchQuery}</strong>" — tente outro termo`
+                        : 'Suas notas aparecem aqui. Crie a primeira e não perca mais nada にゃん~'}
                 </p>
-                ${!this.searchQuery ? `
-                    <button onclick="Notes.openCreateModal()" 
-                            class="px-8 py-4 bg-gradient-to-r from-yellow-500 to-orange-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-2xl transform hover:scale-105 transition-all">
-                        ✏️ Criar Primeira Nota
+
+                ${!isSearch ? `
+                    <button onclick="Notes.openCreateModal()"
+                        style="
+                            display:inline-flex;align-items:center;gap:0.5rem;
+                            padding:0.65rem 1.4rem;border-radius:var(--radius-md,10px);
+                            background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));
+                            color:white;font-size:var(--text-base,0.875rem);font-weight:700;
+                            font-family:var(--font-body,'DM Sans',sans-serif);border:none;cursor:pointer;
+                            box-shadow:0 4px 14px var(--theme-shadow,rgba(168,85,247,0.3));
+                            transition:transform 0.12s,box-shadow 0.2s;
+                        "
+                        onmouseover="this.style.transform='translateY(-2px)'"
+                        onmouseout="this.style.transform=''">
+                        ✏️ Criar primeira nota
                     </button>
                 ` : ''}
             </div>

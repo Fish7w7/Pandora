@@ -1,4 +1,4 @@
-// Dashboard - Estatísticas de Uso にゃん~ v3.0.1 
+// Dashboard - Estatísticas de Uso にゃん~ v3.1.0
 const Dashboard = {
     stats: {
         totalTime: 0,
@@ -11,6 +11,47 @@ const Dashboard = {
         weeklyActivity: {},
         weeklyHistory: {},
         currentWeekStart: null
+    },
+
+    // ── #83 Helpers de card consistentes ─────────────
+    _isDark() {
+        return document.body.classList.contains('dark-theme');
+    },
+
+    _colors() {
+        const d = this._isDark();
+        return {
+            card:    d ? 'rgba(255,255,255,0.04)' : '#ffffff',
+            border:  d ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)',
+            title:   d ? '#f1f5f9'                : '#0f172a',
+            sub:     d ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.5)',
+            muted:   d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)',
+            inner:   d ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+            innerBdr:d ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.06)',
+            text:    d ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.65)',
+        };
+    },
+
+    // Seção principal com título
+    _section(icon, title, content, mb = true) {
+        const c = this._colors();
+        return `
+            <div style="
+                background:${c.card}; border:1px solid ${c.border};
+                border-radius:var(--radius-xl,18px);
+                padding:1.5rem; ${mb ? 'margin-bottom:1.25rem;' : ''}
+                box-shadow:0 1px 3px rgba(0,0,0,0.08);
+            ">
+                <h2 style="
+                    font-family:var(--font-display,'Syne',sans-serif);
+                    font-size:var(--text-lg,1.1rem); font-weight:900;
+                    color:${c.title}; margin:0 0 1rem;
+                    display:flex; align-items:center; gap:0.5rem;
+                ">
+                    <span>${icon}</span><span>${title}</span>
+                </h2>
+                ${content}
+            </div>`;
     },
     
     init() {
@@ -80,27 +121,29 @@ const Dashboard = {
     
     renderStatCard(icon, label, value, gradient) {
         return `
-            <div class="bg-gradient-to-br ${gradient} rounded-xl shadow-lg p-6 text-white transform hover:scale-105 transition-all">
-                <div class="text-4xl mb-2">${icon}</div>
-                <div class="text-sm font-semibold opacity-90 mb-1">${label}</div>
-                <div class="text-2xl font-black">${value}</div>
+            <div style="
+                background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));
+                border-radius:var(--radius-lg,14px); padding:1.25rem;
+                color:white; cursor:default;
+                transition:transform var(--transition-base,0.2s), box-shadow var(--transition-base,0.2s);
+                box-shadow:0 4px 14px var(--theme-shadow,rgba(168,85,247,0.25));
+            "
+            onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px var(--theme-shadow,rgba(168,85,247,0.35))'"
+            onmouseout="this.style.transform='';this.style.boxShadow='0 4px 14px var(--theme-shadow,rgba(168,85,247,0.25))'">
+                <div style="font-size:1.75rem;margin-bottom:0.5rem;line-height:1;">${icon}</div>
+                <div style="font-size:var(--text-xs,0.68rem);font-weight:var(--weight-bold,700);opacity:0.8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.25rem;">${label}</div>
+                <div style="font-size:1.35rem;font-weight:var(--weight-black,900);font-family:var(--font-display,'Syne',sans-serif);line-height:1;">${value}</div>
             </div>
         `;
     },
     
     renderActivitySection() {
-        return `
-            <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
-                <h2 class="text-2xl font-black text-gray-800 mb-4 flex items-center gap-2">
-                    <span>📅</span>
-                    <span>Atividade Semanal</span>
-                </h2>
-                <div id="weekly-chart-container">
-                    ${this.renderWeeklyChartInner()}
-                </div>
-                ${this.renderActivityCalendar()}
+        return this._section('📅', 'Atividade Semanal', `
+            <div id="weekly-chart-container">
+                ${this.renderWeeklyChartInner()}
             </div>
-        `;
+            ${this.renderActivityCalendar()}
+        `);
     },
 
     // O HTML real do gráfico — separado para poder ser trocado no DOM pelo refreshWeeklyChart()
@@ -350,56 +393,37 @@ const Dashboard = {
         const tools = Object.entries(normalizedAccess)
             .sort((a, b) => b[1] - a[1])
             .slice(0, 10);
-        
-        if (tools.length === 0) {
-            return `
-                <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
-                    <h2 class="text-2xl font-black text-gray-800 mb-4 flex items-center gap-2">
-                        <span>🛠️</span>
-                        <span>Ferramentas Mais Usadas</span>
-                    </h2>
-                    <div class="text-center py-8 text-gray-500">
-                        <div class="text-6xl mb-4">📊</div>
-                        <p>Use as ferramentas para ver estatísticas aqui!</p>
-                    </div>
-                </div>
-            `;
-        }
-        
+        const c = this._colors();
+
+        const emptyContent = `
+            <div style="text-align:center;padding:2rem 0;color:${c.muted};">
+                <div style="font-size:2.5rem;margin-bottom:0.75rem;opacity:0.5;">📊</div>
+                <p style="font-size:var(--text-sm,0.78rem);font-family:var(--font-body,'DM Sans',sans-serif);">Use as ferramentas para ver estatísticas aqui!</p>
+            </div>`;
+
+        if (tools.length === 0) return this._section('🛠️', 'Ferramentas Mais Usadas', emptyContent);
+
         const maxUsage = tools[0]?.[1] || 1;
-        
-        return `
-            <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
-                <h2 class="text-2xl font-black text-gray-800 mb-4 flex items-center gap-2">
-                    <span>🛠️</span>
-                    <span>Ferramentas Mais Usadas</span>
-                </h2>
-                <div class="space-y-3">
-                    ${tools.map(([tool, count], index) => {
-                        const percentage = (count / maxUsage) * 100;
-                        const toolInfo = this.getToolInfo(tool);
-                        
-                        return `
-                            <div class="group">
-                                <div class="flex items-center justify-between mb-1">
-                                    <div class="flex items-center gap-2">
-                                        <span class="text-xl">${toolInfo.icon}</span>
-                                        <span class="font-bold text-gray-800">${toolInfo.name}</span>
-                                        ${index === 0 ? '<span class="text-xs bg-yellow-100 text-yellow-800 px-2 py-1 rounded-full font-bold">🥇 Top</span>' : ''}
-                                    </div>
-                                    <span class="text-sm font-bold text-gray-600">${count} ${count === 1 ? 'acesso' : 'acessos'}</span>
-                                </div>
-                                <div class="h-2 bg-gray-200 rounded-full overflow-hidden">
-                                    <div class="h-full bg-gradient-to-r ${toolInfo.gradient} rounded-full transition-all duration-500 group-hover:opacity-80"
-                                         style="width: ${percentage}%">
-                                    </div>
-                                </div>
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
-            </div>
-        `;
+        const rows = tools.map(([tool, count], index) => {
+            const percentage = (count / maxUsage) * 100;
+            const toolInfo   = this.getToolInfo(tool);
+            return `
+                <div style="margin-bottom:0.75rem;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.3rem;">
+                        <div style="display:flex;align-items:center;gap:0.5rem;">
+                            <span style="font-size:1.1rem;">${toolInfo.icon}</span>
+                            <span style="font-size:var(--text-base,0.875rem);font-weight:var(--weight-semibold,600);color:${c.title};font-family:var(--font-body,'DM Sans',sans-serif);">${toolInfo.name}</span>
+                            ${index === 0 ? `<span style="font-size:0.65rem;font-weight:700;background:rgba(234,179,8,0.15);color:#ca8a04;border:1px solid rgba(234,179,8,0.3);padding:1px 7px;border-radius:99px;">🥇 Top</span>` : ''}
+                        </div>
+                        <span style="font-size:var(--text-xs,0.68rem);font-weight:700;color:${c.muted};">${count} ${count === 1 ? 'acesso' : 'acessos'}</span>
+                    </div>
+                    <div style="height:6px;background:${c.inner};border-radius:99px;overflow:hidden;">
+                        <div style="height:100%;width:${percentage}%;background:linear-gradient(90deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));border-radius:99px;transition:width 0.5s ease;"></div>
+                    </div>
+                </div>`;
+        }).join('');
+
+        return this._section('🛠️', 'Ferramentas Mais Usadas', `<div>${rows}</div>`);
     },
     
     normalizeToolAccess() {
@@ -439,119 +463,104 @@ const Dashboard = {
             { id: 'flappy', name: 'Flappy Nyan', icon: '🐱', key: 'flappy_bird_highscore' }
         ];
         
-        return `
-            <div class="bg-white rounded-2xl shadow-xl p-6 mb-6">
-                <h2 class="text-2xl font-black text-gray-800 mb-4 flex items-center gap-2">
-                    <span>🎮</span>
-                    <span>Recordes dos Jogos</span>
-                </h2>
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    ${games.map(game => {
-                        const score = Utils.loadData(game.key);
-                        const displayScore = this.formatGameScore(game.id, score);
-                        const hasScore = score && displayScore !== '---';
-                        
-                        const subtitles = {
-                            'snake': 'Maior pontuação',
-                            'termo': 'Melhor tentativa',
-                            '2048': 'Maior pontuação',
-                            'flappy': 'Maior distância'
-                        };
-                        const subtitle = subtitles[game.id] || 'Recorde pessoal';
+        return this._section('🎮', 'Recordes dos Jogos', `
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:0.75rem;">
+                ${games.map(game => {
+                    const c = this._colors();
+                    const score        = Utils.loadData(game.key);
+                    const displayScore = this.formatGameScore(game.id, score);
+                    const hasScore     = score && displayScore !== '---';
+                    const subtitles    = { snake:'Maior pontuação', termo:'Melhor tentativa', '2048':'Maior pontuação', flappy:'Maior distância' };
 
-                        return `
-                            <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl p-4 text-center hover:shadow-lg transition-all">
-                                <div class="text-4xl mb-2">${game.icon}</div>
-                                <div class="font-bold text-gray-800 mb-1">${game.name}</div>
-                                <div class="text-2xl font-black ${hasScore ? 'text-purple-600' : 'text-gray-400'}">${displayScore}</div>
-                                ${hasScore ? `<div class="text-xs text-gray-500 mt-1">${subtitle}</div>` : '<div class="text-xs text-gray-400 mt-1">Ainda não jogou</div>'}
-                            </div>
-                        `;
-                    }).join('')}
-                </div>
+                    return `
+                        <div style="
+                            background:${c.inner}; border:1px solid ${c.innerBdr};
+                            border-radius:var(--radius-lg,14px); padding:1rem;
+                            text-align:center; cursor:pointer;
+                            transition:transform var(--transition-base,0.2s),box-shadow var(--transition-base,0.2s);
+                        "
+                        onclick="Router.navigate('offline')"
+                        onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 6px 18px rgba(0,0,0,0.1)'"
+                        onmouseout="this.style.transform='';this.style.boxShadow=''">
+                            <div style="font-size:1.75rem;margin-bottom:0.4rem;">${game.icon}</div>
+                            <div style="font-size:var(--text-xs,0.68rem);font-weight:700;color:${c.sub};margin-bottom:0.3rem;">${game.name}</div>
+                            <div style="font-size:1.15rem;font-weight:900;font-family:var(--font-display,'Syne',sans-serif);color:${hasScore ? 'var(--theme-primary,#a855f7)' : c.muted};">${displayScore}</div>
+                            <div style="font-size:0.6rem;color:${c.muted};margin-top:2px;">${hasScore ? subtitles[game.id] || 'Recorde' : 'Ainda não jogou'}</div>
+                        </div>`;
+                }).join('')}
             </div>
-        `;
+        `);
     },
-    
+
     renderProductivitySection() {
         return `
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.25rem;margin-bottom:1.25rem;">
                 ${this.renderNotesCard()}
                 ${this.renderTasksCard()}
             </div>
         `;
     },
-    
+
     renderNotesCard() {
         const notes = Utils.loadData('notes') || [];
-        this.stats.notesStats.total = notes.length;
+        this.stats.notesStats.total  = notes.length;
         this.stats.notesStats.pinned = notes.filter(n => n.pinned).length;
-        
-        return `
-            <div class="bg-gradient-to-br from-yellow-50 to-orange-50 rounded-2xl shadow-xl p-6 border-2 border-yellow-200">
-                <h2 class="text-xl font-black text-gray-800 mb-4 flex items-center gap-2">
-                    <span>📝</span>
-                    <span>Notas Rápidas</span>
-                </h2>
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-700 font-semibold">Total de notas</span>
-                        <span class="text-2xl font-black text-orange-600">${this.stats.notesStats.total}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-700 font-semibold">📌 Fixadas</span>
-                        <span class="text-xl font-bold text-orange-500">${this.stats.notesStats.pinned}</span>
-                    </div>
-                    <button onclick="Router.navigate('notes')" 
-                            class="w-full mt-4 bg-gradient-to-r from-yellow-500 to-orange-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all">
-                        Ver todas as notas →
-                    </button>
+        const c = this._colors();
+
+        return this._section('📝', 'Notas Rápidas', `
+            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:0.625rem 0.75rem;background:${c.inner};border-radius:var(--radius-md,10px);">
+                    <span style="font-size:var(--text-sm,0.78rem);font-weight:600;color:${c.text};">Total de notas</span>
+                    <span style="font-size:1.2rem;font-weight:900;font-family:var(--font-display,'Syne',sans-serif);color:var(--theme-primary,#a855f7);">${this.stats.notesStats.total}</span>
                 </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:0.625rem 0.75rem;background:${c.inner};border-radius:var(--radius-md,10px);">
+                    <span style="font-size:var(--text-sm,0.78rem);font-weight:600;color:${c.text};">📌 Fixadas</span>
+                    <span style="font-size:1.1rem;font-weight:800;color:var(--theme-secondary,#ec4899);">${this.stats.notesStats.pinned}</span>
+                </div>
+                <button onclick="Router.navigate('notes')"
+                    style="width:100%;padding:0.625rem;border-radius:var(--radius-md,10px);border:none;cursor:pointer;font-weight:700;font-size:var(--text-sm,0.78rem);font-family:var(--font-body,'DM Sans',sans-serif);background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));color:white;margin-top:0.25rem;transition:filter 0.15s;"
+                    onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter=''">
+                    Ver todas as notas →
+                </button>
             </div>
-        `;
+        `, false);
     },
-    
+
     renderTasksCard() {
         const tasks = Utils.loadData('tasks') || [];
-        this.stats.tasksStats.total = tasks.length;
+        this.stats.tasksStats.total     = tasks.length;
         this.stats.tasksStats.completed = tasks.filter(t => t.completed).length;
-        const completionRate = this.stats.tasksStats.total > 0 
-            ? Math.round((this.stats.tasksStats.completed / this.stats.tasksStats.total) * 100) 
+        const completionRate = this.stats.tasksStats.total > 0
+            ? Math.round((this.stats.tasksStats.completed / this.stats.tasksStats.total) * 100)
             : 0;
-        
-        return `
-            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-2xl shadow-xl p-6 border-2 border-green-200">
-                <h2 class="text-xl font-black text-gray-800 mb-4 flex items-center gap-2">
-                    <span>✅</span>
-                    <span>Tarefas</span>
-                </h2>
-                <div class="space-y-3">
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-700 font-semibold">Total de tarefas</span>
-                        <span class="text-2xl font-black text-green-600">${this.stats.tasksStats.total}</span>
-                    </div>
-                    <div class="flex items-center justify-between">
-                        <span class="text-gray-700 font-semibold">✓ Concluídas</span>
-                        <span class="text-xl font-bold text-green-500">${this.stats.tasksStats.completed}</span>
-                    </div>
-                    <div>
-                        <div class="flex items-center justify-between text-sm mb-1">
-                            <span class="text-gray-600 font-semibold">Progresso</span>
-                            <span class="text-green-600 font-bold">${completionRate}%</span>
-                        </div>
-                        <div class="h-3 rounded-full overflow-hidden" style="background: rgba(255,255,255,0.12);">
-                            <div class="h-full rounded-full transition-all"
-                                 style="width: ${completionRate}%; background: linear-gradient(to right, #4ade80, #22c55e);">
-                            </div>
-                        </div>
-                    </div>
-                    <button onclick="Router.navigate('tasks')" 
-                            class="w-full mt-4 bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl font-bold hover:shadow-lg transition-all">
-                        Ver todas as tarefas →
-                    </button>
+        const c = this._colors();
+
+        return this._section('✅', 'Tarefas', `
+            <div style="display:flex;flex-direction:column;gap:0.625rem;">
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:0.625rem 0.75rem;background:${c.inner};border-radius:var(--radius-md,10px);">
+                    <span style="font-size:var(--text-sm,0.78rem);font-weight:600;color:${c.text};">Total de tarefas</span>
+                    <span style="font-size:1.2rem;font-weight:900;font-family:var(--font-display,'Syne',sans-serif);color:var(--theme-primary,#a855f7);">${this.stats.tasksStats.total}</span>
                 </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:0.625rem 0.75rem;background:${c.inner};border-radius:var(--radius-md,10px);">
+                    <span style="font-size:var(--text-sm,0.78rem);font-weight:600;color:${c.text};">✓ Concluídas</span>
+                    <span style="font-size:1.1rem;font-weight:800;color:var(--theme-secondary,#ec4899);">${this.stats.tasksStats.completed}</span>
+                </div>
+                <div style="padding:0 0.25rem;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:0.35rem;">
+                        <span style="font-size:var(--text-xs,0.68rem);font-weight:600;color:${c.sub};">Progresso</span>
+                        <span style="font-size:var(--text-xs,0.68rem);font-weight:700;color:var(--theme-primary,#a855f7);">${completionRate}%</span>
+                    </div>
+                    <div style="height:5px;background:${c.inner};border-radius:99px;overflow:hidden;">
+                        <div style="height:100%;width:${completionRate}%;background:linear-gradient(90deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));border-radius:99px;transition:width 0.5s;"></div>
+                    </div>
+                </div>
+                <button onclick="Router.navigate('tasks')"
+                    style="width:100%;padding:0.625rem;border-radius:var(--radius-md,10px);border:none;cursor:pointer;font-weight:700;font-size:var(--text-sm,0.78rem);font-family:var(--font-body,'DM Sans',sans-serif);background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));color:white;margin-top:0.25rem;transition:filter 0.15s;"
+                    onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter=''">
+                    Ver todas as tarefas →
+                </button>
             </div>
-        `;
+        `, false);
     },
 
     // ─── HELPERS ──────────────────────────────────────────────────────────────

@@ -1,14 +1,14 @@
 /* ═════════════════════════════════════════════
-   ROUTER.JS v3.0.0
-   Sistema de Roteamento com Dashboard e 2048
+   ROUTER.JS v3.1.0
+   Sistema de Roteamento — NyanTools にゃん~
  ═══════════════════════════════════════════════*/
 
 const Router = {
     currentRoute: 'home',
-    
+
     // Mapa de rotas
     routes: {
-        'home': null, // Home é especial (Dashboard)
+        'home': null,
         'password': 'PasswordGenerator',
         'weather': 'Weather',
         'translator': 'Translator',
@@ -23,31 +23,59 @@ const Router = {
         'tasks': 'Tasks',
         'profile': 'Profile'
     },
-    
-    // Navegação otimizada
+
+    // Histórico (Alt+← / Alt+→)
+    _history: ['home'],
+    _historyIdx: 0,
+
     navigate(toolId) {
+        if (toolId === this.currentRoute) return;
         this.currentRoute = toolId;
         App.updateActiveNav(toolId);
-        
+
         if (window.Dashboard && toolId !== 'home') {
             Dashboard.trackToolAccess(toolId);
         }
-        
+
+        // Registrar no histórico
+        if (this._historyIdx < this._history.length - 1) {
+            this._history = this._history.slice(0, this._historyIdx + 1);
+        }
+        this._history.push(toolId);
+        this._historyIdx = this._history.length - 1;
+
         this.render();
     },
-    
-    // Renderização otimizada
+
+    back() {
+        if (this._historyIdx <= 0) return;
+        this._historyIdx--;
+        this.currentRoute = this._history[this._historyIdx];
+        App.updateActiveNav(this.currentRoute);
+        this.render();
+    },
+
+    forward() {
+        if (this._historyIdx >= this._history.length - 1) return;
+        this._historyIdx++;
+        this.currentRoute = this._history[this._historyIdx];
+        App.updateActiveNav(this.currentRoute);
+        this.render();
+    },
+
+    canGoBack()    { return this._historyIdx > 0; },
+    canGoForward() { return this._historyIdx < this._history.length - 1; },
+
     render() {
         const container = document.getElementById('tool-container');
         if (!container) return;
-                if (!App.user) {
+        if (!App.user) {
             console.warn('⚠️ Router.render() chamado sem usuário autenticado. Abortando.');
             return;
         }
-        
+
         container.innerHTML = '';
-        container.classList.add('fade-in');
-        
+
         if (this.currentRoute === 'home') {
             if (window.Dashboard) {
                 container.innerHTML = window.Dashboard.render();
@@ -59,10 +87,8 @@ const Router = {
             }
             return;
         }
-        
-        // Outras rotas (usando mapa)
+
         const toolName = this.routes[this.currentRoute];
-        
         if (toolName && window[toolName]) {
             const tool = window[toolName];
             container.innerHTML = tool.render();
@@ -72,13 +98,11 @@ const Router = {
         }
         this.attachMiniPlayer(container);
     },
-    
-    // Anexar mini player
+
     attachMiniPlayer(container) {
-        if (this.currentRoute !== 'music' && 
-            window.MusicPlayer?.isPlaying && 
+        if (this.currentRoute !== 'music' &&
+            window.MusicPlayer?.isPlaying &&
             window.MusicPlayer?.currentSong) {
-            
             setTimeout(() => {
                 document.getElementById('mini-player')?.remove();
                 if (window.MusicPlayer.renderMiniPlayer) {
@@ -87,15 +111,12 @@ const Router = {
             }, 100);
         }
     },
-    
-    // Renderizar Home (fallback se Dashboard não existir)
+
     renderHome() {
         const tools = App.tools.filter(t => t.id !== 'home');
         const username = App.user?.username || 'Usuário';
-        
         return `
             <div class="max-w-6xl mx-auto">
-                <!-- Header -->
                 <div class="mb-8">
                     <div class="flex items-center gap-4 mb-4">
                         <div class="text-7xl animate-bounce-slow">🐱</div>
@@ -105,19 +126,13 @@ const Router = {
                         </div>
                     </div>
                 </div>
-                
-                <!-- Grid de Tools -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     ${tools.map(tool => this.renderToolCard(tool)).join('')}
                 </div>
-                
-                <!-- Dica do Dia -->
                 ${this.renderTipCard()}
-            </div>
-        `;
+            </div>`;
     },
-    
-    // Renderizar card de tool
+
     renderToolCard(tool) {
         return `
             <div class="tool-card bg-white rounded-xl shadow-lg p-6 cursor-pointer hover:shadow-xl transform hover:scale-105 transition-all"
@@ -125,11 +140,9 @@ const Router = {
                 <div class="text-5xl mb-4">${tool.icon}</div>
                 <h3 class="text-xl font-bold text-gray-800 mb-2">${tool.name}</h3>
                 <p class="text-gray-600 text-sm">${tool.description}</p>
-            </div>
-        `;
+            </div>`;
     },
-    
-    // Card de dica (remover depois)
+
     renderTipCard() {
         return `
             <div class="mt-12 bg-gradient-to-r from-purple-500 via-pink-500 to-red-500 rounded-xl p-6 text-white shadow-2xl">
@@ -138,27 +151,30 @@ const Router = {
                     <div>
                         <h3 class="text-2xl font-bold mb-2">💡 Dica do Dia にゃん~</h3>
                         <p>Use o <strong>Gerador de Senhas</strong> para criar senhas seguras e únicas para cada site! 🔐✨</p>
-                        <p class="mt-2 text-sm text-purple-100">Novo na v3.0.2: Jogue <strong>2048</strong> na Zona Offline! 🎮</p>
                         <p class="mt-2 text-sm text-purple-100">🎵 <strong>Música em background!</strong> Inicie uma música e continue navegando nas outras abas!</p>
                         <p class="mt-2 text-sm text-purple-100">⌨️ <strong>Atalhos de teclado!</strong> Pressione Ctrl+/ para ver todos os comandos!</p>
                     </div>
                 </div>
-            </div>
-        `;
+            </div>`;
     },
-    
-    // 404
+
     renderNotFound() {
         return `
             <div class="text-center py-20">
                 <div class="text-8xl mb-4">🐱❓</div>
                 <h2 class="text-3xl font-bold text-gray-800 mb-2">Página não encontrada にゃん~</h2>
                 <p class="text-gray-600 mb-6">A ferramenta que você procura não existe.</p>
-                <button onclick="Router.navigate('home')" class="btn-primary">
-                    🏠 Voltar ao Início
-                </button>
-            </div>
-        `;
+                <button onclick="Router.navigate('home')" class="btn-primary">🏠 Voltar ao Início</button>
+            </div>`;
+    },
+
+    init() {
+        // Atalhos Alt+← / Alt+→
+        document.addEventListener('keydown', (e) => {
+            if (e.altKey && e.key === 'ArrowLeft')  { e.preventDefault(); this.back(); }
+            if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); this.forward(); }
+        });
+        console.log('🧭 Router v3.1.0 inicializado');
     }
 };
 

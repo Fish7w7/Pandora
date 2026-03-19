@@ -30,38 +30,85 @@
 
         /* ─── Loading screen */
         #loading-screen {
-            background: #0a0a0f;
+            background: #07070d;
         }
 
+        /* Orbs da loading (menores, estáticos — não puxam CPU) */
+        .loading-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(70px);
+            pointer-events: none;
+        }
+        .loading-orb-1 { width: 500px; height: 500px; background: rgba(109,40,217,0.18); top: -15%; left: -12%; }
+        .loading-orb-2 { width: 420px; height: 420px; background: rgba(131,24,67,0.14);  bottom: -10%; right: -8%; }
+
+        /* Logo */
         .loading-logo {
-            animation: loadingPulse 1.8s ease-in-out infinite;
+            font-size: 5rem;
+            line-height: 1;
+            animation: loadingLogoIn 0.7s cubic-bezier(0.34, 1.56, 0.64, 1) both,
+                       loadingLogoPulse 2.2s ease-in-out 0.8s infinite;
+            filter: drop-shadow(0 0 24px rgba(168,85,247,0.5));
         }
 
-        @keyframes loadingPulse {
-            0%, 100% { transform: scale(1);   filter: drop-shadow(0 0 20px rgba(168,85,247,0.4)); }
-            50%       { transform: scale(1.08); filter: drop-shadow(0 0 40px rgba(236,72,153,0.7)); }
+        @keyframes loadingLogoIn {
+            from { opacity: 0; transform: scale(0.5) translateY(20px); }
+            to   { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
+        @keyframes loadingLogoPulse {
+            0%, 100% { filter: drop-shadow(0 0 18px rgba(168,85,247,0.45)); transform: scale(1); }
+            50%       { filter: drop-shadow(0 0 36px rgba(236,72,153,0.65)); transform: scale(1.06); }
+        }
+
+        /* Título */
+        .loading-title {
+            animation: loadingFadeUp 0.6s ease 0.25s both;
+        }
+
+        /* Subtítulo */
+        .loading-sub {
+            animation: loadingFadeUp 0.6s ease 0.4s both;
+        }
+
+        @keyframes loadingFadeUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Barra de progresso */
+        .loading-bar-wrap {
+            animation: loadingFadeUp 0.6s ease 0.55s both;
         }
 
         .loading-bar-track {
-            width: 200px;
-            height: 3px;
-            background: rgba(255,255,255,0.1);
+            width: 220px;
+            height: 2px;
+            background: rgba(255,255,255,0.08);
             border-radius: 99px;
             overflow: hidden;
+            position: relative;
         }
 
         .loading-bar-fill {
             height: 100%;
-            background: linear-gradient(90deg, #a855f7, #ec4899, #a855f7);
-            background-size: 200% 100%;
             border-radius: 99px;
-            animation: loadingSlide 1.4s ease-in-out infinite;
+            background: linear-gradient(90deg, #7c3aed, #a855f7, #ec4899, #a855f7, #7c3aed);
+            background-size: 300% 100%;
+            animation: loadingBarSlide 1.6s ease-in-out infinite;
         }
 
-        @keyframes loadingSlide {
-            0%   { width: 0%;    background-position: 0% 0%; }
-            50%  { width: 80%;   background-position: 100% 0%; }
-            100% { width: 100%;  background-position: 200% 0%; opacity: 0; }
+        @keyframes loadingBarSlide {
+            0%   { width: 0%;   background-position: 0% 0%;   }
+            45%  { width: 75%;  background-position: 60% 0%;  }
+            55%  { width: 85%;  background-position: 80% 0%;  }
+            100% { width: 100%; background-position: 100% 0%; opacity: 0; }
+        }
+
+        /* Texto de status */
+        .loading-status {
+            animation: loadingFadeUp 0.6s ease 0.65s both;
         }
 
         /* ─── Login screen */
@@ -69,29 +116,16 @@
             background: #0a0a0f;
         }
 
-        /* Grade de pontos decorativa */
-        .dot-grid {
-            background-image: radial-gradient(circle, rgba(255,255,255,0.08) 1px, transparent 1px);
-            background-size: 32px 32px;
-        }
-
-        /* Orbs de fundo */
+        /* Orbs de fundo — estáticos, sem animação (software renderer) */
         .orb {
             position: absolute;
             border-radius: 50%;
-            filter: blur(80px);
+            filter: blur(60px);
             pointer-events: none;
-            animation: orbFloat 8s ease-in-out infinite;
         }
-        .orb-1 { width: 400px; height: 400px; background: rgba(139,92,246,0.25); top: -10%;  left: -10%; }
-        .orb-2 { width: 350px; height: 350px; background: rgba(236,72,153,0.2);  bottom: -5%; right: -5%; animation-delay: -4s; }
-        .orb-3 { width: 200px; height: 200px; background: rgba(14,165,233,0.15); top: 40%;   left: 45%;  animation-delay: -2s; }
-
-        @keyframes orbFloat {
-            0%, 100% { transform: translate(0,0)    scale(1); }
-            33%       { transform: translate(20px,-15px) scale(1.05); }
-            66%       { transform: translate(-10px,10px) scale(0.97); }
-        }
+        .orb-1 { width: 400px; height: 400px; background: rgba(139,92,246,0.22); top: -10%;  left: -10%; }
+        .orb-2 { width: 350px; height: 350px; background: rgba(236,72,153,0.18); bottom: -5%; right: -5%; }
+        .orb-3 { width: 200px; height: 200px; background: rgba(14,165,233,0.12); top: 40%;   left: 45%; }
 
         /* Card de login */
         .login-card {
@@ -202,22 +236,42 @@
          LOADING SCREEN
     ════════════════════════════════════════════════ -->
     <div id="loading-screen" class="fixed inset-0 flex items-center justify-center z-50">
-        <div class="text-center text-white flex flex-col items-center gap-4">
-            <!-- Logo pulsante -->
-            <div class="loading-logo text-7xl select-none">🐱</div>
 
-            <!-- Nome -->
-            <div>
-                <h1 class="font-display text-4xl font-black tracking-tight text-white">NyanTools</h1>
-                <p class="text-white/50 text-sm mt-1 tracking-widest font-semibold uppercase">にゃん~</p>
+        <!-- Orbs estáticos de fundo -->
+        <div class="loading-orb loading-orb-1"></div>
+        <div class="loading-orb loading-orb-2"></div>
+
+        <!-- Conteúdo central -->
+        <div class="flex flex-col items-center" style="gap: 1.25rem;">
+
+            <!-- Logo animado -->
+            <div class="loading-logo select-none">🐱</div>
+
+            <!-- Nome + subtítulo -->
+            <div class="text-center" style="margin-top: -0.25rem;">
+                <h1 class="loading-title font-display font-black text-white"
+                    style="font-size: 2.75rem; letter-spacing: -0.03em; line-height: 1;">
+                    NyanTools
+                </h1>
+                <p class="loading-sub"
+                   style="font-size: 0.7rem; letter-spacing: 0.28em; color: rgba(255,255,255,0.35); font-weight: 600; text-transform: uppercase; margin-top: 0.5rem;">
+                    にゃん~
+                </p>
             </div>
 
             <!-- Barra de progresso -->
-            <div class="loading-bar-track mt-2">
-                <div class="loading-bar-fill"></div>
+            <div class="loading-bar-wrap" style="margin-top: 0.25rem;">
+                <div class="loading-bar-track">
+                    <div class="loading-bar-fill"></div>
+                </div>
             </div>
 
-            <p class="text-white/30 text-xs tracking-wider">Carregando ferramentas...</p>
+            <!-- Status -->
+            <p class="loading-status"
+               style="font-size: 0.7rem; color: rgba(255,255,255,0.22); letter-spacing: 0.12em; margin-top: -0.375rem;">
+                Carregando ferramentas...
+            </p>
+
         </div>
     </div>
 
@@ -226,8 +280,6 @@
          LOGIN SCREEN
     ════════════════════════════════════════════════ -->
     <div id="login-screen" class="hidden fixed inset-0 flex items-center justify-center p-4 overflow-hidden">
-        <!-- Grade de pontos de fundo -->
-        <div class="dot-grid absolute inset-0"></div>
 
         <!-- Orbs de luz -->
         <div class="orb orb-1"></div>
@@ -298,7 +350,7 @@
             <div class="mt-6 text-center">
                 <div class="inline-flex items-center gap-2 text-white/20 text-xs font-semibold tracking-widest">
                     <span class="w-8 h-px bg-white/10 block"></span>
-                    <span>v3.3.0</span>
+                    <span>v3.6.0</span>
                     <span class="w-8 h-px bg-white/10 block"></span>
                 </div>
             </div>
@@ -451,10 +503,16 @@
     <script src="../src/scripts/core/favorites.js"></script>
     <script src="../src/scripts/core/achievements.js"></script>
     <script src="../src/scripts/core/beta-testers.js"></script>
+    <script src="../src/scripts/core/avatar-generator.js"></script>
     <script src="../src/scripts/core/app.js"></script>
     <script src="../src/scripts/tools/updater/updater.js"></script>
     <script src="../src/scripts/tools/notes/notes.js"></script>
     <script src="../src/scripts/tools/tasks/tasks.js"></script>
+    <script src="../src/scripts/core/login-background.js"></script>
+    <script src="../src/scripts/core/login-phrases.js"></script>
+    <script src="../src/scripts/core/login-particles.js"></script>
+    <script src="../src/scripts/core/login-effects.js"></script>
+    <script src="../src/scripts/core/login-intro.js"></script>
 
 </body>
 </html>

@@ -1,32 +1,56 @@
 {
-  "version": "3.4.2",
-  "buildDate": "2026-03-16",
+  "version": "3.6.0",
+  "buildDate": "2026-03-17",
   "changelog": [
-    "🐛 Updater: botão 'Baixar e Instalar' abria o GitHub em vez de baixar — fluxo nativo corrigido",
-    "🐛 Updater: verificação não detectava nova versão disponível em builds instalados (3.4.0 → 3.4.1)",
-    "⚡ Updater: fallback automático para GitHub API quando o updater nativo não responde em 8s"
+    "✨ Avatar gerado automaticamente — gatinho SVG único por nome, aparece na sidebar e no perfil",
+    "🎨 Redesign dos cards do Dashboard e Zona Offline — dark mode consistente e CSS vars",
+    "✨ Empty States ilustrados — Notas, Tarefas e Favoritos com mensagens e botão de ação",
+    "🎨 CSS vars de tipografia — escala de fontes e border-radius padronizados globalmente",
+    "💫 Micro-animações nos botões — scale + ripple effect em todos os botões principais",
+    "🧭 Histórico de navegação — Alt+← volta, Alt+→ avança entre ferramentas",
+    "🐛 Barra de progresso do download corrigida — fix na arquitetura IPC fire-and-forget",
+    "🐛 Dashboard não carregava ao abrir quando Modo Foco estava ativo"
   ],
-  "tag_name": "v3.4.2",
-  "releaseDate": "2026-03-16",
-  "name": "NyanTools v3.4.2 – Tanuki にゃん~",
-  "codename": "Tanuki",
-  "body": "## 🦝 NyanTools v3.4.2 – Tanuki にゃん~\n\n**PATCH:** Correções críticas no sistema de auto-update.\n\n### 🐛 CORREÇÕES\n- Updater: botão 'Baixar e Instalar' abria a página do GitHub em vez de iniciar o download automático.\n- Updater: ao clicar em Verificar em builds instalados, o app não detectava a nova versão disponível — o evento IPC era emitido corretamente pelo main.js mas o frontend não processava a resposta.\n\n### ⚡ MELHORIA\n- Updater: fallback automático para GitHub API quando o updater nativo não emite resposta em 8 segundos.\n\n---\n\n**Versão Anterior:** v3.4.1\n**Codename:** Tanuki 🦝\n**Autor:** Clara",
+  "tag_name": "v3.6.0",
+  "releaseDate": "2026-03-17",
+  "name": "NyanTools v3.6.0 – Smooth & Pretty にゃん~",
+  "codename": "Smooth & Pretty",
+  "body": "## ✨ NyanTools v3.6.0 – Smooth & Pretty にゃん~\n\n**FEATURE:** Polimento visual geral do app — avatar gerado, redesign de cards, empty states e micro-animações.\n\n### ✨ NOVIDADES\n- Avatar SVG gerado automaticamente por nome de usuário — gatinho único na sidebar, hero do perfil e preview. Cor segue o tema ativo.\n- Empty States ilustrados em Notas, Tarefas e Favoritos com mensagens contextuais e botão de ação.\n- Histórico de navegação: Alt+← volta, Alt+→ avança entre ferramentas visitadas.\n- Micro-animações nos botões: scale + ripple effect em todos os botões do app.\n\n### 🎨 VISUAL\n- Redesign dos cards do Dashboard — dark mode consistente, gradiente do tema ativo nas barras e stat cards.\n- Redesign dos cards da Zona Offline — CSS vars, transições padronizadas, título responde ao tema.\n- CSS vars de tipografia globais: escala de 7 tamanhos, 5 pesos, border-radius e transições padronizados.\n\n### 🐛 CORREÇÕES\n- Barra de progresso do download sempre mostrava 0% — corrigido com arquitetura IPC fire-and-forget (ipcMain.on em vez de ipcMain.handle).\n- Dashboard não carregava na abertura do app quando o Modo Foco estava ativo — corrigida ordem de inicialização.\n\n---\n\n**Versão Anterior:** v3.5.0\n**Codename:** Smooth & Pretty ✨\n**Autor:** Junior",
   "previousVersion": {
-    "version": "3.4.1",
-    "tag": "v3.4.1",
-    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.4.1"
+    "version": "3.5.0",
+    "tag": "v3.5.0",
+    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.5.0"
   },
-  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.4.2",
-  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.4.2",
+  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.6.0",
+  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.6.0",
   "statistics": {
-    "filesNew": 0,
+    "filesNew": 1,
     "filesRewritten": 0,
-    "filesModified": 1,
+    "filesModified": 12,
     "bugsFixed": 2,
-    "featuresAdded": 0
+    "featuresAdded": 6
   },
+  "filesNew": [
+    "frontend/src/scripts/core/avatar-generator.js"
+  ],
   "filesModified": [
+    "frontend/public/index.html",
+    "frontend/src/scripts/core/app.js",
+    "frontend/src/scripts/core/router.js",
+    "frontend/src/scripts/tools/dashboard/dashboard.js",
+    "frontend/src/scripts/tools/profile/profile.js",
+    "frontend/src/scripts/tools/offline-zone/offline.js",
+    "frontend/src/scripts/tools/notes/notes.js",
+    "frontend/src/scripts/tools/tasks/tasks.js",
+    "frontend/src/scripts/tools/favorites/favorites.js",
+    "frontend/src/scripts/tools/settings/settings.js",
     "frontend/src/scripts/tools/updater/updater.js",
-    "version.json"
+    "frontend/src/styles/theme-system.css",
+    "frontend/src/styles/animations.css",
+    "frontend/src/styles/main.css",
+    "backend/src/main.js",
+    "backend/src/preload.js",
+    "version.json",
+    "package.json"
   ]
 }

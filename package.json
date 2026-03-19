@@ -1,7 +1,7 @@
 {
   "name": "nyantools",
-  "version": "3.4.2",
-  "description": "NyanTools - Your purr-fect toolkit にゃん~ | Correções críticas no sistema de auto-update",
+  "version": "3.6.0",
+  "description": "NyanTools - Your purr-fect toolkit にゃん~ | Smooth & Pretty — polimento visual, avatar gerado e fix do updater",
   "main": "backend/src/main.js",
   "scripts": {
     "start": "electron .",

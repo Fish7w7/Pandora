@@ -233,10 +233,6 @@ const Settings = {
                     <div class="flex items-center gap-3 mb-5">
                         <span class="text-2xl">🎯</span>
                         <div>
-                            <h3 class="font-black text-gray-800 flex items-center gap-2">
-                                Modo Foco
-                                <span style="display:inline-flex;align-items:center;gap:0.3rem;font-size:0.7rem;font-weight:700;background:linear-gradient(135deg,rgba(168,85,247,0.15),rgba(236,72,153,0.15));border:1px solid rgba(168,85,247,0.3);color:#c084fc;border-radius:99px;padding:2px 8px;letter-spacing:0.04em;text-transform:uppercase;">NOVO</span>
-                            </h3>
                             <p class="text-sm text-gray-500">Esconde a sidebar para maximizar o espaço de trabalho</p>
                         </div>
                     </div>
@@ -280,6 +276,36 @@ const Settings = {
                         </div>
                     </div>
                     ${renderThemeSelector()}
+                </div>
+
+                <!-- Intro Animada -->
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+                    <div class="flex items-center gap-3 mb-5">
+                        <span class="text-2xl">🎬</span>
+                        <div>
+                            <h3 class="font-black text-gray-800">Intro Animada</h3>
+                            <p class="text-sm text-gray-500">Animação de abertura exibida ao iniciar o app</p>
+                        </div>
+                    </div>
+                    ${this._renderToggleRow(
+                        'Exibir intro ao abrir',
+                        'Animação com logo e nome do app ao iniciar',
+                        '🎬',
+                        window.LoginIntro?.isEnabled?.() ?? true,
+                        `LoginIntro?.setEnabled?.(this.checked)`
+                    )}
+                    <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="bg-gray-50 rounded-xl p-3 text-center">
+                            <div class="text-xl mb-1">⏱️</div>
+                            <div class="text-xs font-bold text-gray-700">Duração</div>
+                            <div class="text-xs text-gray-500 mt-0.5">~2.8 segundos</div>
+                        </div>
+                        <div class="bg-gray-50 rounded-xl p-3 text-center">
+                            <div class="text-xl mb-1">🖱️</div>
+                            <div class="text-xs font-bold text-gray-700">Pular</div>
+                            <div class="text-xs text-gray-500 mt-0.5">Clique em qualquer lugar</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         `;
@@ -562,7 +588,7 @@ const Settings = {
                         <p class="text-gray-400 mt-1 mb-4">にゃん~ Sua caixa de ferramentas purr-feita!</p>
                         <div class="inline-flex items-center gap-2 bg-white/10 px-4 py-1.5 rounded-full text-sm font-bold">
                             <span style="width:8px;height:8px;border-radius:50%;background:#34d399;display:inline-block;animation:aboutPulse 2s ease-in-out infinite;"></span>
-                            Versão ${App?.version || '3.4.2'}
+                            Versão ${App?.version || '3.6.0'}
                         </div>
                         <style>@keyframes aboutPulse{0%,100%{opacity:1}50%{opacity:0.35}}</style>
                     </div>
