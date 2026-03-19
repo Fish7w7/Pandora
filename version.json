@@ -1,40 +1,34 @@
 {
-  "version": "3.7.0",
+  "version": "3.7.1",
   "buildDate": "2026-03-19",
   "changelog": [
-    "⌨️ Type Racer: jogo de digitação com 3 modos, WPM ao vivo e gráfico por palavra",
-    "🧠 Quiz Diário: 10 perguntas de cultura geral com seed diária — mesmo quiz para todos",
-    "🎰 Caça-Níquel: gire os rolos, tente o jackpot 🐱🐱🐱 e acumule chips",
-    "🐛 Zona Offline: voltando pela sidebar não carrega mais o último jogo aberto"
+    "🐛 Zona Offline: Termo, Forca e Jogo da Velha fechavam ao re-renderizar internamente",
+    "🐛 2048: botões Novo Jogo e Continuar estavam com tamanho errado",
+    "🐛 Assistente IA: campo de mensagem e botão Enviar estavam grandes"
   ],
-  "tag_name": "v3.7.0",
+  "tag_name": "v3.7.1",
   "releaseDate": "2026-03-19",
-  "name": "NyanTools v3.7.0 – Zona Arcade にゃん~",
-  "codename": "Zona Arcade",
-  "body": "## 🕹️ NyanTools v3.7.0 – Zona Arcade にゃん~\n\n**FEATURE:** Três novos jogos para a Zona Offline — Type Racer, Quiz Diário e Caça-Níquel.\n\n### ⌨️ TYPE RACER\n- 3 modos de jogo: Clássico (uma frase), Maratona (60 segundos) e Precisão (sem tempo, erro penaliza).\n- WPM ao vivo atualizado a cada 400ms enquanto você digita.\n- Gráfico de barras com velocidade por palavra ao final.\n- 120+ frases em português: provérbios, curiosidades tech, referências japonesas e motivacionais.\n- Highscore no Dashboard.\n\n### 🧠 QUIZ DIÁRIO\n- 10 perguntas de múltipla escolha por dia com seed baseada na data — todo usuário vê as mesmas perguntas.\n- 100 questões em 10 categorias: tecnologia, ciências, geografia, história, cultura pop, esportes, curiosidades, Brasil, arte e alimentação.\n- Feedback imediato com explicação em cada resposta.\n- Bloqueio de segunda tentativa no mesmo dia com countdown para meia-noite.\n- Rating: Gênio 10/10, Estudioso 8-9, Mediano 5-7, Tente amanhã <5.\n\n### 🎰 CAÇA-NÍQUEL\n- Símbolos temáticos: 🐱 🔑 🌤️ 🤖 🎵 📝 ⭐ 💎\n- Animação sequencial por reel — para um por um da esquerda para direita.\n- Pagamentos: par=aposta devolvida, três iguais=5x, jackpot 🐱🐱🐱=50x.\n- Chips compartilhados entre jogos de sorte. Recorde de maior saldo no Dashboard.\n\n### 🐛 CORREÇÕES\n- Zona Offline: navegar para outra aba e voltar não carrega mais o último jogo aberto — o grid de jogos é sempre exibido.\n\n---\n\n**Versão Anterior:** v3.6.0\n**Codename:** Zona Arcade 🕹️\n**Autor:** Junior",
+  "name": "NyanTools v3.7.1 にゃん~",
+  "codename": "Hotfix",
+  "body": "## 🐛 NyanTools v3.7.1 — Hotfix にゃん~\n\nCorreções de bugs introduzidos na v3.7.0.\n\n### 🐛 CORREÇÕES\n- Zona Offline: Termo, Forca e Jogo da Velha fechavam o jogo ao chamar Router.render() internamente — corrigido com flag _insideGame.\n- 2048: botões 'Novo Jogo' e 'Continuar' estavam com tamanho errado por classes Tailwind sem compilador.\n- Assistente IA: campo de mensagem e botão Enviar estavam grandes pelo mesmo motivo.\n\n---\n\n**Versão Anterior:** v3.7.0\n**Autor:** Junior",
   "previousVersion": {
-    "version": "3.6.0",
-    "tag": "v3.6.0",
-    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.6.0"
+    "version": "3.7.0",
+    "tag": "v3.7.0",
+    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.7.0"
   },
-  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.7.0",
-  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.7.0",
+  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.7.1",
+  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.7.1",
   "statistics": {
-    "filesNew": 3,
+    "filesNew": 0,
     "filesRewritten": 0,
     "filesModified": 3,
-    "bugsFixed": 1,
-    "featuresAdded": 3
+    "bugsFixed": 3,
+    "featuresAdded": 0
   },
-  "filesNew": [
-    "frontend/src/scripts/tools/offline-zone/typeracer.js",
-    "frontend/src/scripts/tools/offline-zone/quiz.js",
-    "frontend/src/scripts/tools/offline-zone/slotmachine.js"
-  ],
   "filesModified": [
-    "frontend/public/index.html",
     "frontend/src/scripts/tools/offline-zone/offline.js",
-    "frontend/src/scripts/tools/dashboard/dashboard.js",
+    "frontend/src/scripts/tools/offline-zone/2048.js",
+    "frontend/src/scripts/tools/ai-assistant/ai-chat.js",
     "version.json",
     "package.json"
   ]

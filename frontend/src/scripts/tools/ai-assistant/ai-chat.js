@@ -38,12 +38,15 @@ const AIAssistant = {
                     <div class="border-t-2 border-gray-200 p-6 bg-white">
                         <div class="flex gap-3 mb-4">
                             <input type="text" id="chat-input" 
-                                class="flex-1 px-6 py-4 border-2 border-gray-300 rounded-xl focus:border-blue-500 focus:ring-4 focus:ring-blue-200 outline-none transition-all text-lg" 
+                                style="flex:1; padding:0.6rem 1rem; border:2px solid #d1d5db; border-radius:0.75rem; font-size:0.9rem; outline:none; transition:border-color 0.2s; font-family:inherit;"
                                 placeholder="Digite sua mensagem..."
+                                onfocus="this.style.borderColor='#3b82f6'"
+                                onblur="this.style.borderColor='#d1d5db'"
                                 onkeypress="if(event.key === 'Enter') AIAssistant.sendMessage()">
                             <button onclick="AIAssistant.sendMessage()" 
-                                    class="px-8 py-4 bg-gradient-to-r from-blue-600 to-cyan-600 text-white rounded-xl font-bold text-lg shadow-lg hover:shadow-2xl transform hover:scale-105 active:scale-95 transition-all flex items-center gap-2">
-                                <span class="text-2xl">📤</span>
+                                    style="padding:0.6rem 1.25rem; background:linear-gradient(135deg,#3b82f6,#06b6d4); color:white; border:none; border-radius:0.75rem; font-weight:700; font-size:0.875rem; cursor:pointer; display:flex; align-items:center; gap:0.5rem; transition:filter 0.15s; white-space:nowrap;"
+                                    onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter=''">
+                                <span>📤</span>
                                 <span>Enviar</span>
                             </button>
                         </div>

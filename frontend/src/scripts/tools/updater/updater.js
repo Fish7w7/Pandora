@@ -4,7 +4,7 @@
 ═══════════════════════════════════════════════════════*/
 
 const AutoUpdater = {
-    currentVersion: '3.7.0',
+    currentVersion: '3.7.1',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -29,34 +29,28 @@ const AutoUpdater = {
 
     changelog: [
     {
-        version: '3.7.0',
-        date: '2026-03-19T20:00:00',
+        version: '3.7.1',
+        date: '2026-03-19T23:00:00',
         label: 'Atual',
         labelColor: 'bg-green-500',
+        author: 'Gabriel',
+        changes: [
+            { type: '🐛', text: 'Zona Offline: Termo, Forca e Jogo da Velha fechavam o jogo ao re-renderizar internamente' },
+            { type: '🐛', text: '2048: botões "Novo Jogo" e "Continuar" estavam com tamanho errado por classes Tailwind sem compilar' },
+            { type: '🐛', text: 'Assistente IA: campo de mensagem e botão Enviar estavam grandes por classes Tailwind sem compilar' },
+        ]
+    },
+    {
+        version: '3.7.0',
+        date: '2026-03-19T20:00:00',
+        label: null,
+        labelColor: '',
         author: 'Clara',
         changes: [
             { type: '⌨️', text: 'Type Racer — jogo de digitação com 3 modos: Clássico, Maratona (60s) e Precisão com penalidade' },
             { type: '🧠', text: 'Quiz Diário — 10 perguntas de cultura geral com seed diária, mesmo quiz para todos, renova à meia-noite' },
             { type: '🎰', text: 'Caça-Níquel — gire os rolos, acumule chips e tente o jackpot 🐱🐱🐱 (50x)' },
             { type: '🐛', text: 'Zona Offline: voltar pela sidebar não carrega mais o último jogo aberto' },
-        ]
-    },
-    {
-        version: '3.6.0',
-        date: '2026-03-17T20:00:00',
-        label: null,
-        labelColor: '',
-        author: 'Gabriel',
-        changes: [
-            { type: '✨', text: 'Avatar gerado automaticamente — gatinho SVG único por nome de usuário, aparece na sidebar e no perfil' },
-            { type: '🎨', text: 'Redesign dos cards do Dashboard — dark mode consistente, gradiente do tema ativo, CSS vars' },
-            { type: '🎨', text: 'Redesign dos cards da Zona Offline — CSS vars, border-radius e transições padronizados' },
-            { type: '✨', text: 'Empty States ilustrados — Notas, Tarefas e Favoritos com mensagens contextuais e botão de ação' },
-            { type: '🎨', text: 'CSS vars de tipografia — escala de fontes, pesos e border-radius padronizados globalmente' },
-            { type: '💫', text: 'Micro-animações nos botões — scale + ripple effect em todos os botões principais' },
-            { type: '🧭', text: 'Histórico de navegação — Alt+← volta, Alt+→ avança entre ferramentas' },
-            { type: '🐛', text: 'Barra de progresso do download corrigida — arquitetura fire-and-forget resolve o bloqueio do IPC' },
-            { type: '🐛', text: 'Dashboard não carregava ao abrir o app quando Modo Foco estava ativo' },
         ]
     },
 ],

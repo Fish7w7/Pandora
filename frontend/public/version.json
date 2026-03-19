@@ -1,10 +1,9 @@
 {
-  "version": "3.7.0",
+  "version": "3.7.1",
   "buildDate": "2026-03-19",
   "changelog": [
-    "⌨️ Type Racer: jogo de digitação com 3 modos, WPM ao vivo e gráfico por palavra",
-    "🧠 Quiz Diário: 10 perguntas de cultura geral com seed diária — mesmo quiz para todos",
-    "🎰 Caça-Níquel: gire os rolos, tente o jackpot 🐱🐱🐱 e acumule chips",
-    "🐛 Zona Offline: voltando pela sidebar não carrega mais o último jogo aberto"
+    "🐛 Zona Offline: Termo, Forca e Jogo da Velha fechavam ao re-renderizar internamente",
+    "🐛 2048: botões Novo Jogo e Continuar estavam com tamanho errado",
+    "🐛 Assistente IA: campo de mensagem e botão Enviar estavam grandes"
   ]
 }

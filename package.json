@@ -1,7 +1,7 @@
 {
   "name": "nyantools",
-  "version": "3.7.0",
-  "description": "NyanTools - Your purr-fect toolkit にゃん~ | Zona Arcade — Type Racer, Quiz Diário e Caça-Níquel",
+  "version": "3.7.1",
+  "description": "NyanTools - Your purr-fect toolkit にゃん~ | Hotfix — correções no Termo, Forca, 2048 e Assistente IA",
   "main": "backend/src/main.js",
   "scripts": {
     "start": "electron .",

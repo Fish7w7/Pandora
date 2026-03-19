@@ -115,14 +115,16 @@ const Game2048 = {
             <div class="bg-white dark:bg-slate-800 rounded-xl shadow-lg p-4 mb-4 border dark:border-slate-700">
                 <div class="grid grid-cols-2 gap-3 mb-4">
                     <button onclick="Game2048.newGame()" 
-                            class="bg-gradient-to-r from-green-500 to-emerald-600 text-white py-3 rounded-xl font-bold hover:shadow-lg hover:scale-105 transition-all flex items-center justify-center gap-2">
+                            style="background:linear-gradient(135deg,#22c55e,#059669);color:white;padding:0.5rem 0.75rem;border-radius:0.75rem;font-weight:700;font-size:0.85rem;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:filter 0.15s;"
+                            onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter=''">
                         <span>🎮</span>
                         <span>Novo Jogo</span>
                     </button>
                     <button onclick="Game2048.continueGame()" 
                             id="continue-btn"
                             ${this.gameState === 'idle' ? 'disabled' : ''}
-                            class="bg-gradient-to-r from-blue-500 to-cyan-600 text-white py-3 rounded-xl font-bold hover:shadow-lg hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2">
+                            style="background:linear-gradient(135deg,#3b82f6,#06b6d4);color:white;padding:0.5rem 0.75rem;border-radius:0.75rem;font-weight:700;font-size:0.85rem;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:0.5rem;transition:filter 0.15s;${this.gameState === 'idle' ? 'opacity:0.5;cursor:not-allowed;' : ''}"
+                            onmouseover="if(!this.disabled)this.style.filter='brightness(1.1)'" onmouseout="this.style.filter=''">
                         <span>▶️</span>
                         <span>Continuar</span>
                     </button>

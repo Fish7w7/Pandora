@@ -2,6 +2,7 @@
 
 const OfflineZone = {
     currentGame: null,
+    _insideGame: false,
 
     games: {
         tictactoe: { name: 'Jogo da Velha', icon: '❌⭕', desc: '2 jogadores ou vs Mayara 🤖',           color: '#3b82f6', glow: 'rgba(59,130,246,0.35)' },
@@ -194,10 +195,13 @@ const OfflineZone = {
     },
 
     init() {
-        this.currentGame = null;
+        if (!this._insideGame) {
+            this.currentGame = null;
+        }
     },
 
     startGame(game) {
+        this._insideGame = true;
         this.currentGame = game;
         this._initGame(game);
         Router?.render();
@@ -237,6 +241,7 @@ const OfflineZone = {
     },
 
     backToMenu() {
+        this._insideGame = false;
         this.currentGame = null;
         if (this._escHandler) {
             document.removeEventListener('keydown', this._escHandler);
