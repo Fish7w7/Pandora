@@ -380,11 +380,13 @@ const Termo = {
             this.won = true;
             const attempts = this.guesses.length;
             const currentBest = Utils.loadData('termo_best');
-            if (!currentBest || attempts < currentBest) {
+            const isNewRecord = !currentBest || attempts < currentBest;
+            if (isNewRecord) {
                 Utils.saveData('termo_best', attempts);
                 window.Economy?.checkRecord?.('termo_best', attempts, false);
             }
             window.Missions?.track?.({ event: 'termo_win', attempts });
+            if (isNewRecord) window.Missions?.track?.({ event: 'beat_record', game: 'termo' });
             window.Economy?.grant?.('play_game');
             Utils.showNotification?.('🎉 Parabéns! Você acertou! にゃん~', 'success');
         } else if (this.guesses.length >= this.maxAttempts) {

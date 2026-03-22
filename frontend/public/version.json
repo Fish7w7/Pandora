@@ -1,9 +1,16 @@
 {
-  "version": "3.7.1",
-  "buildDate": "2026-03-19",
+  "version": "3.8.0",
+  "buildDate": "2026-03-22",
   "changelog": [
-    "🐛 Zona Offline: Termo, Forca e Jogo da Velha fechavam ao re-renderizar internamente",
-    "🐛 2048: botões Novo Jogo e Continuar estavam com tamanho errado",
-    "🐛 Assistente IA: campo de mensagem e botão Enviar estavam grandes"
+    "✨ Sistema de XP e Níveis com marcos em nv10, nv25 e nv50",
+    "💰 Chips — moeda integrada a todos os jogos e missões",
+    "📋 Missões Diárias — 3 por dia + desafio semanal com recompensas",
+    "🛍️ Loja com rotação semanal — títulos, bordas, temas, efeitos e partículas",
+    "🎒 Inventário — equipe itens em tempo real com efeitos aplicados instantaneamente",
+    "🌸 Temas visuais com efeitos de login (Sakura, Midnight, Neon, Chamas)",
+    "✨ Partículas de perfil em órbita ao redor do avatar",
+    "🌈 Bordas animadas incluindo Borda Neon com pulso de cor",
+    "↔️ Efeitos de navegação: Slide, Zoom e Bounce",
+    "📊 Bloco Economy no Perfil com barra de XP e histórico"
   ]
 }

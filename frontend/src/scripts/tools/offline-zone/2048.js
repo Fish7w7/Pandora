@@ -485,12 +485,14 @@ const Game2048 = {
             history: this.history
         });
         
-        if (this.score > this.bestScore) {
+        const _isNewRecord2048 = this.score > this.bestScore;
+        if (_isNewRecord2048) {
             this.bestScore = this.score;
             Utils.saveData('game_2048_highscore', this.bestScore);
             window.Economy?.checkRecord?.('game_2048_highscore', this.bestScore);
         }
         window.Missions?.track?.({ event: 'score_2048', score: this.score });
+        if (_isNewRecord2048) window.Missions?.track?.({ event: 'beat_record', game: '2048' });
     },
     
     updateUI() {

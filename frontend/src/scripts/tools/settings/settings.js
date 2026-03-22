@@ -140,6 +140,7 @@ const Settings = {
 
     tabs: [
         { id: 'appearance',    name: 'Aparência',      icon: '🎨' },
+        { id: 'interface',     name: 'Interface',      icon: '🖥️' },
         { id: 'updates',       name: 'Atualizações',   icon: '🔄' },
         { id: 'notifications', name: 'Notificações',   icon: '🔔' },
         { id: 'data',          name: 'Dados',          icon: '💾' },
@@ -195,6 +196,7 @@ const Settings = {
     renderTabContent() {
         const renderers = {
             appearance:    () => this.renderAppearance(),
+            interface:     () => this.renderInterface(),
             updates:       () => this.renderUpdates(),
             notifications: () => this.renderNotifications(),
             data:          () => this.renderData(),
@@ -228,44 +230,6 @@ const Settings = {
                     </div>
                 </div>
 
-                <!-- Modo Foco -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="flex items-center gap-3 mb-5">
-                        <span class="text-2xl">🎯</span>
-                        <div>
-                            <p class="text-sm text-gray-500">Esconde a sidebar para maximizar o espaço de trabalho</p>
-                        </div>
-                    </div>
-
-                    <!-- Toggle principal -->
-                    ${this._renderToggleRow(
-                        'Ativar Modo Foco',
-                        'A sidebar some e o conteúdo ocupa toda a largura',
-                        '🎯',
-                        focusActive,
-                        `FocusMode[this.checked ? 'enable' : 'disable']()`
-                    )}
-
-                    <!-- Info cards -->
-                    <div class="mt-4 grid grid-cols-3 gap-3">
-                        <div class="bg-gray-50 rounded-xl p-3 text-center">
-                            <div class="text-xl mb-1">⌨️</div>
-                            <div class="text-xs font-bold text-gray-700">Atalho</div>
-                            <kbd class="text-xs bg-white border border-gray-200 rounded px-2 py-0.5 font-mono text-gray-600 shadow-sm">Ctrl+Shift+F</kbd>
-                        </div>
-                        <div class="bg-gray-50 rounded-xl p-3 text-center">
-                            <div class="text-xl mb-1">🖱️</div>
-                            <div class="text-xs font-bold text-gray-700">Sidebar temporária</div>
-                            <div class="text-xs text-gray-500 mt-0.5">Passe o mouse na borda esquerda</div>
-                        </div>
-                        <div class="bg-gray-50 rounded-xl p-3 text-center">
-                            <div class="text-xl mb-1">💾</div>
-                            <div class="text-xs font-bold text-gray-700">Estado salvo</div>
-                            <div class="text-xs text-gray-500 mt-0.5">Reabre no mesmo modo</div>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- Cores / Tema -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <div class="flex items-center gap-3 mb-5">
@@ -278,40 +242,87 @@ const Settings = {
                     ${renderThemeSelector()}
                 </div>
 
-                <!-- Intro Animada -->
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
-                    <div class="flex items-center gap-3 mb-5">
-                        <span class="text-2xl">🎬</span>
-                        <div>
-                            <h3 class="font-black text-gray-800">Intro Animada</h3>
-                            <p class="text-sm text-gray-500">Animação de abertura exibida ao iniciar o app</p>
-                        </div>
-                    </div>
-                    ${this._renderToggleRow(
-                        'Exibir intro ao abrir',
-                        'Animação com logo e nome do app ao iniciar',
-                        '🎬',
-                        window.LoginIntro?.isEnabled?.() ?? true,
-                        `LoginIntro?.setEnabled?.(this.checked)`
-                    )}
-                    <div class="mt-3 grid grid-cols-2 gap-3">
-                        <div class="bg-gray-50 rounded-xl p-3 text-center">
-                            <div class="text-xl mb-1">⏱️</div>
-                            <div class="text-xs font-bold text-gray-700">Duração</div>
-                            <div class="text-xs text-gray-500 mt-0.5">~2.8 segundos</div>
-                        </div>
-                        <div class="bg-gray-50 rounded-xl p-3 text-center">
-                            <div class="text-xl mb-1">🖱️</div>
-                            <div class="text-xs font-bold text-gray-700">Pular</div>
-                            <div class="text-xs text-gray-500 mt-0.5">Clique em qualquer lugar</div>
-                        </div>
-                    </div>
-                </div>
             </div>
         `;
     },
 
-    _renderModeCard(id, name, emoji, desc, gradient, currentTheme, isDark) {
+    // ══════════════════════════════
+    // ══════════════════════════════
+    // TAB: INTERFACE
+    // ══════════════════════════════
+
+    renderInterface() {
+        const focusActive = window.FocusMode?.active || false;
+        const introEnabled = window.LoginIntro?.isEnabled?.() ?? true;
+        const d = document.body.classList.contains('dark-theme');
+        const bg     = d ? 'rgba(255,255,255,0.04)' : '#ffffff';
+        const border = d ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)';
+        const text   = d ? '#f1f5f9'                : '#0f172a';
+        const sub    = d ? 'rgba(255,255,255,0.45)' : '#6b7280';
+        const chip   = d ? 'rgba(255,255,255,0.06)' : '#f9fafb';
+
+        function mkToggle(label, desc, icon, checked, onchange) {
+            const knob = checked ? '23px' : '3px';
+            const track = checked ? 'var(--theme-primary,#a855f7)' : (d ? 'rgba(255,255,255,0.12)' : '#d1d5db');
+            return '<div style="display:flex;align-items:center;justify-content:space-between;padding:0.875rem 1rem;background:' + chip + ';border-radius:12px;gap:1rem;">'
+                + '<div style="display:flex;align-items:center;gap:0.75rem;">'
+                + '<span style="font-size:1.1rem;">' + icon + '</span>'
+                + '<div>'
+                + '<div style="font-size:0.85rem;font-weight:700;color:' + text + ';">' + label + '</div>'
+                + '<div style="font-size:0.72rem;color:' + sub + ';">' + desc + '</div>'
+                + '</div></div>'
+                + '<label style="position:relative;display:inline-block;width:44px;height:24px;flex-shrink:0;">'
+                + '<input type="checkbox" ' + (checked ? 'checked' : '') + ' onchange="' + onchange + '" style="opacity:0;width:0;height:0;position:absolute;">'
+                + '<span style="position:absolute;inset:0;border-radius:99px;cursor:pointer;transition:0.2s;background:' + track + ';">'
+                + '<span style="position:absolute;width:18px;height:18px;border-radius:50%;background:white;top:3px;transition:0.2s;left:' + knob + ';box-shadow:0 1px 4px rgba(0,0,0,0.25);"></span>'
+                + '</span></label>'
+                + '</div>';
+        }
+
+        function mkChip(icon, title, body) {
+            return '<div style="background:' + chip + ';border-radius:10px;padding:0.75rem;text-align:center;">'
+                + '<div style="font-size:1.25rem;margin-bottom:0.25rem;">' + icon + '</div>'
+                + '<div style="font-size:0.72rem;font-weight:700;color:' + text + ';">' + title + '</div>'
+                + '<div style="font-size:0.68rem;color:' + sub + ';margin-top:0.2rem;">' + body + '</div>'
+                + '</div>';
+        }
+
+        function mkCard(icon, title, desc, content) {
+            return '<div style="background:' + bg + ';border:1px solid ' + border + ';border-radius:16px;padding:1.5rem;">'
+                + '<div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:1.25rem;">'
+                + '<span style="font-size:1.5rem;">' + icon + '</span>'
+                + '<div>'
+                + '<h3 style="font-family:Syne,sans-serif;font-weight:800;font-size:0.95rem;color:' + text + ';margin:0;">' + title + '</h3>'
+                + '<p style="font-size:0.75rem;color:' + sub + ';margin:0.125rem 0 0;">' + desc + '</p>'
+                + '</div></div>'
+                + content
+                + '</div>';
+        }
+
+        const focusCard = mkCard('🎯', 'Modo Foco', 'Esconde a sidebar para maximizar o espaço de trabalho',
+            mkToggle('Ativar Modo Foco', 'A sidebar some e o conteúdo ocupa toda a largura', '🎯',
+                     focusActive, "FocusMode[this.checked?'enable':'disable']()")
+            + '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.625rem;margin-top:1rem;">'
+            + mkChip('⌨️', 'Atalho', '<kbd style="font-family:monospace;font-size:0.7rem;">Ctrl+Shift+F</kbd>')
+            + mkChip('🖱️', 'Sidebar temporária', 'Passe o mouse na borda esquerda')
+            + mkChip('💾', 'Estado salvo', 'Reabre no mesmo modo')
+            + '</div>'
+        );
+
+        const introCard = mkCard('🎬', 'Intro Animada', 'Animação de abertura exibida ao iniciar o app',
+            mkToggle('Exibir intro ao abrir', 'Animação com logo e nome do app ao iniciar', '🎬',
+                     introEnabled, 'LoginIntro?.setEnabled?.(this.checked)')
+            + '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.625rem;margin-top:1rem;">'
+            + mkChip('⏱️', 'Duração', '~4.5 segundos')
+            + mkChip('🖱️', 'Pular', 'Clique em qualquer lugar')
+            + '</div>'
+        );
+
+        return '<div style="display:flex;flex-direction:column;gap:1.25rem;">' + focusCard + introCard + '</div>';
+    },
+
+
+        _renderModeCard(id, name, emoji, desc, gradient, currentTheme, isDark) {
         const isActive = currentTheme === id;
         const textColor = isDark ? 'text-white' : 'text-gray-800';
         const subColor  = isDark ? 'text-gray-300' : 'text-gray-500';
@@ -545,7 +556,7 @@ const Settings = {
     _renderDataBtn(action, icon, title, desc, gradient, danger = false) {
         return `
             <button onclick="Settings.${action}()"
-                    class="flex items-center gap-4 p-4 bg-gradient-to-br ${gradient} text-white rounded-xl hover:shadow-lg hover:scale-[1.01] active:scale-95 transition-all text-left group">
+                    class="no-ripple flex items-center gap-4 p-4 bg-gradient-to-br ${gradient} text-white rounded-xl hover:shadow-lg hover:scale-[1.01] active:scale-95 transition-all text-left group">
                 <div class="text-3xl group-hover:scale-110 transition-transform">${icon}</div>
                 <div>
                     <div class="font-bold text-sm">${title}</div>
@@ -588,7 +599,7 @@ const Settings = {
                         <p class="text-gray-400 mt-1 mb-4">にゃん~ Sua caixa de ferramentas purr-feita!</p>
                         <div class="inline-flex items-center gap-2 bg-white/10 px-4 py-1.5 rounded-full text-sm font-bold">
                             <span style="width:8px;height:8px;border-radius:50%;background:#34d399;display:inline-block;animation:aboutPulse 2s ease-in-out infinite;"></span>
-                            Versão ${App?.version || '3.7.1'}
+                            Versão ${App?.version || '3.8.0'}
                         </div>
                         <style>@keyframes aboutPulse{0%,100%{opacity:1}50%{opacity:0.35}}</style>
                     </div>
@@ -777,6 +788,41 @@ const Settings = {
         return `${this._getStorageKB().toFixed(2)} KB`;
     },
 
+    // ── Modal customizado (substitui confirm() nativo) ──────────────────
+    _confirm(opts) {
+        return new Promise(function(resolve) {
+            var d   = document.body.classList.contains('dark-theme');
+            var bg  = d ? '#1a1a2e' : '#ffffff';
+            var txt = d ? '#f1f5f9' : '#0f172a';
+            var sub = d ? 'rgba(255,255,255,0.5)' : '#6b7280';
+            var confirmBg = opts.danger
+                ? 'linear-gradient(135deg,#ef4444,#dc2626)'
+                : 'linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899))';
+
+            var overlay = document.createElement('div');
+            overlay.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);';
+            overlay.innerHTML = '<div style="background:' + bg + ';border-radius:20px;padding:2rem;max-width:420px;width:90%;'
+                + 'box-shadow:0 32px 80px rgba(0,0,0,0.5);border:1px solid rgba(255,255,255,0.08);">'
+                + '<div style="font-size:2.5rem;text-align:center;margin-bottom:1rem;">' + (opts.icon || '❓') + '</div>'
+                + '<h3 style="font-family:Syne,sans-serif;font-weight:800;font-size:1.1rem;color:' + txt + ';text-align:center;margin:0 0 0.5rem;">' + opts.title + '</h3>'
+                + '<p style="font-size:0.82rem;color:' + sub + ';text-align:center;line-height:1.6;margin:0 0 1.75rem;">' + opts.message + '</p>'
+                + '<div style="display:flex;gap:0.75rem;">'
+                + '<button id="modal-cancel" style="flex:1;padding:0.75rem;border-radius:10px;border:1px solid rgba(255,255,255,0.12);'
+                + 'background:rgba(255,255,255,0.06);color:' + sub + ';font-weight:700;font-size:0.85rem;cursor:pointer;font-family:DM Sans,sans-serif;">Cancelar</button>'
+                + '<button id="modal-confirm" style="flex:1;padding:0.75rem;border-radius:10px;border:none;'
+                + 'background:' + confirmBg + ';color:white;font-weight:700;font-size:0.85rem;cursor:pointer;font-family:DM Sans,sans-serif;">'
+                + (opts.confirm || 'Confirmar') + '</button>'
+                + '</div></div>';
+
+            document.body.appendChild(overlay);
+            function close(val) { overlay.remove(); resolve(val); }
+            overlay.querySelector('#modal-cancel').onclick  = function() { close(false); };
+            overlay.querySelector('#modal-confirm').onclick = function() { close(true); };
+            overlay.onclick = function(e) { if (e.target === overlay) close(false); };
+        });
+    },
+
+
     exportData() {
         const data = {};
         for (let key in localStorage) {
@@ -802,10 +848,11 @@ const Settings = {
             const file = e.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = (ev) => {
+            reader.onload = async (ev) => {
                 try {
                     const data = JSON.parse(ev.target.result);
-                    if (!confirm('⚠️ Isso irá sobrescrever todos os dados atuais. Continuar?')) return;
+                    const ok = await Settings._confirm({ icon:'📥', title:'Importar Backup', message:'Isso irá sobrescrever todos os dados atuais com os dados do arquivo selecionado.', confirm:'Importar', danger:false });
+                    if (!ok) return;
                     for (let key in data) localStorage.setItem(key, data[key]);
                     Utils.showNotification?.('📥 Backup importado! Recarregando...', 'success');
                     setTimeout(() => location.reload(), 1500);
@@ -818,8 +865,9 @@ const Settings = {
         input.click();
     },
 
-    clearCache() {
-        if (!confirm('🧹 Limpar cache? Suas configurações e dados serão preservados.')) return;
+    async clearCache() {
+        const ok = await Settings._confirm({ icon:'🧹', title:'Limpar Cache', message:'Remove dados temporários. Suas configurações e dados de jogo serão preservados.', confirm:'Limpar', danger:false });
+        if (!ok) return;
         let removed = 0;
         for (let key in localStorage) {
             if (key.includes('cache') || key.includes('temp') || key.includes('version_cache')) {
@@ -831,9 +879,11 @@ const Settings = {
         Router?.render();
     },
 
-    resetAll() {
-        if (!confirm('⚠️ ATENÇÃO: Isso irá apagar TODOS os dados do NyanTools!\n\nJogos, configurações, API keys e histórico serão perdidos.\n\nDeseja continuar?')) return;
-        if (!confirm('🚨 Última chance! Esta ação NÃO PODE ser desfeita.\n\nTem certeza absoluta?')) return;
+    async resetAll() {
+        const ok1 = await Settings._confirm({ icon:'⚠️', title:'Resetar Tudo', message:'Isso irá apagar TODOS os dados do NyanTools. Jogos, configurações, API keys e histórico serão perdidos para sempre.', confirm:'Continuar', danger:true });
+        if (!ok1) return;
+        const ok2 = await Settings._confirm({ icon:'🚨', title:'Última Chance', message:'Esta ação NÃO PODE ser desfeita. Tem certeza absoluta?', confirm:'Apagar Tudo', danger:true });
+        if (!ok2) return;
         localStorage.clear();
         Utils.showNotification?.('🗑️ Dados apagados! Recarregando...', 'info');
         setTimeout(() => location.reload(), 1500);

@@ -145,11 +145,13 @@ const QuizDiario = {
         Utils.saveData('quiz_today', { date: this._getToday(), score });
         // Salvar recorde
         const best = Utils.loadData('quiz_highscore') || 0;
-        if (score > best) Utils.saveData('quiz_highscore', score);
+        const isNewRecord = score > best;
+        if (isNewRecord) Utils.saveData('quiz_highscore', score);
         window.Economy?.checkRecord?.('quiz_highscore', score);
         if (score === 10) window.Economy?.grant?.('quiz_perfect');
         window.Economy?.grant?.('play_game');
         window.Missions?.track?.({ event: 'quiz_finish', score });
+        if (isNewRecord) window.Missions?.track?.({ event: 'beat_record', game: 'quiz' });
     },
 
     // ── HELPERS ───────────────────────────────────────

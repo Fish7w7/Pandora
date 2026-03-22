@@ -1,4 +1,5 @@
-/* TRANSLATOR.JS v2.0.0 — NyanTools にゃん~ */
+/* TRANSLATOR.JS v2.0.1 — NyanTools にゃん~
+   FIX: missão 'Poliglota' agora contabiliza ao traduzir */
 
 const Translator = {
     sourceLang: 'en',
@@ -6,23 +7,22 @@ const Translator = {
     isTranslating: false,
 
     languages: [
-        { code: 'pt', name: 'Português',  flag: '🇧🇷' },
-        { code: 'en', name: 'Inglês',     flag: '🇺🇸' },
-        { code: 'es', name: 'Espanhol',   flag: '🇪🇸' },
-        { code: 'fr', name: 'Francês',    flag: '🇫🇷' },
-        { code: 'de', name: 'Alemão',     flag: '🇩🇪' },
-        { code: 'it', name: 'Italiano',   flag: '🇮🇹' },
-        { code: 'ja', name: 'Japonês',    flag: '🇯🇵' },
-        { code: 'ko', name: 'Coreano',    flag: '🇰🇷' },
-        { code: 'zh', name: 'Chinês',     flag: '🇨🇳' },
-        { code: 'ru', name: 'Russo',      flag: '🇷🇺' },
-        { code: 'ar', name: 'Árabe',      flag: '🇸🇦' },
-        { code: 'hi', name: 'Hindi',      flag: '🇮🇳' }
+        { code:'pt', name:'Português',  flag:'🇧🇷' },
+        { code:'en', name:'Inglês',     flag:'🇺🇸' },
+        { code:'es', name:'Espanhol',   flag:'🇪🇸' },
+        { code:'fr', name:'Francês',    flag:'🇫🇷' },
+        { code:'de', name:'Alemão',     flag:'🇩🇪' },
+        { code:'it', name:'Italiano',   flag:'🇮🇹' },
+        { code:'ja', name:'Japonês',    flag:'🇯🇵' },
+        { code:'ko', name:'Coreano',    flag:'🇰🇷' },
+        { code:'zh', name:'Chinês',     flag:'🇨🇳' },
+        { code:'ru', name:'Russo',      flag:'🇷🇺' },
+        { code:'ar', name:'Árabe',      flag:'🇸🇦' },
+        { code:'hi', name:'Hindi',      flag:'🇮🇳' }
     ],
 
     render() {
         const d = document.body.classList.contains('dark-theme');
-
         const bg       = d ? 'rgba(255,255,255,0.04)' : '#ffffff';
         const border   = d ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)';
         const text     = d ? '#e2e8f0' : '#1e293b';
@@ -34,7 +34,6 @@ const Translator = {
 
         const srcLang = this.languages.find(l => l.code === this.sourceLang);
         const tgtLang = this.languages.find(l => l.code === this.targetLang);
-
         const selectOpts = (current) => this.languages.map(l =>
             `<option value="${l.code}" ${current === l.code ? 'selected' : ''}>${l.flag} ${l.name}</option>`
         ).join('');
@@ -60,15 +59,12 @@ const Translator = {
         </style>
 
         <div class="trl-root">
-
-            <!-- Header -->
             <div style="text-align:center;margin-bottom:1.5rem;">
                 <div style="font-size:2.8rem;margin-bottom:0.5rem;">🌍</div>
                 <h1 style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0 0 0.25rem;">Tradutor Universal</h1>
                 <p style="font-size:0.82rem;color:${subtext};font-weight:500;">12 idiomas · tradução automática · síntese de voz にゃん~</p>
             </div>
 
-            <!-- Seletores de idioma -->
             <div class="trl-card">
                 <div style="display:flex;align-items:flex-end;gap:0.75rem;">
                     <div style="flex:1;">
@@ -78,9 +74,7 @@ const Translator = {
                             <select id="source-lang" class="trl-select">${selectOpts(this.sourceLang)}</select>
                         </div>
                     </div>
-
                     <button class="trl-swap-btn" onclick="Translator.swap()" title="Inverter idiomas">⇄</button>
-
                     <div style="flex:1;">
                         <label class="trl-label">Para</label>
                         <div style="display:flex;align-items:center;gap:0.5rem;">
@@ -91,7 +85,6 @@ const Translator = {
                 </div>
             </div>
 
-            <!-- Áreas de texto -->
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem;">
                 <div class="trl-card" style="padding-bottom:1rem;">
                     <label class="trl-label">Texto original</label>
@@ -100,7 +93,6 @@ const Translator = {
                               oninput="Translator.updateUI()"></textarea>
                     <div class="trl-char-count" id="source-char-count">0 caracteres</div>
                 </div>
-
                 <div class="trl-card" style="padding-bottom:1rem;">
                     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.625rem;">
                         <label class="trl-label" style="margin-bottom:0;">Tradução</label>
@@ -113,32 +105,22 @@ const Translator = {
                 </div>
             </div>
 
-            <!-- Botões de ação -->
             <div class="trl-card">
                 <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
                     <button class="trl-btn trl-btn-primary" onclick="Translator.translate()" style="flex:1;min-width:120px;">
                         🔄 Traduzir
                     </button>
-                    <button class="trl-btn trl-btn-secondary" onclick="Translator.copy()">
-                        📋 Copiar
-                    </button>
-                    <button class="trl-btn trl-btn-secondary" onclick="Translator.speak('source')" title="Ouvir original">
-                        🔊 Ouvir original
-                    </button>
-                    <button class="trl-btn trl-btn-secondary" onclick="Translator.speak('target')" title="Ouvir tradução">
-                        🔊 Ouvir tradução
-                    </button>
-                    <button class="trl-btn trl-btn-secondary" onclick="Translator.clear()">
-                        🗑️ Limpar
-                    </button>
+                    <button class="trl-btn trl-btn-secondary" onclick="Translator.copy()">📋 Copiar</button>
+                    <button class="trl-btn trl-btn-secondary" onclick="Translator.speak('source')" title="Ouvir original">🔊 Ouvir original</button>
+                    <button class="trl-btn trl-btn-secondary" onclick="Translator.speak('target')" title="Ouvir tradução">🔊 Ouvir tradução</button>
+                    <button class="trl-btn trl-btn-secondary" onclick="Translator.clear()">🗑️ Limpar</button>
                 </div>
             </div>
-
         </div>`;
     },
 
     updateUI() {
-        const input = document.getElementById('source-text');
+        const input   = document.getElementById('source-text');
         const counter = document.getElementById('source-char-count');
         if (!input || !counter) return;
         const count = input.value.length;
@@ -159,9 +141,9 @@ const Translator = {
     autoTranslate: Utils.debounce(function() { Translator.translate(); }, 1000),
 
     async translate() {
-        const sourceText = document.getElementById('source-text')?.value;
+        const sourceText   = document.getElementById('source-text')?.value;
         const translatedEl = document.getElementById('translated-text');
-        const statusEl = document.getElementById('translation-status');
+        const statusEl     = document.getElementById('translation-status');
         if (!sourceText || !translatedEl) return;
 
         if (!sourceText.trim()) {
@@ -181,7 +163,7 @@ const Translator = {
         if (statusEl) statusEl.innerHTML = '<span style="color:#a855f7;">🔄 Traduzindo...</span>';
 
         try {
-            const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(sourceText)}&langpair=${this.sourceLang}|${this.targetLang}`;
+            const url  = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(sourceText)}&langpair=${this.sourceLang}|${this.targetLang}`;
             const data = await Utils.fetchAPI(url);
             if (data?.responseData?.translatedText) {
                 translatedEl.value = data.responseData.translatedText;
@@ -189,6 +171,8 @@ const Translator = {
                     statusEl.innerHTML = '<span style="color:#22c55e;">✅ Concluído</span>';
                     setTimeout(() => { statusEl.innerHTML = ''; }, 2000);
                 }
+                // FIX: rastrear missão de uso do tradutor ao completar tradução
+                window.Missions?.track?.({ event: 'open_tool', tool: 'translator' });
             } else {
                 throw new Error('Resposta inválida');
             }
@@ -220,32 +204,26 @@ const Translator = {
     },
 
     clear() {
-        ['source-text', 'translated-text'].forEach(id => {
+        ['source-text','translated-text'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.value = '';
         });
         const counter = document.getElementById('source-char-count');
-        const status = document.getElementById('translation-status');
+        const status  = document.getElementById('translation-status');
         if (counter) counter.textContent = '0 caracteres';
-        if (status) status.innerHTML = '';
+        if (status)  status.innerHTML = '';
         Utils.showNotification('🗑️ Textos limpos!', 'info');
     },
 
     speak(which) {
-        if (!window.speechSynthesis) {
-            Utils.showNotification('❌ Síntese de voz não suportada', 'error');
-            return;
-        }
+        if (!window.speechSynthesis) { Utils.showNotification('❌ Síntese de voz não suportada', 'error'); return; }
         const text = document.getElementById(which === 'source' ? 'source-text' : 'translated-text')?.value;
         const lang = which === 'source' ? this.sourceLang : this.targetLang;
-        if (!text || text.startsWith('⏳') || text.startsWith('❌')) {
-            Utils.showNotification('❌ Nenhum texto para ouvir', 'error');
-            return;
-        }
+        if (!text || text.startsWith('⏳') || text.startsWith('❌')) { Utils.showNotification('❌ Nenhum texto para ouvir', 'error'); return; }
         window.speechSynthesis.cancel();
-        const utt = new SpeechSynthesisUtterance(text);
-        utt.lang = { pt:'pt-BR',en:'en-US',es:'es-ES',fr:'fr-FR',de:'de-DE',it:'it-IT',ja:'ja-JP',ko:'ko-KR',zh:'zh-CN',ru:'ru-RU',ar:'ar-SA',hi:'hi-IN' }[lang] || lang;
-        utt.rate = 0.9;
+        const utt  = new SpeechSynthesisUtterance(text);
+        utt.lang   = { pt:'pt-BR',en:'en-US',es:'es-ES',fr:'fr-FR',de:'de-DE',it:'it-IT',ja:'ja-JP',ko:'ko-KR',zh:'zh-CN',ru:'ru-RU',ar:'ar-SA',hi:'hi-IN' }[lang] || lang;
+        utt.rate   = 0.9;
         utt.onstart = () => Utils.showNotification('🔊 Reproduzindo...', 'info');
         utt.onerror = () => Utils.showNotification('❌ Erro ao reproduzir áudio', 'error');
         window.speechSynthesis.speak(utt);

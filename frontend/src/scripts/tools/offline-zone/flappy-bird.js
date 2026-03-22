@@ -679,6 +679,7 @@ const FlappyBird = {
         }
 
         window.Missions?.track?.({ event: 'flappy_finish', score: this.score });
+        if (isNewRecord) window.Missions?.track?.({ event: 'beat_record', game: 'flappy' });
         window.Economy?.grant?.('play_game');
 
         let frames = 0;

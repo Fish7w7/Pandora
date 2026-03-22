@@ -4,7 +4,7 @@
 ═══════════════════════════════════════════════════════*/
 
 const AutoUpdater = {
-    currentVersion: '3.7.1',
+    currentVersion: '3.8.0',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -29,28 +29,34 @@ const AutoUpdater = {
 
     changelog: [
     {
-        version: '3.7.1',
-        date: '2026-03-19T23:00:00',
+        version: '3.8.0',
+        date: '2026-03-22T12:00:00',
         label: 'Atual',
         labelColor: 'bg-green-500',
+        author: 'Gabriel & Clara',
+        changes: [
+            { type: '✨', text: 'Sistema de XP e Níveis — ganhe experiência jogando e completando missões, com marcos em nv10/25/50' },
+            { type: '💰', text: 'Chips — moeda do NyanTools integrada a todos os jogos e recompensas' },
+            { type: '📋', text: 'Missões Diárias — 3 por dia (fácil/médio/difícil) + desafio semanal com recompensas em XP e chips' },
+            { type: '🛍️', text: 'Loja com rotação semanal — títulos, bordas de avatar, temas visuais, efeitos de navegação e partículas' },
+            { type: '🎒', text: 'Inventário — equipe itens em tempo real com efeitos aplicados instantaneamente' },
+            { type: '🌸', text: 'Temas visuais com efeitos de login — Sakura (pétalas), Midnight (estrelas), Neon (glitch), Chamas (fogo)' },
+            { type: '✨', text: 'Partículas de perfil — estrelas, corações e patinhas em órbita ao redor do avatar na sidebar' },
+            { type: '🌈', text: 'Bordas de avatar — Simples, Roxa, Dourada, Neon animada + bordas de marco por nível' },
+            { type: '↔️', text: 'Efeitos de navegação — Slide, Zoom e Bounce ao trocar de página' },
+            { type: '📊', text: 'Bloco Economy no Perfil — nível, chips, barra de XP e histórico de recompensas recentes' },
+        ]
+    },
+    {
+        version: '3.7.1',
+        date: '2026-03-19T23:00:00',
+        label: null,
+        labelColor: '',
         author: 'Gabriel',
         changes: [
             { type: '🐛', text: 'Zona Offline: Termo, Forca e Jogo da Velha fechavam o jogo ao re-renderizar internamente' },
             { type: '🐛', text: '2048: botões "Novo Jogo" e "Continuar" estavam com tamanho errado por classes Tailwind sem compilar' },
             { type: '🐛', text: 'Assistente IA: campo de mensagem e botão Enviar estavam grandes por classes Tailwind sem compilar' },
-        ]
-    },
-    {
-        version: '3.7.0',
-        date: '2026-03-19T20:00:00',
-        label: null,
-        labelColor: '',
-        author: 'Clara',
-        changes: [
-            { type: '⌨️', text: 'Type Racer — jogo de digitação com 3 modos: Clássico, Maratona (60s) e Precisão com penalidade' },
-            { type: '🧠', text: 'Quiz Diário — 10 perguntas de cultura geral com seed diária, mesmo quiz para todos, renova à meia-noite' },
-            { type: '🎰', text: 'Caça-Níquel — gire os rolos, acumule chips e tente o jackpot 🐱🐱🐱 (50x)' },
-            { type: '🐛', text: 'Zona Offline: voltar pela sidebar não carrega mais o último jogo aberto' },
         ]
     },
 ],

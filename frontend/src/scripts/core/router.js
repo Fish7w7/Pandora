@@ -1,12 +1,11 @@
 /* ═════════════════════════════════════════════
-   ROUTER.JS v3.1.0
-   Sistema de Roteamento — NyanTools にゃん~
+   ROUTER.JS v3.1.1
+   FIX: efeito Flip corrigido
  ═══════════════════════════════════════════════*/
 
 const Router = {
     currentRoute: 'home',
 
-    // Mapa de rotas
     routes: {
         'home': null,
         'password': 'PasswordGenerator',
@@ -26,7 +25,6 @@ const Router = {
         'profile': 'Profile'
     },
 
-    // Histórico (Alt+← / Alt+→)
     _history: ['home'],
     _historyIdx: 0,
 
@@ -39,12 +37,10 @@ const Router = {
             Dashboard.trackToolAccess(toolId);
         }
 
-        // Registrar missão de abrir ferramenta
         if (window.Missions) {
             Missions.track({ event: 'open_tool', tool: toolId });
         }
 
-        // Registrar no histórico
         if (this._historyIdx < this._history.length - 1) {
             this._history = this._history.slice(0, this._historyIdx + 1);
         }
@@ -81,7 +77,6 @@ const Router = {
             return;
         }
 
-        // Efeito de navegação do inventário
         const navEffect = window.Inventory?.getNavEffect?.();
         if (navEffect) {
             this._applyNavEffect(container, navEffect);
@@ -92,9 +87,7 @@ const Router = {
         if (this.currentRoute === 'home') {
             if (window.Dashboard) {
                 container.innerHTML = window.Dashboard.render();
-                if (window.Dashboard.init) {
-                    setTimeout(() => window.Dashboard.init(), 100);
-                }
+                if (window.Dashboard.init) setTimeout(() => window.Dashboard.init(), 100);
             } else {
                 container.innerHTML = this.renderHome();
             }
@@ -126,7 +119,7 @@ const Router = {
     },
 
     renderHome() {
-        const tools = App.tools.filter(t => t.id !== 'home');
+        const tools    = App.tools.filter(t => t.id !== 'home');
         const username = App.user?.username || 'Usuário';
         return `
             <div class="max-w-6xl mx-auto">
@@ -181,42 +174,43 @@ const Router = {
             </div>`;
     },
 
-    // ── EFEITO DE NAVEGAÇÃO (Inventory) ──────────────
+    // FIX: efeito Flip agora faz rotação lateral real (perspectiva 3D)
+    // FIX: Zoom e Slide são distintos
     _applyNavEffect(container, effectId) {
         const effects = {
             effect_slide: () => {
-                container.style.transition = 'none';
-                container.style.transform  = 'translateX(24px)';
-                container.style.opacity    = '0';
+                container.style.transition   = 'none';
+                container.style.transform    = 'translateX(32px)';
+                container.style.opacity      = '0';
                 requestAnimationFrame(() => {
-                    container.style.transition = 'transform 0.25s cubic-bezier(0.34,1.2,0.64,1), opacity 0.2s ease';
+                    container.style.transition = 'transform 0.28s cubic-bezier(0.34,1.2,0.64,1), opacity 0.2s ease';
                     container.style.transform  = 'translateX(0)';
                     container.style.opacity    = '1';
                 });
             },
             effect_zoom: () => {
-                container.style.transition = 'none';
-                container.style.transform  = 'scale(0.96)';
-                container.style.opacity    = '0';
+                container.style.transition   = 'none';
+                container.style.transform    = 'scale(0.94)';
+                container.style.opacity      = '0';
                 requestAnimationFrame(() => {
                     container.style.transition = 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease';
                     container.style.transform  = 'scale(1)';
                     container.style.opacity    = '1';
                 });
             },
-            effect_bounce: () => {
-                container.style.transition = 'none';
-                container.style.transform  = 'translateY(-10px)';
-                container.style.opacity    = '0.5';
+            effect_flip: () => {
+                container.style.transition      = 'none';
+                container.style.transformOrigin = 'center center';
+                container.style.transform       = 'perspective(900px) rotateY(-28deg) scale(0.94)';
+                container.style.opacity         = '0';
                 requestAnimationFrame(() => {
-                    container.style.transition = 'transform 0.35s cubic-bezier(0.34,1.7,0.64,1), opacity 0.2s ease';
-                    container.style.transform  = 'translateY(0)';
+                    container.style.transition = 'transform 0.38s cubic-bezier(0.34,1.2,0.64,1), opacity 0.25s ease';
+                    container.style.transform  = 'perspective(900px) rotateY(0deg) scale(1)';
                     container.style.opacity    = '1';
                 });
             },
         };
 
-        // Fallback: fade suave (padrão quando sem efeito comprado)
         const applyDefault = () => {
             container.style.transition = 'none';
             container.style.opacity    = '0';
@@ -230,12 +224,11 @@ const Router = {
     },
 
     init() {
-        // Atalhos Alt+← / Alt+→
         document.addEventListener('keydown', (e) => {
             if (e.altKey && e.key === 'ArrowLeft')  { e.preventDefault(); this.back(); }
             if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); this.forward(); }
         });
-        console.log('🧭 Router v3.1.0 inicializado');
+        console.log('🧭 Router v3.1.1 inicializado');
     }
 };
 

@@ -169,10 +169,12 @@ const TypeRacer = {
     _saveHighscore(wpm) {
         const key = 'typeracer_highscore';
         const best = Utils.loadData(key) || 0;
-        if (wpm > best) Utils.saveData(key, wpm);
+        const isNewRecord = wpm > best;
+        if (isNewRecord) Utils.saveData(key, wpm);
         window.Economy?.checkRecord?.(key, wpm);
         window.Economy?.grant?.('play_game');
         window.Missions?.track?.({ event: 'typeracer_finish', wpm });
+        if (isNewRecord) window.Missions?.track?.({ event: 'beat_record', game: 'typeracer' });
     },
 
     render() {

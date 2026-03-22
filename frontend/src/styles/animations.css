@@ -1,50 +1,42 @@
 /* 
-   ANIMATIONS.CSS OPTIMIZED v2.7.0
-   Reduzido de 570 → 280 linhas (-51%)
+   ANIMATIONS.CSS OPTIMIZED v2.7.1
     */
 
 /*  CORE ANIMATIONS (GPU-Accelerated)  */
 
-/* Flip (Termo) */
 @keyframes flipIn {
     0% { transform: rotateX(90deg); opacity: 0; }
     50% { transform: rotateX(-10deg); }
     100% { transform: rotateX(0); opacity: 1; }
 }
 
-/* Shake (Errors) */
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
     20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 
-/* Bounce */
 @keyframes bounce {
     0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
     40% { transform: translateY(-20px); }
     60% { transform: translateY(-10px); }
 }
 
-/* Fade In */
 @keyframes fadeIn {
     from { opacity: 0; transform: translateY(20px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Pulse */
 @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
 }
 
-/* Spin (Loading) */
 @keyframes spin {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
 }
 
-/* Slide Animations */
 @keyframes slideInUp {
     from { transform: translateY(100%); opacity: 0; }
     to { transform: translateY(0); opacity: 1; }
@@ -60,33 +52,28 @@
     to { transform: translateX(0); opacity: 1; }
 }
 
-/* Zoom */
 @keyframes zoomIn {
     from { transform: scale(0); opacity: 0; }
     to { transform: scale(1); opacity: 1; }
 }
 
-/* Wiggle */
 @keyframes wiggle {
     0%, 100% { transform: rotate(0deg); }
     25% { transform: rotate(-5deg); }
     75% { transform: rotate(5deg); }
 }
 
-/* Gradient Shift */
 @keyframes gradientShift {
     0%, 100% { background-position: 0% 50%; }
     50% { background-position: 100% 50%; }
 }
 
-/* Heartbeat */
 @keyframes heartbeat {
     0%, 100% { transform: scale(1); }
     10%, 30% { transform: scale(1.1); }
     20%, 40% { transform: scale(0.9); }
 }
 
-/* Glow Effect */
 @keyframes glow {
     0%, 100% { 
         box-shadow: 0 0 10px rgba(139, 92, 246, 0.5),
@@ -98,31 +85,27 @@
     }
 }
 
-/* Float */
 @keyframes floatSoft {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-10px); }
 }
 
-/* Shine */
 @keyframes shine {
     0% { background-position: -200% center; }
     100% { background-position: 200% center; }
 }
 
-/* Text Shine */
 @keyframes textShine {
     0% { background-position: 0% center; }
     100% { background-position: 200% center; }
 }
 
-/* Border Glow */
 @keyframes borderGlow {
     0%, 100% { border-color: rgba(139, 92, 246, 0.5); }
     50% { border-color: rgba(139, 92, 246, 1); }
 }
 
-/*  UTILITY CLASSES (Optimized)  */
+/*  UTILITY CLASSES  */
 
 .animate-flipIn {
     animation: flipIn 0.6s ease-out forwards;
@@ -222,7 +205,7 @@
     will-change: background-position;
 }
 
-/*  TRANSITIONS (Fast & Smooth)  */
+/*  TRANSITIONS  */
 
 .smooth-transition {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -236,7 +219,7 @@
     transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/*  HOVER EFFECTS (GPU-Accelerated)  */
+/*  HOVER EFFECTS  */
 
 .keyboard-key {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
@@ -266,7 +249,6 @@
 
 /*  PERFORMANCE OPTIMIZATIONS  */
 
-/* Reduce animations on low-end devices */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -277,7 +259,6 @@
     }
 }
 
-/* Mobile optimizations */
 @media (max-width: 768px) {
     .animate-bounce,
     .animate-float-soft,
@@ -289,7 +270,6 @@
         transform: translateY(-2px);
     }
     
-    /* Disable expensive animations on mobile */
     .shine-effect,
     .text-shine,
     .glow-effect {
@@ -297,7 +277,6 @@
     }
 }
 
-/* GPU acceleration for all animated elements */
 .animate-flipIn,
 .animate-shake,
 .animate-bounce,
@@ -314,19 +293,20 @@
 }
 
 /* ═══════════════════════════════════════════════════════
-    — MICRO-ANIMAÇÕES DE BOTÕES v3.6.0 — NyanTools にゃん~
+    MICRO-ANIMAÇÕES DE BOTÕES v3.7.2 — NyanTools にゃん~
    ═══════════════════════════════════════════════════════ */
 
 @keyframes nyanRipple {
-    0%   { transform: scale(0);   opacity: 0.5; }
-    60%  { transform: scale(2.5); opacity: 0.15; }
+    0%   { transform: scale(0);   opacity: 0.45; }
+    60%  { transform: scale(2.5); opacity: 0.12; }
     100% { transform: scale(4);   opacity: 0; }
 }
 
+/* FIX v3.7.2: removido overflow:hidden daqui — causava expansão do botão ao clicar.
+   O overflow é gerenciado apenas pelo .nyan-ripple-container (adicionado via JS). */
 button[class*="bg-gradient"],
 .theme-gradient-btn {
     position: relative;
-    overflow: hidden;
     transition: transform 0.12s cubic-bezier(0.4,0,0.2,1),
                 box-shadow 0.2s cubic-bezier(0.4,0,0.2,1),
                 filter 0.2s;
@@ -362,18 +342,12 @@ button:not([class*="bg-gradient"]):not(.nav-item):not(.sidebar-logout-btn):not(.
     transition: transform 0.08s ease !important;
 }
 
-.nyan-ripple-container {
-    position: relative;
-    overflow: hidden;
-}
+/* FIX v3.7.3: sem overflow:hidden — wave definido inline pelo JS */
+/* .nyan-ripple-container removido — não usamos mais essa classe */
 
-.nyan-ripple-wave {
-    position: absolute;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, 0.25);
-    pointer-events: none;
-    animation: nyanRipple 0.5s ease-out forwards;
-    transform-origin: center;
+@keyframes nyanRipple {
+    0%   { transform: scale(0);   opacity: 0.5; }
+    100% { transform: scale(3);   opacity: 0; }
 }
 
 #mini-player button:active {

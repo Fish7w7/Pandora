@@ -1,15 +1,14 @@
 /* ══════════════════════════════════════════════════
-   APP.JS  v3.5.0 "First Impression"
-   Core da Aplicação com Dashboard e Tracking
+   APP.JS  v3.5.1 "First Impression"
+   FIX v3.7.2: ripple corrigido — botões não ficam mais gigantes
  ═══════════════════════════════════════════════════*/
 
 const App = {
-    version: '3.7.1',
+    version: '3.8.0',
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
     
-    // Lista de ferramentas
     tools: [
         { id: 'home', name: 'Dashboard', icon: '📊', description: 'Visão geral' },
         { id: 'password', name: 'Gerador de Senhas', icon: '🔑', description: 'Crie senhas seguras' },
@@ -27,7 +26,6 @@ const App = {
         { id: 'settings', name: 'Configurações', icon: '⚙️', description: 'Personalize o app' }
     ],
     
-    // Inicialização principal
     init() {
         console.log(`🐱 NyanTools v${this.version} iniciando... にゃん~`);
         
@@ -36,7 +34,6 @@ const App = {
         setTimeout(() => {
             this.hideLoading();
 
-            // Intro animada antes do checkAuth ────
             if (window.LoginIntro) {
                 LoginIntro.run(() => {
                     this.checkAuth();
@@ -59,14 +56,11 @@ const App = {
         const applyTheme = () => {
             const savedTheme = window.Utils?.loadData('app_theme') || 'light';
             console.log('🎨 Aplicando tema:', savedTheme);
-            
             document.body.classList.toggle('dark-theme', savedTheme === 'dark');
-            
             if (window.Utils?.saveData) {
                 window.Utils.saveData('app_theme', savedTheme);
             }
         };
-        
         applyTheme();
         setTimeout(applyTheme, 100);
         window.addEventListener('load', applyTheme, { once: true });
@@ -75,7 +69,6 @@ const App = {
     hideLoading() {
         const loadingScreen = document.getElementById('loading-screen');
         if (!loadingScreen) return;
-        
         loadingScreen.style.opacity = '0';
         setTimeout(() => loadingScreen.style.display = 'none', 500);
     },
@@ -88,39 +81,30 @@ const App = {
     showLogin() {
         const loginScreen = document.getElementById('login-screen');
         if (!loginScreen) return;
-        
         loginScreen.classList.remove('hidden');
-        
         setTimeout(() => {
             if (typeof window.setupLoginForm === 'function') {
                 window.setupLoginForm();
-                console.log('🔧 setupLoginForm() chamado');
             }
-        
             window.LoginBackground?.apply?.();
             window.LoginPhrases?.inject?.();
             window.LoginParticles?.inject?.();
             window.LoginEffects?.inject?.();
-
             const usernameInput = document.getElementById('login-username');
-            if (usernameInput) {
-                usernameInput.focus();
-                console.log('✅ Foco no input de username');
-            }
+            if (usernameInput) usernameInput.focus();
+
         }, 300);
     },
     
-    // Mostrar app principal
     showMainApp(user = this.user) {
         this.user = user;
-        
         const loginScreen = document.getElementById('login-screen');
-        const mainApp = document.getElementById('main-app');
+        const mainApp     = document.getElementById('main-app');
         const userDisplay = document.getElementById('user-display');
-        const userAvatar = document.getElementById('user-avatar');
+        const userAvatar  = document.getElementById('user-avatar');
         
         if (loginScreen) loginScreen.classList.add('hidden');
-        if (mainApp) mainApp.classList.add('visible');
+        if (mainApp)     mainApp.classList.add('visible');
         if (userDisplay) userDisplay.textContent = user.username;
         if (userAvatar) {
             const savedAvatar = Utils.loadData('nyan_profile_avatar');
@@ -142,11 +126,9 @@ const App = {
         this.checkWhatsNew();
     },
     
-    // Verificar se a versão mudou e mostrar "O que há de novo"
     checkWhatsNew() {
         const lastSeenVersion = Utils.loadData('last_seen_version');
         const currentVersion  = this.version;
-
         if (lastSeenVersion && lastSeenVersion !== currentVersion) {
             setTimeout(() => this._showWhatsNewModal(lastSeenVersion, currentVersion), 1200);
         }
@@ -156,16 +138,14 @@ const App = {
     _showWhatsNewModal(fromVersion, toVersion) {
         const modal = document.getElementById('whats-new-modal');
         if (!modal) return;
-        const changelog = window.AutoUpdater?.changelog ?? [];
-        const currentIdx = changelog.findIndex(r => r.version === toVersion);
-        const previousEntry = currentIdx !== -1 ? changelog[currentIdx + 1] : null;
-        const displayFrom = previousEntry?.version ?? fromVersion;
-        const versionEl = modal.querySelector('[data-whats-new-version]');
+        const changelog    = window.AutoUpdater?.changelog ?? [];
+        const currentIdx   = changelog.findIndex(r => r.version === toVersion);
+        const previousEntry= currentIdx !== -1 ? changelog[currentIdx + 1] : null;
+        const displayFrom  = previousEntry?.version ?? fromVersion;
+        const versionEl    = modal.querySelector('[data-whats-new-version]');
         if (versionEl) versionEl.textContent = `v${toVersion}`;
-
         const fromEl = modal.querySelector('[data-whats-new-from]');
         if (fromEl) fromEl.textContent = `v${displayFrom}`;
-
         const listEl = modal.querySelector('[data-whats-new-list]');
         if (listEl && window.AutoUpdater) {
             const release = AutoUpdater.changelog.find(r => r.version === toVersion);
@@ -178,117 +158,54 @@ const App = {
                 `).join('');
             }
         }
-
         modal.classList.remove('hidden');
         modal.querySelector('[data-whats-new-card]')?.classList.add('whats-new-enter');
     },
 
     initNewSystems() {
         if (window.KeyboardShortcuts) {
-            console.log('⌨️ Inicializando Atalhos de Teclado...');
             KeyboardShortcuts.init();
-        } else {
-            console.warn('⚠️ KeyboardShortcuts não encontrado');
         }
-
-        // ── Modo Foco ────────────────────────────────────────
         if (window.FocusMode) {
-            console.log('🎯 Inicializando Modo Foco...');
             FocusMode.init();
-        } else {
-            console.warn('⚠️ FocusMode não encontrado');
         }
-
-        // ── Command Palette ──────────────────────────────────
         if (window.CommandPalette) {
-            console.log('🔍 Inicializando Command Palette...');
             CommandPalette.init();
-        } else {
-            console.warn('⚠️ CommandPalette não encontrado');
         }
-
-        // ── Router (transições #61) ──────────────────────────
         if (window.Router?.init) {
             Router.init();
         }
-
-        // ── Favoritos ────────────────────────────────────────
         if (window.Favorites) {
-            console.log('⭐ Inicializando Favoritos...');
             Favorites.init();
-        } else {
-            console.warn('⚠️ Favorites não encontrado');
         }
-
-        // ── Mini Perfil ──────────────────────────────────────
         if (window.UserProfile) {
             UserProfile.init();
         }
-
-        // ── Conquistas & Beta Testers ──────────────────────────
         if (window.Achievements) Achievements.init();
-        if (window.BetaTesters) BetaTesters.init();
-
-        // ── Economy (XP, Nível, Chips) ────────────────────────
+        if (window.BetaTesters)  BetaTesters.init();
         if (window.Economy) {
-            console.log('💰 Inicializando Economy...');
             Economy.init();
-        } else {
-            console.warn('⚠️ Economy não encontrado');
         }
-
-        // ── Missões diárias ───────────────────────────────────
         if (window.Missions) {
-            console.log('📋 Inicializando Missions...');
             Missions.init();
-        } else {
-            console.warn('⚠️ Missions não encontrado');
         }
-
-        // ── Inventário + Loja ─────────────────────────────────
         if (window.Inventory) {
-            console.log('🎒 Inicializando Inventory...');
             Inventory.init();
-        } else {
-            console.warn('⚠️ Inventory não encontrado');
         }
-
-        // ── Loja ──────────────────────────────────────────────
-        if (window.Shop) {
-            console.log('🛍️ Inicializando Shop...');
-            // Shop não precisa de init próprio — inicializa ao renderizar
-        }
-        
-        // Iniciar tracking de atividade
         this.startActivityTracking();
     },
     
     startActivityTracking() {
-        console.log('⏱️ Iniciando tracking de atividade...');
-        
-        // Limpar intervalo anterior se existir
-        if (this._activityInterval) {
-            clearInterval(this._activityInterval);
-        }
-        
-        // Atualizar a cada minuto
+        if (this._activityInterval) clearInterval(this._activityInterval);
         this._activityInterval = setInterval(() => {
             if (window.Dashboard) {
-                const today = new Date().toISOString().split('T')[0];
-                const dayOfWeek = new Date().getDay();
+                const today      = new Date().toISOString().split('T')[0];
+                const dayOfWeek  = new Date().getDay();
                 Dashboard.stats.totalTime++;
-
                 if (!Dashboard.stats.dailyActivity) Dashboard.stats.dailyActivity = {};
-                Dashboard.stats.dailyActivity[today] =
-                    (Dashboard.stats.dailyActivity[today] || 0) + 1;
-
-                    Dashboard.stats.weeklyActivity[dayOfWeek] =
-                    Dashboard.stats.dailyActivity[today];
-
-                if (Dashboard.stats.totalTime % 5 === 0) {
-                    Dashboard.saveStats();
-                }
-
+                Dashboard.stats.dailyActivity[today] = (Dashboard.stats.dailyActivity[today] || 0) + 1;
+                Dashboard.stats.weeklyActivity[dayOfWeek] = Dashboard.stats.dailyActivity[today];
+                if (Dashboard.stats.totalTime % 5 === 0) Dashboard.saveStats();
                 if (Router.currentRoute === 'home' && Dashboard.refreshWeeklyChart) {
                     Dashboard.refreshWeeklyChart();
                 }
@@ -296,42 +213,21 @@ const App = {
         }, 60000);
     },
     
-    // Renderizar menu de navegação
     renderNavMenu() {
         const navMenu = document.getElementById('nav-menu');
         if (!navMenu) return;
 
         const hasUpdate = window.AutoUpdater?.updateAvailable;
-
-        // Grupos de ferramentas
         const groups = [
-            {
-                label: null,
-                items: ['home']
-            },
-            {
-                label: 'Ferramentas',
-                items: ['password', 'weather', 'translator', 'ai-assistant', 'temp-email']
-            },
-            {
-                label: 'Entretenimento',
-                items: ['mini-game', 'music', 'offline']
-            },
-            {
-                label: 'Organização',
-                items: ['notes', 'tasks', 'missions', 'shop']
-            },
-            {
-                label: 'Sistema',
-                items: ['settings']
-            }
+            { label: null,           items: ['home'] },
+            { label: 'Ferramentas',  items: ['password','weather','translator','ai-assistant','temp-email'] },
+            { label: 'Entretenimento', items: ['mini-game','music','offline'] },
+            { label: 'Organização',  items: ['notes','tasks','missions','shop'] },
+            { label: 'Sistema',      items: ['settings'] }
         ];
 
-        const toolMap = Object.fromEntries(this.tools.map(t => [t.id, t]));
-
+        const toolMap    = Object.fromEntries(this.tools.map(t => [t.id, t]));
         const favSection = window.Favorites ? Favorites.renderSection() : '';
-
-        // Widget de missões acima dos grupos
         const missionsWidget = window.Missions ? Missions.renderSidebarWidget() : '';
 
         navMenu.innerHTML = favSection + missionsWidget + groups.map(group => {
@@ -339,10 +235,9 @@ const App = {
                 const tool = toolMap[id];
                 if (!tool) return '';
                 const isActive = this.currentTool === tool.id;
-                const badge = hasUpdate && tool.id === 'settings'
+                const badge    = hasUpdate && tool.id === 'settings'
                     ? `<span class="nav-update-dot" title="Atualização disponível"></span>`
                     : '';
-                // Badge de missões pendentes
                 const missionsBadge = tool.id === 'missions' && window.Missions
                     ? (() => {
                         const pending = Missions.getPendingCount();
@@ -366,7 +261,6 @@ const App = {
             const groupLabel = group.label
                 ? `<div class="nav-group-label">${group.label}</div>`
                 : '';
-
             return `<div class="nav-group">${groupLabel}${items}</div>`;
         }).join('');
 
@@ -380,48 +274,37 @@ const App = {
     
     updateActiveNav(toolId) {
         this.currentTool = toolId;
-        
         document.querySelectorAll('.nav-item').forEach(item => {
             item.classList.toggle('active', item.dataset.tool === toolId);
         });
     },
     
-    // Listeners globais
     setupGlobalListeners() {
         const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => this.handleLogout());
         }
-        
-        // Status de conexão
-        window.addEventListener('online', () => this.handleConnectionChange(true));
+        window.addEventListener('online',  () => this.handleConnectionChange(true));
         window.addEventListener('offline', () => this.handleConnectionChange(false));
 
-        // Easter Egg —
-        this._eggClicks = 0;
+        this._eggClicks  = 0;
         this._eggTimeout = null;
         document.addEventListener('click', (e) => {
             const logo = e.target.closest('.sidebar-logo');
             if (!logo) return;
-
             clearTimeout(this._eggTimeout);
             this._eggClicks++;
-
-            // Feedback visual a cada clique
             const icon = logo.querySelector('.sidebar-logo-icon');
             if (icon) {
                 icon.style.transition = 'transform 0.15s cubic-bezier(0.34,1.56,0.64,1)';
-                icon.style.transform = `rotate(${(this._eggClicks % 2 === 0 ? -1 : 1) * 15}deg) scale(1.2)`;
+                icon.style.transform  = `rotate(${(this._eggClicks % 2 === 0 ? -1 : 1) * 15}deg) scale(1.2)`;
                 setTimeout(() => { icon.style.transform = ''; }, 200);
             }
-
             if (this._eggClicks >= 5) {
                 this._eggClicks = 0;
                 showEasterEgg();
                 return;
             }
-
-            // Reset após 2.5s sem clique
             this._eggTimeout = setTimeout(() => {
                 this._eggClicks = 0;
                 if (icon) icon.style.transform = '';
@@ -429,12 +312,10 @@ const App = {
         });
     },
     
-    // Handler de logout
     handleLogout() {
         document.getElementById('logout-confirm-modal')?.remove();
-
         const modal = document.createElement('div');
-        modal.id = 'logout-confirm-modal';
+        modal.id    = 'logout-confirm-modal';
         modal.style.cssText = `
             position:fixed; inset:0; z-index:99999;
             display:flex; align-items:center; justify-content:center;
@@ -456,73 +337,39 @@ const App = {
                 box-shadow:0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05);
                 font-family:'DM Sans',sans-serif;
             ">
-                <div style="
-                    width:48px; height:48px; border-radius:14px;
-                    background:rgba(239,68,68,0.12); border:1px solid rgba(239,68,68,0.2);
-                    display:flex; align-items:center; justify-content:center;
-                    font-size:1.4rem; margin-bottom:1rem;">🚪</div>
-                <div style="font-size:1rem; font-weight:800; color:white; margin-bottom:0.375rem; font-family:'Syne',sans-serif;">
-                    Sair da conta?</div>
-                <div style="font-size:0.8rem; color:rgba(255,255,255,0.4); line-height:1.5; margin-bottom:1.5rem;">
-                    Você será redirecionado para a tela de login. にゃん~</div>
-                <div style="display:flex; gap:0.625rem;">
-                    <button id="lc-cancel" style="
-                        flex:1; padding:0.6rem; border-radius:10px;
-                        background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
-                        color:rgba(255,255,255,0.6); font-size:0.875rem; font-weight:600;
-                        cursor:pointer; font-family:'DM Sans',sans-serif;">Cancelar</button>
-                    <button id="lc-confirm" style="
-                        flex:1; padding:0.6rem; border-radius:10px;
-                        background:rgba(239,68,68,0.85); border:1px solid rgba(239,68,68,0.4);
-                        color:white; font-size:0.875rem; font-weight:700;
-                        cursor:pointer; font-family:'DM Sans',sans-serif;
-                        box-shadow:0 4px 16px rgba(239,68,68,0.3);">Sair</button>
+                <div style="width:48px;height:48px;border-radius:14px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1rem;">🚪</div>
+                <div style="font-size:1rem;font-weight:800;color:white;margin-bottom:0.375rem;font-family:'Syne',sans-serif;">Sair da conta?</div>
+                <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);line-height:1.5;margin-bottom:1.5rem;">Você será redirecionado para a tela de login. にゃん~</div>
+                <div style="display:flex;gap:0.625rem;">
+                    <button id="lc-cancel" style="flex:1;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);font-size:0.875rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancelar</button>
+                    <button id="lc-confirm" style="flex:1;padding:0.6rem;border-radius:10px;background:rgba(239,68,68,0.85);border:1px solid rgba(239,68,68,0.4);color:white;font-size:0.875rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 16px rgba(239,68,68,0.3);">Sair</button>
                 </div>
             </div>
         `;
-
         modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
-        modal.querySelector('#lc-cancel').addEventListener('click', () => modal.remove());
-        modal.querySelector('#lc-confirm').addEventListener('click', () => {
-            modal.remove();
-            this._doLogout();
-        });
-
+        modal.querySelector('#lc-cancel').addEventListener('click',  () => modal.remove());
+        modal.querySelector('#lc-confirm').addEventListener('click', () => { modal.remove(); this._doLogout(); });
         document.body.appendChild(modal);
     },
 
     _doLogout() {
-        console.log('🚪 Fazendo logout...');
-
-        if (this._activityInterval) {
-            clearInterval(this._activityInterval);
-            this._activityInterval = null;
-        }
-
+        if (this._activityInterval) { clearInterval(this._activityInterval); this._activityInterval = null; }
         if (window.FocusMode?.active) FocusMode.disable();
-
-        this.user = null;
+        this.user        = null;
         this.currentTool = 'home';
-
         Auth.logout();
-
         const loginForm = document.getElementById('login-form');
         if (loginForm) loginForm.reset();
-
         location.reload();
     },
     
-    // Handler de mudança de conexão
     handleConnectionChange(isOnline) {
         this.isOnline = isOnline;
-        
         if (window.Utils?.showNotification) {
-            const message = isOnline 
-                ? '✅ Conexão restaurada! にゃん~' 
-                : '⚠️ Você está offline にゃん~';
-            const type = isOnline ? 'success' : 'warning';
-            
-            window.Utils.showNotification(message, type);
+            Utils.showNotification(
+                isOnline ? '✅ Conexão restaurada! にゃん~' : '⚠️ Você está offline にゃん~',
+                isOnline ? 'success' : 'warning'
+            );
         }
     },
     
@@ -531,11 +378,9 @@ const App = {
     }
 };
 
-// Easter Egg —
+// Easter Egg
 function showEasterEgg() {
-    // Remover modal anterior se existir
     document.getElementById('easter-egg-modal')?.remove();
-
     const modal = document.createElement('div');
     modal.id = 'easter-egg-modal';
     modal.style.cssText = `
@@ -544,104 +389,37 @@ function showEasterEgg() {
         background: rgba(0,0,0,0.85);
         animation: eggFadeIn 0.3s ease;
     `;
-
     modal.innerHTML = `
         <style>
-            @keyframes eggFadeIn { from { opacity:0 } to { opacity:1 } }
-            @keyframes eggBounce { 0%,100% { transform:translateY(0) rotate(0deg) } 25% { transform:translateY(-12px) rotate(-8deg) } 75% { transform:translateY(-6px) rotate(8deg) } }
+            @keyframes eggFadeIn  { from { opacity:0 } to { opacity:1 } }
+            @keyframes eggBounce  { 0%,100% { transform:translateY(0) rotate(0deg) } 25% { transform:translateY(-12px) rotate(-8deg) } 75% { transform:translateY(-6px) rotate(8deg) } }
             @keyframes eggSlideUp { from { opacity:0; transform:translateY(40px) scale(0.9) } to { opacity:1; transform:translateY(0) scale(1) } }
             #egg-card { animation: eggSlideUp 0.4s cubic-bezier(0.34,1.56,0.64,1); }
             #egg-cat  { animation: eggBounce 1.2s ease-in-out infinite; display:inline-block; }
         </style>
-
-        <div id="egg-card" style="
-            background: #0d0d12;
-            border: 1px solid rgba(168,85,247,0.3);
-            border-radius: 20px;
-            padding: 2rem 2.25rem;
-            max-width: 420px;
-            width: 90%;
-            box-shadow: 0 32px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(168,85,247,0.1), 0 0 60px rgba(168,85,247,0.1);
-            font-family: 'DM Sans', sans-serif;
-            color: #e5e7eb;
-            position: relative;
-        ">
-            <!-- Fechar -->
-            <button onclick="document.getElementById('easter-egg-modal').remove()" style="
-                position:absolute; top:1rem; right:1rem;
-                background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.1);
-                color:rgba(255,255,255,0.4); border-radius:8px; width:28px; height:28px;
-                cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center;
-                transition:all 0.2s;
-            " onmouseover="this.style.color='white';this.style.background='rgba(255,255,255,0.12)'"
-               onmouseout="this.style.color='rgba(255,255,255,0.4)';this.style.background='rgba(255,255,255,0.06)'">✕</button>
-
-            <!-- Header -->
-            <div style="text-align:center; margin-bottom:1.5rem;">
-                <div id="egg-cat" style="font-size:3.5rem; margin-bottom:0.75rem;">🐱</div>
-                <div style="
-                    font-family:'Syne',sans-serif; font-size:1.4rem; font-weight:900;
-                    background:linear-gradient(135deg,#a855f7,#ec4899);
-                    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
-                    background-clip:text; margin-bottom:0.25rem;
-                ">NYAN NYAN!</div>
-                <div style="font-size:0.75rem; color:rgba(255,255,255,0.3); letter-spacing:0.1em;">にゃん~ · Easter Egg Desbloqueado</div>
+        <div id="egg-card" style="background:#0d0d12;border:1px solid rgba(168,85,247,0.3);border-radius:20px;padding:2rem 2.25rem;max-width:420px;width:90%;box-shadow:0 32px 80px rgba(0,0,0,0.8),0 0 0 1px rgba(168,85,247,0.1),0 0 60px rgba(168,85,247,0.1);font-family:'DM Sans',sans-serif;color:#e5e7eb;position:relative;">
+            <button onclick="document.getElementById('easter-egg-modal').remove()" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" onmouseover="this.style.color='white';this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.color='rgba(255,255,255,0.4)';this.style.background='rgba(255,255,255,0.06)'">✕</button>
+            <div style="text-align:center;margin-bottom:1.5rem;">
+                <div id="egg-cat" style="font-size:3.5rem;margin-bottom:0.75rem;">🐱</div>
+                <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:900;background:linear-gradient(135deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.25rem;">NYAN NYAN!</div>
+                <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);letter-spacing:0.1em;">にゃん~ · Easter Egg Desbloqueado</div>
             </div>
-
-            <!-- Divider -->
-            <div style="height:1px; background:rgba(255,255,255,0.07); margin-bottom:1.25rem;"></div>
-
-            <!-- Mensagem principal -->
-            <div style="text-align:center; margin-bottom:1.25rem;">
-                <p style="font-size:0.875rem; color:rgba(255,255,255,0.7); line-height:1.6; margin-bottom:0.5rem;">
-                    Bem-vindo ao <strong style="color:white;">NyanTools</strong>!<br>
-                    Sua caixa de ferramentas kawaii 🎌
-                </p>
+            <div style="height:1px;background:rgba(255,255,255,0.07);margin-bottom:1.25rem;"></div>
+            <div style="text-align:center;margin-bottom:1.25rem;">
+                <p style="font-size:0.875rem;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:0.5rem;">Bem-vindo ao <strong style="color:white;">NyanTools</strong>!<br>Sua caixa de ferramentas kawaii 🎌</p>
             </div>
-
-            <!-- Card do aviso importante -->
-            <div style="
-                background:rgba(239,68,68,0.08); border:1px solid rgba(239,68,68,0.2);
-                border-left:3px solid #ef4444; border-radius:10px;
-                padding:0.875rem 1rem; margin-bottom:1.25rem;
-            ">
-                <div style="font-size:0.7rem; font-weight:800; letter-spacing:0.1em; text-transform:uppercase; color:#ef4444; margin-bottom:0.5rem;">
-                    ⚠️ Aviso Importante
-                </div>
-                <p style="font-size:0.75rem; color:rgba(255,255,255,0.55); line-height:1.6; margin:0;">
-                    Em caso de investigação policial, eu declaro que não tenho envolvimento com este grupo 
-                    e não sei como estou no mesmo, provavelmente fui inserido por terceiros. 
-                    Declaro estar disposto a colaborar com as investigações e a me apresentar a depoimento se necessário.
-                </p>
+            <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-left:3px solid #ef4444;border-radius:10px;padding:0.875rem 1rem;margin-bottom:1.25rem;">
+                <div style="font-size:0.7rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#ef4444;margin-bottom:0.5rem;">⚠️ Aviso Importante</div>
+                <p style="font-size:0.75rem;color:rgba(255,255,255,0.55);line-height:1.6;margin:0;">Em caso de investigação policial, eu declaro que não tenho envolvimento com este grupo e não sei como estou no mesmo, provavelmente fui inserido por terceiros. Declaro estar disposto a colaborar com as investigações e a me apresentar a depoimento se necessário.</p>
             </div>
-
-            <!-- Footer -->
             <div style="text-align:center;">
-                <p style="font-size:0.7rem; color:rgba(255,255,255,0.25); margin-bottom:1rem;">
-                    Use o NyanTools com responsabilidade! にゃん~ 🐱✨
-                </p>
-                <button onclick="document.getElementById('easter-egg-modal').remove()" style="
-                    background:linear-gradient(135deg,#a855f7,#ec4899);
-                    border:none; border-radius:10px; color:white;
-                    padding:0.6rem 1.75rem; font-size:0.875rem; font-weight:700;
-                    cursor:pointer; font-family:'DM Sans',sans-serif;
-                    box-shadow:0 4px 20px rgba(168,85,247,0.4);
-                    transition:all 0.2s;
-                " onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(168,85,247,0.55)'"
-                   onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(168,85,247,0.4)'">
-                    Entendido にゃん~
-                </button>
+                <p style="font-size:0.7rem;color:rgba(255,255,255,0.25);margin-bottom:1rem;">Use o NyanTools com responsabilidade! にゃん~ 🐱✨</p>
+                <button onclick="document.getElementById('easter-egg-modal').remove()" style="background:linear-gradient(135deg,#a855f7,#ec4899);border:none;border-radius:10px;color:white;padding:0.6rem 1.75rem;font-size:0.875rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 20px rgba(168,85,247,0.4);transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(168,85,247,0.55)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(168,85,247,0.4)'">Entendido にゃん~</button>
             </div>
         </div>
     `;
-
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.remove();
-    });
-
+    modal.addEventListener('click', (e) => { if (e.target === modal) modal.remove(); });
     document.body.appendChild(modal);
-
-    // Chacoalhar a sidebar
     const sidebar = document.getElementById('sidebar');
     if (sidebar) {
         sidebar.style.transition = 'transform 0.1s ease';
@@ -655,6 +433,7 @@ function showEasterEgg() {
 
 // Inicialização
 document.addEventListener('DOMContentLoaded', () => App.init());
+
 document.addEventListener('click', (e) => {
     const link = e.target.closest('a[href]');
     if (!link) return;
@@ -669,30 +448,48 @@ document.addEventListener('click', (e) => {
     }
 });
 
-window.App = App;
+window.App          = App;
 window.showEasterEgg = showEasterEgg;
+
+// ── RIPPLE EFFECT v3.7.3 ─────────────────────────────────────────────────────
+// FIX DEFINITIVO: sem overflow:hidden no botão — wave usa opacity fade simples
+// O wave fica contido via scale(0)→scale(1) + opacity 0, sem clipar o botão
 document.addEventListener('click', (e) => {
     const btn = e.target.closest(
-        'button[class*="bg-gradient"], .btn-primary, .btn-secondary, .btn-danger, .nyan-ripple-container'
+        'button[class*="bg-gradient"], .btn-primary, .btn-secondary, .btn-danger'
     );
     if (!btn) return;
-    if (!btn.classList.contains('nyan-ripple-container')) {
-        btn.classList.add('nyan-ripple-container');
-    }
+    if (btn.classList.contains('no-ripple')) return;
 
-    const rect   = btn.getBoundingClientRect();
-    const size   = Math.max(rect.width, rect.height);
-    const x      = e.clientX - rect.left - size / 2;
-    const y      = e.clientY - rect.top  - size / 2;
+    const rect = btn.getBoundingClientRect();
+    if (rect.width === 0 || rect.height === 0) return;
 
-    const wave   = document.createElement('span');
+    // Criar wave SEM adicionar overflow:hidden ao botão
+    const wave = document.createElement('span');
     wave.className = 'nyan-ripple-wave';
+
+    // Tamanho = metade da maior dimensão (fica contido sem precisar clip)
+    const size = Math.min(rect.width, rect.height) * 0.8;
+    const x    = e.clientX - rect.left - size / 2;
+    const y    = e.clientY - rect.top  - size / 2;
+
     wave.style.cssText = `
-        width: ${size}px;
-        height: ${size}px;
-        left: ${x}px;
-        top: ${y}px;
+        position:absolute;
+        pointer-events:none;
+        border-radius:50%;
+        background:rgba(255,255,255,0.25);
+        width:${size}px;
+        height:${size}px;
+        left:${x}px;
+        top:${y}px;
+        animation:nyanRipple 0.5s ease-out forwards;
+        transform-origin:center;
     `;
+
+    // Botão precisa só de position:relative (sem overflow:hidden)
+    if (getComputedStyle(btn).position === 'static') {
+        btn.style.position = 'relative';
+    }
 
     btn.appendChild(wave);
     wave.addEventListener('animationend', () => wave.remove(), { once: true });

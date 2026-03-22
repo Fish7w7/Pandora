@@ -1,35 +1,55 @@
 {
-  "version": "3.7.1",
-  "buildDate": "2026-03-19",
+  "version": "3.8.0",
+  "buildDate": "2026-03-22",
   "changelog": [
-    "🐛 Zona Offline: Termo, Forca e Jogo da Velha fechavam ao re-renderizar internamente",
-    "🐛 2048: botões Novo Jogo e Continuar estavam com tamanho errado",
-    "🐛 Assistente IA: campo de mensagem e botão Enviar estavam grandes"
+    "✨ Sistema de XP e Níveis — ganhe experiência jogando e completando missões",
+    "💰 Chips — moeda do NyanTools, ganha e gasta na Loja",
+    "📋 Missões Diárias — 3 missões por dia + 1 desafio semanal com recompensas",
+    "🛍️ Loja — compre títulos, bordas de avatar, temas visuais, efeitos e partículas",
+    "🎒 Inventário — equipe itens comprados e veja efeitos em tempo real",
+    "🌸 Temas Visuais — Sakura, Midnight, Neon e Chamas com efeitos no login",
+    "✨ Partículas de Perfil — estrelas, corações e patinhas em órbita no avatar",
+    "🌈 Bordas de Avatar — animadas, coloridas e desbloqueáveis por nível",
+    "↔️ Efeitos de Navegação — Slide, Zoom e Bounce ao trocar de página",
+    "📊 Bloco de Economia no Perfil — nível, XP, chips e histórico de recompensas"
   ],
-  "tag_name": "v3.7.1",
-  "releaseDate": "2026-03-19",
-  "name": "NyanTools v3.7.1 にゃん~",
-  "codename": "Hotfix",
-  "body": "## 🐛 NyanTools v3.7.1 — Hotfix にゃん~\n\nCorreções de bugs introduzidos na v3.7.0.\n\n### 🐛 CORREÇÕES\n- Zona Offline: Termo, Forca e Jogo da Velha fechavam o jogo ao chamar Router.render() internamente — corrigido com flag _insideGame.\n- 2048: botões 'Novo Jogo' e 'Continuar' estavam com tamanho errado por classes Tailwind sem compilador.\n- Assistente IA: campo de mensagem e botão Enviar estavam grandes pelo mesmo motivo.\n\n---\n\n**Versão Anterior:** v3.7.0\n**Autor:** Junior",
+  "tag_name": "v3.8.0",
+  "releaseDate": "2026-03-22",
+  "name": "NyanTools v3.8.0 にゃん~",
+  "codename": "Nyan Economy",
+  "body": "## ✨ NyanTools v3.8.0 — Nyan Economy にゃん~\n\nSistema econômico completo: XP, níveis, chips, missões diárias, loja e inventário.\n\n### ✨ NOVIDADES\n- Sistema de XP e Níveis com marcos (Veterano nv10, Mestre nv25, Lendário nv50)\n- Chips — moeda do NyanTools integrada a todos os jogos\n- Missões Diárias — 3 por dia (fácil/médio/difícil) + desafio semanal\n- Loja com rotação semanal — títulos, bordas, temas, efeitos e partículas\n- Inventário com equipar/desequipar em tempo real\n- Temas visuais com efeitos de login (Sakura 🌸, Midnight 🌙, Neon ⚡, Chamas 🔥)\n- Partículas de perfil em órbita ao redor do avatar\n- Bordas animadas incluindo Borda Neon com pulso de cor\n- Efeitos de navegação: Slide, Zoom e Bounce\n- Bloco Economy no Perfil com barra de XP e histórico\n\n---\n\n**Versão Anterior:** v3.7.1\n**Autor:** Gabriel + Clara",
   "previousVersion": {
-    "version": "3.7.0",
-    "tag": "v3.7.0",
-    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.7.0"
+    "version": "3.7.1",
+    "tag": "v3.7.1",
+    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.7.1"
   },
-  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.7.1",
-  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.7.1",
+  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.8.0",
+  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.8.0",
   "statistics": {
-    "filesNew": 0,
-    "filesRewritten": 0,
-    "filesModified": 3,
-    "bugsFixed": 3,
-    "featuresAdded": 0
+    "filesNew": 4,
+    "filesRewritten": 2,
+    "filesModified": 14,
+    "bugsFixed": 0,
+    "featuresAdded": 10
   },
   "filesModified": [
-    "frontend/src/scripts/tools/offline-zone/offline.js",
+    "frontend/src/scripts/core/economy.js",
+    "frontend/src/scripts/core/missions.js",
+    "frontend/src/scripts/core/inventory.js",
+    "frontend/src/scripts/tools/shop/shop.js",
+    "frontend/src/scripts/core/app.js",
+    "frontend/src/scripts/core/router.js",
+    "frontend/src/scripts/core/login-intro.js",
+    "frontend/src/scripts/core/focus-mode.js",
+    "frontend/src/scripts/tools/profile/profile.js",
+    "frontend/src/scripts/tools/offline-zone/typeracer.js",
+    "frontend/src/scripts/tools/offline-zone/quiz.js",
     "frontend/src/scripts/tools/offline-zone/2048.js",
-    "frontend/src/scripts/tools/ai-assistant/ai-chat.js",
-    "version.json",
-    "package.json"
+    "frontend/src/scripts/tools/offline-zone/flappy-bird.js",
+    "frontend/src/scripts/tools/offline-zone/forca.js",
+    "frontend/src/scripts/tools/offline-zone/termo.js",
+    "frontend/src/scripts/tools/offline-zone/tictactoe.js",
+    "frontend/src/scripts/tools/offline-zone/slotmachine.js",
+    "frontend/public/version.json"
   ]
 }
