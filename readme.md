@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.7.0-purple?style=for-the-badge&logo=electron)
+![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.8.0-purple?style=for-the-badge&logo=electron)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)
 ![Electron](https://img.shields.io/badge/Electron-27.0.0-47848F?style=for-the-badge&logo=electron)
@@ -72,7 +72,7 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
    ```
 
 2. **Execute o Instalador**
-   - Baixe `NyanTools-3.7.0-Setup.exe`
+   - Baixe `NyanTools-3.8.0-Setup.exe`
    - Execute e siga o assistente de instalação
 
 3. **Pronto! にゃん~**
@@ -197,7 +197,27 @@ Jogos sem internet:
 - 🔢 **2048** — Clássico deslizar e combinar tiles
 - 🐱 **Flappy Nyan** — Versão kawaii do Flappy Bird
 
-### 14. ⚙️ Configurações
+### 14. 💰 Economia (Nyan Economy)
+- Sistema de XP com níveis (1–∞) e marcos especiais em nv10, nv25 e nv50
+- Chips ganhos jogando, completando missões e batendo recordes
+- Migração automática de chips antigos do Caça-Níquel
+
+### 15. 📋 Missões
+- 3 missões diárias sorteadas por seed de data (mesmo dia = mesmas missões para todos)
+- 1 desafio semanal com recompensa maior
+- Barra de progresso e streak de dias consecutivos com multiplicador ×1.5
+
+### 16. 🛍️ Loja
+- Rotação semanal de itens com contagem regressiva
+- Categorias: Títulos, Bordas, Temas, Efeitos de Navegação e Partículas
+- Validação de nível mínimo e saldo de chips antes da compra
+
+### 17. 🎒 Inventário
+- Equipar/desequipar itens em tempo real
+- Bordas aplicadas na sidebar e no perfil simultaneamente
+- Temas com efeitos especiais no login
+
+### 18. ⚙️ Configurações
 
 **5 Abas Completas:**
 
@@ -327,12 +347,12 @@ npm run build:all      # Todas as plataformas
 
 ```
 dist/
-├── NyanTools-3.7.0-Setup.exe       # Windows — instalador
-├── NyanTools 3.7.0.exe             # Windows — portátil
-├── NyanTools-3.7.0-x64.dmg        # macOS Intel
-├── NyanTools-3.7.0-arm64.dmg      # macOS Apple Silicon
-├── NyanTools-3.7.0-x64.AppImage   # Linux
-└── NyanTools-3.7.0-amd64.deb      # Linux Debian/Ubuntu
+├── NyanTools-3.8.0-Setup.exe       # Windows — instalador
+├── NyanTools 3.8.0.exe             # Windows — portátil
+├── NyanTools-3.8.0-x64.dmg        # macOS Intel
+├── NyanTools-3.8.0-arm64.dmg      # macOS Apple Silicon
+├── NyanTools-3.8.0-x64.AppImage   # Linux
+└── NyanTools-3.8.0-amd64.deb      # Linux Debian/Ubuntu
 ```
 
 ---
@@ -386,8 +406,24 @@ dist/
 - [x] Caça-Níquel — jogo casual com símbolos do NyanTools
 - [x] Quiz Diário — 10 perguntas de cultura geral, mesmas para todos no mesmo dia
 
-### **🚧 v3.8.0 "Nyan Economy" — Próxima**
-- [ ] Clicker Idle com moeda Nyans e upgrades
+### **✅ v3.8.0 "Nyan Economy" — Atual**
+- [x] Sistema de XP e Níveis com marcos (Veterano nv10, Mestre nv25, Lendário nv50)
+- [x] Chips — moeda integrada a todos os jogos e missões
+- [x] Missões Diárias — 3 por dia + desafio semanal com recompensas
+- [x] Loja com rotação semanal — títulos, bordas, temas, efeitos e partículas
+- [x] Inventário com equipar/desequipar em tempo real
+- [x] Temas visuais com efeitos de login (Sakura, Midnight, Neon, Chamas)
+- [x] Partículas de perfil em órbita ao redor do avatar
+- [x] Bordas animadas incluindo Borda Neon com pulso de cor
+- [x] Efeitos de navegação: Slide, Zoom e Bounce
+- [x] Bloco Economy no Perfil com barra de XP e histórico
+
+### **🚧 v3.9.0 "Nyan Network" — Próxima**
+- [ ] Perfil público com URL compartilhável
+- [ ] Sistema de amigos e chat privado
+- [ ] Murais de jogos com ranking global
+- [ ] Feed de atividade dos amigos
+- [ ] Desafios entre jogadores
 
 ---
 
@@ -472,7 +508,7 @@ MIT License — Copyright (c) 2026 Fish7w7
 
 *Your Purr-fect Toolkit! 🐱✨*
 
-**v3.7.0 — Zona Arcade 🕹️**
+**v3.8.0 — Nyan Economy 💰**
 
 **[⬆ Voltar ao topo](#-nyantools-にゃん)**
 
