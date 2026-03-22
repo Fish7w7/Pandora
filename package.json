@@ -1,7 +1,7 @@
 {
   "name": "nyantools",
-  "version": "3.7.1",
-  "description": "NyanTools - Your purr-fect toolkit にゃん~ | Hotfix — correções no Termo, Forca, 2048 e Assistente IA",
+  "version": "3.8.0",
+  "description": "NyanTools - Your purr-fect toolkit にゃん~ | Nyan Economy — XP, níveis, chips, missões, loja e inventário",
   "main": "backend/src/main.js",
   "scripts": {
     "start": "electron .",
