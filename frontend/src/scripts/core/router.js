@@ -21,6 +21,8 @@ const Router = {
         'updates': 'AutoUpdater',
         'notes': 'Notes',
         'tasks': 'Tasks',
+        'missions': 'Missions',
+        'shop':     'Shop',
         'profile': 'Profile'
     },
 
@@ -35,6 +37,11 @@ const Router = {
 
         if (window.Dashboard && toolId !== 'home') {
             Dashboard.trackToolAccess(toolId);
+        }
+
+        // Registrar missão de abrir ferramenta
+        if (window.Missions) {
+            Missions.track({ event: 'open_tool', tool: toolId });
         }
 
         // Registrar no histórico
@@ -72,6 +79,12 @@ const Router = {
         if (!App.user) {
             console.warn('⚠️ Router.render() chamado sem usuário autenticado. Abortando.');
             return;
+        }
+
+        // Efeito de navegação do inventário
+        const navEffect = window.Inventory?.getNavEffect?.();
+        if (navEffect) {
+            this._applyNavEffect(container, navEffect);
         }
 
         container.innerHTML = '';
@@ -166,6 +179,54 @@ const Router = {
                 <p class="text-gray-600 mb-6">A ferramenta que você procura não existe.</p>
                 <button onclick="Router.navigate('home')" class="btn-primary">🏠 Voltar ao Início</button>
             </div>`;
+    },
+
+    // ── EFEITO DE NAVEGAÇÃO (Inventory) ──────────────
+    _applyNavEffect(container, effectId) {
+        const effects = {
+            effect_slide: () => {
+                container.style.transition = 'none';
+                container.style.transform  = 'translateX(24px)';
+                container.style.opacity    = '0';
+                requestAnimationFrame(() => {
+                    container.style.transition = 'transform 0.25s cubic-bezier(0.34,1.2,0.64,1), opacity 0.2s ease';
+                    container.style.transform  = 'translateX(0)';
+                    container.style.opacity    = '1';
+                });
+            },
+            effect_zoom: () => {
+                container.style.transition = 'none';
+                container.style.transform  = 'scale(0.96)';
+                container.style.opacity    = '0';
+                requestAnimationFrame(() => {
+                    container.style.transition = 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease';
+                    container.style.transform  = 'scale(1)';
+                    container.style.opacity    = '1';
+                });
+            },
+            effect_bounce: () => {
+                container.style.transition = 'none';
+                container.style.transform  = 'translateY(-10px)';
+                container.style.opacity    = '0.5';
+                requestAnimationFrame(() => {
+                    container.style.transition = 'transform 0.35s cubic-bezier(0.34,1.7,0.64,1), opacity 0.2s ease';
+                    container.style.transform  = 'translateY(0)';
+                    container.style.opacity    = '1';
+                });
+            },
+        };
+
+        // Fallback: fade suave (padrão quando sem efeito comprado)
+        const applyDefault = () => {
+            container.style.transition = 'none';
+            container.style.opacity    = '0';
+            requestAnimationFrame(() => {
+                container.style.transition = 'opacity 0.18s ease';
+                container.style.opacity    = '1';
+            });
+        };
+
+        (effects[effectId] || applyDefault)();
     },
 
     init() {

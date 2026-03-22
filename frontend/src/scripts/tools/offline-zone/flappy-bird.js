@@ -672,10 +672,14 @@ const FlappyBird = {
 
         if (isNewRecord && this.score > 0) {
             Utils.saveData?.('flappy_bird_highscore', this.score);
+            window.Economy?.checkRecord?.('flappy_bird_highscore', this.score);
             this.highScore = this.score;
             const hsEl = document.getElementById('flappy-highscore');
             if (hsEl) hsEl.textContent = this.score;
         }
+
+        window.Missions?.track?.({ event: 'flappy_finish', score: this.score });
+        window.Economy?.grant?.('play_game');
 
         let frames = 0;
         const animateParticles = () => {

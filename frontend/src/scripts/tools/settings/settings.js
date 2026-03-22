@@ -107,7 +107,7 @@ function renderThemeSelector() {
             <!-- Grid de temas -->
             <div class="p-6">
                 <p class="text-sm text-gray-500 font-semibold mb-4 uppercase tracking-wider">Escolha um tema</p>
-                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                <div class="grid grid-cols-4 gap-3">
                     ${Object.entries(ThemeManager.themes).map(([id, t]) => {
                         const isActive = currentId === id;
                         return `
@@ -247,7 +247,7 @@ const Settings = {
                     )}
 
                     <!-- Info cards -->
-                    <div class="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div class="mt-4 grid grid-cols-3 gap-3">
                         <div class="bg-gray-50 rounded-xl p-3 text-center">
                             <div class="text-xl mb-1">⌨️</div>
                             <div class="text-xs font-bold text-gray-700">Atalho</div>
@@ -294,7 +294,7 @@ const Settings = {
                         window.LoginIntro?.isEnabled?.() ?? true,
                         `LoginIntro?.setEnabled?.(this.checked)`
                     )}
-                    <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="mt-3 grid grid-cols-2 gap-3">
                         <div class="bg-gray-50 rounded-xl p-3 text-center">
                             <div class="text-xl mb-1">⏱️</div>
                             <div class="text-xs font-bold text-gray-700">Duração</div>
@@ -521,7 +521,7 @@ const Settings = {
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div class="grid grid-cols-2 gap-3">
                         ${this._renderDataBtn('exportData', '📤', 'Exportar Backup', 'Salvar dados em arquivo .json', 'from-emerald-500 to-teal-600')}
                         ${this._renderDataBtn('importData', '📥', 'Importar Backup', 'Restaurar dados de arquivo', 'from-blue-500 to-cyan-600')}
                         ${this._renderDataBtn('clearCache', '🧹', 'Limpar Cache', 'Remove dados temporários', 'from-amber-500 to-orange-500')}
@@ -594,7 +594,7 @@ const Settings = {
                     </div>
                 </div>
 
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-5">
+                <div class="grid grid-cols-2 gap-5">
                     <!-- Desenvolvedores -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                         <h3 class="font-black text-gray-800 mb-4 flex items-center gap-2"><span>👥</span> Desenvolvedores</h3>
@@ -678,7 +678,7 @@ const Settings = {
                 <!-- Tecnologias -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <h3 class="font-black text-gray-800 mb-4 flex items-center gap-2"><span>🛠️</span> Tecnologias</h3>
-                    <div class="grid grid-cols-3 sm:grid-cols-6 gap-3">
+                    <div class="grid grid-cols-6 gap-3">
                         ${techs.map(t => `
                             <div class="bg-gray-50 rounded-xl p-3 text-center hover:bg-gray-100 transition-all group">
                                 <div class="text-3xl mb-1.5 group-hover:scale-110 transition-transform">${t.icon}</div>

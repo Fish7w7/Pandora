@@ -382,7 +382,10 @@ const Termo = {
             const currentBest = Utils.loadData('termo_best');
             if (!currentBest || attempts < currentBest) {
                 Utils.saveData('termo_best', attempts);
+                window.Economy?.checkRecord?.('termo_best', attempts, false);
             }
+            window.Missions?.track?.({ event: 'termo_win', attempts });
+            window.Economy?.grant?.('play_game');
             Utils.showNotification?.('🎉 Parabéns! Você acertou! にゃん~', 'success');
         } else if (this.guesses.length >= this.maxAttempts) {
             this.gameOver = true;

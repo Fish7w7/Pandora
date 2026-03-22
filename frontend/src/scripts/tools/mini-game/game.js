@@ -646,9 +646,13 @@ const MiniGame = {
             this.highScore = this.score;
             Utils.saveData('snake_highscore', this.highScore);
             Utils.showNotification('🎉 Novo recorde: ' + this.score + ' pontos! にゃん~', 'success');
+            window.Economy?.checkRecord?.('snake_highscore', this.highScore);
         } else {
             Utils.showNotification('💀 Game Over! Pontuação: ' + this.score, 'error');
         }
+
+        window.Economy?.grant?.('play_game');
+        window.Missions?.track?.({ event: 'play_game', game: 'snake' });
         
         this.config.speed = 100;
         

@@ -22,6 +22,19 @@ const LoginIntro = {
     // ── TEMA ATUAL → COR DE DESTAQUE ──────────────────
 
     _getThemeColor() {
+        // Verificar se tem tema visual equipado no Inventory
+        const inventoryEffect = window.Inventory?.getLoginEffect?.();
+        if (inventoryEffect) {
+            // Mapear efeito de tema para cor
+            const effectColors = {
+                sakura:  '#f472b6',
+                glitch:  '#22d3ee',
+                stars:   '#818cf8',
+                fire:    '#ef4444',
+            };
+            if (effectColors[inventoryEffect]) return effectColors[inventoryEffect];
+        }
+
         const theme = window.Utils?.loadData('app_color_theme') || 'purple';
         const map = {
             purple: '#a855f7',
@@ -34,6 +47,92 @@ const LoginIntro = {
             indigo: '#6366f1',
         };
         return map[theme] || '#a855f7';
+    },
+
+    // ── EFEITO DE LOGIN DO INVENTÁRIO ─────────────────
+
+    _getLoginEffectOverlay() {
+        const effect = window.Inventory?.getLoginEffect?.();
+        if (!effect) return '';
+
+        const overlays = {
+            sakura: `
+                <style>
+                    @keyframes sakuraPetal {
+                        0%   { transform: translateY(-20px) rotate(0deg);   opacity: 0; }
+                        10%  { opacity: 1; }
+                        100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+                    }
+                    .sakura-petal {
+                        position: fixed; pointer-events: none; z-index: 99998;
+                        font-size: 1.2rem; animation: sakuraPetal linear infinite;
+                    }
+                </style>
+                <div id="login-effect-overlay">
+                    ${Array.from({length: 10}, (_, i) => `
+                        <div class="sakura-petal" style="
+                            left: ${10 + i * 9}%;
+                            animation-duration: ${3 + (i % 4)}s;
+                            animation-delay: ${(i * 0.3)}s;
+                        ">🌸</div>
+                    `).join('')}
+                </div>`,
+            glitch: `
+                <style>
+                    @keyframes neonGlitch {
+                        0%, 95%, 100% { opacity: 1; transform: none; filter: none; }
+                        96%  { opacity: 0.8; transform: translateX(-3px); filter: hue-rotate(90deg); }
+                        97%  { opacity: 0.9; transform: translateX(3px);  filter: hue-rotate(-90deg); }
+                        98%  { opacity: 0.7; transform: translateX(-2px); filter: none; }
+                        99%  { opacity: 1;   transform: translateX(2px);  filter: none; }
+                    }
+                    #login-intro-screen { animation: neonGlitch 3s infinite; }
+                </style>`,
+            stars: `
+                <style>
+                    @keyframes starTwinkle {
+                        0%, 100% { opacity: 0.2; transform: scale(0.8); }
+                        50%      { opacity: 1;   transform: scale(1.2); }
+                    }
+                    .midnight-star {
+                        position: fixed; pointer-events: none; z-index: 99998;
+                        font-size: 0.8rem; animation: starTwinkle ease-in-out infinite;
+                    }
+                </style>
+                <div id="login-effect-overlay">
+                    ${Array.from({length: 15}, (_, i) => `
+                        <div class="midnight-star" style="
+                            left: ${Math.floor((i * 71 + 13) % 95)}%;
+                            top:  ${Math.floor((i * 53 + 7)  % 90)}%;
+                            animation-duration: ${1.5 + (i % 3) * 0.5}s;
+                            animation-delay:    ${(i * 0.2)}s;
+                        ">⭐</div>
+                    `).join('')}
+                </div>`,
+            fire: `
+                <style>
+                    @keyframes fireSpark {
+                        0%   { transform: translateY(0) scale(1);   opacity: 1; }
+                        100% { transform: translateY(-70px) scale(0); opacity: 0; }
+                    }
+                    .fire-spark {
+                        position: fixed; pointer-events: none; z-index: 99998;
+                        font-size: 1.1rem; animation: fireSpark ease-out infinite;
+                    }
+                </style>
+                <div id="login-effect-overlay">
+                    ${Array.from({length: 10}, (_, i) => `
+                        <div class="fire-spark" style="
+                            left:   ${8 + i * 9}%;
+                            bottom: ${5 + (i % 4) * 6}%;
+                            animation-duration: ${1.2 + (i % 3) * 0.35}s;
+                            animation-delay:    ${(i * 0.18)}s;
+                        ">🔥</div>
+                    `).join('')}
+                </div>`,
+        };
+
+        return overlays[effect] || '';
     },
 
     // ── BUILD ─────────────────────────────────────────
@@ -222,6 +321,8 @@ const LoginIntro = {
         el.classList.add('fade-out');
         setTimeout(() => {
             el.remove();
+            this._effectCleanup?.();
+            this._effectCleanup = null;
             this._callback?.();
         }, 620);
     },
@@ -241,6 +342,18 @@ const LoginIntro = {
 
         this._el = this._build();
         document.body.appendChild(this._el);
+
+        // Injetar efeito visual do inventário (Sakura, Neon, etc.)
+        const effectHTML = this._getLoginEffectOverlay();
+        if (effectHTML) {
+            const wrapper = document.createElement('div');
+            wrapper.innerHTML = effectHTML;
+            wrapper.childNodes.forEach(node => document.body.appendChild(node));
+            // Limpar ao fechar
+            this._effectCleanup = () => {
+                document.getElementById('login-effect-overlay')?.remove();
+            };
+        }
 
         this._animateTitle();
 

@@ -1,10 +1,11 @@
 /* ══════════════════════════════════════════════════
-   PROFILE.JS v1.0.0 — NyanTools にゃん~
+   PROFILE.JS v1.1.0 — NyanTools にゃん~
    Aba de Perfil do Usuário
    - Avatar com upload de imagem local (base64)
    - Editar nome de usuário
    - Trocar senha
    - Stats pessoais
+   - [v3.8.0] Bloco de XP, Nível e Chips (Economy)
  ═══════════════════════════════════════════════════*/
 
 const Profile = {
@@ -51,7 +52,15 @@ const Profile = {
                 <div class="profile-hero-info">
                     <div class="profile-hero-badge">✦ Membro</div>
                     <div class="profile-hero-name">${username}</div>
-                    <div class="profile-hero-role">にゃん~ · <span class="profile-hero-since">desde ${this._formatDate(user.loginDate)}</span></div>
+                    <div class="profile-hero-role">
+                        ${(() => {
+                            const titleItem = window.Inventory?.getEquippedItem?.('title');
+                            return titleItem
+                                ? `<span style="font-size:0.75rem;font-weight:700;color:var(--p-accent);">${titleItem.icon} ${titleItem.name}</span> · `
+                                : '';
+                        })()}にゃん~ · <span class="profile-hero-since">desde ${this._formatDate(user.loginDate)}</span>
+                    </div>
+                    ${window.Economy ? this._renderHeroEconomySnippet() : ''}
                 </div>
             </div>
 
@@ -171,6 +180,9 @@ const Profile = {
         return `
         <div class="profile-sections">
 
+            <!-- Bloco Economy: XP, Nível, Chips -->
+            ${window.Economy ? this._renderEconomyBlock() : ''}
+
             <!-- Cards de resumo -->
             <div class="profile-stats-grid">
                 <div class="profile-stat-card">
@@ -236,6 +248,109 @@ const Profile = {
                 </div>
             </div>
 
+        </div>`;
+    },
+
+    // ── ECONOMY — snippet no hero ─────────────────
+
+    _renderHeroEconomySnippet() {
+        const s   = Economy.getState();
+        const pct = Economy.getLevelProgress();
+        return `
+        <div class="profile-hero-economy">
+            <div class="profile-hero-economy-badges">
+                <span class="profile-hero-economy-level">Nv ${s.level}</span>
+                <span class="profile-hero-economy-chips">⬡ ${s.chips.toLocaleString('pt-BR')} chips</span>
+            </div>
+            <div class="profile-hero-economy-bar-track">
+                <div class="profile-hero-economy-bar-fill" style="width:${pct}%"></div>
+            </div>
+            <div class="profile-hero-economy-xp">${s.xp} / ${s.xpToNext} XP</div>
+        </div>`;
+    },
+
+    // ── ECONOMY — bloco completo na aba stats ─────
+
+    _renderEconomyBlock() {
+        const s         = Economy.getState();
+        const pct       = Economy.getLevelProgress();
+        const totalXP   = (s.totalXP || 0).toLocaleString('pt-BR');
+        const chips     = s.chips.toLocaleString('pt-BR');
+
+        // Próximo marco
+        const milestones = Economy.MILESTONES || {};
+        const nextMilestone = Object.entries(milestones)
+            .map(([lvl, m]) => ({ lvl: parseInt(lvl), ...m }))
+            .filter(m => m.lvl > s.level)
+            .sort((a, b) => a.lvl - b.lvl)[0];
+
+        const milestoneHTML = nextMilestone
+            ? `<div class="eco-milestone">
+                   <span class="eco-milestone-icon">🏆</span>
+                   <span>Próximo marco: <strong>nível ${nextMilestone.lvl}</strong> — "${nextMilestone.title}"</span>
+               </div>`
+            : `<div class="eco-milestone">
+                   <span class="eco-milestone-icon">🌟</span>
+                   <span>Todos os marcos atingidos! にゃん~</span>
+               </div>`;
+
+        // Histórico de ações recentes (se existir)
+        const log = Utils.loadData('nyan_economy_log') || [];
+        const logHTML = log.length > 0
+            ? `<div class="eco-log">
+                ${log.slice(-5).reverse().map(entry => `
+                    <div class="eco-log-item">
+                        <span class="eco-log-action">${entry.label}</span>
+                        <span class="eco-log-reward">+${entry.xp} XP · +${entry.chips} chips</span>
+                        <span class="eco-log-time">${entry.time}</span>
+                    </div>`).join('')}
+               </div>`
+            : '';
+
+        return `
+        <div class="profile-card eco-card">
+            <div class="profile-card-title">⚡ Progresso — Nyan Economy</div>
+
+            <!-- Três cards: nível, chips, XP total -->
+            <div class="eco-grid">
+                <div class="eco-stat eco-stat--level">
+                    <div class="eco-stat-label">Nível</div>
+                    <div class="eco-stat-value" id="economy-level-display">${s.level}</div>
+                    <div class="eco-stat-sub">desde o início</div>
+                </div>
+                <div class="eco-stat eco-stat--chips">
+                    <div class="eco-stat-label">Chips</div>
+                    <div class="eco-stat-value" id="economy-chips-display">${chips}</div>
+                    <div class="eco-stat-sub">saldo atual</div>
+                </div>
+                <div class="eco-stat eco-stat--xp">
+                    <div class="eco-stat-label">XP Total</div>
+                    <div class="eco-stat-value">${totalXP}</div>
+                    <div class="eco-stat-sub">acumulado</div>
+                </div>
+            </div>
+
+            <!-- Barra de XP para o próximo nível -->
+            <div class="eco-xp-section">
+                <div class="eco-xp-header">
+                    <span>Progresso para nível ${s.level + 1}</span>
+                    <span id="economy-xp-display" class="eco-xp-numbers">${s.xp} / ${s.xpToNext} XP</span>
+                </div>
+                <div class="eco-xp-track">
+                    <div class="eco-xp-fill" id="economy-xp-bar" style="width:${pct}%"></div>
+                </div>
+                <div class="eco-xp-pct">${pct}%</div>
+            </div>
+
+            <!-- Próximo marco -->
+            ${milestoneHTML}
+
+            <!-- Histórico de ganhos (se houver) -->
+            ${logHTML ? `
+            <div class="eco-log-section">
+                <div class="eco-log-title">Últimas recompensas</div>
+                ${logHTML}
+            </div>` : ''}
         </div>`;
     },
 

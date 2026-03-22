@@ -488,7 +488,9 @@ const Game2048 = {
         if (this.score > this.bestScore) {
             this.bestScore = this.score;
             Utils.saveData('game_2048_highscore', this.bestScore);
+            window.Economy?.checkRecord?.('game_2048_highscore', this.bestScore);
         }
+        window.Missions?.track?.({ event: 'score_2048', score: this.score });
     },
     
     updateUI() {

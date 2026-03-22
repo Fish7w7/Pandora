@@ -616,6 +616,8 @@ const TicTacToe = {
             const emoji = winner === 'X' ? '❌' : '⭕';
             Utils.showNotification?.(`${emoji} Vitória! にゃん~`, 'success');
         }
+        window.Economy?.grant?.('play_game');
+        window.Missions?.track?.({ event: 'play_game', game: 'tictactoe' });
     },
     
     getCurrentPlayerName() {

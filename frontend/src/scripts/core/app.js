@@ -21,6 +21,8 @@ const App = {
         { id: 'music', name: 'Player de Música', icon: '🎵', description: 'Ouça suas músicas' },
         { id: 'notes', name: 'Notas Rápidas', icon: '📝', description: 'Organize suas ideias' },
         { id: 'tasks', name: 'Lista de Tarefas', icon: '✅', description: 'Gerencie tarefas' },
+        { id: 'missions', name: 'Missões', icon: '📋', description: 'Missões diárias e desafios' },
+        { id: 'shop', name: 'Loja', icon: '🛍️', description: 'Compre itens com chips' },
         { id: 'offline', name: 'Zona Offline', icon: '📶', description: 'Jogos sem internet' },
         { id: 'settings', name: 'Configurações', icon: '⚙️', description: 'Personalize o app' }
     ],
@@ -226,6 +228,36 @@ const App = {
         // ── Conquistas & Beta Testers ──────────────────────────
         if (window.Achievements) Achievements.init();
         if (window.BetaTesters) BetaTesters.init();
+
+        // ── Economy (XP, Nível, Chips) ────────────────────────
+        if (window.Economy) {
+            console.log('💰 Inicializando Economy...');
+            Economy.init();
+        } else {
+            console.warn('⚠️ Economy não encontrado');
+        }
+
+        // ── Missões diárias ───────────────────────────────────
+        if (window.Missions) {
+            console.log('📋 Inicializando Missions...');
+            Missions.init();
+        } else {
+            console.warn('⚠️ Missions não encontrado');
+        }
+
+        // ── Inventário + Loja ─────────────────────────────────
+        if (window.Inventory) {
+            console.log('🎒 Inicializando Inventory...');
+            Inventory.init();
+        } else {
+            console.warn('⚠️ Inventory não encontrado');
+        }
+
+        // ── Loja ──────────────────────────────────────────────
+        if (window.Shop) {
+            console.log('🛍️ Inicializando Shop...');
+            // Shop não precisa de init próprio — inicializa ao renderizar
+        }
         
         // Iniciar tracking de atividade
         this.startActivityTracking();
@@ -287,7 +319,7 @@ const App = {
             },
             {
                 label: 'Organização',
-                items: ['notes', 'tasks']
+                items: ['notes', 'tasks', 'missions', 'shop']
             },
             {
                 label: 'Sistema',
@@ -299,13 +331,25 @@ const App = {
 
         const favSection = window.Favorites ? Favorites.renderSection() : '';
 
-        navMenu.innerHTML = favSection + groups.map(group => {
+        // Widget de missões acima dos grupos
+        const missionsWidget = window.Missions ? Missions.renderSidebarWidget() : '';
+
+        navMenu.innerHTML = favSection + missionsWidget + groups.map(group => {
             const items = group.items.map(id => {
                 const tool = toolMap[id];
                 if (!tool) return '';
                 const isActive = this.currentTool === tool.id;
                 const badge = hasUpdate && tool.id === 'settings'
                     ? `<span class="nav-update-dot" title="Atualização disponível"></span>`
+                    : '';
+                // Badge de missões pendentes
+                const missionsBadge = tool.id === 'missions' && window.Missions
+                    ? (() => {
+                        const pending = Missions.getPendingCount();
+                        return pending > 0
+                            ? `<span id="missions-nav-badge" style="display:inline-flex;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;background:#ef4444;border-radius:99px;font-size:0.55rem;font-weight:800;color:white;margin-left:auto;">${pending}</span>`
+                            : `<span id="missions-nav-badge" style="display:none;"></span>`;
+                    })()
                     : '';
                 return `
                     <button class="nav-item ${isActive ? 'active' : ''}"
@@ -314,7 +358,7 @@ const App = {
                             title="${tool.description}">
                         <span class="nav-icon">${tool.icon}</span>
                         <span class="nav-label">${tool.name}</span>
-                        ${badge}
+                        ${badge}${missionsBadge}
                     </button>
                 `;
             }).join('');

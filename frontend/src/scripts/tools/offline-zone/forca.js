@@ -526,7 +526,11 @@ const Forca = {
         
         const message = won ? '🎉 Parabéns! Você venceu! にゃん~' : '😿 Acabaram as tentativas! A palavra era: ' + this.currentWord;
         Utils.showNotification?.(message, won ? 'success' : 'error');
-        
+
+        window.Economy?.grant?.('play_game');
+        if (won) {
+            window.Missions?.track?.({ event: 'forca_win', errors: this.wrongGuesses });
+        }
         this.saveGameState();
     },
     

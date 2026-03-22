@@ -252,9 +252,12 @@ const FocusMode = {
             'music':        { icon: '🎵', name: 'Player de Música' },
             'notes':        { icon: '📝', name: 'Notas Rápidas' },
             'tasks':        { icon: '✅', name: 'Tarefas' },
+            'missions':     { icon: '📋', name: 'Missões' },
+            'shop':         { icon: '🛍️', name: 'Loja' },
             'offline':      { icon: '📶', name: 'Zona Offline' },
             'settings':     { icon: '⚙️', name: 'Configurações' },
             'updates':      { icon: '🔄', name: 'Atualizações' },
+            'profile':      { icon: '👤', name: 'Perfil' },
         };
 
         const tool = toolMap[toolId] || { icon: '🐱', name: toolId };
