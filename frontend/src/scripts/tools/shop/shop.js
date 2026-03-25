@@ -140,7 +140,7 @@ const Shop = {
                 </span>
             </div>
             <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;">
-                ${items.map(item => this._renderItemCard(item)).join('')}
+                ${items.map(item => this._renderItemCard(item, false, true)).join('')}
             </div>
         </div>`;
     },
@@ -194,7 +194,7 @@ const Shop = {
         }).join('');
     },
 
-    _renderItemCard(item, isOwned = false) {
+    _renderItemCard(item, isOwned = false, isWeekly = false) {
         const c        = this._colors();
         const owned    = isOwned || Inventory.owns(item.id);
         const equipped = Inventory.getEquipped(item.type) === item.id;
@@ -224,7 +224,8 @@ const Shop = {
             btnText     = `🔒 Marco nível ${item.minLevel}`;
             btnStyle    = `background:${d?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'};color:${c.muted};border:1px solid ${c.border};`;
             btnDisabled = true;
-        } else if (!canLevel) {
+        } else if (!canLevel && !isWeekly) {
+            // Na loja semanal, ignorar restrição de nível — qualquer um pode comprar
             btnText     = `🔒 Nível ${item.minLevel}`;
             btnStyle    = `background:${d?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'};color:${c.muted};border:1px solid ${c.border};`;
             btnDisabled = true;
@@ -233,9 +234,14 @@ const Shop = {
             btnStyle    = `background:rgba(239,68,68,0.12);color:${d?'#f87171':'#be123c'};border:1px solid rgba(239,68,68,0.25);`;
             btnDisabled = true;
         } else {
-            btnText  = `🛍️ ${item.price.toLocaleString('pt-BR')} chips`;
+            const weeklyPrice = isWeekly && !canLevel
+                ? Math.ceil(item.price * 1.15) // 15% mais caro na semanal quando abaixo do nível
+                : item.price;
+            btnText  = isWeekly && !canLevel
+                ? `🛍️ ${weeklyPrice.toLocaleString('pt-BR')} chips ✨`
+                : `🛍️ ${item.price.toLocaleString('pt-BR')} chips`;
             btnStyle = `background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));color:white;border:none;`;
-            btnClick = `Shop._confirmBuy('${item.id}')`;
+            btnClick = `Shop._confirmBuy('${item.id}',${isWeekly && !canLevel ? weeklyPrice : 0})`;
         }
 
         return `
@@ -285,19 +291,20 @@ const Shop = {
         </div>`;
     },
 
-    _confirmBuy(itemId) {
+    _confirmBuy(itemId, customPrice = 0) {
         const item  = Inventory.getItem(itemId);
         if (!item) return;
+        const finalPrice = customPrice > 0 ? customPrice : item.price;
         const chips = window.Economy?.getChips?.() || 0;
         const d     = this._isDark();
         this._showModal({
             icon: item.icon,
             title: `Comprar "${item.name}"?`,
-            body:  `Custo: <strong style="color:${d?'#fcd34d':'#b45309'};">${item.price.toLocaleString('pt-BR')} chips</strong><br>Seu saldo: ${chips.toLocaleString('pt-BR')} chips`,
+            body:  `Custo: <strong style="color:${d?'#fcd34d':'#b45309'};">${finalPrice.toLocaleString('pt-BR')} chips</strong>${finalPrice > item.price ? ' <span style="font-size:0.72rem;color:#a78bfa;">(preço semanal)</span>' : ''}<br>Seu saldo: ${chips.toLocaleString('pt-BR')} chips`,
             confirmText:  '🛍️ Comprar',
             confirmColor: 'linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899))',
             onConfirm: () => {
-                const result = Inventory.buy(itemId);
+                const result = Inventory.buy(itemId, finalPrice > item.price ? finalPrice : 0);
                 if (result.ok) {
                     const chipsEl = document.getElementById('shop-chips-display');
                     if (chipsEl) chipsEl.textContent = (window.Economy?.getChips?.() || 0).toLocaleString('pt-BR');

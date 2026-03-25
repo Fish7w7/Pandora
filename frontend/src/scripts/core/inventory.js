@@ -122,16 +122,18 @@ const Inventory = {
         return true;
     },
 
-    buy(itemId) {
+    buy(itemId, weeklyPrice = 0) {
         const item = this.getItem(itemId);
         if (!item) return { ok:false, reason:'Item não encontrado' };
         if (item.milestone) return { ok:false, reason:'Este item é desbloqueado por marco de nível' };
         if (this.owns(itemId)) return { ok:false, reason:'Você já possui este item' };
         const currentLevel = window.Economy?.getLevel?.() || 1;
-        if (currentLevel < item.minLevel) return { ok:false, reason:`Nível ${item.minLevel} necessário (você está no ${currentLevel})` };
+        // weeklyPrice > 0 = compra da loja semanal — ignora restrição de nível
+        if (!weeklyPrice && currentLevel < item.minLevel) return { ok:false, reason:`Nível ${item.minLevel} necessário (você está no ${currentLevel})` };
+        const finalPrice = weeklyPrice > 0 ? weeklyPrice : item.price;
         const chips = window.Economy?.getChips?.() || 0;
-        if (chips < item.price) return { ok:false, reason:`Chips insuficientes (${item.price} necessários, você tem ${chips})` };
-        const spent = window.Economy?.spendChips?.(item.price);
+        if (chips < finalPrice) return { ok:false, reason:`Chips insuficientes (${finalPrice} necessários, você tem ${chips})` };
+        const spent = window.Economy?.spendChips?.(finalPrice);
         if (!spent) return { ok:false, reason:'Falha ao debitar chips' };
         this.unlockItem(itemId);
         Utils.showNotification?.(`🛍️ "${item.name}" adquirido! にゃん~`, 'success');

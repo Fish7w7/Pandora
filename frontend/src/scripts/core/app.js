@@ -1,10 +1,10 @@
 /* ══════════════════════════════════════════════════
-   APP.JS  v3.5.1 "First Impression"
-   FIX v3.7.2: ripple corrigido — botões não ficam mais gigantes
+   APP.JS  v3.9.0 "Nyan Network"
+   v3.9.0: sistema social online (Firebase)
  ═══════════════════════════════════════════════════*/
 
 const App = {
-    version: '3.8.0',
+    version: '3.9.0',
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
@@ -23,7 +23,13 @@ const App = {
         { id: 'missions', name: 'Missões', icon: '📋', description: 'Missões diárias e desafios' },
         { id: 'shop', name: 'Loja', icon: '🛍️', description: 'Compre itens com chips' },
         { id: 'offline', name: 'Zona Offline', icon: '📶', description: 'Jogos sem internet' },
-        { id: 'settings', name: 'Configurações', icon: '⚙️', description: 'Personalize o app' }
+        { id: 'settings', name: 'Configurações', icon: '⚙️', description: 'Personalize o app' },
+        // v3.9.0 — Nyan Network
+        { id: 'friends',     name: 'Amigos',       icon: '👥', description: 'Lista de amigos e solicitações' },
+        { id: 'chat',        name: 'Mensagens',     icon: '💬', description: 'Chat privado com amigos' },
+        { id: 'leaderboard', name: 'Placar Global', icon: '🏆', description: 'Top 10 por jogo' },
+        { id: 'feed',        name: 'Feed',          icon: '📰', description: 'Atividades dos amigos' },
+        { id: 'challenges',  name: 'Desafios',      icon: '⚔️', description: 'Duelos de 24h com amigos' },
     ],
     
     init() {
@@ -98,14 +104,57 @@ const App = {
     
     showMainApp(user = this.user) {
         this.user = user;
+
+        // ── v3.9.0: primeira vez no app → mostrar modal de conta online
+        // ANTES de entrar no app, ainda sobre a tela de login
+        const isFirstTime = !Utils.loadData('nyan_online_linked');
+        if (isFirstTime && window.NyanFirebase) {
+            // Inicializar Firebase em background e mostrar modal sobre o login
+            NyanFirebase.init().then(ready => {
+                if (ready) {
+                    NyanAuth._showAuthModal(user.username);
+                    // Quando o modal for fechado (pulado ou conta criada), entrar no app
+                    const observer = new MutationObserver(() => {
+                        if (!document.getElementById('nyantag-modal')) {
+                            observer.disconnect();
+                            this._enterApp(user);
+                        }
+                    });
+                    observer.observe(document.body, { childList: true });
+                } else {
+                    this._enterApp(user);
+                }
+            });
+            return; // não entrar no app ainda
+        }
+
+        this._enterApp(user);
+    },
+
+    _enterApp(user) {
+        this.user = user;
         const loginScreen = document.getElementById('login-screen');
         const mainApp     = document.getElementById('main-app');
         const userDisplay = document.getElementById('user-display');
         const userAvatar  = document.getElementById('user-avatar');
-        
+
         if (loginScreen) loginScreen.classList.add('hidden');
         if (mainApp)     mainApp.classList.add('visible');
         if (userDisplay) userDisplay.textContent = user.username;
+
+        // Mostrar NyanTag na linha de status da sidebar (se já vinculado)
+        const savedTag = Utils.loadData('nyan_online_tag');
+        const statusEl = document.getElementById('sidebar-online-status');
+        if (savedTag && statusEl) {
+            statusEl.textContent      = savedTag;
+            statusEl.style.color      = 'rgba(168,85,247,0.85)';
+            statusEl.style.fontWeight = '700';
+            statusEl.style.fontSize   = '0.62rem';
+        }
+        // Jogo favorito na sidebar
+        this._updateFavGame();
+        // Restaurar estado colapsado da sidebar
+        setTimeout(() => this._restoreSidebarState(), 100);
         if (userAvatar) {
             const savedAvatar = Utils.loadData('nyan_profile_avatar');
             if (savedAvatar) {
@@ -117,8 +166,18 @@ const App = {
                 userAvatar.innerHTML = '';
                 userAvatar.textContent = user.username.charAt(0).toUpperCase();
             }
+
+            // Monitorar mudanças no avatar e sincronizar com Firebase
+            const observer = new MutationObserver(() => {
+                const newAvatar = Utils.loadData('nyan_profile_avatar');
+                if (newAvatar && window.NyanAuth?.isOnline?.()) {
+                    const uid = NyanAuth.getUID();
+                    if (uid) NyanFirebase.updateDoc('users/' + uid, { avatar: newAvatar }).catch(() => {});
+                }
+            });
+            observer.observe(userAvatar, { childList: true, subtree: true });
         }
-        
+
         this.renderNavMenu();
         this.initNewSystems();
         Router.currentRoute = 'home';
@@ -193,6 +252,183 @@ const App = {
             Inventory.init();
         }
         this.startActivityTracking();
+
+        // v3.9.0 — inicializar sistemas online em background (sem bloqueio)
+        setTimeout(() => {
+            if (window.NyanAuth && window.NyanFirebase?.isReady?.()) {
+                NyanAuth._syncLocalProfile?.();
+                if (window.Leaderboard) Leaderboard.setupAutoSync();
+                // Iniciar badges sociais em tempo real
+                setTimeout(() => this._initSocialBadges(), 1000);
+                // Atualizar jogo favorito
+                setTimeout(() => this._updateFavGame(), 500);
+            }
+        }, 2500);
+    },
+
+    _updateFavGame() {
+        const el = document.getElementById('sidebar-fav-game');
+        if (!el) return;
+        const GAMES = [
+            { key: 'typeracer_highscore',   max: 200,    higher: true,  icon: '⌨️', label: 'Type Racer'  },
+            { key: 'game_2048_highscore',   max: 131072, higher: true,  icon: '🔢', label: '2048'         },
+            { key: 'flappy_bird_highscore', max: 100,    higher: true,  icon: '🐱', label: 'Flappy Nyan'  },
+            { key: 'quiz_highscore',        max: 10,     higher: true,  icon: '🧠', label: 'Quiz Diário'  },
+            { key: 'termo_best',            max: 6,      higher: false, icon: '🔤', label: 'Termo'         },
+            { key: 'snake_highscore',       max: 500,    higher: true,  icon: '🐍', label: 'Cobrinha'      },
+        ];
+        let best = null, bestRatio = -1;
+        GAMES.forEach(g => {
+            const val = parseFloat(Utils.loadData(g.key));
+            if (!val) return;
+            const ratio = g.higher ? val / g.max : 1 - val / g.max;
+            if (ratio > bestRatio) { bestRatio = ratio; best = g; }
+        });
+        if (best) {
+            el.textContent = best.icon + ' ' + best.label;
+            el.style.display = 'block';
+        } else {
+            el.style.display = 'none';
+        }
+    },
+
+    toggleSidebar() {
+        const sidebar = document.getElementById('sidebar');
+        const btn     = document.getElementById('sidebar-toggle-btn');
+        if (!sidebar) return;
+        const isCollapsed = sidebar.classList.toggle('collapsed');
+        if (btn) btn.textContent = isCollapsed ? '▶' : '◀';
+        // Salvar preferência
+        Utils.saveData('sidebar_collapsed', isCollapsed);
+    },
+
+    _restoreSidebarState() {
+        const collapsed = Utils.loadData('sidebar_collapsed');
+        if (collapsed) {
+            const sidebar = document.getElementById('sidebar');
+            const btn     = document.getElementById('sidebar-toggle-btn');
+            if (sidebar) sidebar.classList.add('collapsed');
+            if (btn) btn.textContent = '▶';
+        }
+    },
+
+    _initSocialBadges() {
+        if (!NyanAuth.isOnline() || !NyanFirebase.isReady()) return;
+        const uid = NyanAuth.getUID();
+        if (!uid) return;
+
+        const { collection, query, where, onSnapshot, getDocs } = NyanFirebase.fn;
+
+        // ── Badge de mensagens não lidas ──────────────────────────────────────
+        // Ouvir todos os chats onde sou participante e somar unread
+        const chatsRef = query(collection(NyanFirebase.db, 'chats'), where('participants', 'array-contains', uid));
+        const unsubChats = onSnapshot(chatsRef, (snap) => {
+            let totalUnread = 0;
+            snap.docs.forEach(d => {
+                totalUnread += d.data()[`unread_${uid}`] || 0;
+            });
+            const badge = document.getElementById('chat-nav-badge');
+            if (badge) {
+                if (totalUnread > 0) {
+                    badge.textContent = totalUnread > 9 ? '9+' : totalUnread;
+                    badge.style.display = 'inline-flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+            // Atualizar título da aba de chat
+            if (totalUnread > 0) {
+                document.title = `(${totalUnread}) NyanTools にゃん~ v3.9.0`;
+            } else if (!document.title.startsWith('(')) {
+                document.title = 'NyanTools にゃん~ v3.9.0';
+            }
+        }, () => {});
+        NyanFirebase._listeners.push(unsubChats);
+
+        // ── Badge de desafios pendentes ───────────────────────────────────────
+        // Desafios onde fui desafiado (challenged.uid == uid) e status == 'pending'
+        const pendingChallenges = query(
+            collection(NyanFirebase.db, 'challenges'),
+            where('challenged.uid', '==', uid),
+            where('status', '==', 'pending')
+        );
+        const unsubChallenges = onSnapshot(pendingChallenges, (snap) => {
+            const count = snap.size || 0;
+            const badge = document.getElementById('challenges-nav-badge');
+            if (badge) {
+                if (count > 0) {
+                    badge.textContent = count > 9 ? '9+' : count;
+                    badge.style.display = 'inline-flex';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        }, () => {});
+        NyanFirebase._listeners.push(unsubChallenges);
+
+        // ── Notificação quando amigo bate seu recorde ─────────────────────────
+        this._watchFriendRecords(uid);
+    },
+
+    async _watchFriendRecords(myUID) {
+        if (!NyanFirebase.isReady()) return;
+        const { query, collection, where, getDocs, onSnapshot } = NyanFirebase.fn;
+
+        // Buscar amigos
+        const fsSnap = await getDocs(query(
+            collection(NyanFirebase.db, 'friendships'),
+            where('users', 'array-contains', myUID)
+        )).catch(() => null);
+        if (!fsSnap) return;
+
+        const friendUIDs = fsSnap.docs.map(d => {
+            const u = d.data().users || [];
+            return u.find(x => x !== myUID);
+        }).filter(Boolean);
+
+        if (friendUIDs.length === 0) return;
+
+        // Meu melhor score atual para comparar
+        const myScores = {
+            sc_typeracer: parseFloat(Utils.loadData('typeracer_highscore')) || 0,
+            sc_2048:      parseFloat(Utils.loadData('game_2048_highscore')) || 0,
+            sc_flappy:    parseFloat(Utils.loadData('flappy_bird_highscore')) || 0,
+            sc_quiz:      parseFloat(Utils.loadData('quiz_highscore')) || 0,
+            sc_snake:     parseFloat(Utils.loadData('snake_highscore')) || 0,
+        };
+        const gameNames = { sc_typeracer:'Type Racer', sc_2048:'2048', sc_flappy:'Flappy Nyan', sc_quiz:'Quiz Diário', sc_snake:'Cobrinha' };
+
+        // Ouvir mudanças nos perfis dos amigos
+        friendUIDs.slice(0, 10).forEach(fuid => {
+            const unsubFriend = onSnapshot(
+                NyanFirebase.docRef(`users/${fuid}`),
+                (snap) => {
+                    if (!snap.exists()) return;
+                    const data = snap.data();
+                    // Checar cada jogo
+                    Object.entries(gameNames).forEach(([key, name]) => {
+                        const theirScore = parseFloat(data[key]) || 0;
+                        const myScore    = myScores[key];
+                        if (!theirScore || !myScore) return;
+                        // Se o amigo ultrapassou meu recorde
+                        if (theirScore > myScore) {
+                            const notifKey = `notif_beaten_${fuid}_${key}`;
+                            const lastNotif = Utils.loadData(notifKey);
+                            if (lastNotif !== String(theirScore)) {
+                                Utils.saveData(notifKey, String(theirScore));
+                                const username = data.username || 'Um amigo';
+                                Utils.showNotification(
+                                    `🏆 ${username} bateu seu recorde em ${name}! (${theirScore.toLocaleString('pt-BR')})`,
+                                    'info'
+                                );
+                            }
+                        }
+                    });
+                },
+                () => {}
+            );
+            NyanFirebase._listeners.push(unsubFriend);
+        });
     },
     
     startActivityTracking() {
@@ -219,11 +455,12 @@ const App = {
 
         const hasUpdate = window.AutoUpdater?.updateAvailable;
         const groups = [
-            { label: null,           items: ['home'] },
-            { label: 'Ferramentas',  items: ['password','weather','translator','ai-assistant','temp-email'] },
+            { label: null,             items: ['home'] },
+            { label: 'Ferramentas',    items: ['password','weather','translator','ai-assistant','temp-email'] },
             { label: 'Entretenimento', items: ['mini-game','music','offline'] },
-            { label: 'Organização',  items: ['notes','tasks','missions','shop'] },
-            { label: 'Sistema',      items: ['settings'] }
+            { label: 'Organização',    items: ['notes','tasks','missions','shop'] },
+            { label: 'Social',         items: ['friends','chat','leaderboard','feed','challenges'] },
+            { label: 'Sistema',        items: ['settings'] }
         ];
 
         const toolMap    = Object.fromEntries(this.tools.map(t => [t.id, t]));
@@ -246,6 +483,14 @@ const App = {
                             : `<span id="missions-nav-badge" style="display:none;"></span>`;
                     })()
                     : '';
+                // Badge de mensagens não lidas
+                const chatBadge = tool.id === 'chat'
+                    ? `<span id="chat-nav-badge" style="display:none;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;background:#a855f7;border-radius:99px;font-size:0.55rem;font-weight:800;color:white;margin-left:auto;"></span>`
+                    : '';
+                // Badge de desafios pendentes
+                const challengeBadge = tool.id === 'challenges'
+                    ? `<span id="challenges-nav-badge" style="display:none;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;background:#fbbf24;border-radius:99px;font-size:0.55rem;font-weight:800;color:white;margin-left:auto;"></span>`
+                    : '';
                 return `
                     <button class="nav-item ${isActive ? 'active' : ''}"
                             data-tool="${tool.id}"
@@ -253,7 +498,7 @@ const App = {
                             title="${tool.description}">
                         <span class="nav-icon">${tool.icon}</span>
                         <span class="nav-label">${tool.name}</span>
-                        ${badge}${missionsBadge}
+                        ${badge}${missionsBadge}${chatBadge}${challengeBadge}
                     </button>
                 `;
             }).join('');
@@ -355,6 +600,7 @@ const App = {
     _doLogout() {
         if (this._activityInterval) { clearInterval(this._activityInterval); this._activityInterval = null; }
         if (window.FocusMode?.active) FocusMode.disable();
+        if (window.NyanAuth) NyanAuth.logout().catch(() => {});
         this.user        = null;
         this.currentTool = 'home';
         Auth.logout();

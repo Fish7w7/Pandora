@@ -146,12 +146,15 @@ const QuizDiario = {
         // Salvar recorde
         const best = Utils.loadData('quiz_highscore') || 0;
         const isNewRecord = score > best;
-        if (isNewRecord) Utils.saveData('quiz_highscore', score);
+        // checkRecord ANTES de salvar — economy compara com valor atual no storage
+        const _quizBest = Utils.loadData('quiz_highscore') || 0;
         window.Economy?.checkRecord?.('quiz_highscore', score);
+        setTimeout(() => window.ShareToFeed?.showToast?.('quiz', score, { isRecord: score > _quizBest }), 500);
+        if (isNewRecord) Utils.saveData('quiz_highscore', score);
         if (score === 10) window.Economy?.grant?.('quiz_perfect');
         window.Economy?.grant?.('play_game');
         window.Missions?.track?.({ event: 'quiz_finish', score });
-        if (isNewRecord) window.Missions?.track?.({ event: 'beat_record', game: 'quiz' });
+        // beat_record já disparado dentro de Economy.checkRecord
     },
 
     // ── HELPERS ───────────────────────────────────────

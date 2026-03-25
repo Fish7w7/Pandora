@@ -34,7 +34,10 @@ const Dashboard = {
 
     // Seção principal com título
     _section(icon, title, content, mb = true) {
-        const c = this._colors();
+        const c         = this._colors();
+        const collapseKey = 'dash_collapsed_' + title.replace(/[^a-zA-Z0-9]/g, '_');
+        const isCollapsed = Utils.loadData(collapseKey) === true;
+        const sectionId   = 'dash-section-' + Math.random().toString(36).slice(2, 7);
         return `
             <div style="
                 background:${c.card}; border:1px solid ${c.border};
@@ -45,13 +48,49 @@ const Dashboard = {
                 <h2 style="
                     font-family:var(--font-display,'Syne',sans-serif);
                     font-size:var(--text-lg,1.1rem); font-weight:900;
-                    color:${c.title}; margin:0 0 1rem;
-                    display:flex; align-items:center; gap:0.5rem;
-                ">
-                    <span>${icon}</span><span>${title}</span>
+                    color:${c.title}; margin:0 ${isCollapsed ? '' : '0 1rem'};
+                    display:flex; align-items:center; gap:0.5rem; cursor:pointer;
+                    user-select:none;
+                " onclick="Dashboard._toggleSection('${collapseKey}','${sectionId}',this)">
+                    <span>${icon}</span>
+                    <span style="flex:1;">${title}</span>
+                    <span id="dash-chevron-${sectionId}" style="
+                        font-size:0.75rem; color:${c.muted};
+                        transition:transform 0.2s;
+                        transform:rotate(${isCollapsed ? '-90deg' : '0deg'});
+                    ">▾</span>
                 </h2>
-                ${content}
+                <div id="${sectionId}" style="
+                    overflow:hidden;
+                    transition:max-height 0.3s ease, opacity 0.3s ease;
+                    max-height:${isCollapsed ? '0' : '2000px'};
+                    opacity:${isCollapsed ? '0' : '1'};
+                ">
+                    ${content}
+                </div>
             </div>`;
+    },
+
+    _toggleSection(key, sectionId, header) {
+        const el      = document.getElementById(sectionId);
+        const chevron = document.getElementById('dash-chevron-' + sectionId);
+        if (!el) return;
+        const isNowCollapsed = el.style.maxHeight !== '0px' && el.style.maxHeight !== '';
+        const willCollapse   = isNowCollapsed || el.style.maxHeight === '2000px';
+        // Toggle
+        if (willCollapse) {
+            el.style.maxHeight = '0';
+            el.style.opacity   = '0';
+            if (chevron) chevron.style.transform = 'rotate(-90deg)';
+            header.style.marginBottom = '0';
+            Utils.saveData(key, true);
+        } else {
+            el.style.maxHeight = '2000px';
+            el.style.opacity   = '1';
+            if (chevron) chevron.style.transform = 'rotate(0deg)';
+            header.style.marginBottom = '1rem';
+            Utils.saveData(key, false);
+        }
     },
     
     init() {
@@ -437,10 +476,13 @@ const Dashboard = {
             normalized[normalizedId] += count;
         });
         
-        delete normalized.home;
-        delete normalized.dashboard;
-        delete normalized.settings;
-        delete normalized.updates;
+        // Remover rotas de navegação e seções sociais (não são "ferramentas")
+        const EXCLUDE = [
+            'home', 'dashboard', 'settings', 'updates',
+            'friends', 'chat', 'leaderboard', 'feed', 'challenges',
+            'profile', 'profile-public', 'offline'
+        ];
+        EXCLUDE.forEach(k => delete normalized[k]);
 
         return normalized;
     },

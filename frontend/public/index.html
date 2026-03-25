@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="NyanTools — Sua caixa de ferramentas purr-feita にゃん~">
-    <title>NyanTools にゃん~</title>
+    <title>NyanTools にゃん~ v3.9.0</title>
 
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -197,6 +197,8 @@
             box-shadow: 4px 0 24px rgba(0,0,0,0.3);
         }
 
+
+
         /* Scrollbar fina na nav */
         #nav-menu::-webkit-scrollbar       { width: 4px; }
         #nav-menu::-webkit-scrollbar-track { background: transparent; }
@@ -350,7 +352,7 @@
             <div class="mt-6 text-center">
                 <div class="inline-flex items-center gap-2 text-white/20 text-xs font-semibold tracking-widest">
                     <span class="w-8 h-px bg-white/10 block"></span>
-                    <span>v3.8.0</span>
+                    <span>v3.9.0</span>
                     <span class="w-8 h-px bg-white/10 block"></span>
                 </div>
             </div>
@@ -378,10 +380,11 @@
                     <div class="sidebar-user-avatar" id="user-avatar">?</div>
                     <div class="sidebar-user-info">
                         <div class="sidebar-user-name" id="user-display">Usuário</div>
-                        <div class="sidebar-user-status">
-                            <span class="sidebar-user-dot"></span>
-                            <span>Online</span>
+                        <div class="sidebar-user-status" onclick="window.NyanAuth?.showStatusPicker?.()" title="Mudar status" style="cursor:pointer;">
+                            <span class="sidebar-user-dot" id="sidebar-presence-dot"></span>
+                            <span id="sidebar-online-status">Online</span>
                         </div>
+                        <div id="sidebar-fav-game" style="display:none;font-size:0.58rem;color:rgba(255,255,255,0.35);font-weight:600;margin-top:1px;letter-spacing:0.01em;"></div>
                     </div>
                     <svg class="sidebar-user-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6"/>
@@ -519,6 +522,59 @@
     <script src="../src/scripts/core/login-particles.js"></script>
     <script src="../src/scripts/core/login-effects.js"></script>
     <script src="../src/scripts/core/login-intro.js"></script>
+
+    <!-- v3.9.0 — listener sidebar NyanTag (linha de status) -->
+    <script>
+        window.addEventListener('nyan:online-ready', (e) => {
+            const { tag } = e.detail || {};
+            if (!tag) return;
+            const dot    = document.getElementById('sidebar-presence-dot');
+            const status = document.getElementById('sidebar-online-status');
+            // Mostrar NyanTag na linha de status, sem quebrar o layout
+            if (status) {
+                status.textContent = tag;
+                status.style.color = 'rgba(168,85,247,0.85)';
+                status.style.fontWeight = '700';
+                status.style.fontSize = '0.62rem';
+                status.style.letterSpacing = '0.01em';
+                status.style.overflow = 'hidden';
+                status.style.textOverflow = 'ellipsis';
+                status.style.whiteSpace = 'nowrap';
+            }
+            if (dot) {
+                dot.style.background = '#a855f7';
+                dot.style.boxShadow = '0 0 4px rgba(168,85,247,0.8)';
+            }
+        });
+        window.addEventListener('nyan:firebase-offline', () => {
+            const status = document.getElementById('sidebar-online-status');
+            if (status) status.textContent = 'Offline';
+        });
+
+        // Patch exportData — garante que NyanTag aparece no backup
+        // As chaves nyan_online_* já estão no localStorage automaticamente
+        // Este patch só adiciona notificação informando que foi incluído
+        window.addEventListener('load', () => {
+            if (!window.Settings) return;
+            const _orig = Settings.exportData.bind(Settings);
+            Settings.exportData = function() {
+                _orig();
+                const tag = Utils?.loadData?.('nyan_online_tag');
+                if (tag) setTimeout(() =>
+                    Utils.showNotification(`📦 Backup inclui NyanTag: ${tag}`, 'info'), 600);
+            };
+        });
+    </script>
+
+    <!-- v3.9.0 — Nyan Network (Firebase + Social) -->
+    <script src="../src/scripts/core/firebase.js"></script>
+    <script src="../src/scripts/core/nyan-auth.js"></script>
+    <script src="../src/scripts/core/friends.js"></script>
+    <script src="../src/scripts/core/chat.js"></script>
+    <script src="../src/scripts/core/leaderboard.js"></script>
+    <script src="../src/scripts/core/feed.js"></script>
+    <script src="../src/scripts/core/share-to-feed.js"></script>
+    <script src="../src/scripts/core/challenges.js"></script>
 
 </body>
 </html>

@@ -1,6 +1,7 @@
 /* ═════════════════════════════════════════════
-   ROUTER.JS v3.1.1
-   FIX: efeito Flip corrigido
+   ROUTER.JS v3.2.0
+   v3.9.0: rotas sociais — friends, chat,
+           leaderboard, feed, challenges
  ═══════════════════════════════════════════════*/
 
 const Router = {
@@ -20,9 +21,16 @@ const Router = {
         'updates': 'AutoUpdater',
         'notes': 'Notes',
         'tasks': 'Tasks',
-        'missions': 'Missions',
-        'shop':     'Shop',
-        'profile': 'Profile'
+        'missions':    'Missions',
+        'shop':        'Shop',
+        'profile':     'Profile',
+        // v3.9.0 — Nyan Network
+        'friends':     'Friends',
+        'profile-public': 'Friends',
+        'chat':        'Chat',
+        'leaderboard': 'Leaderboard',
+        'feed':        'Feed',
+        'challenges':  'Challenges',
     },
 
     _history: ['home'],
@@ -228,7 +236,7 @@ const Router = {
             if (e.altKey && e.key === 'ArrowLeft')  { e.preventDefault(); this.back(); }
             if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); this.forward(); }
         });
-        console.log('🧭 Router v3.1.1 inicializado');
+        console.log('🧭 Router v3.2.0 inicializado');
     }
 };
 

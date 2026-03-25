@@ -384,6 +384,7 @@ const Termo = {
             if (isNewRecord) {
                 Utils.saveData('termo_best', attempts);
                 window.Economy?.checkRecord?.('termo_best', attempts, false);
+                setTimeout(() => window.ShareToFeed?.showToast?.('termo', attempts, { isRecord: isNewRecord }), 500);
             }
             window.Missions?.track?.({ event: 'termo_win', attempts });
             if (isNewRecord) window.Missions?.track?.({ event: 'beat_record', game: 'termo' });

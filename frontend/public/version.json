@@ -1,16 +1,14 @@
 {
-  "version": "3.8.0",
+  "version": "3.9.0",
   "buildDate": "2026-03-22",
   "changelog": [
-    "✨ Sistema de XP e Níveis com marcos em nv10, nv25 e nv50",
-    "💰 Chips — moeda integrada a todos os jogos e missões",
-    "📋 Missões Diárias — 3 por dia + desafio semanal com recompensas",
-    "🛍️ Loja com rotação semanal — títulos, bordas, temas, efeitos e partículas",
-    "🎒 Inventário — equipe itens em tempo real com efeitos aplicados instantaneamente",
-    "🌸 Temas visuais com efeitos de login (Sakura, Midnight, Neon, Chamas)",
-    "✨ Partículas de perfil em órbita ao redor do avatar",
-    "🌈 Bordas animadas incluindo Borda Neon com pulso de cor",
-    "↔️ Efeitos de navegação: Slide, Zoom e Bounce",
-    "📊 Bloco Economy no Perfil com barra de XP e histórico"
+    "👥 Sistema de Amigos — adicione por NyanTag#1234",
+    "💬 Chat privado 1:1 com histórico persistente",
+    "🏆 Placar Global — Top 10 por jogo com filtro de amigos",
+    "📰 Feed de atividade dos amigos com reações e comentários",
+    "⚔️ Desafios de 24h — duelos entre amigos em qualquer jogo",
+    "🏷️ NyanTag — identidade única online para cada jogador",
+    "🟢 Status em tempo real (Online, Jogando, Ausente, Offline)",
+    "📊 Perfil público com recordes, conquistas e comparação lado a lado"
   ]
 }

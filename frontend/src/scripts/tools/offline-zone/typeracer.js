@@ -170,11 +170,15 @@ const TypeRacer = {
         const key = 'typeracer_highscore';
         const best = Utils.loadData(key) || 0;
         const isNewRecord = wpm > best;
-        if (isNewRecord) Utils.saveData(key, wpm);
+        // checkRecord ANTES de salvar — economy compara com valor anterior
         window.Economy?.checkRecord?.(key, wpm);
+        // Compartilhar no feed
+        const isRec = wpm > best;
+        setTimeout(() => window.ShareToFeed?.showToast?.('typeracer', wpm, { isRecord: isRec }), 500);
+        if (isNewRecord) Utils.saveData(key, wpm);
         window.Economy?.grant?.('play_game');
         window.Missions?.track?.({ event: 'typeracer_finish', wpm });
-        if (isNewRecord) window.Missions?.track?.({ event: 'beat_record', game: 'typeracer' });
+        // beat_record já disparado dentro de Economy.checkRecord
     },
 
     render() {

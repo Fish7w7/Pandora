@@ -64,13 +64,7 @@ const Game2048 = {
                         <div class="text-xs font-semibold opacity-90">🏆 Recorde</div>
                         <div class="text-2xl font-black">${this.bestScore}</div>
                     </div>
-                    <button onclick="Game2048.undo()" 
-                            id="undo-btn"
-                            ${!this.canUndo ? 'disabled' : ''}
-                            class="px-6 py-3 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg font-bold transition-all flex items-center gap-2 border dark:border-slate-600">
-                        <span>↩️</span>
-                        <span class="hidden sm:inline">Desfazer</span>
-                    </button>
+
                 </div>
             </div>
         `;
@@ -415,7 +409,7 @@ const Game2048 = {
             this.gameState = 'lost';
             this.updateStats(false);
             setTimeout(() => {
-                Utils.showNotification('💀 Game Over! Pontuação: ' + this.score, 'error');
+                // Game Over sem notificação
             }, 500);
         }
     },
@@ -487,12 +481,16 @@ const Game2048 = {
         
         const _isNewRecord2048 = this.score > this.bestScore;
         if (_isNewRecord2048) {
+            // checkRecord ANTES de salvar — economy compara com valor atual no storage
+            const _2048Best = Utils.loadData('game_2048_highscore') || 0;
+            window.Economy?.checkRecord?.('game_2048_highscore', this.score);
+            const _2048Score = this.score;
+            setTimeout(() => window.ShareToFeed?.showToast?.('2048', _2048Score, { isRecord: _2048Score > _2048Best }), 500);
             this.bestScore = this.score;
             Utils.saveData('game_2048_highscore', this.bestScore);
-            window.Economy?.checkRecord?.('game_2048_highscore', this.bestScore);
+            // Missions.track já é chamado dentro de Economy.checkRecord — não duplicar
         }
         window.Missions?.track?.({ event: 'score_2048', score: this.score });
-        if (_isNewRecord2048) window.Missions?.track?.({ event: 'beat_record', game: '2048' });
     },
     
     updateUI() {

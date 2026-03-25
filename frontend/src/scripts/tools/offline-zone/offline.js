@@ -18,6 +18,11 @@ const OfflineZone = {
     },
 
     render() {
+        // Se startGame() está em andamento, renderizar o jogo imediatamente
+        if (this._startingGame && this.currentGame) return this._renderGame();
+        // Se chegou aqui via navegação normal, mostrar menu (init() limpará currentGame após render)
+        // mas já resetar aqui para não mostrar jogo de sessão anterior
+        if (!this._startingGame) { this.currentGame = null; }
         if (this.currentGame) return this._renderGame();
 
         const d      = document.body.classList.contains('dark-theme');
@@ -195,16 +200,31 @@ const OfflineZone = {
     },
 
     init() {
-        if (!this._insideGame) {
-            this.currentGame = null;
+        // _startingGame é true apenas quando startGame() chama Router.render()
+        // Nesse caso, não resetar o estado — o jogo está prestes a ser renderizado
+        if (this._startingGame) return;
+        // Navegação normal para a zona offline — resetar estado do jogo
+        this._insideGame = false;
+        this.currentGame = null;
+        // Limpar escHandler pendente
+        if (this._escHandler) {
+            document.removeEventListener('keydown', this._escHandler);
+            this._escHandler = null;
         }
     },
 
     startGame(game) {
-        this._insideGame = true;
-        this.currentGame = game;
+        this._insideGame    = true;
+        this.currentGame    = game;
+        this._startingGame  = true;  // protege init() durante o render
         this._initGame(game);
         Router?.render();
+        this._startingGame  = false; // libera após render
+        // Remover handler anterior antes de adicionar novo (evita duplicatas)
+        if (this._escHandler) {
+            document.removeEventListener('keydown', this._escHandler);
+            this._escHandler = null;
+        }
         this._escHandler = e => { if (e.key === 'Escape') this.backToMenu(); };
         document.addEventListener('keydown', this._escHandler);
         if (game === 'snake')         setTimeout(() => MiniGame?.init(), 100);

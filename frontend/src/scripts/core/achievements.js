@@ -129,7 +129,17 @@ const Achievements = {
             }
         }
 
-        if (changed) Utils.saveData(this.KEY, unlocked);
+        if (changed) {
+            Utils.saveData(this.KEY, unlocked);
+            // Sincronizar conquistas com Firestore imediatamente
+            if (window.NyanAuth?.isOnline?.() && window.NyanFirebase?.isReady?.()) {
+                const uid = NyanAuth.getUID();
+                if (uid) {
+                    NyanFirebase.updateDoc('users/' + uid, { sc_achievements: unlocked })
+                        .catch(() => {});
+                }
+            }
+        }
         return unlocked;
     },
 

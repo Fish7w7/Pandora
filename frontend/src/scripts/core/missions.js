@@ -773,7 +773,7 @@ const Missions = {
                     text-transform:uppercase;color:rgba(255,255,255,0.55);
                     font-family:'DM Sans',sans-serif;
                 ">📋 Missões</span>
-                <span style="
+                <span class="missions-progress-text" style="
                     font-size:0.68rem;font-weight:800;color:${countColor};
                     font-family:'Syne',sans-serif;
                 ">${doneCount}/${total}</span>
@@ -781,7 +781,7 @@ const Missions = {
 
             <!-- Barra de progresso -->
             <div style="height:4px;background:rgba(255,255,255,0.12);border-radius:99px;overflow:hidden;margin-bottom:0.4rem;">
-                <div style="height:100%;width:${pct}%;
+                <div class="missions-progress-bar" style="height:100%;width:${pct}%;
                     background:${barColor};
                     border-radius:99px;transition:width 0.4s ease;"></div>
             </div>
@@ -803,8 +803,13 @@ const Missions = {
 
     // ── BADGE NA NAV (ponto vermelho no item) ─────────
     getPendingCount() {
-        const missions = this.getDailyMissions();
-        return missions.filter(m => !m.completed).length;
+        // Usar load() direto para não disparar reset acidental via getDailyMissions
+        const data = this.load();
+        const today = this._getToday();
+        if (!data.missions || data.date !== today) {
+            return this.getDailyMissions().filter(m => !m.completed).length;
+        }
+        return (data.missions || []).filter(m => !m.completed).length;
     },
 
     // ── REFRESH UI ────────────────────────────────────
@@ -818,9 +823,15 @@ const Missions = {
         // Atualizar widget da sidebar se visível
         const widget = document.getElementById('missions-sidebar-widget');
         if (widget) {
+            // Re-renderizar widget diretamente em vez de usar regex frágil
             const missions  = this.getDailyMissions();
             const doneCount = missions.filter(m => m.completed).length;
-            widget.innerHTML = this.renderSidebarWidget().match(/<div[^>]*id="missions-sidebar-widget"[^>]*>([\s\S]*)<\/div>/)?.[1] || '';
+            const total     = missions.length;
+            const pct       = total > 0 ? Math.round((doneCount / total) * 100) : 0;
+            const progBar   = widget.querySelector('.missions-progress-bar');
+            const progText  = widget.querySelector('.missions-progress-text');
+            if (progBar)  progBar.style.width  = pct + '%';
+            if (progText) progText.textContent  = doneCount + '/' + total + ' missões';
         }
     },
 
