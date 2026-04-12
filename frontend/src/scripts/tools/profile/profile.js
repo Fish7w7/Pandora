@@ -1,25 +1,20 @@
 /* ══════════════════════════════════════════════════
-   PROFILE.JS v1.1.0 — NyanTools にゃん~
-   Aba de Perfil do Usuário
-   - Avatar com upload de imagem local (base64)
-   - Editar nome de usuário
-   - Trocar senha
-   - Stats pessoais
-   - [v3.8.0] Bloco de XP, Nível e Chips (Economy)
+   PROFILE.JS v1.2.0 — NyanTools にゃん~
+   - Economy block colapsável (Bug 4)
+   - Limpeza geral do código
  ═══════════════════════════════════════════════════*/
 
 const Profile = {
     _tab: 'profile',
     _previewUrl: null,
 
-    // ── STORAGE KEYS ─────────────────────────────────
     KEYS: {
         avatar:   'nyan_profile_avatar',
         username: 'toolbox_user',
-        password: 'nyan_profile_pass',  // separado do auth por ora
+        password: 'nyan_profile_pass',
     },
 
-    // ── RENDER PRINCIPAL ─────────────────────────────
+    COLLAPSE_ECO: 'nyan_eco_collapsed',
 
     render() {
         const user     = Auth?.getStoredUser?.() || {};
@@ -30,7 +25,7 @@ const Profile = {
         return `
         <div class="profile-root">
 
-            <!-- ── HERO ── -->
+            <!-- HERO -->
             <div class="profile-hero">
                 <div class="profile-avatar-wrap" onclick="${avatar ? 'Profile._openLightbox()' : 'Profile._openAvatarPicker()'}" title="${avatar ? 'Ver foto' : 'Adicionar foto'}">
                     ${avatar
@@ -64,7 +59,7 @@ const Profile = {
                 </div>
             </div>
 
-            <!-- ── TABS ── -->
+            <!-- TABS -->
             <div class="profile-tabs">
                 <button class="profile-tab ${this._tab === 'profile' ? 'active' : ''}"
                         onclick="Profile._setTab('profile')">
@@ -76,7 +71,7 @@ const Profile = {
                 </button>
             </div>
 
-            <!-- ── CONTEÚDO ── -->
+            <!-- CONTEÚDO -->
             <div class="profile-content">
                 ${this._tab === 'profile' ? this._renderProfileTab(username) : this._renderStatsTab()}
             </div>
@@ -84,20 +79,15 @@ const Profile = {
         </div>`;
     },
 
-    // ── TAB: PERFIL ───────────────────────────────────
-
     _renderProfileTab(username) {
         return `
         <div class="profile-sections">
 
-            <!-- Avatar -->
             <div class="profile-card">
                 <div class="profile-card-title">Foto de Perfil</div>
                 <div class="profile-avatar-section">
                     <div class="profile-avatar-preview" id="avatar-preview-wrap"
-                         onclick="Profile._openAvatarPicker()"
-                         title="Clique para trocar a foto"
-                         style="cursor:pointer;">
+                         onclick="Profile._openAvatarPicker()" title="Clique para trocar a foto" style="cursor:pointer;">
                         ${this._renderAvatarPreview(username)}
                     </div>
                     <div class="profile-avatar-actions">
@@ -114,16 +104,11 @@ const Profile = {
                 </div>
             </div>
 
-            <!-- Nome -->
             <div class="profile-card">
                 <div class="profile-card-title">Nome de Usuário</div>
                 <div class="profile-field-wrap">
-                    <input type="text"
-                           id="profile-username-input"
-                           class="profile-input"
-                           value="${username}"
-                           maxlength="30"
-                           placeholder="Seu nome..."
+                    <input type="text" id="profile-username-input" class="profile-input"
+                           value="${username}" maxlength="30" placeholder="Seu nome..."
                            oninput="Profile._onUsernameInput(this)"/>
                     <div class="profile-char-count" id="username-count">${username.length}/30</div>
                 </div>
@@ -132,27 +117,17 @@ const Profile = {
                 </button>
             </div>
 
-            <!-- Senha -->
             <div class="profile-card">
                 <div class="profile-card-title">Trocar Senha</div>
                 <div class="profile-fields">
                     <div class="profile-field-wrap">
-                        <input type="password"
-                               id="profile-pass-current"
-                               class="profile-input"
-                               placeholder="Senha atual"/>
+                        <input type="password" id="profile-pass-current" class="profile-input" placeholder="Senha atual"/>
                     </div>
                     <div class="profile-field-wrap">
-                        <input type="password"
-                               id="profile-pass-new"
-                               class="profile-input"
-                               placeholder="Nova senha (mín. 4 caracteres)"/>
+                        <input type="password" id="profile-pass-new" class="profile-input" placeholder="Nova senha (mín. 4 caracteres)"/>
                     </div>
                     <div class="profile-field-wrap">
-                        <input type="password"
-                               id="profile-pass-confirm"
-                               class="profile-input"
-                               placeholder="Confirmar nova senha"/>
+                        <input type="password" id="profile-pass-confirm" class="profile-input" placeholder="Confirmar nova senha"/>
                     </div>
                 </div>
                 <button class="profile-btn profile-btn-primary" onclick="Profile._savePassword()">
@@ -173,17 +148,13 @@ const Profile = {
                 : `<div class="profile-avatar-initial-lg">${initial}</div>`);
     },
 
-    // ── TAB: STATS ────────────────────────────────────
-
     _renderStatsTab() {
         const stats = this._collectStats();
         return `
         <div class="profile-sections">
 
-            <!-- Bloco Economy: XP, Nível, Chips -->
             ${window.Economy ? this._renderEconomyBlock() : ''}
 
-            <!-- Cards de resumo -->
             <div class="profile-stats-grid">
                 <div class="profile-stat-card">
                     <span class="profile-stat-icon">⏱️</span>
@@ -207,10 +178,8 @@ const Profile = {
                 </div>
             </div>
 
-            <!-- Conquistas -->
             ${window.Achievements ? Achievements.renderSection() : ''}
 
-            <!-- Top ferramentas -->
             <div class="profile-card">
                 <div class="profile-card-title">🏆 Ferramentas Favoritas</div>
                 ${stats.topTools.length > 0
@@ -231,7 +200,6 @@ const Profile = {
                 }
             </div>
 
-            <!-- Atividade da semana -->
             <div class="profile-card">
                 <div class="profile-card-title">📆 Atividade Recente</div>
                 <div class="profile-week-grid">
@@ -251,8 +219,7 @@ const Profile = {
         </div>`;
     },
 
-    // ── ECONOMY — snippet no hero ─────────────────
-
+    // Snippet resumido no hero
     _renderHeroEconomySnippet() {
         const s   = Economy.getState();
         const pct = Economy.getLevelProgress();
@@ -269,15 +236,15 @@ const Profile = {
         </div>`;
     },
 
-    // ── ECONOMY — bloco completo na aba stats ─────
-
+    // BUG 4 FIX: Economy block colapsável
     _renderEconomyBlock() {
         const s         = Economy.getState();
         const pct       = Economy.getLevelProgress();
         const totalXP   = (s.totalXP || 0).toLocaleString('pt-BR');
         const chips     = s.chips.toLocaleString('pt-BR');
+        const isCollapsed = Utils.loadData(this.COLLAPSE_ECO) === true;
+        const chevron   = isCollapsed ? '▸' : '▾';
 
-        // Próximo marco
         const milestones = Economy.MILESTONES || {};
         const nextMilestone = Object.entries(milestones)
             .map(([lvl, m]) => ({ lvl: parseInt(lvl), ...m }))
@@ -294,67 +261,69 @@ const Profile = {
                    <span>Todos os marcos atingidos! にゃん~</span>
                </div>`;
 
-        // Histórico de ações recentes (se existir)
-        const log = Utils.loadData('nyan_economy_log') || [];
-        const logHTML = log.length > 0
-            ? `<div class="eco-log">
-                ${log.slice(-5).reverse().map(entry => `
-                    <div class="eco-log-item">
-                        <span class="eco-log-action">${entry.label}</span>
-                        <span class="eco-log-reward">+${entry.xp} XP · +${entry.chips} chips</span>
-                        <span class="eco-log-time">${entry.time}</span>
-                    </div>`).join('')}
-               </div>`
-            : '';
-
         return `
         <div class="profile-card eco-card">
-            <div class="profile-card-title">⚡ Progresso — Nyan Economy</div>
-
-            <!-- Três cards: nível, chips, XP total -->
-            <div class="eco-grid">
-                <div class="eco-stat eco-stat--level">
-                    <div class="eco-stat-label">Nível</div>
-                    <div class="eco-stat-value" id="economy-level-display">${s.level}</div>
-                    <div class="eco-stat-sub">desde o início</div>
-                </div>
-                <div class="eco-stat eco-stat--chips">
-                    <div class="eco-stat-label">Chips</div>
-                    <div class="eco-stat-value" id="economy-chips-display">${chips}</div>
-                    <div class="eco-stat-sub">saldo atual</div>
-                </div>
-                <div class="eco-stat eco-stat--xp">
-                    <div class="eco-stat-label">XP Total</div>
-                    <div class="eco-stat-value">${totalXP}</div>
-                    <div class="eco-stat-sub">acumulado</div>
-                </div>
+            <div class="profile-card-title" style="cursor:pointer;user-select:none;"
+                 onclick="Profile._toggleEcoCollapse()">
+                ⚡ Progresso — Nyan Economy
+                <span style="margin-left:auto;font-size:0.75rem;color:var(--p-text-muted);"
+                      id="eco-chevron">${chevron}</span>
             </div>
 
-            <!-- Barra de XP para o próximo nível -->
-            <div class="eco-xp-section">
-                <div class="eco-xp-header">
-                    <span>Progresso para nível ${s.level + 1}</span>
-                    <span id="economy-xp-display" class="eco-xp-numbers">${s.xp} / ${s.xpToNext} XP</span>
+            <div id="eco-block-container" style="
+                overflow:hidden;
+                transition:max-height 0.35s ease, opacity 0.3s ease;
+                max-height:${isCollapsed ? '0' : '2000px'};
+                opacity:${isCollapsed ? '0' : '1'};
+            ">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:0.75rem;margin-bottom:1.25rem;">
+                    <div style="background:var(--p-accent-soft);border:1px solid var(--p-accent-border);border-radius:12px;padding:1rem;text-align:center;">
+                        <div style="font-size:0.6rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--p-text-muted);margin-bottom:0.4rem;">Nível</div>
+                        <div id="economy-level-display" style="font-size:2rem;font-weight:900;font-family:'Syne',sans-serif;color:var(--p-accent);line-height:1;">${s.level}</div>
+                    </div>
+                    <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:1rem;text-align:center;">
+                        <div style="font-size:0.6rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--p-text-muted);margin-bottom:0.4rem;">Chips</div>
+                        <div id="economy-chips-display" style="font-size:1.5rem;font-weight:900;font-family:'Syne',sans-serif;color:#b45309;line-height:1;">${chips}</div>
+                    </div>
+                    <div style="background:var(--p-bg-subtle);border:1px solid var(--p-border);border-radius:12px;padding:1rem;text-align:center;">
+                        <div style="font-size:0.6rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--p-text-muted);margin-bottom:0.4rem;">XP total</div>
+                        <div style="font-size:1.2rem;font-weight:900;font-family:'Syne',sans-serif;color:var(--p-text);line-height:1;">${totalXP}</div>
+                    </div>
                 </div>
-                <div class="eco-xp-track">
-                    <div class="eco-xp-fill" id="economy-xp-bar" style="width:${pct}%"></div>
+
+                <div style="margin-bottom:0.5rem;">
+                    <div style="display:flex;justify-content:space-between;margin-bottom:0.4rem;">
+                        <span style="font-size:0.72rem;font-weight:600;color:var(--p-text-sub);">XP para nível ${s.level + 1}</span>
+                        <span id="economy-xp-display" style="font-size:0.72rem;font-weight:700;color:var(--p-accent);">${s.xp} / ${s.xpToNext} XP</span>
+                    </div>
+                    <div style="height:6px;background:var(--p-sep);border-radius:99px;overflow:hidden;">
+                        <div id="economy-xp-bar"
+                             style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--p-accent),var(--p-pink));border-radius:99px;transition:width 0.5s cubic-bezier(0.34,1.2,0.64,1);">
+                        </div>
+                    </div>
                 </div>
-                <div class="eco-xp-pct">${pct}%</div>
+
+                ${milestoneHTML}
             </div>
-
-            <!-- Próximo marco -->
-            ${milestoneHTML}
-
-            <!-- Histórico de ganhos (se houver) -->
-            ${logHTML ? `
-            <div class="eco-log-section">
-                <div class="eco-log-title">Últimas recompensas</div>
-                ${logHTML}
-            </div>` : ''}
         </div>`;
     },
 
-    // ── COLETA DE STATS ───────────────────────────────
+    _toggleEcoCollapse() {
+        const isCollapsed = Utils.loadData(this.COLLAPSE_ECO) === true;
+        const newState = !isCollapsed;
+        Utils.saveData(this.COLLAPSE_ECO, newState);
+
+        const container = document.getElementById('eco-block-container');
+        const chevron   = document.getElementById('eco-chevron');
+
+        if (container) {
+            container.style.maxHeight = newState ? '0' : '2000px';
+            container.style.opacity   = newState ? '0' : '1';
+        }
+        if (chevron) {
+            chevron.textContent = newState ? '▸' : '▾';
+        }
+    },
 
     _collectStats() {
         const s = Utils.loadData('dashboard_stats') || {};
@@ -369,11 +338,9 @@ const Profile = {
             ? `${Math.floor(totalMins/60)}h ${totalMins%60}min`
             : `${totalMins}min`;
 
-        const activeDays = Object.values(dailyAct).filter(v => v > 0).length;
-
+        const activeDays  = Object.values(dailyAct).filter(v => v > 0).length;
         const totalAccess = Object.values(toolAccess).reduce((a, b) => a + b, 0);
 
-        // Top tools — excluir ferramentas de sistema
         const SYSTEM_TOOLS = ['settings', 'profile', 'updates'];
         const toolMap = Object.fromEntries((window.App?.tools || []).map(t => [t.id, t]));
         const topTools = Object.entries(toolAccess)
@@ -383,8 +350,7 @@ const Profile = {
             .sort((a, b) => b.count - a.count)
             .slice(0, 5);
 
-        // Semana atual
-        const days  = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
+        const days   = ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'];
         const shorts = ['D','S','T','Q','Q','S','S'];
         const today  = new Date().getDay();
         const maxVal = Math.max(...Object.values(weeklyAct), 1);
@@ -402,16 +368,10 @@ const Profile = {
         return { totalTime, activeDays, streak, totalAccess, topTools, weekDays };
     },
 
-    // ── AVATAR ────────────────────────────────────────
+    // ── AVATAR ──────────────────────────────────────
 
     _openAvatarPicker() {
         document.getElementById('avatar-file-input')?.click();
-    },
-
-    _avatarPreviewClick() {
-        const avatar = Utils.loadData(this.KEYS.avatar);
-        if (avatar) this._openLightbox();
-        else this._openAvatarPicker();
     },
 
     _openLightbox() {
@@ -422,35 +382,17 @@ const Profile = {
 
         const lb = document.createElement('div');
         lb.id = 'nyan-avatar-lightbox';
-        lb.style.cssText = `
-            position:fixed;inset:0;z-index:999999;
-            display:flex;align-items:center;justify-content:center;
-            background:rgba(0,0,0,0.88);
-            animation:lbFadeIn 0.2s ease;
-            cursor:zoom-out;
-        `;
+        lb.style.cssText = `position:fixed;inset:0;z-index:999999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.88);animation:lbFadeIn 0.2s ease;cursor:zoom-out;`;
         lb.innerHTML = `
             <style>
                 @keyframes lbFadeIn  { from{opacity:0} to{opacity:1} }
                 @keyframes lbZoomIn  { from{opacity:0;transform:scale(0.85)} to{opacity:1;transform:scale(1)} }
             </style>
             <div style="position:relative;animation:lbZoomIn 0.25s cubic-bezier(0.34,1.2,0.64,1);">
-                <img src="${avatar}"
-                     style="max-width:90vw;max-height:85vh;border-radius:16px;
-                            box-shadow:0 32px 80px rgba(0,0,0,0.8);
-                            display:block;object-fit:contain;"
-                     alt="Avatar"/>
+                <img src="${avatar}" style="max-width:90vw;max-height:85vh;border-radius:16px;box-shadow:0 32px 80px rgba(0,0,0,0.8);display:block;object-fit:contain;" alt="Avatar"/>
                 <button onclick="document.getElementById('nyan-avatar-lightbox').remove()"
-                        style="position:absolute;top:-12px;right:-12px;
-                               width:32px;height:32px;border-radius:50%;
-                               background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);
-                               color:white;font-size:14px;cursor:pointer;
-                               display:flex;align-items:center;justify-content:center;
-                               transition:background 0.15s;"
-                        onmouseover="this.style.background='rgba(255,255,255,0.25)'"
-                        onmouseout="this.style.background='rgba(255,255,255,0.12)'">✕</button>
-            </div>
-        `;
+                        style="position:absolute;top:-12px;right:-12px;width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.2);color:white;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;">✕</button>
+            </div>`;
 
         lb.addEventListener('click', e => { if (e.target === lb) lb.remove(); });
         document.addEventListener('keydown', function esc(e) {
@@ -523,7 +465,6 @@ const Profile = {
         user.username = val;
         Auth.saveUser(user);
 
-        // Atualizar sidebar
         const display = document.getElementById('user-display');
         const avatar  = document.getElementById('user-avatar');
         if (display) display.textContent = val;
@@ -547,8 +488,7 @@ const Profile = {
         const current  = document.getElementById('profile-pass-current')?.value;
         const next     = document.getElementById('profile-pass-new')?.value;
         const confirm  = document.getElementById('profile-pass-confirm')?.value;
-
-        const stored = Utils.loadData(this.KEYS.password);
+        const stored   = Utils.loadData(this.KEYS.password);
 
         if (stored && current !== stored) {
             Utils.showNotification('Senha atual incorreta', 'error');

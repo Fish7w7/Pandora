@@ -169,6 +169,8 @@ const SlotMachine = {
                 this._reels = final;
                 this._evalResult(final);
                 this._spinning = false;
+                // Fechar ciclo da sequência (necessário mesmo no modo 1x)
+                this._spinSequence();
             });
             this._updateReelAnimation();
         }
@@ -229,7 +231,8 @@ const SlotMachine = {
     },
 
     _showSequenceResult() {
-        if (this._spinMode === 1) return;
+        // Sempre chama _updateUI para re-habilitar o botão, mesmo no modo 1x
+        if (this._spinMode === 1) { this._updateUI(); return; }
 
         const net   = this._totalWin - this._totalCost;
         const d     = document.body.classList.contains('dark-theme');
@@ -347,8 +350,6 @@ const SlotMachine = {
             this._creditWin(this._lastWin);
         }
 
-        this._totalWin  = this._lastWin;
-        this._totalCost = this.COST;
         // Slot não dá bônus play_game — tem sistema próprio de chips
         window.Missions?.track?.({ event: 'play_game', game: 'slot' });
         this._updateUI();

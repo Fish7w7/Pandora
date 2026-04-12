@@ -1,7 +1,4 @@
-/* ═══════════════════════════════════════════════════
-   FOCUS-MODE.CSS v1.0 — NyanTools にゃん~
-   Modo Apresentação / Foco — Ctrl+Shift+F
-   ═══════════════════════════════════════════════════ */
+/* FOCUS-MODE.CSS — NyanTools にゃん~ */
 
 /* ─── VARIÁVEIS ─────────────────────────────────────── */
 :root {
@@ -288,43 +285,39 @@ body.focus-mode.sidebar-peek #focus-overlay {
     cursor: pointer;
 }
 
-/* ─── BOTÃO TOGGLE NA SIDEBAR (aparece no hover, modo normal) ──────── */
+/* Botão toggle modo foco — inline no .sidebar-logo */
 #focus-toggle-btn {
-    position: absolute;
-    top: 50%;
-    right: -14px;
-    transform: translateY(-50%);
-    width: 28px;
-    height: 52px;
-    background: var(--theme-primary, #a855f7);
-    border: none;
-    border-radius: 0 10px 10px 0;
+    /* Remove o posicionamento absoluto antigo */
+    position: relative;
+    top: unset;
+    right: unset;
+    transform: none;
+
+    /* Layout inline no flex row do sidebar-logo */
+    margin-left: auto;
+    flex-shrink: 0;
+
+    width: 26px;
+    height: 26px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.15);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 500;
-    transition: all 0.2s;
-    box-shadow: 4px 0 16px rgba(168, 85, 247, 0.35);
-    opacity: 0;
-    pointer-events: none;
-}
-
-/* Mostrar botão apenas quando hover na sidebar (modo normal) */
-#sidebar:hover #focus-toggle-btn {
-    opacity: 1;
+    box-shadow: none;
+    opacity: 0.55;
     pointer-events: auto;
-}
-
-/* Esconder completamente em modo foco — o header já tem o botão Sair */
-body.focus-mode #focus-toggle-btn {
-    display: none !important;
+    transition: opacity 0.2s, background 0.2s, transform 0.15s;
 }
 
 #focus-toggle-btn:hover {
-    background: var(--theme-primary-dark, #9333ea);
-    box-shadow: 4px 0 20px rgba(168, 85, 247, 0.5);
-    right: -16px;
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.18);
+    transform: none;
+    right: unset;
+    box-shadow: none;
 }
 
 #focus-toggle-btn svg {
@@ -332,6 +325,11 @@ body.focus-mode #focus-toggle-btn {
     height: 12px;
     color: white;
     transition: transform 0.3s;
+}
+
+/* Em modo foco, inverte a seta (aponta para direita = "abrir") */
+body.focus-mode #focus-toggle-btn svg {
+    transform: rotate(180deg);
 }
 
 /* ─── TOAST DE ATIVAÇÃO ──────────────────────────────── */
@@ -380,7 +378,7 @@ body.focus-mode #focus-toggle-btn {
     margin-left: 0.25rem;
 }
 
-/* ─── DARK THEME COMPAT ──────────────────────────────── */
+/* Dark theme */
 body.dark-theme #focus-header {
     background: rgba(5, 5, 10, 0.9);
     border-bottom-color: rgba(255, 255, 255, 0.05);
@@ -390,7 +388,7 @@ body.dark-theme.focus-mode.sidebar-peek #focus-overlay {
     background: rgba(0, 0, 0, 0.6);
 }
 
-/* ─── ANIMAÇÃO DO MAIN CONTENT ao entrar/sair ────────── */
+
 body.focus-mode #tool-container {
     animation: focusModeExpand 0.35s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -422,7 +420,7 @@ body.focus-mode #tool-container {
     text-transform: uppercase;
 }
 
-/* ─── RESPONSIVE ─────────────────────────────────────── */
+
 @media (max-width: 768px) {
     :root {
         --focus-header-h: 48px;

@@ -1,12 +1,11 @@
 /* ══════════════════════════════════════════════════
-   ACHIEVEMENTS.JS v1.0.0 — NyanTools にゃん~
-   Sistema de Conquistas
+   ACHIEVEMENTS.JS v1.1.0 — NyanTools にゃん~
+   Sistema de Conquistas com seção colapsável
  ═══════════════════════════════════════════════════*/
 
 const Achievements = {
     KEY: 'nyan_achievements',
-
-    // ── DEFINIÇÃO DAS CONQUISTAS ──────────────────
+    COLLAPSE_KEY: 'nyan_achievements_collapsed',
 
     list: [
         {
@@ -109,8 +108,6 @@ const Achievements = {
         },
     ],
 
-    // ── CHECK E SAVE ──────────────────────────────
-
     checkAll() {
         const s        = Utils.loadData('dashboard_stats') || {};
         const unlocked = Utils.loadData(this.KEY) || {};
@@ -131,7 +128,6 @@ const Achievements = {
 
         if (changed) {
             Utils.saveData(this.KEY, unlocked);
-            // Sincronizar conquistas com Firestore imediatamente
             if (window.NyanAuth?.isOnline?.() && window.NyanFirebase?.isReady?.()) {
                 const uid = NyanAuth.getUID();
                 if (uid) {
@@ -150,11 +146,11 @@ const Achievements = {
         }
     },
 
-    // ── RENDER ────────────────────────────────────
-
+    // BUG 4 FIX: seção colapsável
     renderSection() {
         const s        = Utils.loadData('dashboard_stats') || {};
         const unlocked = this.checkAll();
+        const isCollapsed = Utils.loadData(this.COLLAPSE_KEY) === true;
 
         const items = this.list.map(ach => {
             const isUnlocked = !!unlocked[ach.id];
@@ -162,7 +158,6 @@ const Achievements = {
                 ? new Date(unlocked[ach.id]).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' })
                 : null;
 
-            // Barra de progresso
             let progressHTML = '';
             if (!isUnlocked && ach.progress) {
                 const p = ach.progress(s);
@@ -193,21 +188,48 @@ const Achievements = {
 
         const total     = this.list.length;
         const doneCount = Object.keys(unlocked).length;
+        const chevron   = isCollapsed ? '▸' : '▾';
 
         return `
         <div class="profile-card">
-            <div class="profile-card-title">
+            <div class="profile-card-title" style="cursor:pointer;user-select:none;"
+                 onclick="Achievements._toggleCollapse()">
                 🏆 Conquistas
                 <span class="ach-counter">${doneCount}/${total}</span>
+                <span style="margin-left:auto;font-size:0.75rem;color:var(--p-text-muted);transition:transform 0.2s;"
+                      id="ach-chevron">${chevron}</span>
             </div>
-            <div class="ach-list">${items.join('')}</div>
+            <div id="ach-list-container" style="
+                overflow:hidden;
+                transition:max-height 0.35s ease, opacity 0.3s ease;
+                max-height:${isCollapsed ? '0' : '2000px'};
+                opacity:${isCollapsed ? '0' : '1'};
+            ">
+                <div class="ach-list">${items.join('')}</div>
+            </div>
         </div>`;
+    },
+
+    _toggleCollapse() {
+        const isCollapsed = Utils.loadData(this.COLLAPSE_KEY) === true;
+        const newState = !isCollapsed;
+        Utils.saveData(this.COLLAPSE_KEY, newState);
+
+        const container = document.getElementById('ach-list-container');
+        const chevron   = document.getElementById('ach-chevron');
+
+        if (container) {
+            container.style.maxHeight = newState ? '0' : '2000px';
+            container.style.opacity   = newState ? '0' : '1';
+        }
+        if (chevron) {
+            chevron.textContent = newState ? '▸' : '▾';
+        }
     },
 
     init() {
         this.checkNightOwl();
         this.checkAll();
-        console.log('🏆 Achievements v1.0.0 inicializado');
     }
 };
 

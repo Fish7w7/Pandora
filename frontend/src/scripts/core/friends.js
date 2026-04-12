@@ -567,30 +567,118 @@ const Friends = {
     // ── PERFIL PÚBLICO ───────────────────────────────────────────────────────
 
     _renderPublicProfile() {
-        const d    = document.body.classList.contains('dark-theme');
-        const bg   = d ? 'rgba(255,255,255,0.04)' : '#ffffff';
-        const bdr  = d ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
-        const text = d ? '#f1f5f9' : '#0f172a';
-        const sub  = d ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.5)';
-        const muted= d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
+        const d = document.body.classList.contains('dark-theme');
+        const cardBg  = d ? '#0e0e18' : '#ffffff';
+        const cardBdr = d ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
+        const muted   = d ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.32)';
+        const shimA   = d ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.04)';
+        const shimB   = d ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.08)';
+        const avBdr   = d ? '#0e0e18' : '#fff';
 
         return `
-        <div id="public-profile-container" style="max-width:480px;margin:0 auto;font-family:'DM Sans',sans-serif;position:relative;">
-            <button onclick="Router.back()" id="profile-back-btn"
-                style="position:absolute;left:0;top:0;display:flex;align-items:center;gap:0.375rem;
-                    background:none;border:none;cursor:pointer;color:${sub};
-                    font-size:0.82rem;font-weight:600;font-family:'DM Sans',sans-serif;padding:0;"
-                title="Voltar (Esc)">
-                ← Voltar
-            </button>
-            <div id="public-profile-content" style="text-align:center;padding:2.5rem 0 0;color:${muted};">
-                <div style="font-size:2rem;opacity:0.4;margin-bottom:0.5rem;">⏳</div>
-                <p style="font-size:0.8rem;">Carregando perfil...</p>
+        <style>
+        #nyan-pp-wrap * { box-sizing:border-box; }
+        @keyframes nyanShimmer { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+        @keyframes nyanStarFloat { 0%,100%{transform:translateY(0) rotate(0deg);opacity:.6} 50%{transform:translateY(-8px) rotate(180deg);opacity:1} }
+        @keyframes nyanPulseRing { 0%{transform:scale(1);opacity:.5} 100%{transform:scale(1.55);opacity:0} }
+        @keyframes nyanSlideUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes nyanFadeIn { from{opacity:0} to{opacity:1} }
+        @keyframes nyanSparkle { 0%,100%{opacity:0;transform:scale(0) rotate(0deg)} 50%{opacity:1;transform:scale(1) rotate(180deg)} }
+        @keyframes nyanBarFill { from{width:0%} }
+
+        #nyan-pp-wrap { max-width:520px; margin:0 auto; font-family:'DM Sans',sans-serif; }
+
+        #nyan-pp-back { display:inline-flex;align-items:center;gap:0.3rem;background:none;border:none;cursor:pointer;color:${muted};font-size:0.8rem;font-weight:700;font-family:'DM Sans',sans-serif;padding:0;margin-bottom:0.75rem;transition:color .18s,transform .18s; }
+        #nyan-pp-back:hover { color:var(--theme-primary,#a855f7); transform:translateX(-2px); }
+
+        #nyan-pp-banner { width:100%;height:130px;border-radius:20px 20px 0 0;background:linear-gradient(135deg,var(--theme-gradient-start,#a855f7),var(--theme-gradient-middle,#ec4899),var(--theme-gradient-end,#ef4444),var(--theme-gradient-start,#a855f7));background-size:300% 300%;animation:nyanShimmer 6s ease infinite;position:relative;overflow:hidden; }
+        .nyan-banner-star { position:absolute;animation:nyanStarFloat var(--dur,3s) ease-in-out infinite var(--delay,0s);opacity:.55;pointer-events:none;user-select:none;color:#fff; }
+
+        #nyan-pp-version-badge { position:absolute;top:10px;right:12px;display:none;align-items:center;gap:0.3rem;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.22);border-radius:999px;padding:0.2rem 0.65rem;font-size:0.62rem;font-weight:700;color:#fff;letter-spacing:0.04em;cursor:help; }
+
+        #nyan-pp-card { background:${cardBg};border:1px solid ${cardBdr};border-top:none;border-radius:0 0 22px 22px;padding:0 1.5rem 1.5rem; }
+
+        #nyan-pp-avatar-wrap { position:relative;width:96px;height:96px;margin:-48px auto 0; }
+        #nyan-pp-avatar-wrap .nyan-ring { position:absolute;inset:-6px;border-radius:50%;border:2.5px solid var(--theme-primary,#a855f7);opacity:.45;animation:nyanPulseRing 2.2s ease-out infinite; }
+        #nyan-pp-avatar-wrap .nyan-ring2 { animation-delay:1.1s; }
+        #nyan-pp-avatar-img-shell { width:96px;height:96px;border-radius:50%;overflow:hidden;border:3.5px solid ${avBdr};position:relative;z-index:2; }
+        #nyan-pp-statusdot { position:absolute;bottom:4px;right:4px;width:16px;height:16px;border-radius:50%;border:2.5px solid ${avBdr};z-index:3; }
+        .nyan-sparkle { position:absolute;font-size:0.75rem;animation:nyanSparkle var(--dur,2s) ease-in-out infinite var(--delay,0s);pointer-events:none;z-index:4;color:#fff; }
+
+        #nyan-pp-name { font-family:'Syne',sans-serif;font-size:1.55rem;font-weight:900;color:${d?'#f1f5f9':'#0f172a'};text-align:center;margin:0.75rem 0 0.15rem;letter-spacing:-0.01em;animation:nyanSlideUp .4s ease both .05s; }
+        #nyan-pp-tag-row { display:flex;align-items:center;justify-content:center;gap:0.35rem;margin-bottom:0.4rem;animation:nyanSlideUp .4s ease both .1s; }
+        .nyan-pp-tag { font-size:0.72rem;color:var(--theme-primary,#a855f7);font-weight:700; }
+        #nyan-pp-status-pill { display:inline-flex;align-items:center;gap:0.28rem;border-radius:999px;padding:0.2rem 0.65rem;font-size:0.63rem;font-weight:700;letter-spacing:0.04em;animation:nyanSlideUp .4s ease both .14s; }
+        .nyan-pp-bio { font-size:0.78rem;font-style:italic;text-align:center;line-height:1.55;padding:0 1rem;margin-bottom:0.6rem;opacity:.62;animation:nyanSlideUp .4s ease both .18s; }
+
+        .nyan-pp-stats-row { display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;margin:0.9rem 0 1.2rem;animation:nyanSlideUp .4s ease both .22s; }
+        .nyan-pp-stat-pill { background:${d?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)'};border:1px solid ${cardBdr};border-radius:14px;padding:0.5rem 0.9rem;text-align:center;min-width:68px;transition:transform .18s;cursor:default; }
+        .nyan-pp-stat-pill:hover { transform:translateY(-2px); }
+        .nyan-pp-stat-pill.accent { background:rgba(168,85,247,0.12);border-color:rgba(168,85,247,0.25); }
+        .nyan-pp-stat-label { font-size:0.52rem;font-weight:800;text-transform:uppercase;letter-spacing:0.08em;color:${muted};margin-bottom:0.2rem; }
+        .nyan-pp-stat-val { font-size:1rem;font-weight:900;font-family:'Syne',sans-serif;color:var(--theme-primary,#a855f7);line-height:1; }
+        .nyan-pp-stat-val.sub { font-size:0.7rem;color:${d?'rgba(255,255,255,0.52)':'rgba(0,0,0,0.52)'};font-family:'DM Sans',sans-serif;font-weight:700; }
+
+        .nyan-pp-section { background:${d?'rgba(255,255,255,0.03)':'rgba(0,0,0,0.025)'};border:1px solid ${cardBdr};border-radius:16px;padding:0.9rem;margin-bottom:0.7rem;animation:nyanFadeIn .45s ease both .28s; }
+        .nyan-pp-section-title { font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.1em;color:${muted};margin-bottom:0.65rem;display:flex;align-items:center;justify-content:space-between; }
+        .nyan-pp-section-title span { font-size:0.58rem;font-weight:600;color:${d?'rgba(255,255,255,0.18)':'rgba(0,0,0,0.22)'}; }
+
+        .nyan-pp-record-row { display:flex;align-items:center;justify-content:space-between;padding:0.42rem 4px;border-bottom:1px solid ${d?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)'};font-size:0.77rem;transition:background .12s;border-radius:6px; }
+        .nyan-pp-record-row:last-child { border-bottom:none; }
+        .nyan-pp-record-row:hover { background:${d?'rgba(255,255,255,0.03)':'rgba(0,0,0,0.02)'}; }
+        .nyan-pp-record-label { color:${d?'rgba(255,255,255,0.58)':'rgba(0,0,0,0.55)'}; }
+        .nyan-pp-record-val { font-weight:800;color:var(--theme-primary,#a855f7);font-family:'Syne',sans-serif;font-size:0.8rem; }
+        .nyan-pp-bar-wrap { height:3px;background:${d?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)'};border-radius:99px;margin-top:3px;overflow:hidden; }
+        .nyan-pp-bar-fill { height:100%;border-radius:99px;background:linear-gradient(90deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));animation:nyanBarFill .8s ease both .4s; }
+
+        .nyan-pp-ach-row { display:flex;align-items:center;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid ${d?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.05)'};gap:0.5rem; }
+        .nyan-pp-ach-row:last-child { border-bottom:none; }
+        .nyan-pp-ach-name { font-size:0.75rem;font-weight:600;color:${d?'#f1f5f9':'#0f172a'}; }
+        .nyan-pp-ach-date { font-size:0.6rem;color:${muted};white-space:nowrap; }
+
+        .nyan-pp-actions { display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;margin-top:0.9rem;animation:nyanSlideUp .45s ease both .32s; }
+        .nyan-pp-btn { padding:0.52rem 1rem;border-radius:12px;border:none;cursor:pointer;font-size:0.77rem;font-weight:700;font-family:'DM Sans',sans-serif;transition:transform .14s,filter .14s; }
+        .nyan-pp-btn:hover  { transform:translateY(-2px);filter:brightness(1.1); }
+        .nyan-pp-btn:active { transform:scale(0.95);filter:brightness(0.92); }
+        .nyan-pp-btn.primary { background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));color:#fff; }
+        .nyan-pp-btn.danger  { background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.2);color:#f87171; }
+        .nyan-pp-btn.golden  { background:rgba(251,191,36,0.12);border:1px solid rgba(251,191,36,0.22);color:#fbbf24; }
+        .nyan-pp-btn.teal    { background:rgba(16,185,129,0.11);border:1px solid rgba(16,185,129,0.2);color:#34d399; }
+
+        .nyan-pp-shimmer { background:linear-gradient(90deg,${shimA} 0%,${shimB} 50%,${shimA} 100%);background-size:200% 100%;animation:nyanShimmer 1.4s ease infinite;border-radius:8px; }
+        </style>
+
+        <div id="nyan-pp-wrap">
+            <button onclick="Router.back()" id="nyan-pp-back" title="Voltar (Esc)">← Voltar</button>
+            <div id="nyan-pp-banner">
+                <div class="nyan-banner-star" style="top:18%;left:8%;font-size:1rem;--dur:3.2s;--delay:0s;">✦</div>
+                <div class="nyan-banner-star" style="top:55%;left:22%;font-size:0.7rem;--dur:2.8s;--delay:0.4s;">★</div>
+                <div class="nyan-banner-star" style="top:25%;left:72%;font-size:1rem;--dur:3.6s;--delay:0.8s;">✦</div>
+                <div class="nyan-banner-star" style="top:65%;left:85%;font-size:0.6rem;--dur:2.5s;--delay:0.2s;">✧</div>
+                <div class="nyan-banner-star" style="top:40%;left:48%;font-size:0.6rem;--dur:4s;--delay:1.2s;">✧</div>
+                <div class="nyan-banner-star" style="top:15%;left:55%;font-size:0.65rem;--dur:3s;--delay:0.6s;">★</div>
+                <div id="nyan-pp-version-badge"></div>
+            </div>
+            <div id="nyan-pp-card">
+                <div style="position:relative;width:96px;height:96px;margin:-48px auto 0;">
+                    <div class="nyan-pp-shimmer" style="width:96px;height:96px;border-radius:50%;border:3.5px solid ${avBdr};"></div>
+                </div>
+                <div id="public-profile-content" style="margin-top:0.75rem;text-align:center;">
+                    <div class="nyan-pp-shimmer" style="height:1.55rem;width:38%;margin:0 auto 0.4rem;"></div>
+                    <div class="nyan-pp-shimmer" style="height:0.75rem;width:24%;margin:0 auto 0.5rem;"></div>
+                    <div class="nyan-pp-shimmer" style="height:0.7rem;width:55%;margin:0 auto 1rem;border-radius:999px;"></div>
+                    <div style="display:flex;gap:0.5rem;justify-content:center;margin-bottom:1rem;">
+                        <div class="nyan-pp-shimmer" style="height:52px;width:70px;border-radius:14px;"></div>
+                        <div class="nyan-pp-shimmer" style="height:52px;width:88px;border-radius:14px;"></div>
+                        <div class="nyan-pp-shimmer" style="height:52px;width:82px;border-radius:14px;"></div>
+                    </div>
+                    <div class="nyan-pp-shimmer" style="height:118px;border-radius:16px;margin-bottom:0.7rem;"></div>
+                    <div class="nyan-pp-shimmer" style="height:98px;border-radius:16px;"></div>
+                </div>
             </div>
         </div>`
     },
 
-    // Mapas de recordes e jogos favoritos
     GAME_RECORDS: [
         { key: 'typeracer_highscore',   gameId: 'typeracer', fsKey: 'sc_typeracer', label: 'Type Racer',  icon: '⌨️', unit: 'WPM',   higher: true  },
         { key: 'game_2048_highscore',   gameId: '2048',      fsKey: 'sc_2048',      label: '2048',        icon: '🔢', unit: 'pts',   higher: true  },
@@ -601,13 +689,12 @@ const Friends = {
     ],
 
     _getFavoriteGame(scores) {
-        // Jogo com maior score normalizado (relativo ao máximo histórico)
         if (!scores) return null;
-        const maxes = { typeracer_highscore: 200, game_2048_highscore: 131072,
-                        flappy_bird_highscore: 100, quiz_highscore: 10,
-                        termo_best: 1, snake_highscore: 500 };
+        const maxes = { typeracer_highscore:200, game_2048_highscore:131072,
+                        flappy_bird_highscore:100, quiz_highscore:10,
+                        termo_best:1, snake_highscore:500 };
         let best = null, bestRatio = -1;
-        this.GAME_RECORDS.forEach(g => {
+        Friends.GAME_RECORDS.forEach(g => {
             const val = parseFloat(scores[g.key]);
             if (!val) return;
             const max = maxes[g.key] || val;
@@ -622,17 +709,22 @@ const Friends = {
         if (!uid) return;
 
         const profile = await NyanFirebase.getDoc(`users/${uid}`);
-        const container = document.getElementById('public-profile-content');
-        if (!container || !profile) return;
+        const ppContent = document.getElementById('public-profile-content');
+        if (!ppContent || !profile) return;
 
-        const d    = document.body.classList.contains('dark-theme');
-        const bg   = d ? 'rgba(255,255,255,0.06)' : '#ffffff';
-        const bdr  = d ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
-        const text = d ? '#f1f5f9' : '#0f172a';
-        const sub  = d ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.5)';
-        const muted= d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
+        const d     = document.body.classList.contains('dark-theme');
+        const muted = d ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.32)';
+        const sub   = d ? 'rgba(255,255,255,0.5)'  : 'rgba(0,0,0,0.52)';
+        const avBdr = d ? '#0e0e18' : '#fff';
 
-        // Status via RTDB
+        // ── Avatar ───────────────────────────────────────────────────────
+        const avatarHTML = profile.avatar
+            ? `<img src="${profile.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`
+            : (window.AvatarGenerator
+                ? AvatarGenerator.generate(profile.username || 'nyan', 92)
+                : `<div style="width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#ec4899);display:flex;align-items:center;justify-content:center;color:white;font-weight:900;font-size:2.2rem;">${(profile.username||'N')[0].toUpperCase()}</div>`);
+
+        // ── Status ───────────────────────────────────────────────────────
         const STATUS_MAP = { online:'Online', playing:'Jogando', away:'Ausente', offline:'Offline' };
         const STATUS_COL = { online:'#4ade80', playing:'#a855f7', away:'#fbbf24', offline:'#9ca3af' };
         let statusLabel = 'Offline', statusColor = '#9ca3af';
@@ -648,39 +740,43 @@ const Friends = {
             } catch(e) {}
         }
 
-        // Membro desde
+        // ── Membro desde ─────────────────────────────────────────────────
         let memberSince = '';
         if (profile.joinedAt?.seconds) {
-            const d = new Date(profile.joinedAt.seconds * 1000);
-            memberSince = d.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
+            memberSince = new Date(profile.joinedAt.seconds * 1000)
+                .toLocaleDateString('pt-BR', { month:'short', year:'numeric' });
         }
 
-        // Buscar scores do perfil users/{uid} (campos sc_*) — mais rápido e confiável
+        // ── Scores ───────────────────────────────────────────────────────
         const scoreMap = {};
-        this.GAME_RECORDS.forEach(g => {
+        Friends.GAME_RECORDS.forEach(g => {
             const val = profile[g.fsKey];
             if (val != null && val > 0) scoreMap[g.key] = val;
         });
-        // Fallback: tentar leaderboard se não houver sc_* campos
         if (Object.keys(scoreMap).length === 0) {
-            await Promise.all(this.GAME_RECORDS.map(async g => {
+            await Promise.all(Friends.GAME_RECORDS.map(async g => {
                 try {
                     const doc = await NyanFirebase.getDoc('leaderboards/' + g.gameId + '/scores/' + uid);
                     if (doc?.score != null) scoreMap[g.key] = doc.score;
                 } catch(e) {}
             }));
         }
-        const favoriteGame = this._getFavoriteGame(scoreMap);
+        const favoriteGame = Friends._getFavoriteGame(scoreMap);
 
-        const avatarHTML = profile.avatar
-            ? `<img src="${profile.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`
-            : (window.AvatarGenerator
-                ? AvatarGenerator.generate(profile.username || 'nyan', 88)
-                : `<div style="width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#ec4899);
-                    display:flex;align-items:center;justify-content:center;color:white;
-                    font-weight:900;font-size:2rem;">${(profile.username||'N')[0].toUpperCase()}</div>`);
+        // ── Version badge (vai no banner) ────────────────────────────────
+        const myVersion    = window.App?.version || '3.9.0';
+        const theirVersion = profile.version || '?';
+        let vBadgeEmoji = '', vBadgeText = '', vBadgeTitle = '';
+        if (theirVersion !== '?' && myVersion) {
+            const myNum    = myVersion.split('.').map(Number).reduce((a,b,i) => a + b * Math.pow(1000, 2-i), 0);
+            const theirNum = theirVersion.split('.').map(Number).reduce((a,b,i) => a + b * Math.pow(1000, 2-i), 0);
+            if (theirNum === myNum)    { vBadgeEmoji='🟢'; vBadgeText='v'+theirVersion; vBadgeTitle='Versão igual à sua (v'+theirVersion+')'; }
+            else if (theirNum < myNum) { vBadgeEmoji='🟡'; vBadgeText='v'+theirVersion; vBadgeTitle='Versão desatualizada — eles têm v'+theirVersion+', você tem v'+myVersion; }
+            else                       { vBadgeEmoji='🔵'; vBadgeText='v'+theirVersion; vBadgeTitle='Versão mais nova — eles têm v'+theirVersion+', você tem v'+myVersion; }
+        }
 
-        const myUID = NyanAuth.getUID();
+        // ── isFriend ─────────────────────────────────────────────────────
+        const myUID    = NyanAuth.getUID();
         const isFriend = await NyanFirebase.fn.getDocs(
             NyanFirebase.fn.query(
                 NyanFirebase.fn.collection(NyanFirebase.db, 'friendships'),
@@ -688,120 +784,125 @@ const Friends = {
             )
         ).then(snap => snap.docs.some(d => d.data().users.includes(uid))).catch(() => false);
 
-        // Recordes para exibição
-        const recordsHTML = this.GAME_RECORDS.map(g => {
+        // ── Records ──────────────────────────────────────────────────────
+        const SCORE_MAX = { typeracer_highscore:200, game_2048_highscore:131072,
+                            flappy_bird_highscore:100, quiz_highscore:10,
+                            termo_best:6, snake_highscore:500 };
+        const recordsHTML = Friends.GAME_RECORDS.map(g => {
             const val = scoreMap[g.key];
             if (!val) return '';
-            const display = typeof val === 'number' ? val.toLocaleString('pt-BR') : val;
-            return '<div style="display:flex;justify-content:space-between;align-items:center;' +
-                'padding:0.3rem 0;border-bottom:1px solid ' + bdr + ';font-size:0.75rem;">' +
-                '<span>' + g.icon + ' ' + g.label + '</span>' +
-                '<span style="font-weight:700;color:var(--theme-primary,#a855f7);">' + display + ' ' + g.unit + '</span>' +
-            '</div>';
+            const display = parseFloat(val).toLocaleString('pt-BR');
+            const max = SCORE_MAX[g.key] || val;
+            const pct = g.higher
+                ? Math.min(100, Math.round((val / max) * 100))
+                : Math.min(100, Math.round(((max - Math.min(val, max)) / max) * 100));
+            return `<div class="nyan-pp-record-row">
+                <span class="nyan-pp-record-label">${g.icon} ${g.label}</span>
+                <div style="text-align:right;">
+                    <div class="nyan-pp-record-val">${display} <span style="font-size:0.62rem;font-weight:600;opacity:0.6;">${g.unit}</span></div>
+                    <div class="nyan-pp-bar-wrap" style="width:80px;"><div class="nyan-pp-bar-fill" style="width:${pct}%;"></div></div>
+                </div>
+            </div>`;
         }).filter(Boolean).join('');
 
-        // Conquistas desbloqueadas — lidas de profile.sc_achievements {id: timestamp}
-        let achievementsHTML = '';
-        const theirAchievements = profile.sc_achievements || {};
-        if (Object.keys(theirAchievements).length > 0) {
-            // Usar Achievements.list se disponível, senão montar a partir dos ids
-            const achList = window.Achievements?.list || [];
-            const achMap  = Object.fromEntries(achList.map(a => [a.id, a]));
-
-            const achItems = Object.entries(theirAchievements)
-                .sort((a, b) => a[1] - b[1])           // ordem de desbloqueio
-                .map(([id, ts]) => {
-                    const a    = achMap[id];
-                    const icon = a?.icon || '🏅';
-                    const name = a?.name || id;
-                    const date = new Date(ts).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: '2-digit' });
-                    return '<div style="display:flex;align-items:center;justify-content:space-between;' +
-                        'padding:0.35rem 0;border-bottom:1px solid ' + bdr + ';font-size:0.75rem;color:' + sub + ';">' +
-                        '<span style="display:flex;align-items:center;gap:0.5rem;">' + icon +
-                            '<span style="color:' + text + ';font-weight:600;">' + name + '</span></span>' +
-                        '<span style="font-size:0.62rem;color:' + muted + ';white-space:nowrap;">' + date + '</span>' +
-                    '</div>';
-                }).join('');
-
-            if (achItems) {
-                const total = Object.keys(theirAchievements).length;
-                achievementsHTML =
-                    '<div style="background:rgba(255,255,255,0.03);border:1px solid ' + bdr + ';' +
-                    'border-radius:12px;padding:0.75rem;margin-bottom:1rem;text-align:left;width:100%;box-sizing:border-box;">' +
-                        '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem;">' +
-                            '<div style="font-size:0.62rem;font-weight:800;color:' + muted + ';text-transform:uppercase;letter-spacing:0.06em;">🏆 Conquistas</div>' +
-                            '<div style="font-size:0.62rem;color:' + muted + ';">' + total + ' desbloqueadas</div>' +
-                        '</div>' +
-                        achItems +
-                    '</div>';
-            }
+        // ── Achievements ─────────────────────────────────────────────────
+        const theirAch = profile.sc_achievements || {};
+        let achHTML = '';
+        if (Object.keys(theirAch).length > 0) {
+            const achMap  = Object.fromEntries((window.Achievements?.list || []).map(a => [a.id, a]));
+            const total   = Object.keys(theirAch).length;
+            const achItems = Object.entries(theirAch).sort((a,b) => a[1]-b[1]).map(([id, ts]) => {
+                const a    = achMap[id];
+                const date = new Date(ts).toLocaleDateString('pt-BR', { day:'2-digit', month:'short', year:'2-digit' });
+                return `<div class="nyan-pp-ach-row">
+                    <span style="display:flex;align-items:center;gap:0.45rem;">
+                        <span>${a?.icon||'🏅'}</span>
+                        <span class="nyan-pp-ach-name">${a?.name||id}</span>
+                    </span>
+                    <span class="nyan-pp-ach-date">${date}</span>
+                </div>`;
+            }).join('');
+            if (achItems) achHTML = `
+                <div class="nyan-pp-section" style="animation-delay:0.34s;">
+                    <div class="nyan-pp-section-title">🏆 Conquistas <span>${total} desbloqueadas</span></div>
+                    ${achItems}
+                </div>`;
         }
 
-        // Badge de versão
-        const myVersion    = window.App?.version || '3.9.0';
-        const theirVersion = profile.version || '?';
-        let versionBadge = '', versionColor = muted, versionTitle = '';
-        if (theirVersion !== '?' && myVersion) {
-            const [mM, mN] = myVersion.split('.').map(Number);
-            const [tM, tN] = theirVersion.split('.').map(Number);
-            const myNum    = mM * 1000 + mN;
-            const theirNum = tM * 1000 + tN;
-            if (theirNum === myNum)    { versionBadge = '🟢'; versionColor = '#4ade80'; versionTitle = 'Versão igual à sua (v' + theirVersion + ')'; }
-            else if (theirNum < myNum) { versionBadge = '🟡'; versionColor = '#fbbf24'; versionTitle = 'Versão desatualizada — eles têm v' + theirVersion + ', você tem v' + myVersion; }
-            else                       { versionBadge = '🔵'; versionColor = '#60a5fa'; versionTitle = 'Versão mais nova que a sua — eles têm v' + theirVersion + ', você tem v' + myVersion; }
+        // ── Render version badge no banner ────────────────────────────────
+        const vBadgeEl = document.getElementById('nyan-pp-version-badge');
+        if (vBadgeEl && vBadgeEmoji) {
+            vBadgeEl.style.display = 'flex';
+            vBadgeEl.textContent   = vBadgeEmoji + ' ' + vBadgeText;
+            vBadgeEl.addEventListener('mouseenter', e => Friends._showVersionTooltip(e, vBadgeTitle));
+            vBadgeEl.addEventListener('mouseleave', () => Friends._hideVersionTooltip());
         }
 
-        container.innerHTML =
-            '<div style="width:88px;height:88px;border-radius:50%;overflow:hidden;margin:0 auto 0.75rem;' +
-                'border:3px solid rgba(168,85,247,0.4);box-shadow:0 0 0 4px rgba(168,85,247,0.1);">' +
-                avatarHTML +
-            '</div>' +
-            '<div style="font-size:1.2rem;font-weight:900;color:' + text + ';font-family:Syne,sans-serif;margin-bottom:0.2rem;">' +
-                (profile.username || 'Usuário') +
-            '</div>' +
-            '<div style="font-size:0.72rem;color:rgba(168,85,247,0.8);font-weight:700;margin-bottom:0.35rem;display:flex;align-items:center;justify-content:center;gap:0.4rem;">' +
-                (profile.nyanTag || '') +
-                (versionBadge ? '<span onclick="event.stopPropagation()" onmouseenter="Friends._showVersionTooltip(event,\'' + versionTitle.replace(/\'/g, '') + '\')" onmouseleave="Friends._hideVersionTooltip()" style="font-size:0.75rem;cursor:help;">' + versionBadge + '</span>' : '') +
-            '</div>' +
-            '<div style="font-size:0.72rem;color:' + statusColor + ';font-weight:700;margin-bottom:0.5rem;">' +
-                '● ' + statusLabel +
-            '</div>' +
-            (profile.bio ? '<div style="font-size:0.8rem;color:' + sub + ';font-style:italic;margin-bottom:0.75rem;padding:0 1rem;">"' + profile.bio + '"</div>' : '') +
+        // ── Render avatar (substitui shimmer do card) ─────────────────────
+        const avatarWrapEl = document.getElementById('nyan-pp-card')?.firstElementChild;
+        if (avatarWrapEl) {
+            avatarWrapEl.innerHTML = `
+                <div id="nyan-pp-avatar-wrap">
+                    <div class="nyan-ring"></div>
+                    <div class="nyan-ring nyan-ring2"></div>
+                    <div id="nyan-pp-avatar-img-shell">${avatarHTML}</div>
+                    <div id="nyan-pp-statusdot" style="background:${statusColor};"></div>
+                    <div class="nyan-sparkle" style="top:-6px;right:6px;--dur:2.2s;--delay:0s;">✦</div>
+                    <div class="nyan-sparkle" style="top:4px;left:-8px;--dur:2.8s;--delay:.7s;font-size:0.6rem;">★</div>
+                    <div class="nyan-sparkle" style="bottom:-4px;left:0;--dur:3s;--delay:1.2s;font-size:0.55rem;">✧</div>
+                </div>`;
+        }
 
-            // Nível + Membro desde + Jogo favorito
-            '<div style="display:flex;justify-content:center;gap:0.75rem;flex-wrap:wrap;margin-bottom:1rem;">' +
-                '<div style="background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.2);border-radius:10px;padding:0.4rem 0.875rem;text-align:center;">' +
-                    '<div style="font-size:0.58rem;font-weight:800;color:' + muted + ';text-transform:uppercase;letter-spacing:0.06em;">Nível</div>' +
-                    '<div style="font-size:1rem;font-weight:900;color:var(--theme-primary,#a855f7);">' + (profile.level || 1) + '</div>' +
-                '</div>' +
-                (memberSince ? '<div style="background:rgba(255,255,255,0.04);border:1px solid ' + bdr + ';border-radius:10px;padding:0.4rem 0.875rem;text-align:center;">' +
-                    '<div style="font-size:0.58rem;font-weight:700;color:' + muted + ';margin-bottom:0.15rem;">desde</div>' +
-                    '<div style="font-size:0.75rem;font-weight:700;color:' + sub + ';">' + memberSince + '</div>' +
-                '</div>' : '') +
-                (favoriteGame ? '<div style="background:rgba(255,255,255,0.04);border:1px solid ' + bdr + ';border-radius:10px;padding:0.4rem 0.875rem;text-align:center;">' +
-                    '<div style="font-size:0.58rem;font-weight:800;color:' + muted + ';text-transform:uppercase;letter-spacing:0.06em;">Jogo favorito</div>' +
-                    '<div style="font-size:0.75rem;font-weight:700;color:' + sub + ';">' + favoriteGame.icon + ' ' + favoriteGame.label + '</div>' +
-                '</div>' : '') +
-            '</div>' +
+        // ── Render conteúdo principal ─────────────────────────────────────
+        ppContent.style.textAlign = 'left';
+        ppContent.innerHTML = `
+            <div id="nyan-pp-name">${profile.username || 'Usuário'}</div>
 
-            // Recordes
-            (recordsHTML ? '<div style="background:rgba(255,255,255,0.03);border:1px solid ' + bdr + ';border-radius:12px;padding:0.75rem;margin-bottom:1rem;text-align:left;width:100%;box-sizing:border-box;">' +
-                '<div style="font-size:0.62rem;font-weight:800;color:' + muted + ';text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.5rem;">🏆 Recordes</div>' +
-                recordsHTML +
-            '</div>' : '') +
-            achievementsHTML +
+            <div id="nyan-pp-tag-row">
+                <span class="nyan-pp-tag">${profile.nyanTag || ''}</span>
+            </div>
 
-            // Ações
-            (isFriend ? '<div style="display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;">' +
-                '<button onclick="Friends.openChat(\'' + uid + '\',\'' + (profile.nyanTag||'') + '\',\'' + (profile.username||'') + '\')" ' +
-                    'style="padding:8px 18px;border-radius:10px;border:none;cursor:pointer;background:rgba(168,85,247,0.15);color:rgba(168,85,247,0.9);font-weight:700;font-size:0.8rem;font-family:DM Sans,sans-serif;">💬 Mensagem</button>' +
-                '<button onclick="Challenges.showCreateModal(\'' + uid + '\',\'' + (profile.nyanTag||profile.username||'?') + '\')" ' +
-                    'style="padding:8px 18px;border-radius:10px;border:none;cursor:pointer;background:rgba(251,191,36,0.12);color:#fbbf24;font-weight:700;font-size:0.8rem;font-family:DM Sans,sans-serif;">⚔️ Desafiar</button>' +
-                '<button onclick="Friends.showCompare(\'' + uid + '\',\'' + (profile.username||'?') + '\')" ' +
-                    'style="padding:8px 18px;border-radius:10px;border:none;cursor:pointer;background:rgba(16,185,129,0.12);color:#10b981;font-weight:700;font-size:0.8rem;font-family:DM Sans,sans-serif;">📊 Comparar</button>' +
-                '<button onclick="Friends.confirmRemove(\'' + uid + '\',\'' + (profile.username||'?') + '\')" ' +
-                    'style="padding:8px 18px;border-radius:10px;border:none;cursor:pointer;background:rgba(239,68,68,0.1);color:#f87171;font-weight:700;font-size:0.8rem;font-family:DM Sans,sans-serif;">Remover</button>' +
-            '</div>' : '');
+            <div style="text-align:center;margin-bottom:${profile.bio ? '0.5rem' : '0'};">
+                <div id="nyan-pp-status-pill"
+                     style="background:${statusColor}18;border:1px solid ${statusColor}40;color:${statusColor};display:inline-flex;">
+                    <span style="width:6px;height:6px;border-radius:50%;background:${statusColor};flex-shrink:0;display:inline-block;"></span>
+                    ${statusLabel}
+                </div>
+            </div>
+
+            ${profile.bio ? `<div class="nyan-pp-bio" style="color:${sub};">"${profile.bio}"</div>` : ''}
+
+            <div class="nyan-pp-stats-row">
+                <div class="nyan-pp-stat-pill accent">
+                    <div class="nyan-pp-stat-label">Nível</div>
+                    <div class="nyan-pp-stat-val">${profile.level || 1}</div>
+                </div>
+                ${memberSince ? `<div class="nyan-pp-stat-pill">
+                    <div class="nyan-pp-stat-label">Desde</div>
+                    <div class="nyan-pp-stat-val sub">${memberSince}</div>
+                </div>` : ''}
+                ${favoriteGame ? `<div class="nyan-pp-stat-pill">
+                    <div class="nyan-pp-stat-label">Favorito</div>
+                    <div class="nyan-pp-stat-val sub">${favoriteGame.icon} ${favoriteGame.label}</div>
+                </div>` : ''}
+            </div>
+
+            ${recordsHTML ? `
+            <div class="nyan-pp-section">
+                <div class="nyan-pp-section-title">🎮 Recordes</div>
+                ${recordsHTML}
+            </div>` : ''}
+
+            ${achHTML}
+
+            ${isFriend ? `
+            <div class="nyan-pp-actions">
+                <button class="nyan-pp-btn primary" onclick="Friends.openChat('${uid}','${profile.nyanTag||''}','${profile.username||''}')">💬 Mensagem</button>
+                <button class="nyan-pp-btn golden" onclick="Challenges.showCreateModal('${uid}','${profile.nyanTag||profile.username||'?'}')">⚔️ Desafiar</button>
+                <button class="nyan-pp-btn teal" onclick="Friends.showCompare('${uid}','${profile.username||'?'}')">📊 Comparar</button>
+                <button class="nyan-pp-btn danger" onclick="Friends.confirmRemove('${uid}','${profile.username||'?'}')">Remover</button>
+            </div>` : ''}
+        `;
     },
 
     confirmRemove(uid, username) {
@@ -849,13 +950,13 @@ const Friends = {
 
         // Sincronizar meus scores no leaderboard antes de comparar
         if (window.Leaderboard?.syncScore) {
-            this.GAME_RECORDS.forEach(g => {
+            Friends.GAME_RECORDS.forEach(g => {
                 const val = parseFloat(Utils.loadData(g.key));
                 if (val) Leaderboard.syncScore(g.gameId, val);
             });
         }
 
-        const rows = this.GAME_RECORDS.map(g => {
+        const rows = Friends.GAME_RECORDS.map(g => {
             const mine   = parseFloat(Utils.loadData(g.key)) || 0;
             const fmt    = v => (v || v === 0) && v > 0 ? parseFloat(v).toLocaleString('pt-BR') + ' ' + g.unit : '—';
             const mineCol = mine ? 'var(--theme-primary,#a855f7)' : muted;
@@ -898,7 +999,7 @@ const Friends = {
 
         // Buscar scores via users/{uid} sc_* fields (salvo no login)
         NyanFirebase.getDoc('users/' + uid).then(theirProfile => {
-            this.GAME_RECORDS.forEach(g => {
+            Friends.GAME_RECORDS.forEach(g => {
                 const val = theirProfile?.[g.fsKey];
                 const key = g.key;
                 const el  = document.getElementById('cmp-' + key);

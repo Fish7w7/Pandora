@@ -376,24 +376,26 @@
                         <div class="sidebar-logo-sub">にゃん~</div>
                     </div>
                 </div>
-                <div class="sidebar-user" id="sidebar-user-btn" onclick="Router.navigate('profile')" title="Ver perfil" style="cursor:pointer;">
+                 <div class="sidebar-user" id="sidebar-user-btn" onclick="Router.navigate('profile')" title="Ver perfil" style="cursor:pointer;">
                     <div class="sidebar-user-avatar" id="user-avatar">?</div>
                     <div class="sidebar-user-info">
                         <div class="sidebar-user-name" id="user-display">Usuário</div>
-                        <div class="sidebar-user-status" onclick="window.NyanAuth?.showStatusPicker?.()" title="Mudar status" style="cursor:pointer;">
-                            <span class="sidebar-user-dot" id="sidebar-presence-dot"></span>
+                        <div class="sidebar-user-status">
+                            <span class="sidebar-user-dot" id="sidebar-presence-dot"
+                                  onclick="event.stopPropagation(); window.NyanAuth?.showStatusPicker?.();"
+                                  title="Clique para mudar status"
+                                  style="cursor:pointer;"></span>
                             <span id="sidebar-online-status">Online</span>
                         </div>
-                        <div id="sidebar-fav-game" style="display:none;font-size:0.58rem;color:rgba(255,255,255,0.35);font-weight:600;margin-top:1px;letter-spacing:0.01em;"></div>
                     </div>
-                    <svg class="sidebar-user-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <svg class="sidebar-user-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="9 18 15 12 9 6"/>
                     </svg>
                 </div>
-            </div>
+            </div><!-- /sidebar-header -->
 
             <!-- Menu de navegação -->
-            <nav id="nav-menu" class="flex-1 overflow-y-auto sidebar-nav">
+            <nav id="nav-menu" class="sidebar-nav">
                 <!-- Itens inseridos pelo JavaScript -->
             </nav>
 
@@ -523,37 +525,58 @@
     <script src="../src/scripts/core/login-effects.js"></script>
     <script src="../src/scripts/core/login-intro.js"></script>
 
-    <!-- v3.9.0 — listener sidebar NyanTag (linha de status) -->
+    <script>
+        window.addEventListener('load', () => {
+            const sidebar = document.getElementById('sidebar');
+            const nav     = document.getElementById('nav-menu');
+            if (!sidebar || !nav) return;
+
+            let targetY  = nav.scrollTop;
+            let rafId    = null;
+            const EASE   = 0.14; // 0 = infinito suave, 1 = instantâneo
+
+            function animateScroll() {
+                const diff = targetY - nav.scrollTop;
+                if (Math.abs(diff) < 0.5) {
+                    nav.scrollTop = targetY;
+                    rafId = null;
+                    return;
+                }
+                nav.scrollTop += diff * EASE;
+                rafId = requestAnimationFrame(animateScroll);
+            }
+
+            sidebar.addEventListener('wheel', (e) => {
+                e.preventDefault();
+
+                // Acumula o destino — permite scroll rápido sem perder eventos
+                targetY = Math.max(
+                    0,
+                    Math.min(
+                        nav.scrollHeight - nav.clientHeight,
+                        targetY + e.deltaY
+                    )
+                );
+
+                if (!rafId) rafId = requestAnimationFrame(animateScroll);
+            }, { passive: false });
+        });
+    </script>
+
     <script>
         window.addEventListener('nyan:online-ready', (e) => {
-            const { tag } = e.detail || {};
-            if (!tag) return;
-            const dot    = document.getElementById('sidebar-presence-dot');
-            const status = document.getElementById('sidebar-online-status');
-            // Mostrar NyanTag na linha de status, sem quebrar o layout
-            if (status) {
-                status.textContent = tag;
-                status.style.color = 'rgba(168,85,247,0.85)';
-                status.style.fontWeight = '700';
-                status.style.fontSize = '0.62rem';
-                status.style.letterSpacing = '0.01em';
-                status.style.overflow = 'hidden';
-                status.style.textOverflow = 'ellipsis';
-                status.style.whiteSpace = 'nowrap';
-            }
+            const dot = document.getElementById('sidebar-presence-dot');
             if (dot) {
                 dot.style.background = '#a855f7';
                 dot.style.boxShadow = '0 0 4px rgba(168,85,247,0.8)';
             }
+            // NyanTag exibida apenas no perfil — sidebar mantém só "Online"
         });
         window.addEventListener('nyan:firebase-offline', () => {
             const status = document.getElementById('sidebar-online-status');
             if (status) status.textContent = 'Offline';
         });
 
-        // Patch exportData — garante que NyanTag aparece no backup
-        // As chaves nyan_online_* já estão no localStorage automaticamente
-        // Este patch só adiciona notificação informando que foi incluído
         window.addEventListener('load', () => {
             if (!window.Settings) return;
             const _orig = Settings.exportData.bind(Settings);
@@ -566,7 +589,6 @@
         });
     </script>
 
-    <!-- v3.9.0 — Nyan Network (Firebase + Social) -->
     <script src="../src/scripts/core/firebase.js"></script>
     <script src="../src/scripts/core/nyan-auth.js"></script>
     <script src="../src/scripts/core/friends.js"></script>

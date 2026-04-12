@@ -400,6 +400,23 @@ const Inventory = {
         return effectItem?.id || Utils.loadData('shop_nav_effect') || null;
     },
 
+
+    render() {
+        // Inventário é a loja filtrada por "Comprado" — sem duplicar interface
+        if (window.Shop) {
+            Shop._statusFilter = 'owned';
+            Shop._typeFilter   = 'all';
+            Shop._searchQuery  = '';
+            return Shop.render();
+        }
+        const d    = document.body.classList.contains('dark-theme');
+        const muted= d ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)';
+        return `<div style="text-align:center;padding:3rem;color:${muted};font-family:'DM Sans',sans-serif;">
+            <div style="font-size:2.5rem;margin-bottom:0.75rem;">🎒</div>
+            <div style="font-size:0.9rem;">Loja não disponível</div>
+        </div>`;
+    },
+
     init() {
         setTimeout(() => this.applyAll(), 200);
     },

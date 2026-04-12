@@ -97,21 +97,23 @@ const FocusMode = {
     },
 
     _injectSidebarToggle() {
-        const sidebar = document.getElementById('sidebar');
-        if (!sidebar || document.getElementById('focus-toggle-btn')) return;
+        if (document.getElementById('focus-toggle-btn')) return;
 
-        sidebar.style.position = 'relative';
+        // Injeta dentro do sidebar-logo (no header), ficando alinhado à direita
+        const logoRow = document.querySelector('#sidebar .sidebar-logo');
+        if (!logoRow) return;
 
         const btn = document.createElement('button');
-        btn.id = 'focus-toggle-btn';
+        btn.id    = 'focus-toggle-btn';
         btn.title = 'Modo Foco (Ctrl+Shift+F)';
         btn.onclick = () => this.toggle();
         btn.innerHTML = `
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                 stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="15 18 9 12 15 6"/>
             </svg>
         `;
-        sidebar.appendChild(btn);
+        logoRow.appendChild(btn);
     },
 
     // ──────────────────────────────────────────────────────

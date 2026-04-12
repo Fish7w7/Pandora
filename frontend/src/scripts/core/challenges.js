@@ -93,13 +93,15 @@ const Challenges = {
     async accept(challengeId) {
         await NyanFirebase.updateDoc(`challenges/${challengeId}`, { status: 'active' });
         Utils.showNotification('⚔️ Desafio aceito! Jogue e registre seu score!', 'success');
-        this.render(); Router?.render();
+        await this.loadChallenges();
     },
 
     async decline(challengeId) {
         await NyanFirebase.updateDoc(`challenges/${challengeId}`, { status: 'expired' });
+        // Remover localmente sem reload completo
+        this._allChallenges = this._allChallenges.filter(c => c.id !== challengeId);
         Utils.showNotification('Desafio recusado', 'info');
-        Router?.render();
+        this._renderTab();
     },
 
     // ── REGISTRAR SCORE ───────────────────────────────────────────────────────
@@ -154,38 +156,144 @@ const Challenges = {
         }
     },
 
+    // Limite de docs completed/expired mantidos no histórico por usuário
+    HISTORY_LIMIT: 15,
+
     // ── RENDER PRINCIPAL ──────────────────────────────────────────────────────
 
     render() {
         if (!NyanAuth.isOnline()) return Friends._renderOfflineState();
 
-        const d    = document.body.classList.contains('dark-theme');
-        const muted= d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
+        const d     = document.body.classList.contains('dark-theme');
+        const muted = d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
+        const bg    = d ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.03)';
+        const bdr   = d ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
 
         return `
-        <div style="max-width:640px;margin:0 auto;font-family:'DM Sans',sans-serif;">
-            <div style="text-align:center;margin-bottom:1.75rem;">
-                <div style="font-size:2.5rem;margin-bottom:0.4rem;">⚔️</div>
-                <h1 style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:900;margin:0 0 0.25rem;
+        <style>
+        @keyframes chSlideUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes chShimmer { 0%,100%{background-position:0% 50%} 50%{background-position:100% 50%} }
+        .ch-card { animation: chSlideUp .35s ease both; }
+        .ch-tab-btn { transition: background .15s, color .15s, border-color .15s; }
+        .ch-action-btn { transition: transform .13s, filter .13s; }
+        .ch-action-btn:hover { transform: translateY(-1px); filter: brightness(1.08); }
+        .ch-action-btn:active { transform: scale(0.96); filter: brightness(0.92); }
+        </style>
+        <div style="max-width:620px;margin:0 auto;font-family:'DM Sans',sans-serif;">
+
+            <!-- Cabeçalho -->
+            <div style="text-align:center;margin-bottom:1.5rem;">
+                <div style="font-size:2.2rem;margin-bottom:0.3rem;">⚔️</div>
+                <h1 style="font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:900;margin:0 0 0.2rem;
                     background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));
                     -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
                     Desafios
                 </h1>
-                <p style="font-size:0.75rem;color:${muted};margin:0;">Duelos de 24h com seus amigos にゃん~</p>
+                <p style="font-size:0.72rem;color:${muted};margin:0;">Duelos de 24h com seus amigos にゃん~</p>
             </div>
+
+            <!-- Stats row (preenchida por JS) -->
+            <div id="ch-stats-row" style="display:flex;gap:0.5rem;justify-content:center;margin-bottom:1.25rem;"></div>
+
+            <!-- Abas -->
+            <div style="display:flex;gap:0.25rem;background:${bg};border:1px solid ${bdr};
+                border-radius:14px;padding:0.3rem;margin-bottom:1rem;">
+                <button id="chtab-active" onclick="Challenges._switchTab('active')"
+                    class="ch-tab-btn" style="flex:1;padding:0.5rem;border-radius:10px;border:1px solid transparent;
+                    cursor:pointer;font-size:0.75rem;font-weight:700;font-family:'DM Sans',sans-serif;
+                    background:${d?'rgba(255,255,255,0.05)':'#fff'};color:var(--theme-primary,#a855f7);
+                    border-color:rgba(168,85,247,0.2);">
+                    🟢 Ativos
+                </button>
+                <button id="chtab-pending" onclick="Challenges._switchTab('pending')"
+                    class="ch-tab-btn" style="flex:1;padding:0.5rem;border-radius:10px;border:1px solid transparent;
+                    cursor:pointer;font-size:0.75rem;font-weight:700;font-family:'DM Sans',sans-serif;
+                    background:transparent;color:${muted};">
+                    ⏳ Pendentes
+                </button>
+                <button id="chtab-history" onclick="Challenges._switchTab('history')"
+                    class="ch-tab-btn" style="flex:1;padding:0.5rem;border-radius:10px;border:1px solid transparent;
+                    cursor:pointer;font-size:0.75rem;font-weight:700;font-family:'DM Sans',sans-serif;
+                    background:transparent;color:${muted};">
+                    📜 Histórico
+                </button>
+            </div>
+
+            <!-- Conteúdo das abas -->
             <div id="challenges-content">
-                <div style="text-align:center;padding:2rem;color:${muted};font-size:0.8rem;">Carregando desafios...</div>
+                <div style="text-align:center;padding:2rem;color:${muted};font-size:0.8rem;">Carregando...</div>
             </div>
         </div>`;
+    },
+
+    _currentTab: 'active',
+    _allChallenges: [],
+    _myUID: null,
+
+    _switchTab(tab) {
+        this._currentTab = tab;
+        const d     = document.body.classList.contains('dark-theme');
+        const muted = d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
+        const bg    = d ? 'rgba(255,255,255,0.05)' : '#fff';
+
+        ['active','pending','history'].forEach(t => {
+            const btn = document.getElementById('chtab-' + t);
+            if (!btn) return;
+            const isActive = t === tab;
+            btn.style.background    = isActive ? bg : 'transparent';
+            btn.style.color         = isActive ? 'var(--theme-primary,#a855f7)' : muted;
+            btn.style.borderColor   = isActive ? 'rgba(168,85,247,0.2)' : 'transparent';
+        });
+
+        this._renderTab();
+    },
+
+    _renderTab() {
+        const container = document.getElementById('challenges-content');
+        if (!container) return;
+
+        const d     = document.body.classList.contains('dark-theme');
+        const muted = d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
+        const sub   = d ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.5)';
+
+        const tab    = this._currentTab;
+        const myUID  = this._myUID;
+        const all    = this._allChallenges;
+
+        let items;
+        if (tab === 'active') {
+            items = all.filter(c => c.status === 'active' || (c.status === 'pending' && c.challenger.uid === myUID));
+        } else if (tab === 'pending') {
+            items = all.filter(c => c.status === 'pending' && c.challenged.uid === myUID);
+        } else {
+            items = all.filter(c => c.status === 'completed' || c.status === 'expired');
+        }
+
+        if (items.length === 0) {
+            const emptyMsg = {
+                active:  { icon:'⚔️', title:'Nenhum duelo ativo', sub:'Desafie um amigo pelo perfil dele!' },
+                pending: { icon:'⏳', title:'Nenhum desafio pendente', sub:'Tudo em dia por aqui にゃん~' },
+                history: { icon:'📜', title:'Histórico vazio', sub:'Seus duelos finalizados aparecem aqui' },
+            }[tab];
+            container.innerHTML = `
+            <div style="text-align:center;padding:3rem 1rem;color:${muted};">
+                <div style="font-size:2.5rem;opacity:0.35;margin-bottom:0.75rem;">${emptyMsg.icon}</div>
+                <div style="font-size:0.88rem;font-weight:700;color:${sub};margin-bottom:0.3rem;">${emptyMsg.title}</div>
+                <p style="font-size:0.72rem;margin:0;">${emptyMsg.sub}</p>
+            </div>`;
+            return;
+        }
+
+        container.innerHTML = items.map((c, i) => this._renderChallenge(c, myUID, i)).join('');
     },
 
     // ── CARREGAR DESAFIOS ─────────────────────────────────────────────────────
 
     async loadChallenges() {
         const myUID = NyanAuth.getUID();
-        const { query, collection, where, orderBy, getDocs, or } = NyanFirebase.fn;
+        this._myUID = myUID;
+        const { query, collection, where, getDocs, deleteDoc, doc } = NyanFirebase.fn;
 
-        // Buscar desafios onde sou challenger ou challenged (sem orderBy para evitar índice composto)
         const [asChallenger, asChallenged] = await Promise.all([
             getDocs(query(collection(NyanFirebase.db, 'challenges'), where('challenger.uid', '==', myUID))),
             getDocs(query(collection(NyanFirebase.db, 'challenges'), where('challenged.uid', '==', myUID))),
@@ -196,143 +304,219 @@ const Challenges = {
             ...asChallenged.docs.map(d => ({ id: d.id, ...d.data() })),
         ];
 
-        // Deduplicate e ordenar
+        // Deduplicate e ordenar por data desc
         const seen = new Set();
         const unique = all.filter(c => { if (seen.has(c.id)) return false; seen.add(c.id); return true; });
         unique.sort((a, b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
 
-        const container = document.getElementById('challenges-content');
-        if (!container) return;
-
-        if (unique.length === 0) {
-            const d    = document.body.classList.contains('dark-theme');
-            const muted= d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
-            const sub  = d ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.5)';
-            container.innerHTML = `
-            <div style="text-align:center;padding:3rem;color:${muted};">
-                <div style="font-size:3rem;opacity:0.35;margin-bottom:0.75rem;">⚔️</div>
-                <div style="font-size:0.9rem;font-weight:700;color:${sub};">Nenhum desafio</div>
-                <p style="font-size:0.75rem;">Abra o perfil de um amigo e clique em "Desafiar"!</p>
-            </div>`;
-            return;
+        // ── Auto-limpar histórico: manter só os HISTORY_LIMIT mais recentes ──
+        const finished = unique.filter(c => c.status === 'completed' || c.status === 'expired');
+        if (finished.length > this.HISTORY_LIMIT) {
+            const toDelete = finished.slice(this.HISTORY_LIMIT);
+            toDelete.forEach(c => {
+                deleteDoc(doc(NyanFirebase.db, 'challenges', c.id)).catch(() => {});
+            });
+            // Remover da lista local também
+            const deleteIds = new Set(toDelete.map(c => c.id));
+            unique.splice(0, unique.length, ...unique.filter(c => !deleteIds.has(c.id)));
         }
 
-        container.innerHTML = unique.map(c => this._renderChallenge(c, myUID)).join('');
+        // ── Auto-expirar desafios vencidos (expiresAt passou) ────────────────
+        const now = Date.now() / 1000;
+        await Promise.all(unique
+            .filter(c => (c.status === 'pending' || c.status === 'active') && c.expiresAt?.seconds < now)
+            .map(c => NyanFirebase.updateDoc(`challenges/${c.id}`, { status: 'expired' }).catch(() => {}))
+        );
+        // Atualizar status local
+        unique.forEach(c => {
+            if ((c.status === 'pending' || c.status === 'active') && c.expiresAt?.seconds < now) {
+                c.status = 'expired';
+            }
+        });
+
+        this._allChallenges = unique;
+
+        // ── Calcular stats ───────────────────────────────────────────────────
+        const wins   = unique.filter(c => c.status === 'completed' && c.winnerId === myUID).length;
+        const losses = unique.filter(c => c.status === 'completed' && c.winnerId && c.winnerId !== myUID).length;
+        const total  = unique.filter(c => c.status === 'completed').length;
+        const pending= unique.filter(c => c.status === 'pending' && c.challenged.uid === myUID).length;
+
+        const d     = document.body.classList.contains('dark-theme');
+        const bg    = d ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)';
+        const bdr   = d ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)';
+        const muted = d ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.32)';
+
+        const statsRow = document.getElementById('ch-stats-row');
+        if (statsRow) {
+            statsRow.innerHTML = [
+                { label:'Vitórias', val: wins,   color:'#4ade80' },
+                { label:'Derrotas', val: losses, color:'#f87171' },
+                { label:'Total',    val: total,  color:'var(--theme-primary,#a855f7)' },
+                { label:'Pendentes',val: pending,color:'#fbbf24' },
+            ].map(s => `
+                <div style="background:${bg};border:1px solid ${bdr};border-radius:12px;
+                    padding:0.45rem 0.9rem;text-align:center;min-width:62px;">
+                    <div style="font-size:0.5rem;font-weight:800;text-transform:uppercase;letter-spacing:.07em;color:${muted};margin-bottom:2px;">${s.label}</div>
+                    <div style="font-size:1rem;font-weight:900;font-family:'Syne',sans-serif;color:${s.color};line-height:1;">${s.val}</div>
+                </div>`).join('');
+        }
+
+        // Atualizar badge da aba pendentes
+        const pendingBtn = document.getElementById('chtab-pending');
+        if (pendingBtn && pending > 0) {
+            pendingBtn.textContent = `⏳ Pendentes (${pending})`;
+        }
+
+        this._renderTab();
     },
 
     // ── RENDER DE UM DESAFIO ──────────────────────────────────────────────────
 
-    _renderChallenge(ch, myUID) {
+    _renderChallenge(ch, myUID, index = 0) {
         const d      = document.body.classList.contains('dark-theme');
         const bg     = d ? 'rgba(255,255,255,0.04)' : '#ffffff';
         const bdr    = d ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
         const text   = d ? '#f1f5f9' : '#0f172a';
         const sub    = d ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.5)';
         const muted  = d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
+        const paneBg = d ? 'rgba(255,255,255,0.04)' : '#f7f7fc';
 
         const isChallenger  = ch.challenger.uid === myUID;
         const opponent      = isChallenger ? ch.challenged : ch.challenger;
         const myScore       = isChallenger ? ch.challengerScore : ch.challengedScore;
         const opponentScore = isChallenger ? ch.challengedScore : ch.challengerScore;
 
-        const statusColor = { pending:'#f59e0b', active:'#4ade80', completed:'#a855f7', expired:'#9ca3af' };
-        const statusLabel = { pending:'Aguardando', active:'Em andamento', completed:'Finalizado', expired:'Expirado' };
-        const color  = statusColor[ch.status] || statusColor.expired;
-        const label  = statusLabel[ch.status] || 'Desconhecido';
+        const STATUS_COLOR = { pending:'#fbbf24', active:'#4ade80', completed:'#a855f7', expired:'#9ca3af' };
+        const STATUS_LABEL = { pending:'Aguardando', active:'Em andamento', completed:'Finalizado', expired:'Expirado' };
+        const color = STATUS_COLOR[ch.status] || STATUS_COLOR.expired;
+        const label = STATUS_LABEL[ch.status] || 'Desconhecido';
 
-        const expiresIn = ch.expiresAt?.seconds
-            ? Math.max(0, Math.floor((ch.expiresAt.seconds - Date.now()/1000) / 3600))
-            : null;
+        // Barra de tempo restante
+        let timeBar = '';
+        if ((ch.status === 'pending' || ch.status === 'active') && ch.expiresAt?.seconds && ch.createdAt?.seconds) {
+            const totalSec   = ch.expiresAt.seconds - ch.createdAt.seconds;
+            const elapsedSec = Date.now()/1000 - ch.createdAt.seconds;
+            const pct        = Math.max(0, Math.min(100, 100 - (elapsedSec / totalSec) * 100));
+            const hoursLeft  = Math.max(0, Math.floor((ch.expiresAt.seconds - Date.now()/1000) / 3600));
+            const barColor   = pct > 50 ? '#4ade80' : pct > 20 ? '#fbbf24' : '#f87171';
+            timeBar = `
+            <div style="margin-top:0.75rem;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+                    <span style="font-size:0.58rem;font-weight:700;color:${muted};text-transform:uppercase;letter-spacing:.06em;">Tempo restante</span>
+                    <span style="font-size:0.62rem;font-weight:700;color:${barColor};">⏰ ${hoursLeft}h</span>
+                </div>
+                <div style="height:4px;background:${d?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.07)'};border-radius:99px;overflow:hidden;">
+                    <div style="height:100%;width:${pct}%;background:${barColor};border-radius:99px;transition:width .3s;"></div>
+                </div>
+            </div>`;
+        }
 
+        // Resultado destacado
+        let resultBanner = '';
+        if (ch.status === 'completed' && ch.winnerId) {
+            const won = ch.winnerId === myUID;
+            resultBanner = `
+            <div style="text-align:center;padding:0.45rem;border-radius:10px;margin-bottom:0.75rem;
+                background:${won?'rgba(74,222,128,0.1)':'rgba(239,68,68,0.08)'};
+                border:1px solid ${won?'rgba(74,222,128,0.25)':'rgba(239,68,68,0.2)'};">
+                <span style="font-size:0.82rem;font-weight:800;color:${won?'#4ade80':'#f87171'};">
+                    ${won ? '🏆 Você venceu!' : '😅 Vitória do adversário'}
+                </span>
+            </div>`;
+        }
+
+        // Botão de ação
         let actionBtn = '';
         if (ch.status === 'pending' && !isChallenger) {
             actionBtn = `
-            <div style="display:flex;gap:0.5rem;margin-top:0.875rem;">
-                <button onclick="Challenges.accept('${ch.id}')"
-                        style="flex:1;padding:0.6rem;border-radius:10px;border:none;cursor:pointer;
-                            font-size:0.8rem;font-weight:700;
-                            background:rgba(74,222,128,0.15);color:#4ade80;
-                            border:1px solid rgba(74,222,128,0.3);font-family:'DM Sans',sans-serif;">
-                    ⚔️ Aceitar desafio
+            <div style="display:flex;gap:0.5rem;margin-top:0.8rem;">
+                <button class="ch-action-btn" onclick="Challenges.accept('${ch.id}')"
+                    style="flex:1;padding:0.55rem;border-radius:10px;border:1px solid rgba(74,222,128,0.3);
+                    cursor:pointer;font-size:0.78rem;font-weight:700;
+                    background:rgba(74,222,128,0.13);color:#4ade80;font-family:'DM Sans',sans-serif;">
+                    ⚔️ Aceitar
                 </button>
-                <button onclick="Challenges.decline('${ch.id}')"
-                        style="padding:0.6rem 1rem;border-radius:10px;border:none;cursor:pointer;
-                            font-size:0.8rem;font-weight:700;
-                            background:rgba(239,68,68,0.1);color:#f87171;
-                            border:1px solid rgba(239,68,68,0.25);font-family:'DM Sans',sans-serif;">
-                    ✕
+                <button class="ch-action-btn" onclick="Challenges.decline('${ch.id}')"
+                    style="padding:0.55rem 1rem;border-radius:10px;border:1px solid rgba(239,68,68,0.22);
+                    cursor:pointer;font-size:0.78rem;font-weight:700;
+                    background:rgba(239,68,68,0.09);color:#f87171;font-family:'DM Sans',sans-serif;">
+                    Recusar
                 </button>
             </div>`;
         } else if (ch.status === 'active' && myScore === null) {
             actionBtn = `
-            <button onclick="Challenges.startPlay('${ch.id}','${ch.gameId}')"
-                    style="width:100%;margin-top:0.875rem;padding:0.6rem;border-radius:10px;border:none;cursor:pointer;
-                        font-size:0.8rem;font-weight:700;
-                        background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));
-                        color:white;font-family:'DM Sans',sans-serif;transition:filter 0.15s;"
-                    onmouseover="this.style.filter='brightness(1.1)'"
-                    onmouseout="this.style.filter=''">
+            <button class="ch-action-btn" onclick="Challenges.startPlay('${ch.id}','${ch.gameId}')"
+                style="width:100%;margin-top:0.8rem;padding:0.6rem;border-radius:10px;border:none;cursor:pointer;
+                font-size:0.8rem;font-weight:700;color:white;font-family:'DM Sans',sans-serif;
+                background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));">
                 🎮 Jogar agora · ${ch.gameName}
             </button>`;
+        } else if (ch.status === 'active' && myScore !== null && opponentScore === null) {
+            actionBtn = `
+            <div style="margin-top:0.8rem;text-align:center;padding:0.45rem;border-radius:10px;
+                background:rgba(251,191,36,0.09);border:1px solid rgba(251,191,36,0.2);">
+                <span style="font-size:0.72rem;font-weight:700;color:#fbbf24;">
+                    ⏳ Aguardando ${opponent.username} jogar...
+                </span>
+            </div>`;
         }
 
-        const winner = ch.winnerId ? (ch.winnerId === myUID ? '🏆 Você venceu!' : '😅 Derrota...') : '';
-
         return `
-        <div style="background:${bg};border:1px solid ${bdr};border-radius:16px;
-            padding:1rem 1.125rem;margin-bottom:0.75rem;">
+        <div class="ch-card" style="background:${bg};border:1px solid ${bdr};border-radius:16px;
+            padding:1rem 1.1rem;margin-bottom:0.7rem;animation-delay:${index * 0.06}s;">
 
             <!-- Header -->
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
-                <div style="display:flex;align-items:center;gap:0.625rem;">
-                    <span style="font-size:1.25rem;">${ch.gameIcon}</span>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem;">
+                <div style="display:flex;align-items:center;gap:0.6rem;">
+                    <span style="font-size:1.2rem;">${ch.gameIcon}</span>
                     <div>
-                        <div style="font-size:0.875rem;font-weight:700;color:${text};">${ch.gameName}</div>
-                        <div style="font-size:0.68rem;color:${muted};">${isChallenger ? 'Você desafiou' : 'Te desafiaram'}</div>
+                        <div style="font-size:0.85rem;font-weight:700;color:${text};">${ch.gameName}</div>
+                        <div style="font-size:0.65rem;color:${muted};">
+                            ${isChallenger ? `Você desafiou ${opponent.username}` : `${opponent.username} te desafiou`}
+                        </div>
                     </div>
                 </div>
-                <div style="display:flex;align-items:center;gap:0.5rem;">
-                    ${ch.status === 'completed' && winner ? `<span style="font-size:0.78rem;font-weight:700;color:${ch.winnerId===myUID?'#4ade80':'#f87171'};">${winner}</span>` : ''}
-                    <span style="font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:99px;
-                        background:${color}22;color:${color};border:1px solid ${color}44;">
-                        ${label}
-                    </span>
-                </div>
+                <span style="font-size:0.62rem;font-weight:700;padding:2px 9px;border-radius:99px;
+                    background:${color}20;color:${color};border:1px solid ${color}35;white-space:nowrap;">
+                    ${label}
+                </span>
             </div>
 
-            <!-- Placar lado a lado -->
-            <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0.625rem;align-items:center;">
-                <!-- Eu -->
-                <div style="text-align:center;padding:0.75rem;background:${d?'rgba(255,255,255,0.03)':'#f8f8fc'};border-radius:10px;">
-                    <div style="font-size:0.7rem;color:${muted};margin-bottom:0.375rem;">Você</div>
-                    <div style="font-size:1.25rem;font-weight:900;font-family:'Syne',sans-serif;
-                        color:${myScore!==null?'var(--theme-primary,#a855f7)':muted};">
+            ${resultBanner}
+
+            <!-- Placar VS -->
+            <div style="display:grid;grid-template-columns:1fr 28px 1fr;gap:0.5rem;align-items:center;">
+                <div style="text-align:center;padding:0.65rem 0.5rem;background:${paneBg};border-radius:10px;">
+                    <div style="font-size:0.62rem;color:${muted};margin-bottom:0.3rem;font-weight:600;">Você</div>
+                    <div style="font-size:1.2rem;font-weight:900;font-family:'Syne',sans-serif;
+                        color:${myScore!==null?'var(--theme-primary,#a855f7)':muted};line-height:1.1;">
                         ${myScore !== null ? myScore.toLocaleString('pt-BR') : '—'}
                     </div>
-                    ${myScore !== null ? `<div style="font-size:0.65rem;color:${muted};">${ch.unit}</div>` : `<div style="font-size:0.65rem;color:${muted};">ainda não jogou</div>`}
+                    <div style="font-size:0.6rem;color:${muted};margin-top:2px;">
+                        ${myScore !== null ? ch.unit : 'não jogou'}
+                    </div>
                 </div>
-
-                <span style="font-size:1rem;color:${muted};font-weight:800;">vs</span>
-
-                <!-- Oponente -->
-                <div style="text-align:center;padding:0.75rem;background:${d?'rgba(255,255,255,0.03)':'#f8f8fc'};border-radius:10px;">
-                    <div style="font-size:0.7rem;color:${muted};margin-bottom:0.375rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${opponent.username}</div>
-                    <div style="font-size:1.25rem;font-weight:900;font-family:'Syne',sans-serif;
-                        color:${opponentScore!==null?'#ec4899':muted};">
+                <div style="text-align:center;font-size:0.8rem;font-weight:900;color:${muted};">vs</div>
+                <div style="text-align:center;padding:0.65rem 0.5rem;background:${paneBg};border-radius:10px;">
+                    <div style="font-size:0.62rem;color:${muted};margin-bottom:0.3rem;font-weight:600;
+                        overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${opponent.username}</div>
+                    <div style="font-size:1.2rem;font-weight:900;font-family:'Syne',sans-serif;
+                        color:${opponentScore!==null?'#ec4899':muted};line-height:1.1;">
                         ${opponentScore !== null ? opponentScore.toLocaleString('pt-BR') : '—'}
                     </div>
-                    ${opponentScore !== null ? `<div style="font-size:0.65rem;color:${muted};">${ch.unit}</div>` : `<div style="font-size:0.65rem;color:${muted};">aguardando</div>`}
+                    <div style="font-size:0.6rem;color:${muted};margin-top:2px;">
+                        ${opponentScore !== null ? ch.unit : 'aguardando'}
+                    </div>
                 </div>
             </div>
 
-            <!-- Info de expiração e recompensas -->
-            <div style="display:flex;justify-content:space-between;margin-top:0.625rem;">
-                ${expiresIn !== null && ch.status !== 'completed' && ch.status !== 'expired'
-                    ? `<span style="font-size:0.68rem;color:${muted};">⏰ Expira em ${expiresIn}h</span>`
-                    : '<span></span>'}
-                <span style="font-size:0.68rem;color:${muted};">🏆 +${ch.rewardXP} XP · +${ch.rewardChips} chips</span>
+            <!-- Recompensas -->
+            <div style="display:flex;justify-content:flex-end;margin-top:0.55rem;">
+                <span style="font-size:0.62rem;color:${muted};">+${ch.rewardXP} XP · +${ch.rewardChips} chips</span>
             </div>
 
+            ${timeBar}
             ${actionBtn}
         </div>`;
     },
@@ -604,50 +788,80 @@ const Challenges = {
 
     showCreateModal(targetUID, targetTag) {
         const d    = document.body.classList.contains('dark-theme');
-        const bg   = d ? '#0e0e16' : '#ffffff';
+        const bg   = d ? '#0e0e18' : '#ffffff';
         const text = d ? '#f1f5f9' : '#0f172a';
-        const sub  = d ? 'rgba(255,255,255,0.45)' : '#6b7280';
-        const bdr  = d ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+        const sub  = d ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.5)';
+        const bdr  = d ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)';
+        const rowBg= d ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.025)';
 
         document.getElementById('challenge-create-modal')?.remove();
         const modal = document.createElement('div');
         modal.id = 'challenge-create-modal';
-        modal.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);';
-        modal.innerHTML = `
-            <div style="background:${bg};border:1px solid rgba(255,255,255,0.08);border-radius:20px;padding:1.75rem;
-                width:100%;max-width:340px;margin:0 1rem;font-family:'DM Sans',sans-serif;">
-                <div style="text-align:center;margin-bottom:1.25rem;">
-                    <div style="font-size:2rem;margin-bottom:0.5rem;">⚔️</div>
-                    <h3 style="font-family:'Syne',sans-serif;font-weight:900;font-size:1rem;color:${text};margin:0 0 0.25rem;">
-                        Desafiar ${targetTag}
-                    </h3>
-                    <p style="font-size:0.78rem;color:${sub};margin:0;">Escolha o jogo do duelo</p>
+        modal.style.cssText = 'position:fixed;inset:0;z-index:99999;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.65);';
+
+        const inner = document.createElement('div');
+        inner.style.cssText = `background:${bg};border-radius:24px 24px 0 0;border:1px solid ${bdr};border-bottom:none;
+            padding:0 1.25rem 1.5rem;width:100%;max-width:480px;font-family:'DM Sans',sans-serif;
+            animation:chModalUp .3s cubic-bezier(.34,1.2,.64,1);`;
+
+        inner.innerHTML = `
+            <style>
+            @keyframes chModalUp { from{transform:translateY(100%);opacity:0} to{transform:translateY(0);opacity:1} }
+            .ch-game-row { display:flex;align-items:center;gap:0.75rem;padding:0.7rem 0.875rem;
+                border-radius:12px;border:1px solid ${bdr};cursor:pointer;
+                background:${rowBg};transition:background .15s,border-color .15s;margin-bottom:0.375rem; }
+            .ch-game-row:hover { background:rgba(168,85,247,0.09);border-color:rgba(168,85,247,0.28); }
+            .ch-game-row:active { transform:scale(0.98); }
+            </style>
+
+            <!-- Handle -->
+            <div style="width:40px;height:4px;border-radius:99px;background:${d?'rgba(255,255,255,0.18)':'rgba(0,0,0,0.15)'};
+                margin:0.875rem auto 1.25rem;"></div>
+
+            <!-- Título -->
+            <div style="margin-bottom:1.1rem;">
+                <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:900;color:${text};margin-bottom:0.2rem;">
+                    ⚔️ Desafiar <span style="color:var(--theme-primary,#a855f7);">${targetTag}</span>
                 </div>
-                <div style="display:flex;flex-direction:column;gap:0.375rem;margin-bottom:1.25rem;">
-                    ${this.GAMES.map(g => `
-                    <button onclick="
-                        document.getElementById('challenge-create-modal').remove();
-                        Challenges.create('${targetUID}','${g.id}').then(id => {if(id)Router?.render();});"
-                            style="display:flex;align-items:center;gap:0.75rem;padding:0.75rem;
-                                border-radius:10px;border:1px solid ${bdr};cursor:pointer;
-                                background:transparent;color:${text};font-family:'DM Sans',sans-serif;
-                                font-size:0.85rem;font-weight:600;text-align:left;transition:all 0.15s;"
-                            onmouseover="this.style.background='rgba(168,85,247,0.08)';this.style.borderColor='rgba(168,85,247,0.3)'"
-                            onmouseout="this.style.background='transparent';this.style.borderColor='${bdr}'">
-                        <span style="font-size:1.25rem;">${g.icon}</span>
-                        <div>
-                            <div>${g.name}</div>
-                            <div style="font-size:0.68rem;color:${sub};">Melhor ${g.unit} vence</div>
-                        </div>
-                    </button>`).join('')}
+                <div style="font-size:0.72rem;color:${sub};">Escolha o jogo do duelo — vale 24h a partir de agora</div>
+            </div>
+
+            <!-- Recompensa -->
+            <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+                <div style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);
+                    border-radius:10px;padding:0.35rem 0.75rem;font-size:0.68rem;font-weight:700;color:#4ade80;">
+                    +${this.REWARD_XP} XP ao vencer
                 </div>
-                <button onclick="document.getElementById('challenge-create-modal').remove()"
-                        style="width:100%;padding:0.65rem;border-radius:10px;
-                            background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);
-                            color:${sub};font-weight:700;font-size:0.875rem;cursor:pointer;font-family:'DM Sans',sans-serif;">
-                    Cancelar
-                </button>
-            </div>`;
+                <div style="background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.2);
+                    border-radius:10px;padding:0.35rem 0.75rem;font-size:0.68rem;font-weight:700;color:#fbbf24;">
+                    +${this.REWARD_CHIPS} chips
+                </div>
+            </div>
+
+            <!-- Jogos -->
+            <div id="ch-game-list">
+                ${this.GAMES.map(g => `
+                <div class="ch-game-row" onclick="
+                    document.getElementById('challenge-create-modal').remove();
+                    Challenges.create('${targetUID}','${g.id}').then(id => { if(id) Router?.render(); });">
+                    <span style="font-size:1.4rem;line-height:1;">${g.icon}</span>
+                    <div style="flex:1;">
+                        <div style="font-size:0.875rem;font-weight:700;color:${text};">${g.name}</div>
+                        <div style="font-size:0.65rem;color:${sub};">Melhor ${g.unit} vence</div>
+                    </div>
+                    <span style="font-size:0.75rem;color:${d?'rgba(255,255,255,0.2)':'rgba(0,0,0,0.2)'};">›</span>
+                </div>`).join('')}
+            </div>
+
+            <!-- Cancelar -->
+            <button onclick="document.getElementById('challenge-create-modal').remove()"
+                style="width:100%;margin-top:0.75rem;padding:0.65rem;border-radius:12px;cursor:pointer;
+                background:transparent;border:1px solid ${bdr};
+                color:${sub};font-weight:700;font-size:0.82rem;font-family:'DM Sans',sans-serif;">
+                Cancelar
+            </button>`;
+
+        modal.appendChild(inner);
         modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
         document.body.appendChild(modal);
     },

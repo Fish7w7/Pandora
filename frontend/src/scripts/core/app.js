@@ -20,8 +20,8 @@ const App = {
         { id: 'music', name: 'Player de Música', icon: '🎵', description: 'Ouça suas músicas' },
         { id: 'notes', name: 'Notas Rápidas', icon: '📝', description: 'Organize suas ideias' },
         { id: 'tasks', name: 'Lista de Tarefas', icon: '✅', description: 'Gerencie tarefas' },
-        { id: 'missions', name: 'Missões', icon: '📋', description: 'Missões diárias e desafios' },
-        { id: 'shop', name: 'Loja', icon: '🛍️', description: 'Compre itens com chips' },
+        { id: 'missions',   name: 'Missões',    icon: '📋', description: 'Missões diárias e desafios' },
+        { id: 'shop',       name: 'Loja',       icon: '🛍️', description: 'Compre itens com chips' },
         { id: 'offline', name: 'Zona Offline', icon: '📶', description: 'Jogos sem internet' },
         { id: 'settings', name: 'Configurações', icon: '⚙️', description: 'Personalize o app' },
         // v3.9.0 — Nyan Network

@@ -1,22 +1,29 @@
-/* ══════════════════════════════════════════════════
-   SHOP.JS v1.0.1 — NyanTools にゃん~
-   FIX: itens marco desbloqueados agora mostram "Equipar"
- ═══════════════════════════════════════════════════*/
+// SHOP.JS v4.0.0 — NyanTools にゃん~
+// Loja estilo Valorant: rotação diária por categoria + inventário separado
 
 const Shop = {
 
-    _tab: 'weekly',
+    // ── CONFIG ────────────────────────────────────────────────────────────────
 
-    WEEKLY_SIZE:     6,
-    WEEKLY_EXCL_ID:  null,
+    DAILY_PER_CAT: 2,      // itens por categoria na rotação diária
+    DAILY_MAX_GAP: 15,     // gap máx de nível para aparecer na rotação
 
-    _getWeekSeed() {
-        const d = new Date();
-        const day = d.getDay();
-        const monday = new Date(d);
-        monday.setDate(d.getDate() - ((day + 6) % 7));
-        monday.setHours(0, 0, 0, 0);
-        const str = `${monday.getFullYear()}-${monday.getMonth()}-${monday.getDate()}`;
+    CATEGORIES: [
+        { id:'title',    label:'Títulos',    icon:'👑' },
+        { id:'border',   label:'Bordas',     icon:'🖼️' },
+        { id:'theme',    label:'Temas',      icon:'🎨' },
+        { id:'effect',   label:'Efeitos',    icon:'✨' },
+        { id:'particle', label:'Partículas', icon:'💫' },
+    ],
+
+    _tab:         'shop',   // 'shop' | 'inventory'
+    _selectedCat: 'title',  // categoria selecionada na loja
+
+    // ── SEED DIÁRIA ───────────────────────────────────────────────────────────
+
+    _getDaySeed() {
+        const d   = new Date();
+        const str = `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
         let h = 5381;
         for (let i = 0; i < str.length; i++) h = ((h << 5) + h) ^ str.charCodeAt(i);
         return Math.abs(h);
@@ -33,256 +40,350 @@ const Shop = {
         return a;
     },
 
-    getWeeklyItems() {
-        const seed     = this._getWeekSeed();
-        const catalog  = Inventory.CATALOG.filter(i => !i.milestone);
-        const shuffled = this._seededShuffle(catalog, seed);
-        const weekly   = shuffled[0];
-        this.WEEKLY_EXCL_ID = weekly.id;
-        const rest = shuffled.filter(i => i.id !== weekly.id).slice(0, this.WEEKLY_SIZE - 1);
-        return [{ ...weekly, isWeeklyExclusive: true }, ...rest];
+    _getDailyReset() {
+        const now      = new Date();
+        const tomorrow = new Date(now);
+        tomorrow.setDate(now.getDate() + 1);
+        tomorrow.setHours(0, 0, 0, 0);
+        const h = Math.floor((tomorrow - now) / 3600000);
+        const m = Math.floor(((tomorrow - now) % 3600000) / 60000);
+        return h > 0 ? `${h}h ${m}min` : `${m}min`;
     },
 
-    _getWeekReset() {
-        const now = new Date();
-        const dayOfWeek = now.getDay();
-        const daysToMon = (8 - dayOfWeek) % 7 || 7;
-        const nextMon   = new Date(now);
-        nextMon.setDate(now.getDate() + daysToMon);
-        nextMon.setHours(0, 0, 0, 0);
-        const h = Math.round((nextMon - now) / 3600000);
-        return `${Math.floor(h / 24)}d ${h % 24}h`;
+    // Retorna os itens da rotação diária para UMA categoria
+    getDailyForCat(catId) {
+        const seed        = this._getDaySeed();
+        const catSeed     = seed ^ catId.split('').reduce((a, c) => a ^ c.charCodeAt(0), 0);
+        const playerLevel = window.Economy?.getLevel?.() || 1;
+
+        // Pool: não possuídos, não marcos, dentro do gap de nível
+        let pool = Inventory.getByType(catId).filter(i =>
+            !i.milestone &&
+            !Inventory.owns(i.id) &&
+            (i.minLevel - playerLevel) <= this.DAILY_MAX_GAP
+        );
+
+        // Fallback: relaxa filtro de posse se pool muito pequeno
+        if (pool.length < this.DAILY_PER_CAT) {
+            pool = Inventory.getByType(catId).filter(i => !i.milestone);
+        }
+        // Fallback total: inclui tudo da categoria
+        if (pool.length === 0) {
+            pool = Inventory.getByType(catId);
+        }
+
+        const shuffled = this._seededShuffle(pool, catSeed);
+        const items    = shuffled.slice(0, this.DAILY_PER_CAT);
+        // Primeiro item é o exclusivo do dia
+        if (items[0]) items[0] = { ...items[0], isDailyExclusive: true };
+        return items;
     },
+
+    // ── TEMA ─────────────────────────────────────────────────────────────────
 
     _isDark() { return document.body.classList.contains('dark-theme'); },
 
-    _colors() {
+    _c() {
         const d = this._isDark();
         return {
-            bg:     d ? 'rgba(255,255,255,0.04)' : '#ffffff',
-            border: d ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)',
-            text:   d ? '#f1f5f9'                : '#0f172a',
-            sub:    d ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.5)',
-            muted:  d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)',
-            inner:  d ? 'rgba(255,255,255,0.05)' : '#f8fafc',
+            bg:      d ? 'rgba(255,255,255,0.04)' : '#ffffff',
+            border:  d ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)',
+            borderS: d ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.04)',
+            text:    d ? '#f1f5f9' : '#0f172a',
+            sub:     d ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.55)',
+            muted:   d ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.35)',
+            inner:   d ? 'rgba(255,255,255,0.05)' : '#f1f5f9',
+            panelBg: d ? 'rgba(255,255,255,0.025)': '#f8f8fc',
         };
     },
 
+    // ── RENDER PRINCIPAL ──────────────────────────────────────────────────────
+
     render() {
-        this._tab = this._tab || 'weekly';
-        const c     = this._colors();
+        const c     = this._c();
+        const d     = this._isDark();
         const chips = window.Economy?.getChips?.() || 0;
-        const level = window.Economy?.getLevel?.()  || 1;
+        const level = window.Economy?.getLevel?.() || 1;
+        const xpPct = window.Economy?.getLevelProgress?.() || 0;
+        const xpData= window.Economy?.getXP?.() || { xp:0, xpToNext:100 };
 
         return `
-        <div style="max-width:680px;margin:0 auto;font-family:var(--font-body,'DM Sans',sans-serif);">
-            <div style="text-align:center;margin-bottom:1.5rem;">
-                <div style="font-size:2.5rem;margin-bottom:0.4rem;">🛍️</div>
-                <h1 style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:900;margin:0 0 0.25rem;
-                    background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));
-                    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Loja</h1>
-                <p style="font-size:0.75rem;color:${c.muted};margin:0;">
-                    Rotação semanal · renova em <strong style="color:${c.sub};">${this._getWeekReset()}</strong>
-                </p>
-            </div>
+        <style>
+        @keyframes shopSlideUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+        @keyframes shopItemIn  { from{opacity:0;transform:scale(0.96)}       to{opacity:1;transform:scale(1)}     }
+        .shop-cat-btn  { transition:background .15s,border-color .15s,color .15s,transform .1s; }
+        .shop-cat-btn:hover  { transform:translateY(-1px); }
+        .shop-cat-btn:active { transform:scale(0.96); }
+        .shop-item-card { animation:shopItemIn .28s ease both; transition:transform .12s,box-shadow .12s; }
+        .shop-item-card:hover { transform:translateY(-3px); }
+        .shop-tab-btn { transition:background .15s,color .15s,border-color .15s; }
+        </style>
 
-            <div style="display:flex;align-items:center;justify-content:space-between;background:${c.inner};border:1px solid ${c.border};border-radius:14px;padding:0.875rem 1.125rem;margin-bottom:1.25rem;">
-                <div style="display:flex;align-items:center;gap:0.75rem;">
-                    <div style="font-size:1.5rem;">⬡</div>
-                    <div>
-                        <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:${c.muted};">Seus chips</div>
-                        <div id="shop-chips-display" style="font-size:1.4rem;font-weight:900;font-family:'Syne',sans-serif;color:${this._isDark()?'#fcd34d':'#b45309'};">${chips.toLocaleString('pt-BR')}</div>
+        <div style="max-width:820px;margin:0 auto;font-family:var(--font-body,'DM Sans',sans-serif);">
+
+            <!-- HEADER -->
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;
+                flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
+                <div>
+                    <h1 style="font-family:'Syne',sans-serif;font-size:1.75rem;font-weight:900;margin:0 0 0.15rem;
+                        background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));
+                        -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
+                        🛍️ Loja
+                    </h1>
+                    <p style="font-size:0.72rem;color:${c.muted};margin:0;">
+                        Rotação diária · renova em <strong style="color:${c.sub};">${this._getDailyReset()}</strong>
+                    </p>
+                </div>
+
+                <!-- Chips + Nível + XP -->
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem;min-width:180px;">
+                    <div style="display:flex;gap:0.5rem;">
+                        <div style="display:flex;align-items:center;gap:0.5rem;background:${c.inner};
+                            border:1px solid ${c.border};border-radius:12px;padding:0.45rem 0.875rem;">
+                            <span style="font-size:1rem;opacity:0.8;">⬡</span>
+                            <div>
+                                <div style="font-size:0.52rem;font-weight:800;text-transform:uppercase;
+                                    letter-spacing:0.1em;color:${c.muted};line-height:1;">Chips</div>
+                                <div id="shop-chips-display" style="font-size:1rem;font-weight:900;
+                                    font-family:'Syne',sans-serif;color:${d?'#fcd34d':'#b45309'};line-height:1.2;">
+                                    ${chips.toLocaleString('pt-BR')}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:0.5rem;background:${c.inner};
+                            border:1px solid ${c.border};border-radius:12px;padding:0.45rem 0.875rem;">
+                            <span style="font-size:1rem;opacity:0.8;">⚡</span>
+                            <div>
+                                <div style="font-size:0.52rem;font-weight:800;text-transform:uppercase;
+                                    letter-spacing:0.1em;color:${c.muted};line-height:1;">Nível</div>
+                                <div style="font-size:1rem;font-weight:900;font-family:'Syne',sans-serif;
+                                    color:var(--theme-primary,#a855f7);line-height:1.2;">${level}</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div style="width:100%;">
+                        <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+                            <span style="font-size:0.62rem;color:${c.muted};">${xpData.xp} XP</span>
+                            <span style="font-size:0.62rem;color:${c.muted};">${xpData.xpToNext} XP</span>
+                        </div>
+                        <div style="height:4px;background:${c.inner};border:1px solid ${c.borderS};
+                            border-radius:99px;overflow:hidden;">
+                            <div style="height:100%;width:${xpPct}%;
+                                background:linear-gradient(90deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));
+                                border-radius:99px;"></div>
+                        </div>
                     </div>
                 </div>
-                <div style="text-align:right;">
-                    <div style="font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;color:${c.muted};">Nível</div>
-                    <div style="font-size:1.4rem;font-weight:900;font-family:'Syne',sans-serif;color:var(--theme-primary,#a855f7);">${level}</div>
-                </div>
             </div>
 
-            <div style="display:flex;gap:0.25rem;background:${c.inner};border:1px solid ${c.border};border-radius:14px;padding:0.3rem;margin-bottom:1.25rem;">
-                ${['weekly','all','owned'].map(tab => {
-                    const labels = { weekly:'⭐ Semanal', all:'📦 Catálogo', owned:'🎒 Meu Inventário' };
-                    const active = this._tab === tab;
-                    return `
-                    <button onclick="Shop._setTab('${tab}')" style="
-                        flex:1;padding:0.55rem 0.75rem;border-radius:10px;border:none;cursor:pointer;
-                        font-size:0.8rem;font-weight:600;font-family:'DM Sans',sans-serif;
-                        transition:all 0.18s ease;
-                        background:${active ? c.bg : 'transparent'};
-                        color:${active ? 'var(--theme-primary,#a855f7)' : c.muted};
-                        box-shadow:${active ? '0 1px 4px rgba(0,0,0,0.08)' : 'none'};
-                        border:${active ? '1px solid rgba(168,85,247,0.2)' : '1px solid transparent'};
-                    ">${labels[tab]}</button>`;
-                }).join('')}
+            <!-- ABAS: Loja / Inventário -->
+            <div style="display:flex;gap:0.25rem;background:${c.inner};border:1px solid ${c.border};
+                border-radius:14px;padding:0.3rem;margin-bottom:1.25rem;">
+                <button class="shop-tab-btn" onclick="Shop._setTab('shop')" id="shop-tab-shop"
+                    style="flex:1;padding:0.5rem;border-radius:10px;cursor:pointer;
+                    font-size:0.78rem;font-weight:700;font-family:'DM Sans',sans-serif;
+                    background:${this._tab==='shop'?(d?'rgba(255,255,255,0.06)':'#fff'):'transparent'};
+                    color:${this._tab==='shop'?'var(--theme-primary,#a855f7)':c.muted};
+                    border:1px solid ${this._tab==='shop'?'rgba(168,85,247,0.2)':'transparent'};">
+                    🛍️ Loja do Dia
+                </button>
+                <button class="shop-tab-btn" onclick="Shop._setTab('inventory')" id="shop-tab-inventory"
+                    style="flex:1;padding:0.5rem;border-radius:10px;cursor:pointer;
+                    font-size:0.78rem;font-weight:700;font-family:'DM Sans',sans-serif;
+                    background:${this._tab==='inventory'?(d?'rgba(255,255,255,0.06)':'#fff'):'transparent'};
+                    color:${this._tab==='inventory'?'var(--theme-primary,#a855f7)':c.muted};
+                    border:1px solid ${this._tab==='inventory'?'rgba(168,85,247,0.2)':'transparent'};">
+                    🎒 Meu Inventário
+                </button>
             </div>
 
-            <div id="shop-content">${this._renderTabContent()}</div>
+            <!-- CONTEÚDO DA ABA -->
+            <div id="shop-main-content">
+                ${this._tab === 'shop' ? this._renderShopTab() : this._renderInventoryTab()}
+            </div>
         </div>`;
     },
 
-    _renderTabContent() {
-        if (this._tab === 'weekly') return this._renderWeekly();
-        if (this._tab === 'all')    return this._renderAll();
-        if (this._tab === 'owned')  return this._renderOwned();
-        return '';
-    },
+    // ── ABA LOJA ──────────────────────────────────────────────────────────────
 
-    _renderWeekly() {
-        const items = this.getWeeklyItems();
-        const c     = this._colors();
+    _renderShopTab() {
+        const c    = this._c();
+        const d    = this._isDark();
+        const cat  = this.CATEGORIES.find(c => c.id === this._selectedCat) || this.CATEGORIES[0];
+        const items= this.getDailyForCat(this._selectedCat);
+
         return `
-        <div>
-            <div style="background:${this._isDark()?'rgba(245,158,11,0.08)':'#fffbeb'};border:1px solid ${this._isDark()?'rgba(245,158,11,0.2)':'#fde68a'};border-radius:12px;padding:0.75rem 1rem;margin-bottom:1rem;display:flex;align-items:center;gap:0.625rem;">
-                <span style="font-size:1rem;">⭐</span>
-                <span style="font-size:0.75rem;color:${this._isDark()?'#fcd34d':'#b45309'};font-weight:600;">
-                    Oferta exclusiva disponível só nessa semana! Renova em ${this._getWeekReset()}.
-                </span>
+        <div style="display:flex;gap:1rem;">
+
+            <!-- Coluna esquerda: categorias -->
+            <div id="shop-cat-sidebar" style="width:140px;flex-shrink:0;">
+                ${this._renderCatSidebar()}
             </div>
-            <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.75rem;">
-                ${items.map(item => this._renderItemCard(item, false, true)).join('')}
+
+            <!-- Coluna direita: itens da categoria selecionada -->
+            <div style="flex:1;min-width:0;" id="shop-items-panel">
+                ${this._renderCatItems(items, cat)}
             </div>
         </div>`;
     },
 
-    _renderAll() {
-        const types = [
-            { key:'title',    label:'Títulos',              icon:'🏷️' },
-            { key:'border',   label:'Bordas de Avatar',     icon:'🖼️' },
-            { key:'theme',    label:'Temas Visuais',        icon:'🎨' },
-            { key:'effect',   label:'Efeitos de Navegação', icon:'✨' },
-            { key:'particle', label:'Partículas de Perfil', icon:'🌟' },
-        ];
-        const c = this._colors();
-        return types.map(t => {
-            // FIX: mostrar TODOS os itens do tipo (inclusive marcos) no catálogo
-            const items = Inventory.getByType(t.key);
-            if (!items.length) return '';
-            return `
-            <div style="margin-bottom:1.5rem;">
-                <div style="font-size:0.68rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:${c.muted};margin-bottom:0.625rem;">${t.icon} ${t.label}</div>
-                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.625rem;">
-                    ${items.map(item => this._renderItemCard(item)).join('')}
-                </div>
-            </div>`;
-        }).join('');
-    },
+    _renderCatItems(items, cat) {
+        const c = this._c();
+        const d = this._isDark();
 
-    _renderOwned() {
-        const owned = Inventory.getOwned();
-        const c     = this._colors();
-        if (!owned.length) {
-            return `
-            <div style="text-align:center;padding:3rem 1rem;">
-                <div style="font-size:3rem;margin-bottom:0.75rem;opacity:0.4;">🎒</div>
-                <div style="font-size:0.9rem;font-weight:700;color:${c.sub};margin-bottom:0.375rem;">Inventário vazio</div>
-                <p style="font-size:0.75rem;color:${c.muted};">Compre itens na aba Semanal ou Catálogo!</p>
+        if (items.length === 0) {
+            return `<div style="text-align:center;padding:3rem 1rem;color:${c.muted};">
+                <div style="font-size:2.5rem;margin-bottom:0.5rem;opacity:0.35;">${cat.icon}</div>
+                <div style="font-size:0.88rem;font-weight:700;color:${c.sub};">Nenhum item hoje</div>
+                <p style="font-size:0.72rem;margin-top:0.25rem;">Volte amanhã にゃん~</p>
             </div>`;
         }
-        const types  = ['title','border','theme','effect','particle'];
-        const labels = { title:'Títulos', border:'Bordas', theme:'Temas', effect:'Efeitos', particle:'Partículas' };
-        return types.map(type => {
-            const items = owned.filter(i => i.type === type);
-            if (!items.length) return '';
+
+        return `
+        <div style="margin-bottom:0.75rem;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+                <div style="font-size:1rem;font-weight:900;color:${c.text};font-family:'Syne',sans-serif;">
+                    ${cat.icon} ${cat.label}
+                </div>
+                <div style="font-size:0.65rem;color:${c.muted};">${items.length} itens hoje</div>
+            </div>
+            <div style="font-size:0.62rem;font-weight:700;padding:3px 10px;border-radius:99px;
+                color:${d?'#fcd34d':'#b45309'};
+                background:${d?'rgba(245,158,11,0.1)':'#fffbeb'};
+                border:1px solid ${d?'rgba(245,158,11,0.2)':'#fde68a'};">
+                ⏱ ${this._getDailyReset()}
+            </div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;">
+            ${items.map((item, i) => this._renderCard(item, i)).join('')}
+        </div>`;
+    },
+
+    // ── ABA INVENTÁRIO ────────────────────────────────────────────────────────
+
+    _renderInventoryTab() {
+        const c     = this._c();
+        const d     = this._isDark();
+        const owned = Inventory.getOwned();
+
+        if (owned.length === 0) {
+            return `<div style="text-align:center;padding:3rem 1rem;color:${c.muted};">
+                <div style="font-size:2.5rem;margin-bottom:0.75rem;opacity:0.35;">🎒</div>
+                <div style="font-size:0.88rem;font-weight:700;color:${c.sub};margin-bottom:0.3rem;">Inventário vazio</div>
+                <p style="font-size:0.72rem;margin:0;">Compre itens na loja do dia!</p>
+            </div>`;
+        }
+
+        // Agrupar por tipo
+        return this.CATEGORIES.map(cat => {
+            const catItems = owned.filter(i => i.type === cat.id);
+            if (catItems.length === 0) return '';
+
             return `
-            <div style="margin-bottom:1.25rem;">
-                <div style="font-size:0.68rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:${c.muted};margin-bottom:0.625rem;">${labels[type]}</div>
-                <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.625rem;">
-                    ${items.map(item => this._renderItemCard(item, true)).join('')}
+            <div style="margin-bottom:1.5rem;">
+                <div style="font-size:0.72rem;font-weight:800;text-transform:uppercase;
+                    letter-spacing:0.08em;color:${c.muted};margin-bottom:0.625rem;
+                    display:flex;align-items:center;gap:0.375rem;">
+                    ${cat.icon} ${cat.label}
+                    <span style="font-size:0.6rem;opacity:0.6;">${catItems.length}</span>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.625rem;">
+                    ${catItems.map((item, i) => this._renderCard(item, i)).join('')}
                 </div>
             </div>`;
         }).join('');
     },
 
-    _renderItemCard(item, isOwned = false, isWeekly = false) {
-        const c        = this._colors();
-        const owned    = isOwned || Inventory.owns(item.id);
+    // ── CARD DE ITEM ──────────────────────────────────────────────────────────
+
+    _renderCard(item, index = 0) {
+        const c        = this._c();
+        const d        = this._isDark();
+        const owned    = Inventory.owns(item.id);
         const equipped = Inventory.getEquipped(item.type) === item.id;
         const level    = window.Economy?.getLevel?.() || 1;
         const chips    = window.Economy?.getChips?.() || 0;
-        const canAfford= chips >= item.price;
         const canLevel = level >= item.minLevel;
+        const canAfford= chips >= item.price;
         const rarity   = Inventory.RARITY[item.rarity] || Inventory.RARITY.common;
-        const d        = this._isDark();
 
-        // ── LÓGICA DO BOTÃO ──────────────────────────────────────────────────
-        // FIX: owned sempre vem primeiro — marcos desbloqueados DEVEM poder ser equipados
         let btnText, btnStyle, btnClick, btnDisabled = false;
 
         if (owned) {
             if (equipped) {
                 btnText  = '✓ Equipado';
-                btnStyle = `background:rgba(74,222,128,0.15);color:#4ade80;border:1px solid rgba(74,222,128,0.3);`;
-                btnClick = `Shop._confirmUnequip('${item.type}')`;
+                btnStyle = `background:rgba(74,222,128,0.12);color:#4ade80;border:1px solid rgba(74,222,128,0.25);`;
+                btnClick = `Shop._unequip('${item.type}')`;
             } else {
-                btnText  = '⚡ Equipar';
+                btnText  = 'Equipar';
                 btnStyle = `background:var(--theme-primary,#a855f7);color:white;border:none;`;
-                btnClick = `Shop._confirmEquip('${item.id}')`;
+                btnClick = `Shop._equip('${item.id}')`;
             }
         } else if (item.milestone) {
-            // Marco ainda não desbloqueado
             btnText     = `🔒 Marco nível ${item.minLevel}`;
-            btnStyle    = `background:${d?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'};color:${c.muted};border:1px solid ${c.border};`;
+            btnStyle    = `background:rgba(245,158,11,0.1);color:${d?'#fcd34d':'#b45309'};border:1px solid rgba(245,158,11,0.2);`;
             btnDisabled = true;
-        } else if (!canLevel && !isWeekly) {
-            // Na loja semanal, ignorar restrição de nível — qualquer um pode comprar
+        } else if (!canLevel) {
             btnText     = `🔒 Nível ${item.minLevel}`;
-            btnStyle    = `background:${d?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'};color:${c.muted};border:1px solid ${c.border};`;
+            btnStyle    = `background:${c.inner};color:${c.muted};border:1px solid ${c.border};`;
             btnDisabled = true;
         } else if (!canAfford) {
-            btnText     = `⬡ ${item.price.toLocaleString('pt-BR')}`;
-            btnStyle    = `background:rgba(239,68,68,0.12);color:${d?'#f87171':'#be123c'};border:1px solid rgba(239,68,68,0.25);`;
+            btnText     = `${item.price.toLocaleString('pt-BR')} chips`;
+            btnStyle    = `background:rgba(239,68,68,0.1);color:${d?'#f87171':'#be123c'};border:1px solid rgba(239,68,68,0.2);`;
             btnDisabled = true;
         } else {
-            const weeklyPrice = isWeekly && !canLevel
-                ? Math.ceil(item.price * 1.15) // 15% mais caro na semanal quando abaixo do nível
-                : item.price;
-            btnText  = isWeekly && !canLevel
-                ? `🛍️ ${weeklyPrice.toLocaleString('pt-BR')} chips ✨`
-                : `🛍️ ${item.price.toLocaleString('pt-BR')} chips`;
+            btnText  = `Comprar · ${item.price.toLocaleString('pt-BR')} chips`;
             btnStyle = `background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));color:white;border:none;`;
-            btnClick = `Shop._confirmBuy('${item.id}',${isWeekly && !canLevel ? weeklyPrice : 0})`;
+            btnClick = `Shop._buy('${item.id}')`;
         }
 
+        const cardBorder = equipped ? `1px solid ${rarity.color}66`
+                         : owned    ? `1px solid ${rarity.color}33`
+                         :            `1px solid ${c.border}`;
+        const cardBg     = owned ? rarity.bg : c.bg;
+        const cardShadow = equipped ? `box-shadow:0 0 0 2px ${rarity.color}44;` : '';
+
         return `
-        <div style="
-            background:${owned?`${rarity.bg}`:`${c.bg}`};
-            border:1px solid ${owned?rarity.color+'33':c.border};
-            border-radius:14px;padding:1rem;position:relative;overflow:hidden;
-            transition:transform 0.15s,box-shadow 0.15s;
-            ${equipped?`box-shadow:0 0 0 2px ${rarity.color};`:''}
-        "
-        onmouseenter="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 24px rgba(0,0,0,0.12)${equipped?(',0 0 0 2px '+rarity.color):''}'"
-        onmouseleave="this.style.transform='';this.style.boxShadow='${equipped?('0 0 0 2px '+rarity.color):''}'">
+        <div class="shop-item-card" style="background:${cardBg};border:${cardBorder};${cardShadow}
+            border-radius:14px;padding:0.875rem;
+            display:flex;flex-direction:column;gap:0.5rem;animation-delay:${index * 0.05}s;">
 
-            <div style="display:flex;align-items:center;gap:0.375rem;margin-bottom:0.625rem;">
-                <span style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;
-                    color:${rarity.color};background:${rarity.bg};border:1px solid ${rarity.color}44;
-                    border-radius:99px;padding:2px 7px;">${rarity.label}</span>
-                ${item.isWeeklyExclusive ? `<span style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:${d?'#fcd34d':'#b45309'};background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);border-radius:99px;padding:2px 7px;">⭐ Exclusivo</span>` : ''}
-                ${item.milestone && !owned ? `<span style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;color:${d?'#fcd34d':'#b45309'};background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.3);border-radius:99px;padding:2px 7px;">🏆 Marco</span>` : ''}
-            </div>
-
-            <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:0.375rem;">
-                <div style="width:40px;height:40px;border-radius:10px;flex-shrink:0;background:${rarity.bg};border:1px solid ${rarity.color}33;display:flex;align-items:center;justify-content:center;font-size:1.3rem;">${item.icon}</div>
-                <div>
-                    <div style="font-size:0.85rem;font-weight:700;color:${c.text};font-family:'Syne',sans-serif;line-height:1.2;">${item.name}</div>
-                    <div style="font-size:0.68rem;color:${c.muted};margin-top:1px;">${item.preview || ''}</div>
+            <!-- Ícone + raridade -->
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.25rem;">
+                <div style="width:48px;height:48px;border-radius:12px;flex-shrink:0;
+                    background:${rarity.bg};border:1px solid ${rarity.color}33;
+                    display:flex;align-items:center;justify-content:center;font-size:1.5rem;">
+                    ${item.icon}
+                </div>
+                <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.2rem;">
+                    <span style="font-size:0.55rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;
+                        color:${rarity.color};background:${rarity.bg};border:1px solid ${rarity.color}44;
+                        border-radius:99px;padding:2px 7px;white-space:nowrap;">${rarity.label}</span>
+                    ${item.isDailyExclusive ? `<span style="font-size:0.55rem;font-weight:800;text-transform:uppercase;
+                        color:${d?'#fcd34d':'#b45309'};background:rgba(245,158,11,0.12);
+                        border:1px solid rgba(245,158,11,0.3);border-radius:99px;padding:2px 7px;white-space:nowrap;">
+                        ⭐ Excl.</span>` : ''}
+                    ${equipped ? `<span style="font-size:0.55rem;font-weight:800;text-transform:uppercase;
+                        color:#4ade80;background:rgba(74,222,128,0.1);
+                        border:1px solid rgba(74,222,128,0.25);border-radius:99px;padding:2px 7px;white-space:nowrap;">
+                        ✓ Ativo</span>` : ''}
                 </div>
             </div>
 
-            ${item.minLevel > 1 ? `
-            <div style="font-size:0.65rem;color:${!canLevel&&!owned?'#ef4444':c.muted};margin-bottom:0.625rem;">
-                ${owned||canLevel?'✓':'🔒'} Nível mínimo: ${item.minLevel}
-            </div>` : '<div style="margin-bottom:0.625rem;"></div>'}
+            <!-- Nome + preview -->
+            <div style="flex:1;">
+                <div style="font-size:0.85rem;font-weight:700;color:${c.text};font-family:'Syne',sans-serif;
+                    line-height:1.2;margin-bottom:0.15rem;">${item.name}</div>
+                ${item.preview ? `<div style="font-size:0.65rem;color:${c.muted};line-height:1.4;">${item.preview}</div>` : ''}
+            </div>
 
-            <button
-                ${btnDisabled ? 'disabled' : ''}
-                onclick="${btnClick || ''}"
-                style="width:100%;padding:0.5rem;border-radius:9px;font-size:0.75rem;font-weight:700;
-                    font-family:'DM Sans',sans-serif;cursor:${btnDisabled?'not-allowed':'pointer'};
-                    opacity:${btnDisabled?'0.6':'1'};transition:filter 0.15s,transform 0.1s;${btnStyle}"
-                onmouseover="if(!this.disabled)this.style.filter='brightness(1.1)'"
+            <!-- Botão -->
+            <button ${btnDisabled ? 'disabled' : ''} onclick="${btnClick || ''}"
+                style="width:100%;padding:0.48rem 0.5rem;border-radius:9px;
+                font-size:0.72rem;font-weight:700;font-family:'DM Sans',sans-serif;
+                cursor:${btnDisabled?'not-allowed':'pointer'};opacity:${btnDisabled?'0.55':'1'};
+                transition:filter .12s,transform .08s;${btnStyle}"
+                onmouseover="if(!this.disabled)this.style.filter='brightness(1.08)'"
                 onmouseout="this.style.filter=''"
                 onmousedown="if(!this.disabled)this.style.transform='scale(0.97)'"
                 onmouseup="this.style.transform=''">
@@ -291,107 +392,222 @@ const Shop = {
         </div>`;
     },
 
-    _confirmBuy(itemId, customPrice = 0) {
-        const item  = Inventory.getItem(itemId);
-        if (!item) return;
-        const finalPrice = customPrice > 0 ? customPrice : item.price;
-        const chips = window.Economy?.getChips?.() || 0;
-        const d     = this._isDark();
-        this._showModal({
-            icon: item.icon,
-            title: `Comprar "${item.name}"?`,
-            body:  `Custo: <strong style="color:${d?'#fcd34d':'#b45309'};">${finalPrice.toLocaleString('pt-BR')} chips</strong>${finalPrice > item.price ? ' <span style="font-size:0.72rem;color:#a78bfa;">(preço semanal)</span>' : ''}<br>Seu saldo: ${chips.toLocaleString('pt-BR')} chips`,
-            confirmText:  '🛍️ Comprar',
-            confirmColor: 'linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899))',
-            onConfirm: () => {
-                const result = Inventory.buy(itemId, finalPrice > item.price ? finalPrice : 0);
-                if (result.ok) {
-                    const chipsEl = document.getElementById('shop-chips-display');
-                    if (chipsEl) chipsEl.textContent = (window.Economy?.getChips?.() || 0).toLocaleString('pt-BR');
-                    setTimeout(() => this._confirmEquip(itemId), 400);
-                } else {
-                    Utils.showNotification?.(`❌ ${result.reason}`, 'error');
-                }
-            }
+    // ── AÇÕES ─────────────────────────────────────────────────────────────────
+
+    _setTab(tab) {
+        this._tab = tab;
+        const content = document.getElementById('shop-main-content');
+        if (content) content.innerHTML = tab === 'shop' ? this._renderShopTab() : this._renderInventoryTab();
+
+        const d = this._isDark();
+        const c = this._c();
+        ['shop','inventory'].forEach(t => {
+            const btn = document.getElementById('shop-tab-' + t);
+            if (!btn) return;
+            const active = t === tab;
+            btn.style.background  = active ? (d ? 'rgba(255,255,255,0.06)' : '#fff') : 'transparent';
+            btn.style.color       = active ? 'var(--theme-primary,#a855f7)' : c.muted;
+            btn.style.borderColor = active ? 'rgba(168,85,247,0.2)' : 'transparent';
         });
     },
 
-    _confirmEquip(itemId) {
+    _renderCatSidebar() {
+        const c = this._c();
+        const d = this._isDark();
+        return `
+            <div style="font-size:0.58rem;font-weight:800;text-transform:uppercase;
+                letter-spacing:0.1em;color:${c.muted};margin-bottom:0.625rem;padding-left:0.25rem;">
+                Categorias
+            </div>
+            <div style="display:flex;flex-direction:column;gap:0.3rem;">
+                ${this.CATEGORIES.map(cat => {
+                    const active     = this._selectedCat === cat.id;
+                    const dailyItems = this.getDailyForCat(cat.id);
+                    const hasNew     = !active && dailyItems.some(i => !Inventory.owns(i.id));
+                    return `<button class="shop-cat-btn" onclick="Shop._selectCat('${cat.id}')"
+                        style="display:flex;align-items:center;justify-content:space-between;
+                        width:100%;padding:0.6rem 0.75rem;border-radius:12px;cursor:pointer;
+                        font-size:0.78rem;font-weight:700;font-family:'DM Sans',sans-serif;text-align:left;
+                        background:${active?'linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899))':c.inner};
+                        color:${active?'white':c.sub};
+                        border:1px solid ${active?'transparent':c.border};">
+                        <span>${cat.icon} ${cat.label}</span>
+                        ${hasNew ? `<span style="width:7px;height:7px;border-radius:50%;
+                            background:var(--theme-primary,#a855f7);flex-shrink:0;"></span>` : ''}
+                    </button>`;
+                }).join('')}
+            </div>
+            <div style="margin-top:1rem;padding:0.6rem 0.75rem;border-radius:12px;
+                background:${c.inner};border:1px solid ${c.border};text-align:center;">
+                <div style="font-size:0.55rem;font-weight:800;text-transform:uppercase;
+                    letter-spacing:0.06em;color:${c.muted};margin-bottom:0.2rem;">Renova em</div>
+                <div style="font-size:0.85rem;font-weight:900;
+                    font-family:'Syne',sans-serif;color:${d?'#fcd34d':'#b45309'};">
+                    ${this._getDailyReset()}
+                </div>
+            </div>`;
+    },
+
+    _selectCat(catId) {
+        this._selectedCat = catId;
+        // Re-render sidebar (dot some da categoria ativa)
+        const sidebar = document.getElementById('shop-cat-sidebar');
+        if (sidebar) sidebar.innerHTML = this._renderCatSidebar();
+        // Re-render painel de itens
+        const panel = document.getElementById('shop-items-panel');
+        const cat   = this.CATEGORIES.find(c => c.id === catId) || this.CATEGORIES[0];
+        const items = this.getDailyForCat(catId);
+        if (panel) panel.innerHTML = this._renderCatItems(items, cat);
+    },
+
+    _buy(itemId) {
+        const item  = Inventory.getItem(itemId);
+        if (!item) return;
+        const chips = window.Economy?.getChips?.() || 0;
+        const d     = this._isDark();
+        const prev  = Inventory.getEquippedItem(item.type);
+
+        const body = `
+            <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:0.875rem;justify-content:center;">
+                <div style="font-size:2.2rem;">${item.icon}</div>
+                <div style="text-align:left;">
+                    <div style="font-size:0.9rem;font-weight:800;color:${d?'white':'#0f172a'};font-family:'Syne',sans-serif;">${item.name}</div>
+                    ${item.preview ? `<div style="font-size:0.7rem;color:${d?'rgba(255,255,255,0.45)':'rgba(0,0,0,0.45)'};">${item.preview}</div>` : ''}
+                </div>
+            </div>
+            <div style="background:${d?'rgba(255,255,255,0.04)':'#f8fafc'};
+                border:1px solid ${d?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.06)'};
+                border-radius:10px;padding:0.625rem 0.875rem;margin-bottom:0.875rem;font-size:0.78rem;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:0.2rem;">
+                    <span style="color:${d?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)'};">Custo</span>
+                    <strong style="color:${d?'#fcd34d':'#b45309'};">${item.price.toLocaleString('pt-BR')} chips</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span style="color:${d?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)'};">Saldo após</span>
+                    <span style="color:${chips-item.price<0?'#f87171':(d?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.7)')}">${(chips - item.price).toLocaleString('pt-BR')} chips</span>
+                </div>
+            </div>
+            ${prev ? `<div style="font-size:0.7rem;color:${d?'rgba(255,255,255,0.4)':'rgba(0,0,0,0.4)'};margin-bottom:0.875rem;text-align:center;">
+                Substitui: <strong style="color:${d?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.6)'};">${prev.name}</strong>
+            </div>` : ''}`;
+
+        this._showModal({
+            title:        'Confirmar compra',
+            body,
+            confirmText:  'Comprar e equipar',
+            confirmColor: 'linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899))',
+            secondaryText:'Comprar sem equipar',
+            onConfirm: () => {
+                const result = Inventory.buy(itemId);
+                if (result.ok) { Inventory.equip(itemId); this._afterAction(); }
+                else Utils.showNotification?.(`❌ ${result.reason}`, 'error');
+            },
+            onSecondary: () => {
+                const result = Inventory.buy(itemId);
+                if (result.ok) this._afterAction();
+                else Utils.showNotification?.(`❌ ${result.reason}`, 'error');
+            },
+        });
+    },
+
+    _equip(itemId) {
         const item = Inventory.getItem(itemId);
         if (!item) return;
         const prev = Inventory.getEquippedItem(item.type);
+        const d    = this._isDark();
         this._showModal({
-            icon:  item.icon,
-            title: `Equipar "${item.name}"?`,
-            body:  prev ? `Vai substituir: <strong>"${prev.name}"</strong>` : 'Será equipado imediatamente na sidebar.',
-            confirmText:  '⚡ Equipar',
+            title:       `Equipar ${item.name}`,
+            body:        `<div style="text-align:center;font-size:2.5rem;margin-bottom:0.75rem;">${item.icon}</div>
+                <p style="font-size:0.8rem;color:${d?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)'};text-align:center;line-height:1.6;margin-bottom:0.875rem;">
+                    ${prev ? `Substitui <strong style="color:${d?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.65)'};">${prev.name}</strong>` : 'Será equipado imediatamente.'}
+                </p>`,
+            confirmText:  'Equipar',
             confirmColor: 'var(--theme-primary,#a855f7)',
-            onConfirm: () => { Inventory.equip(itemId); Router?.render(); }
+            onConfirm:    () => { Inventory.equip(itemId); this._afterAction(); },
         });
     },
 
-    _confirmUnequip(type) {
+    _unequip(type) {
         const item = Inventory.getEquippedItem(type);
         if (!item) return;
+        const d = this._isDark();
         this._showModal({
-            icon:  '🔄',
-            title: `Desequipar "${item.name}"?`,
-            body:  'O item voltará para o inventário.',
+            title:       `Desequipar ${item.name}`,
+            body:        `<p style="font-size:0.8rem;color:${d?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)'};
+                text-align:center;line-height:1.6;margin-bottom:0.875rem;">
+                O efeito será removido e o item voltará ao inventário.
+            </p>`,
             confirmText:  'Desequipar',
             confirmColor: 'rgba(239,68,68,0.85)',
-            onConfirm: () => { Inventory.unequip(type); Router?.render(); }
+            onConfirm:    () => { Inventory.unequip(type); this._afterAction(); },
         });
     },
 
-    _showModal({ icon, title, body, confirmText, confirmColor, onConfirm }) {
+    _afterAction() {
+        const chipsEl = document.getElementById('shop-chips-display');
+        if (chipsEl) chipsEl.textContent = (window.Economy?.getChips?.() || 0).toLocaleString('pt-BR');
+        // Re-render só o painel ativo sem recarregar a página inteira
+        const content = document.getElementById('shop-main-content');
+        if (content) content.innerHTML = this._tab === 'shop' ? this._renderShopTab() : this._renderInventoryTab();
+    },
+
+    // ── MODAL ─────────────────────────────────────────────────────────────────
+
+    _showModal({ title, body, confirmText, confirmColor, secondaryText, onConfirm, onSecondary }) {
         document.getElementById('shop-modal')?.remove();
         const d     = this._isDark();
         const modal = document.createElement('div');
         modal.id    = 'shop-modal';
-        modal.style.cssText = `position:fixed;inset:0;z-index:99999;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,0.7);animation:smFadeIn 0.18s ease;`;
+        modal.style.cssText = `position:fixed;inset:0;z-index:99999;display:flex;align-items:center;
+            justify-content:center;background:rgba(0,0,0,${d?'0.75':'0.6'});animation:smFadeIn 0.15s ease;`;
         modal.innerHTML = `
             <style>
                 @keyframes smFadeIn  { from{opacity:0} to{opacity:1} }
-                @keyframes smSlideUp { from{opacity:0;transform:translateY(20px) scale(0.97)} to{opacity:1;transform:none} }
-                #sm-card { animation:smSlideUp 0.25s cubic-bezier(0.34,1.56,0.64,1); }
-                #sm-cancel:hover { background:rgba(255,255,255,0.1)!important;color:white!important; }
+                @keyframes smSlideUp { from{opacity:0;transform:translateY(16px) scale(0.97)} to{opacity:1;transform:none} }
+                #sm-card { animation:smSlideUp 0.22s cubic-bezier(0.34,1.56,0.64,1); }
+                #sm-cancel:hover { background:rgba(255,255,255,0.08)!important; }
             </style>
-            <div id="sm-card" style="background:${d?'#0e0e16':'#ffffff'};border:1px solid ${d?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.09)'};border-radius:18px;padding:1.75rem;width:100%;max-width:320px;margin:0 1rem;box-shadow:0 32px 80px rgba(0,0,0,0.6);font-family:'DM Sans',sans-serif;">
-                <div style="font-size:2rem;text-align:center;margin-bottom:0.875rem;">${icon}</div>
-                <div style="font-size:1rem;font-weight:800;color:${d?'white':'#0f172a'};text-align:center;margin-bottom:0.5rem;font-family:'Syne',sans-serif;">${title}</div>
-                <p style="font-size:0.8rem;color:${d?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)'};text-align:center;line-height:1.6;margin-bottom:1.25rem;">${body}</p>
-                <div style="display:flex;gap:0.625rem;">
-                    <button id="sm-cancel" style="flex:1;padding:0.65rem;border-radius:10px;background:${d?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'};border:1px solid ${d?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.09)'};color:${d?'rgba(255,255,255,0.6)':'rgba(0,0,0,0.5)'};font-size:0.875rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;transition:all 0.15s;">Cancelar</button>
-                    <button id="sm-confirm" style="flex:1;padding:0.65rem;border-radius:10px;background:${confirmColor};border:none;color:white;font-size:0.875rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;transition:filter 0.15s;" onmouseover="this.style.filter='brightness(1.1)'" onmouseout="this.style.filter=''">
-                        ${confirmText}
-                    </button>
+            <div id="sm-card" style="background:${d?'#0d0d14':'#ffffff'};
+                border:1px solid ${d?'rgba(255,255,255,0.09)':'rgba(0,0,0,0.08)'};
+                border-radius:18px;padding:1.5rem;width:100%;max-width:300px;margin:0 1rem;
+                box-shadow:0 32px 80px rgba(0,0,0,0.5);font-family:'DM Sans',sans-serif;">
+                <div style="font-size:0.95rem;font-weight:800;color:${d?'white':'#0f172a'};
+                    text-align:center;margin-bottom:1rem;font-family:'Syne',sans-serif;">${title}</div>
+                ${body}
+                <div style="display:flex;gap:0.5rem;">
+                    <button id="sm-cancel" style="flex:1;padding:0.6rem;border-radius:10px;
+                        background:${d?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.05)'};
+                        border:1px solid ${d?'rgba(255,255,255,0.09)':'rgba(0,0,0,0.08)'};
+                        color:${d?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)'};
+                        font-size:0.82rem;font-weight:600;cursor:pointer;
+                        font-family:'DM Sans',sans-serif;transition:background 0.12s;">Cancelar</button>
+                    <button id="sm-confirm" style="flex:2;padding:0.6rem;border-radius:10px;
+                        background:${confirmColor};border:none;color:white;
+                        font-size:0.82rem;font-weight:700;cursor:pointer;
+                        font-family:'DM Sans',sans-serif;transition:filter 0.12s;"
+                        onmouseover="this.style.filter='brightness(1.1)'"
+                        onmouseout="this.style.filter=''">${confirmText}</button>
                 </div>
-            </div>
-        `;
+                ${secondaryText ? `<button id="sm-secondary" style="width:100%;margin-top:0.5rem;
+                    padding:0.4rem;background:transparent;border:none;
+                    color:${d?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.35)'};
+                    font-size:0.72rem;cursor:pointer;font-family:'DM Sans',sans-serif;
+                    text-decoration:underline;text-underline-offset:2px;">${secondaryText}</button>` : ''}
+            </div>`;
+
         modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
-        modal.querySelector('#sm-cancel').addEventListener('click',  () => modal.remove());
+        modal.querySelector('#sm-cancel').addEventListener('click', () => modal.remove());
         modal.querySelector('#sm-confirm').addEventListener('click', () => { modal.remove(); onConfirm?.(); });
+        if (secondaryText) {
+            modal.querySelector('#sm-secondary')?.addEventListener('click', () => { modal.remove(); onSecondary?.(); });
+        }
         document.body.appendChild(modal);
     },
 
-    _setTab(tab) {
-        this._tab = tab;
-        const content = document.getElementById('shop-content');
-        if (content) content.innerHTML = this._renderTabContent();
-        ['weekly','all','owned'].forEach(t => {
-            const btn = document.querySelector(`button[onclick="Shop._setTab('${t}')"]`);
-            if (!btn) return;
-            const active = t === tab;
-            const c = this._colors();
-            btn.style.background = active ? c.bg : 'transparent';
-            btn.style.color      = active ? 'var(--theme-primary,#a855f7)' : c.muted;
-            btn.style.border     = active ? '1px solid rgba(168,85,247,0.2)' : '1px solid transparent';
-            btn.style.boxShadow  = active ? '0 1px 4px rgba(0,0,0,0.08)' : 'none';
-        });
-    },
+    // ── COMPAT / INIT ─────────────────────────────────────────────────────────
 
     init() {
-        this._tab = 'weekly';
+        this._tab = 'shop';
         const chipsEl = document.getElementById('shop-chips-display');
         if (chipsEl) chipsEl.textContent = (window.Economy?.getChips?.() || 0).toLocaleString('pt-BR');
     },

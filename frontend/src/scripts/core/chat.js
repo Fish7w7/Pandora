@@ -1,42 +1,19 @@
-/* ══════════════════════════════════════════════════
-   CHAT.JS v1.0.0 — NyanTools にゃん~ v3.9.0
-   Chat Privado 1:1
-
-   ESTRUTURA FIRESTORE:
-   chats/{chatId}/           (chatId = uid_a_uid_b, ordenados)
-     participants: [uid_a, uid_b]
-     lastMessage: "texto..."
-     lastMessageAt: Timestamp
-     unread_{uid}: number
-
-   chats/{chatId}/messages/{msgId}/
-     from: uid
-     text: string
-     sentAt: Timestamp
-     read: boolean
-
- ═══════════════════════════════════════════════════*/
+// CHAT.JS — NyanTools にゃん~
 
 const Chat = {
 
     _currentChatId: null,
     _unsubMessages: null,
-    _unsubChats:    null,
-    _target:        null,  // { uid, tag, username }
-    _unreadCounts:  {},
-
-    // ── ID DA CONVERSA ────────────────────────────────────────────────────────
+    _target:        null,
+    _pendingIds:    new Set(),
 
     getChatId(uid1, uid2) {
         return [uid1, uid2].sort().join('_');
     },
 
-    // ── RENDER PRINCIPAL ──────────────────────────────────────────────────────
-
     render() {
         if (!NyanAuth.isOnline()) return Friends._renderOfflineState();
 
-        // Se veio de Friends.openChat(), abrir direto
         const target = window._chatTarget;
         if (target) {
             window._chatTarget = null;
@@ -58,8 +35,6 @@ const Chat = {
         return this._renderChatList(d, bg, bdr, text, sub, muted);
     },
 
-    // ── LISTA DE CONVERSAS ────────────────────────────────────────────────────
-
     _renderChatList(d, bg, bdr, text, sub, muted) {
         return `
         <div style="max-width:640px;margin:0 auto;font-family:'DM Sans',sans-serif;">
@@ -77,14 +52,11 @@ const Chat = {
         </div>`;
     },
 
-    // ── JANELA DE CHAT ────────────────────────────────────────────────────────
-
     _renderChatWindow(d, bg, bdr, text, sub, muted) {
         const t = this._target;
         return `
         <div style="max-width:640px;margin:0 auto;font-family:'DM Sans',sans-serif;display:flex;flex-direction:column;height:calc(100vh - 140px);">
 
-            <!-- Header do chat -->
             <div style="background:${bg};border:1px solid ${bdr};border-radius:16px 16px 0 0;
                 padding:0.875rem 1rem;display:flex;align-items:center;gap:0.875rem;flex-shrink:0;">
                 <button onclick="Chat._closeChat()"
@@ -107,21 +79,19 @@ const Chat = {
                 </button>
             </div>
 
-            <!-- Mensagens -->
             <div id="chat-messages" style="
                 flex:1;overflow-y:auto;
                 background:${d?'rgba(255,255,255,0.02)':'#fafafa'};
                 border-left:1px solid ${bdr};border-right:1px solid ${bdr};
                 padding:1rem;
                 display:flex;flex-direction:column;gap:0.5rem;
-                scrollbar-width:thin;scrollbar-color:${d?'rgba(255,255,255,0.1)':'rgba(0,0,0,0.1)'} transparent;
+                scrollbar-width:thin;
             ">
                 <div style="text-align:center;font-size:0.72rem;color:${muted};padding:1rem 0;">
                     Início da conversa にゃん~
                 </div>
             </div>
 
-            <!-- Input -->
             <div style="background:${bg};border:1px solid ${bdr};border-radius:0 0 16px 16px;
                 padding:0.75rem;display:flex;gap:0.5rem;flex-shrink:0;">
                 <input id="chat-input"
@@ -140,8 +110,7 @@ const Chat = {
                 <button onclick="Chat.sendMessage()"
                         style="padding:0.6rem 1rem;border-radius:10px;border:none;
                             background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));
-                            color:white;font-size:0.875rem;cursor:pointer;
-                            transition:filter 0.15s;"
+                            color:white;font-size:0.875rem;cursor:pointer;transition:filter 0.15s;"
                         onmouseover="this.style.filter='brightness(1.1)'"
                         onmouseout="this.style.filter=''">
                     ↑
@@ -150,83 +119,108 @@ const Chat = {
         </div>`;
     },
 
-    // ── ENVIAR MENSAGEM ───────────────────────────────────────────────────────
-
     async sendMessage() {
         const input = document.getElementById('chat-input');
         const text  = (input?.value || '').trim();
         if (!text || !this._currentChatId) return;
 
         input.value = '';
+        input.focus();
 
         const myUID  = NyanAuth.getUID();
         const chatId = this._currentChatId;
+        const d      = document.body.classList.contains('dark-theme');
 
-        const now = NyanFirebase.fn.serverTimestamp();
-        const msgData = {
-            from:   myUID,
-            text,
-            sentAt: now,
-            read:   false,
-        };
+        const now    = new Date();
+        const timeStr = now.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+        const container = document.getElementById('chat-messages');
 
-        // Adicionar mensagem no Firebase — o onSnapshot entrega localmente
-        // antes mesmo de sincronizar com o servidor (fromCache=true / hasPendingWrites)
-        await NyanFirebase.fn.addDoc(
-            NyanFirebase.fn.collection(NyanFirebase.db, `chats/${chatId}/messages`),
-            msgData
-        );
+        const localKey = `local-${myUID}-${now.getTime()}`;
 
-        // Atualizar metadados da conversa
-        const targetUID = this._target?.uid;
-        await NyanFirebase.setDoc(`chats/${chatId}`, {
-            participants:   [myUID, targetUID].sort(),
-            lastMessage:    text.slice(0, 60),
-            lastMessageAt:  now,
-            [`unread_${targetUID}`]: NyanFirebase.fn.increment(1),
-            [`unread_${myUID}`]:     0,
-        });
+        if (container) {
+            const div = document.createElement('div');
+            div.setAttribute('data-local-key', localKey);
+            div.style.display = 'flex';
+            div.style.justifyContent = 'flex-end';
+            div.innerHTML = `
+                <div style="max-width:75%;">
+                    <div style="background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));
+                        color:white;border-radius:16px 16px 4px 16px;
+                        padding:0.6rem 0.875rem;font-size:0.875rem;line-height:1.5;
+                        word-break:break-word;box-shadow:0 1px 4px rgba(0,0,0,0.1);">
+                        ${this._escapeHTML(text)}
+                    </div>
+                    <div style="font-size:0.62rem;color:${d?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.4)'};
+                        margin-top:2px;text-align:right;padding:0 4px;">${timeStr}</div>
+                </div>`;
+            container.appendChild(div);
+            container.scrollTop = container.scrollHeight;
+
+            const msgData = {
+                from:      myUID,
+                text,
+                sentAt:    NyanFirebase.fn.serverTimestamp(),
+                read:      false,
+                _localKey: localKey,
+            };
+
+            NyanFirebase.fn.addDoc(
+                NyanFirebase.fn.collection(NyanFirebase.db, `chats/${chatId}/messages`),
+                msgData
+            ).then(docRef => {
+                const localDiv = container.querySelector(`[data-local-key="${localKey}"]`);
+                if (!localDiv) return;
+                localDiv.id = 'msg-' + docRef.id;
+                localDiv.removeAttribute('data-local-key');
+                this._pendingIds.add(docRef.id);
+            }).catch(() => {});
+
+            const targetUID = this._target?.uid;
+            NyanFirebase.setDoc(`chats/${chatId}`, {
+                participants:   [myUID, targetUID].sort(),
+                lastMessage:    text.slice(0, 60),
+                lastMessageAt:  NyanFirebase.fn.serverTimestamp(),
+                [`unread_${targetUID}`]: NyanFirebase.fn.increment(1),
+                [`unread_${myUID}`]:     0,
+            }).catch(() => {});
+        }
     },
 
-    // ── RENDERIZAR MENSAGEM ───────────────────────────────────────────────────
-
     _renderMessage(msg, isMe, d) {
-        const bg      = isMe
+        const bg     = isMe
             ? 'linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899))'
             : (d ? 'rgba(255,255,255,0.06)' : '#f0f0f5');
-        const color   = isMe ? 'white' : (d ? 'rgba(255,255,255,0.85)' : '#0f172a');
-        const align   = isMe ? 'flex-end' : 'flex-start';
-        const radius  = isMe ? '16px 16px 4px 16px' : '16px 16px 16px 4px';
+        const color  = isMe ? 'white' : (d ? 'rgba(255,255,255,0.85)' : '#0f172a');
+        const align  = isMe ? 'flex-end' : 'flex-start';
+        const radius = isMe ? '16px 16px 4px 16px' : '16px 16px 16px 4px';
+        const timeColor = d ? 'rgba(255,255,255,0.55)' : 'rgba(0,0,0,0.4)';
 
         const time = msg.sentAt?.toDate
             ? msg.sentAt.toDate().toLocaleTimeString('pt-BR', { hour:'2-digit', minute:'2-digit' })
             : '';
 
-        const elemId = msg.id ? 'id="msg-' + msg.id + '"' : '';
         return `
-        <div ${elemId} style="display:flex;justify-content:${align};">
+        <div id="msg-${msg.id}" style="display:flex;justify-content:${align};">
             <div style="max-width:75%;">
                 <div style="background:${bg};color:${color};border-radius:${radius};
                     padding:0.6rem 0.875rem;font-size:0.875rem;line-height:1.5;
                     word-break:break-word;box-shadow:0 1px 4px rgba(0,0,0,0.1);">
                     ${this._escapeHTML(msg.text)}
                 </div>
-                ${time ? `<div style="font-size:0.62rem;color:${d ? 'rgba(255,255,255,0.55)' : (isMe ? 'rgba(255,255,255,0.6)' : 'rgba(0,0,0,0.4)')};
+                ${time ? `<div style="font-size:0.62rem;color:${timeColor};
                     margin-top:2px;text-align:${isMe?'right':'left'};padding:0 4px;">${time}</div>` : ''}
             </div>
         </div>`;
     },
 
-    // ── LISTENER DE MENSAGENS ─────────────────────────────────────────────────
-
     _subscribeMessages() {
-        if (this._unsubMessages) { this._unsubMessages(); }
+        if (this._unsubMessages) this._unsubMessages();
+        this._pendingIds = new Set();
 
         const chatId = this._currentChatId;
         const myUID  = NyanAuth.getUID();
         const d      = document.body.classList.contains('dark-theme');
 
-        // Garantir que o documento do chat existe antes de ouvir mensagens
         NyanFirebase.setDoc(`chats/${chatId}`, {
             participants:  [myUID, this._target?.uid].filter(Boolean).sort(),
             lastMessage:   '',
@@ -247,16 +241,18 @@ const Chat = {
 
             snapshot.docChanges().forEach(change => {
                 if (change.type !== 'added') return;
+
                 const doc  = change.doc;
                 const msg  = { id: doc.id, ...doc.data() };
                 const isMe = msg.from === myUID;
 
-                // Ignorar escritas pendentes (hasPendingWrites = ainda não confirmado)
-                // para não mostrar duplicata — o evento virá de novo quando confirmar
-                if (doc.metadata.hasPendingWrites) return;
+                if (this._pendingIds.has(doc.id)) {
+                    this._pendingIds.delete(doc.id);
+                    return;
+                }
 
-                // Evitar duplicata por id
                 if (document.getElementById('msg-' + doc.id)) return;
+                if (doc.metadata.hasPendingWrites) return;
 
                 container.insertAdjacentHTML('beforeend', this._renderMessage(msg, isMe, d));
             });
@@ -270,21 +266,18 @@ const Chat = {
         NyanFirebase._listeners.push(this._unsubMessages);
     },
 
-    // ── ABRIR / FECHAR CHAT ───────────────────────────────────────────────────
-
     openChat(uid, tag, username) {
-        this._target = { uid, tag, username: username || tag };
+        this._target        = { uid, tag, username: username || tag };
         this._currentChatId = this.getChatId(NyanAuth.getUID(), uid);
     },
 
     _closeChat() {
         if (this._unsubMessages) { this._unsubMessages(); this._unsubMessages = null; }
+        this._pendingIds    = new Set();
         this._currentChatId = null;
-        this._target = null;
+        this._target        = null;
         Router?.render();
     },
-
-    // ── LISTA DE CONVERSAS (carregamento async) ───────────────────────────────
 
     async _loadChatList() {
         const myUID = NyanAuth.getUID();
@@ -295,14 +288,12 @@ const Chat = {
         const sub   = d ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.5)';
         const muted = d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
 
-        // Sem orderBy composto — filtra por participante e ordena no JS
         const { query, collection, where, getDocs } = NyanFirebase.fn;
-        const q = query(
+        const snap = await getDocs(query(
             collection(NyanFirebase.db, 'chats'),
             where('participants', 'array-contains', myUID)
-        );
+        ));
 
-        const snap  = await getDocs(q);
         const chats = snap.docs
             .map(d => ({ id: d.id, ...d.data() }))
             .sort((a, b) => (b.lastMessageAt?.seconds || 0) - (a.lastMessageAt?.seconds || 0));
@@ -320,7 +311,6 @@ const Chat = {
             return;
         }
 
-        // Buscar info dos outros participantes
         const items = await Promise.all(chats.map(async (chat) => {
             const otherUID = chat.participants.find(u => u !== myUID);
             const other    = await NyanFirebase.getDoc(`users/${otherUID}`);
@@ -331,8 +321,7 @@ const Chat = {
         container.innerHTML = items.map(({ chat, other, unread, otherUID }) => `
         <div style="background:${bg};border:1px solid ${unread>0?'rgba(168,85,247,0.3)':bdr};
             border-radius:14px;padding:0.875rem 1rem;
-            display:flex;align-items:center;gap:0.875rem;cursor:pointer;
-            transition:box-shadow 0.15s;"
+            display:flex;align-items:center;gap:0.875rem;cursor:pointer;transition:box-shadow 0.15s;"
             onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'"
             onmouseout="this.style.boxShadow=''"
             onclick="Chat.openChat('${otherUID}','${other?.nyanTag||''}','${other?.username||''}');Router.render();">
@@ -353,35 +342,30 @@ const Chat = {
         </div>`).join('');
     },
 
-    // ── BADGE NA SIDEBAR ──────────────────────────────────────────────────────
-
     async getTotalUnread() {
         const myUID = NyanAuth.getUID();
         if (!myUID || !NyanFirebase.isReady()) return 0;
-
         const { query, collection, where, getDocs } = NyanFirebase.fn;
-        const q = query(
+        const snap = await getDocs(query(
             collection(NyanFirebase.db, 'chats'),
             where('participants', 'array-contains', myUID)
-        );
-        const snap  = await getDocs(q);
-        let total   = 0;
+        ));
+        let total = 0;
         snap.docs.forEach(d => { total += d.data()[`unread_${myUID}`] || 0; });
         return total;
     },
 
-    // ── HELPERS ───────────────────────────────────────────────────────────────
-
     _escapeHTML(str) {
-        return (str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        return (str || '')
+            .replace(/&/g,'&amp;')
+            .replace(/</g,'&lt;')
+            .replace(/>/g,'&gt;')
+            .replace(/"/g,'&quot;');
     },
-
-    // ── INIT ──────────────────────────────────────────────────────────────────
 
     init() {
         if (this._currentChatId) {
             this._subscribeMessages();
-            // Carregar foto real do contato no header
             if (this._target?.uid) {
                 NyanFirebase.getDoc(`users/${this._target.uid}`).then(profile => {
                     if (!profile?.avatar) return;
@@ -392,7 +376,6 @@ const Chat = {
         } else {
             setTimeout(() => this._loadChatList(), 100);
         }
-        console.log('[Chat] v1.0.0 inicializado');
     },
 };
 
