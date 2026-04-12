@@ -1,14 +1,4 @@
-/* ══════════════════════════════════════════════════
-   LEADERBOARD.JS v1.0.0 — NyanTools にゃん~ v3.9.0
-   Placar Global por Jogo
 
-   ESTRUTURA FIRESTORE:
-   leaderboards/{gameId}/scores/{uid}/
-     uid, nyanTag, username, avatar, score, level, updatedAt
-
-   Filtros: global (top 10) | friends (entre amigos)
-
- ═══════════════════════════════════════════════════*/
 
 const Leaderboard = {
 
@@ -23,8 +13,6 @@ const Leaderboard = {
 
     _currentGame:   'typeracer',
     _currentFilter: 'global', // 'global' | 'friends'
-
-    // ── SINCRONIZAR SCORE DO JOGADOR ATUAL ───────────────────────────────────
 
     async syncScore(gameId, score) {
         if (!NyanAuth.isOnline()) return;
@@ -58,7 +46,6 @@ const Leaderboard = {
         console.log(`[Leaderboard] Score sincronizado: ${gameId} → ${score}`);
     },
 
-    // ── AUTO-SYNC ao bater recorde ────────────────────────────────────────────
     // Chamado pelo Economy.checkRecord() via hook
 
     setupAutoSync() {
@@ -88,8 +75,6 @@ const Leaderboard = {
             return wasRecord;
         };
     },
-
-    // ── RENDER PRINCIPAL ──────────────────────────────────────────────────────
 
     render() {
         if (!NyanAuth.isOnline()) return Friends._renderOfflineState();
@@ -159,8 +144,6 @@ const Leaderboard = {
 
         </div>`;
     },
-
-    // ── CARREGAR E RENDERIZAR TABELA ──────────────────────────────────────────
 
     async loadScores() {
         const table = document.getElementById('leaderboard-table');
@@ -377,8 +360,6 @@ const Leaderboard = {
         }
     },
 
-    // ── CONTROLES ─────────────────────────────────────────────────────────────
-
     setGame(gameId) {
         this._currentGame = gameId;
         // Atualizar visual dos botões
@@ -426,8 +407,6 @@ const Leaderboard = {
         }
         this.loadScores();
     },
-
-    // ── INIT ──────────────────────────────────────────────────────────────────
 
     KEY_TO_GAME: {
         'typeracer_highscore':   'typeracer',

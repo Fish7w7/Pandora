@@ -1,29 +1,9 @@
-/* ══════════════════════════════════════════════════
-   FEED.JS v1.0.0 — NyanTools にゃん~ v3.9.0
-   Feed de Atividade dos Amigos + Murais por Jogo
-
-   ESTRUTURA FIRESTORE:
-   feed/{uid}/posts/{postId}/
-     type: 'score' | 'achievement' | 'record'
-     gameId, score, unit
-     achievement: { icon, name }
-     authorUID, authorTag, authorUsername, authorAvatar
-     createdAt: Timestamp
-     reactions: { '🐱': [uid,...], '⭐': [...], '💎': [...], '🔥': [...] }
-     comments: [{ uid, tag, text, createdAt }]
-
- ═══════════════════════════════════════════════════*/
-
 const Feed = {
 
     REACTIONS: ['🐱','⭐','💎','🔥'],
 
-    // Máx de posts mantidos no próprio feed (limpeza automática ao publicar)
     POST_LIMIT: 30,
-    // Posts buscados por amigo
     POSTS_PER_USER: 6,
-
-    // ── PUBLICAR NO FEED ──────────────────────────────────────────────────────
 
     async publish(type, data) {
         if (!NyanAuth.isOnline()) return;
@@ -48,7 +28,6 @@ const Feed = {
             post
         );
 
-        // Auto-limpeza: manter só os POST_LIMIT posts mais recentes
         this._pruneOldPosts(uid).catch(() => {});
     },
 
@@ -63,22 +42,17 @@ const Feed = {
         toDelete.forEach(d => deleteDoc(doc(NyanFirebase.db, `feed/${uid}/posts`, d.id)).catch(() => {}));
     },
 
-    // Helper: publicar score ao final de uma partida
     async publishScore(gameId, gameName, score, unit) {
         await this.publish('score', { gameId, gameName, score, unit });
     },
 
-    // Helper: publicar conquista desbloqueada
     async publishAchievement(achievement) {
         await this.publish('achievement', { achievement });
     },
 
-    // Helper: publicar novo recorde
     async publishRecord(gameId, gameName, score, unit) {
         await this.publish('record', { gameId, gameName, score, unit });
     },
-
-    // ── REAGIR A UM POST ──────────────────────────────────────────────────────
 
     async react(authorUID, postId, emoji) {
         const myUID   = NyanAuth.getUID();
@@ -96,11 +70,8 @@ const Feed = {
                 : NyanFirebase.fn.arrayUnion(myUID)
         });
 
-        // Atualizar só os botões de reação do post afetado — sem recarregar tudo
         this._refreshReactions(postId, authorUID, myUID, emoji, hasReacted ? -1 : 1);
     },
-
-    // ── COMENTAR ──────────────────────────────────────────────────────────────
 
     async comment(authorUID, postId, text) {
         if (!text?.trim()) return;
@@ -114,8 +85,6 @@ const Feed = {
             comments: NyanFirebase.fn.arrayUnion(comment)
         });
     },
-
-    // ── RENDER PRINCIPAL ──────────────────────────────────────────────────────
 
     _currentFeedTab: 'friends',
     _cachedPosts: [],
@@ -139,7 +108,6 @@ const Feed = {
         </style>
         <div style="max-width:580px;margin:0 auto;font-family:'DM Sans',sans-serif;">
 
-            <!-- Cabeçalho -->
             <div style="text-align:center;margin-bottom:1.4rem;">
                 <div style="font-size:2rem;margin-bottom:0.3rem;">📰</div>
                 <h1 style="font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:900;margin:0 0 0.2rem;
@@ -150,7 +118,6 @@ const Feed = {
                 <p style="font-size:0.72rem;color:${muted};margin:0;">Atividades dos seus amigos にゃん~</p>
             </div>
 
-            <!-- Abas -->
             <div style="display:flex;gap:0.25rem;background:${bg};border:1px solid ${bdr};
                 border-radius:14px;padding:0.3rem;margin-bottom:1rem;">
                 <button id="feedtab-friends" onclick="Feed._switchTab('friends')"
@@ -167,7 +134,6 @@ const Feed = {
                 </button>
             </div>
 
-            <!-- Conteúdo -->
             <div id="feed-content">
                 <div style="text-align:center;padding:2rem;color:${muted};font-size:0.8rem;">Carregando...</div>
             </div>
@@ -189,7 +155,6 @@ const Feed = {
             btn.style.borderColor = active ? 'rgba(168,85,247,0.2)' : 'transparent';
         });
 
-        // Filtrar posts já carregados sem nova requisição
         const myUID = this._myUID;
         const posts = tab === 'mine'
             ? this._cachedPosts.filter(p => p.authorUID === myUID)
@@ -222,8 +187,6 @@ const Feed = {
 
         container.innerHTML = posts.map((post, i) => this._renderPost(post, i)).join('');
     },
-
-    // ── CARREGAR FEED ─────────────────────────────────────────────────────────
 
     async loadFeed() {
         const myUID = NyanAuth.getUID();
@@ -259,8 +222,6 @@ const Feed = {
         );
     },
 
-    // ── RENDER DE UM POST ─────────────────────────────────────────────────────
-
     _renderPost(post, index = 0) {
         const d    = document.body.classList.contains('dark-theme');
         const bg   = d ? 'rgba(255,255,255,0.04)' : '#ffffff';
@@ -272,7 +233,6 @@ const Feed = {
 
         const timeAgo = this._timeAgo(post.createdAt);
 
-        // Tipo do post com cor
         const TYPE_META = {
             score:       { label:'Jogou',       color:'var(--theme-primary,#a855f7)', bg:'rgba(168,85,247,0.1)',  bdr:'rgba(168,85,247,0.2)'  },
             record:      { label:'Novo recorde',color:'#4ade80',                     bg:'rgba(74,222,128,0.1)',   bdr:'rgba(74,222,128,0.25)' },
@@ -280,7 +240,6 @@ const Feed = {
         };
         const meta = TYPE_META[post.type] || TYPE_META.score;
 
-        // Conteúdo do post
         const mainContent = post.type === 'achievement'
             ? `<div style="display:flex;align-items:center;gap:0.75rem;padding:0.7rem 0.875rem;
                 background:${meta.bg};border-radius:12px;border:1px solid ${meta.bdr};">
@@ -299,7 +258,6 @@ const Feed = {
                 ${post.gameName ? `<span style="font-size:0.7rem;color:${muted};">em ${post.gameName}</span>` : ''}
                </div>`;
 
-        // Reações
         const reactions = post.reactions || {};
         const reactionsHTML = this.REACTIONS.map(emoji => {
             const users   = reactions[emoji] || [];
@@ -318,7 +276,6 @@ const Feed = {
             </button>`;
         }).join('');
 
-        // Comentários
         const commentsHTML = (post.comments?.length > 0) ? `
             <div class="post-comments-box" style="margin-top:0.7rem;padding-top:0.7rem;border-top:1px solid ${bdr};">
                 ${post.comments.slice(-3).map(c => `
@@ -333,7 +290,6 @@ const Feed = {
         <div id="post-${post.id}" class="feed-card" style="background:${bg};border:1px solid ${bdr};
             border-radius:16px;padding:1rem 1.1rem;margin-bottom:0.7rem;animation-delay:${index * 0.06}s;">
 
-            <!-- Autor -->
             <div style="display:flex;align-items:center;gap:0.7rem;margin-bottom:0.8rem;">
                 <div style="width:38px;height:38px;border-radius:11px;overflow:hidden;flex-shrink:0;">
                     ${post.authorAvatar
@@ -354,15 +310,12 @@ const Feed = {
                 </div>
             </div>
 
-            <!-- Conteúdo -->
             <div style="margin-bottom:0.75rem;">${mainContent}</div>
 
-            <!-- Reações -->
             <div style="display:flex;gap:0.3rem;flex-wrap:wrap;">${reactionsHTML}</div>
 
             ${commentsHTML}
 
-            <!-- Input comentário -->
             <div style="margin-top:0.6rem;display:flex;gap:0.35rem;">
                 <input id="comment-${post.id}" type="text" placeholder="Comentar... にゃん~" maxlength="200"
                     style="flex:1;padding:5px 10px;border-radius:8px;border:1px solid ${bdr};
@@ -413,7 +366,6 @@ const Feed = {
     },
 
     _refreshReactions(postId, authorUID, myUID, emoji, delta) {
-        // Atualizar só o botão específico sem recarregar o feed
         const btn = document.getElementById(`react-${postId}-${emoji}`);
         if (!btn) return;
 
@@ -422,7 +374,6 @@ const Feed = {
         const muted   = d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
         const nowReacted = delta > 0;
 
-        // Atualizar contagem visualmente
         const countSpan = btn.querySelector('span');
         const currentCount = countSpan ? parseInt(countSpan.textContent)||0 : 0;
         const newCount = Math.max(0, currentCount + delta);
@@ -433,11 +384,8 @@ const Feed = {
         btn.innerHTML = `${emoji}${newCount > 0 ? `<span style="font-size:0.68rem;font-weight:800;">${newCount}</span>` : ''}`;
     },
 
-    // ── HELPERS ───────────────────────────────────────────────────────────────
-
     _timeAgo(ts) {
         if (!ts) return 'agora';
-        // Suporta Firestore Timestamp ({seconds}) e Date.now() (número em ms)
         const secs = ts?.seconds ?? (typeof ts === 'number' ? ts / 1000 : 0);
         if (!secs) return 'agora';
         const diff = Date.now() / 1000 - secs;
@@ -447,12 +395,9 @@ const Feed = {
         return Math.floor(diff / 86400) + 'd atrás';
     },
 
-    // ── INIT ──────────────────────────────────────────────────────────────────
-
     init() {
         this._currentFeedTab = 'friends';
         setTimeout(() => this.loadFeed(), 100);
-        console.log('[Feed] v2.0.0 inicializado');
     },
 };
 

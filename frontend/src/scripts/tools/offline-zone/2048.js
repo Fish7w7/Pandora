@@ -1,4 +1,3 @@
-// Game 2048 - NyanTools Edition にゃん~ - DARK MODE FIXED
 const Game2048 = {
     grid: [],
     score: 0,
@@ -7,8 +6,7 @@ const Game2048 = {
     gameState: 'idle',
     history: [],
     canUndo: false,
-    
-    // Cores dos tiles (baseado no tema do NyanTools)
+
     tileColors: {
         2: { bg: 'from-slate-300 to-slate-400', text: 'text-slate-800 dark:text-slate-900' },
         4: { bg: 'from-slate-400 to-slate-500', text: 'text-white' },

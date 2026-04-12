@@ -1,15 +1,4 @@
-/* ══════════════════════════════════════════════════
-   NYAN-AUTH.JS v2.0.0 — NyanTools にゃん~ v3.9.0
-   Autenticação online com Firebase Email+Senha
 
-   FLUXO:
-   1. Login local continua igual (auth.js — offline)
-   2. Modal oferece criar conta online com email+senha
-   3. Conta Firebase real → recuperável em qualquer máquina
-   4. NyanTag vinculado ao email — nunca se perde
-   5. Se já tem conta → auto-login pelo email/senha salvos
-
- ═══════════════════════════════════════════════════*/
 
 const NyanAuth = {
 
@@ -20,8 +9,6 @@ const NyanAuth = {
 
     currentUser: null,
     _unsubAuth:  null,
-
-    // ── INIT ──────────────────────────────────────────────────────────────────
 
     async init() {
         const fbReady = await NyanFirebase.init();
@@ -40,8 +27,6 @@ const NyanAuth = {
         console.log('[NyanAuth] ✅ Inicializado');
         return true;
     },
-
-    // ── AUTO-LOGIN ────────────────────────────────────────────────────────────
 
     async _tryAutoLogin() {
         // Firebase já tem sessão persistida no browser
@@ -126,8 +111,6 @@ const NyanAuth = {
         }
     },
 
-    // ── STATUS CUSTOMIZÁVEL ──────────────────────────────────────────────────
-
     STATUS_OPTIONS: [
         { key: 'online',  label: 'Online',  color: '#4ade80', dot: '🟢' },
         { key: 'playing', label: 'Jogando', color: '#a855f7', dot: '🟣' },
@@ -210,8 +193,6 @@ const NyanAuth = {
         Utils.showNotification(opt.dot + ' Status: ' + opt.label, 'info');
     },
 
-    // ── PROMPT ────────────────────────────────────────────────────────────────
-
     async promptNyanTag(username) {
         if (!NyanFirebase.isReady()) return;
 
@@ -225,8 +206,6 @@ const NyanAuth = {
 
         this._showAuthModal(username);
     },
-
-    // ── MODAL ─────────────────────────────────────────────────────────────────
 
     _showAuthModal(username) {
         document.getElementById('nyantag-modal')?.remove();
@@ -433,8 +412,6 @@ const NyanAuth = {
         }
     },
 
-    // ── CADASTRO ──────────────────────────────────────────────────────────────
-
     async registerWithEmail(tagName, digits, email, password) {
         const tag    = `${tagName}#${digits}`;
         const tagKey = tag.toLowerCase();
@@ -484,8 +461,6 @@ const NyanAuth = {
         }
     },
 
-    // ── LOGIN ─────────────────────────────────────────────────────────────────
-
     async loginWithEmail(email, password) {
         try {
             const { signInWithEmailAndPassword } = NyanFirebase.fn;
@@ -509,8 +484,6 @@ const NyanAuth = {
         }
     },
 
-    // ── ESQUECI A SENHA ───────────────────────────────────────────────────────
-
     async _forgotPassword() {
         const emailInput = document.getElementById('nt-login-email');
         const email      = emailInput?.value.trim();
@@ -528,15 +501,11 @@ const NyanAuth = {
         }
     },
 
-    // ── BUSCA POR TAG ─────────────────────────────────────────────────────────
-
     async findByTag(tag) {
         const tagDoc = await NyanFirebase.getDoc(`nyantags/${tag.toLowerCase()}`);
         if (!tagDoc) return null;
         return await NyanFirebase.getDoc(`users/${tagDoc.uid}`);
     },
-
-    // ── SYNC ──────────────────────────────────────────────────────────────────
 
     async _syncLocalProfile() {
         const uid = Utils.loadData(this.KEY_UID);
@@ -586,8 +555,6 @@ const NyanAuth = {
         else      console.log('[NyanAuth] Auth state: deslogado');
     },
 
-    // ── LOGOUT ────────────────────────────────────────────────────────────────
-
     async logout() {
         NyanFirebase.cleanupListeners();
         if (NyanFirebase.isReady()) {
@@ -602,14 +569,10 @@ const NyanAuth = {
         // Mantém KEY_TAG/UID/EMAIL para auto-login no próximo acesso
     },
 
-    // ── GETTERS ───────────────────────────────────────────────────────────────
-
     getNyanTag()  { return Utils.loadData(this.KEY_TAG); },
     getUID()      { return Utils.loadData(this.KEY_UID); },
     isLinked()    { return !!Utils.loadData(this.KEY_LINKED); },
     isOnline()    { return NyanFirebase.isReady() && !!this.getUID(); },
-
-    // ── HELPERS ───────────────────────────────────────────────────────────────
 
     _friendlyError(code) {
         const map = {

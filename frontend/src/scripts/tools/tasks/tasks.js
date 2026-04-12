@@ -1,4 +1,3 @@
-// Sistema de Lista de Tarefas v3.0.0 - Dark Mode + Bug Fixes にゃん~
 const Tasks = {
     tasks: [],
     filter: 'all',

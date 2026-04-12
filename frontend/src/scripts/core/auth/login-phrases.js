@@ -1,10 +1,6 @@
-/* ═══════════════════════════════════════════════════════
-   LOGIN-PHRASES.JS v1.0 — NyanTools にゃん~
-   ═══════════════════════════════════════════════════════ */
+
 
 const LoginPhrases = {
-
-    // ── BANCO DE FRASES ───────────────────────────────────
 
     _phrases: [
         // Motivacionais PT
@@ -104,8 +100,6 @@ const LoginPhrases = {
         'Polvos têm neurônios nos tentáculos — cada um pensa semi-independente.',
     ],
 
-    // ── FRASES POR PERÍODO ────────────────────────────────
-
     _timeBasedPhrases: {
         dawn:      [
             'Boa madrugada, coruja noturna! にゃん~',
@@ -133,8 +127,6 @@ const LoginPhrases = {
         ],
     },
 
-    // ── DATAS ESPECIAIS ───────────────────────────────────
-
     _specialDates: {
         '01-01': ['Feliz Ano Novo! Que os bugs sejam poucos. にゃん~', 'Novo ano, nova versão de você. にゃん~'],
         '12-25': ['Feliz Natal! にゃん~ 🎄', 'Ho ho ho! O NyanTools deseja boas festas!'],
@@ -143,8 +135,6 @@ const LoginPhrases = {
         '06-12': ['Feliz Dia dos Namorados! にゃん~ ❤️'],
         '04-01': ['Hoje é 1º de Abril — mas o NyanTools é real! にゃん~'],
     },
-
-    // ── HELPERS ───────────────────────────────────────────
 
     _getTimePeriod() {
         const h = new Date().getHours();
@@ -178,8 +168,6 @@ const LoginPhrases = {
         // 65% frase do banco geral
         return this._phrases[Math.floor(Math.random() * this._phrases.length)];
     },
-
-    // ── INJECT ────────────────────────────────────────────
 
     inject() {
         // Evitar duplicatas
@@ -224,8 +212,6 @@ const LoginPhrases = {
 
         console.log('💬 LoginPhrases: frase injetada');
     },
-
-    // ── INIT ──────────────────────────────────────────────
 
     init() {
         // Tentar imediatamente

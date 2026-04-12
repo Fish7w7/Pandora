@@ -1,7 +1,4 @@
-/*══════════════════════════════
-// FLAPPY NYAN - NyanTools にゃん~
-// Versão Melhorada v3.0
-══════════════════════════════*/
+
 
 const FlappyBird = {
     canvas: null,
@@ -34,7 +31,6 @@ const FlappyBird = {
     maxParticles: 40,
     animationFrame: null,
     lastTime: 0,
-
 
     render() {
         this.highScore = Utils.loadData('flappy_bird_highscore') || 0;
@@ -92,7 +88,6 @@ const FlappyBird = {
             </div>
         `;
     },
-
 
     init() {
         this.canvas = document.getElementById('flappy-canvas');
@@ -175,7 +170,6 @@ const FlappyBird = {
         });
     },
 
-
     startGame() {
         if (this.isPlaying) return;
 
@@ -254,7 +248,6 @@ const FlappyBird = {
             }
         }
     },
-
 
     gameLoop(currentTime = 0) {
         if (!this.isPlaying || this.isPaused || this.gameOver) return;
@@ -371,7 +364,6 @@ const FlappyBird = {
         }
         return false;
     },
-
 
     draw() {
         this.drawBackground();
@@ -641,7 +633,6 @@ const FlappyBird = {
         ctx.fillText('Pressione P para continuar', this.canvas.width / 2, this.canvas.height / 2 + 35);
     },
 
-
     endGame() {
         if (this.gameOver) return;
         this.gameOver = true;
@@ -752,7 +743,6 @@ const FlappyBird = {
         ctx.fillStyle = 'rgba(255,255,255,0.7)';
         ctx.fillText('Toque para jogar novamente', cx, cy + panelH / 2 - 20);
     },
-
 
     createScoreEffect() {
         for (let i = 0; i < 10; i++) {

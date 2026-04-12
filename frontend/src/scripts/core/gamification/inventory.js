@@ -1,15 +1,8 @@
-/* ══════════════════════════════════════════════════
-   INVENTORY.JS v1.0.1 — NyanTools にゃん~
-   Fixes: Borda Neon, bordas no perfil, partículas,
-          notificação de tema ao reabrir
- ═══════════════════════════════════════════════════*/
-
 const Inventory = {
 
     KEY: 'nyan_inventory',
 
     CATALOG: [
-        // ── TÍTULOS ───────────────────────────────────
         { id:'title_gamer',    type:'title',  name:'Gamer にゃん~',     icon:'🎮', rarity:'common',    price:200,  minLevel:3,  preview:'Aparece no seu perfil abaixo do nome' },
         { id:'title_speedster',type:'title',  name:'Velocista',         icon:'⚡', rarity:'common',    price:200,  minLevel:3,  preview:'Para quem manda no Type Racer' },
         { id:'title_lucky',    type:'title',  name:'Sortudo',           icon:'🍀', rarity:'common',    price:200,  minLevel:3,  preview:'Sorte é um estilo de vida' },
@@ -17,7 +10,6 @@ const Inventory = {
         { id:'title_legend',   type:'title',  name:'Lendário',          icon:'👑', rarity:'epic',      price:1000, minLevel:25, preview:'Reservado para os veteranos' },
         { id:'title_nyan',     type:'title',  name:'にゃん~ Master',    icon:'🐱', rarity:'epic',      price:800,  minLevel:15, preview:'O título mais kawaii de todos' },
 
-        // ── BORDAS DE AVATAR ──────────────────────────
         { id:'border_simple',  type:'border', name:'Borda Simples',     icon:'⬜', rarity:'common',    price:400,  minLevel:5,  preview:'Borda branca discreta',
           css:'border: 2px solid rgba(255,255,255,0.6);' },
         { id:'border_purple',  type:'border', name:'Borda Roxa',        icon:'💜', rarity:'common',    price:400,  minLevel:5,  preview:'Borda na cor do tema',
@@ -25,7 +17,6 @@ const Inventory = {
         { id:'border_gold',    type:'border', name:'Borda Dourada',     icon:'🥇', rarity:'rare',      price:700,  minLevel:10, preview:'Para quem chegou longe',
           css:'border: 2px solid #f59e0b; box-shadow: 0 0 12px rgba(245,158,11,0.7), 0 0 24px rgba(245,158,11,0.3);' },
         {
-            // Borda RGB animada real — cicla por todo o espectro de cores
             id:'border_neon', type:'border', name:'Borda Neon RGB', icon:'🌈', rarity:'rare', price:900, minLevel:12, preview:'RGB animado — cicla todas as cores',
             css:'border: 2.5px solid #ff0000; animation: rgbBorderCycle 2s linear infinite;',
             extraStyle:`@keyframes rgbBorderCycle {
@@ -40,7 +31,6 @@ const Inventory = {
             }`
         },
         {
-            // Marco Nv10 — borda animada com brilho de pata
             id:'border_paw', type:'border', name:'Patinhas ✨', icon:'🐾', rarity:'milestone', price:0, minLevel:10,
             preview:'Borda animada · desbloqueada ao atingir nível 10', milestone:true,
             css:'border: 2.5px solid #4ade80; animation: pawBorderAnim 3s ease-in-out infinite;',
@@ -52,7 +42,6 @@ const Inventory = {
             }`
         },
         {
-            // Marco Nv25 — borda dourada animada estilo realeza
             id:'border_crown', type:'border', name:'Realeza 👑', icon:'👑', rarity:'milestone', price:0, minLevel:25,
             preview:'Borda dourada animada · desbloqueada ao atingir nível 25', milestone:true,
             css:'border: 2.5px solid #f59e0b; animation: crownBorderAnim 2.5s ease-in-out infinite;',
@@ -63,7 +52,6 @@ const Inventory = {
             }`
         },
         {
-            // Marco Nv50 — borda galáxia, ciclo de cores premium
             id:'border_star', type:'border', name:'Galáxia ⭐', icon:'🌌', rarity:'milestone', price:0, minLevel:50,
             preview:'Borda galáxia animada · desbloqueada ao atingir nível 50', milestone:true,
             css:'border: 3px solid #818cf8; animation: galaxyBorderAnim 4s linear infinite;',
@@ -77,18 +65,15 @@ const Inventory = {
             }`
         },
 
-        // ── TEMAS VISUAIS ─────────────────────────────
         { id:'theme_sakura',   type:'theme', name:'Sakura',            icon:'🌸', rarity:'rare',   price:1200, minLevel:10, preview:'Rosa · pétalas caindo no login',  themeId:'pink',   effect:'sakura' },
         { id:'theme_midnight', type:'theme', name:'Midnight',          icon:'🌙', rarity:'rare',   price:1200, minLevel:10, preview:'Índigo · partículas de estrelas',  themeId:'indigo', effect:'stars' },
         { id:'theme_neon',     type:'theme', name:'Neon',              icon:'⚡', rarity:'epic',   price:1800, minLevel:15, preview:'Teal · efeito glitch no login',   themeId:'teal',   effect:'glitch' },
         { id:'theme_fire',     type:'theme', name:'Chamas',            icon:'🔥', rarity:'epic',   price:1800, minLevel:15, preview:'Vermelho · partículas de fogo',  themeId:'red',    effect:'fire' },
 
-        // ── EFEITOS DE NAVEGAÇÃO ──────────────────────
         { id:'effect_slide', type:'effect', name:'Slide',  icon:'↔️', rarity:'common', price:600,  minLevel:7,  preview:'Troca de ferramenta com deslize lateral' },
         { id:'effect_zoom',  type:'effect', name:'Zoom',   icon:'🔍', rarity:'common', price:600,  minLevel:7,  preview:'Zoom suave ao trocar de página' },
         { id:'effect_flip',  type:'effect', name:'Flip',   icon:'🔄', rarity:'rare',   price:1000, minLevel:12, preview:'Rotação lateral ao navegar' },
 
-        // ── PARTÍCULAS DE PERFIL ──────────────────────
         { id:'particle_stars',  type:'particle', name:'Estrelas',         icon:'✨', rarity:'common', price:500, minLevel:6,  preview:'Estrelinhas ao redor do avatar' },
         { id:'particle_hearts', type:'particle', name:'Corações',         icon:'💕', rarity:'common', price:500, minLevel:6,  preview:'Coraçõezinhos flutuando' },
         { id:'particle_nyan',   type:'particle', name:'Patinhas にゃん~', icon:'🐾', rarity:'rare',   price:900, minLevel:10, preview:'Patinhas de gato girando' },
@@ -399,7 +384,6 @@ const Inventory = {
         const effectItem = this.getEquippedItem('effect');
         return effectItem?.id || Utils.loadData('shop_nav_effect') || null;
     },
-
 
     render() {
         // Inventário é a loja filtrada por "Comprado" — sem duplicar interface

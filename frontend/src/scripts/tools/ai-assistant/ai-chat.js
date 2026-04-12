@@ -1,4 +1,3 @@
-// Assistente IA - Otimizado v2.0
 const AIAssistant = {
     get apiKey() {
         return Utils.loadData('gemini_api_key') || '';
@@ -7,8 +6,7 @@ const AIAssistant = {
         if (value) Utils.saveData('gemini_api_key', value);
     },
     conversation: [],
-    
-    // Configurações do modelo
+
     config: {
         model: 'gemini-3-flash-preview',
         apiVersion: 'v1beta',

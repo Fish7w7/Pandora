@@ -1,10 +1,4 @@
-/* ═══════════════════════════════════════════════════════
-   SLOTMACHINE.JS v1.1.0 — NyanTools にゃん~
-   v3.8.0 "Nyan Economy" — Chips integrados ao Economy
-   - Chips lidos/escritos via Economy (nyan_economy.chips)
-   - Reset diário vira bônus de +100 chips, não sobrescrita
-   - Jackpot e jogadas concedem XP via Economy.grant()
-   ═══════════════════════════════════════════════════════ */
+
 
 const SlotMachine = {
 
@@ -21,7 +15,6 @@ const SlotMachine = {
     _totalWin:   0,      // acumulado da sequência
     _totalCost:  0,      // custo total da sequência
 
-    // ── CHIPS — integrado ao Economy ──────────────────
     // Chips vivem em nyan_economy.chips (permanentes, sem reset).
     // O bônus diário de +100 é SOMADO ao saldo existente,
     // nunca sobrescreve. Só é concedido uma vez por dia.
@@ -75,7 +68,6 @@ const SlotMachine = {
         }
     },
 
-    // ── HELPERS ───────────────────────────────────────
     _isDark() { return document.body.classList.contains('dark-theme'); },
     _colors() {
         const d = this._isDark();
@@ -90,7 +82,6 @@ const SlotMachine = {
         };
     },
 
-    // ── SPIN ──────────────────────────────────────────
     spin() {
         if (this._spinning || this._spinQueue > 0) return;
         const total = this.COST * this._spinMode;
@@ -304,7 +295,6 @@ const SlotMachine = {
         this._updateUI();
     },
 
-
     _animateReel(idx, finalSymbol, stopAt, onDone) {
         const el = document.getElementById(`reel-${idx}`);
         if (!el) return;
@@ -425,7 +415,6 @@ const SlotMachine = {
         }
     },
 
-    // ── RENDER ────────────────────────────────────────
     render() {
         const c       = this._colors();
         const chips   = this.getChips();

@@ -1,11 +1,9 @@
-// SISTEMA DE NOTAS RÁPIDAS v3.0.0 - Dark Mode + Bug Fixes にゃん~
 const Notes = {
     notes: [],
     currentNote: null,
     searchQuery: '',
     modalOpen: false,
-    
-    // Cores para os cards (compatível com dark mode)
+
     colors: [
         { light: 'from-yellow-100 to-orange-100 border-yellow-300', dark: 'dark:from-yellow-900/30 dark:to-orange-900/30 dark:border-yellow-700' },
         { light: 'from-blue-100 to-cyan-100 border-blue-300', dark: 'dark:from-blue-900/30 dark:to-cyan-900/30 dark:border-blue-700' },

@@ -1,4 +1,3 @@
-// Force UTF-8 output on Windows
 if (process.platform === 'win32') {
     try { require('child_process').execSync('chcp 65001', {stdio:'ignore'}); } catch(_) {}
 }
@@ -8,8 +7,6 @@ const path = require('path');
 const fsSync = require('fs');
 const fs = require('fs').promises;
 const os = require('os');
-
-// ─── PERFORMANCE ────────────────────────────────────────────────────────────
 
 console.log('[*] Aplicando otimizacoes de performance...');
 
@@ -32,13 +29,9 @@ const performanceFlags = [
 
 performanceFlags.forEach(flag => app.commandLine.appendSwitch(flag));
 
-// ─── ESTADO GLOBAL ───────────────────────────────────────────────────────────
-
 let mainWindow    = null;
 let isQuitting    = false;
 const iconCache = new Map();
-
-// ─── JANELA ──────────────────────────────────────────────────────────────────
 
 function createWindow() {
     const iconPath    = getIconPath();
@@ -77,9 +70,6 @@ function createWindow() {
     console.log('[>] Diretório:', __dirname);
     console.log('[>] Carregando:', indexPath);
 
-    // Remove menubar padrão do Electron
-    //Menu.setApplicationMenu(null);
-
     mainWindow.loadFile(indexPath);
 
     mainWindow.once('ready-to-show', () => {
@@ -103,7 +93,6 @@ function createWindow() {
             message.includes('DevTools')) return;
     });
 
-    // Limpar cache a cada 10 minutos
     setInterval(async () => {
         if (mainWindow && !mainWindow.isDestroyed()) {
             try {
@@ -112,8 +101,6 @@ function createWindow() {
         }
     }, 600000);
 }
-
-// ─── ÍCONES ──────────────────────────────────────────────────────────────────
 
 function getIconPath() {
     const platform = process.platform;
@@ -127,11 +114,8 @@ function getIconPath() {
     return iconPath;
 }
 
-// ─── AUTO-UPDATE (electron-updater) ─────────────────────────────────────────
-
 const { autoUpdater } = require('electron-updater');
 
-// Configuração
 autoUpdater.autoDownload    = false;
 autoUpdater.autoInstallOnAppQuit = false;
 autoUpdater.allowPrerelease = false;
@@ -141,8 +125,6 @@ let lastUpdateCheck    = 0;
 const UPDATE_CHECK_COOLDOWN = 300000;
 
 function setupAutoUpdater() {
-    // ── Handlers de eventos ──
-
     autoUpdater.on('checking-for-update', () => {
         console.log('[?] electron-updater: verificando...');
         if (mainWindow && !mainWindow.isDestroyed()) {
@@ -209,8 +191,6 @@ function setupAutoUpdater() {
         }
     });
 }
-
-// ── IPC: verificar updates manualmente pelo frontend ──
 
 ipcMain.handle('reset-update-cooldown', () => {
     lastUpdateCheck = 0;
@@ -333,7 +313,6 @@ ipcMain.handle('download-and-install', async (_event, { url, filename }) => {
                         lastTime  = now;
                         lastBytes = received;
 
-                        // Throttle: enviar IPC no máximo a cada 150ms
                         if (now - lastSent >= 150) {
                             lastSent = now;
                             if (mainWindow && !mainWindow.isDestroyed()) {
@@ -392,7 +371,6 @@ ipcMain.handle('download-and-install', async (_event, { url, filename }) => {
     }
 });
 
-// Download via ipcMain.on (fire-and-forget) ───────────────────────
 ipcMain.on('start-download-faf', (_event, { url, filename }) => {
     const destPath = path.join(os.tmpdir(), filename || 'NyanTools-Setup.exe');
 
@@ -423,7 +401,6 @@ ipcMain.on('start-download-faf', (_event, { url, filename }) => {
 
                 const total = parseInt(res.headers['content-length'] || '0');
 
-                // Evento inicial
                 if (mainWindow && !mainWindow.isDestroyed()) {
                     mainWindow.webContents.send('download-progress', {
                         progress: 1, downloadedBytes: 0,
@@ -499,7 +476,6 @@ ipcMain.on('start-download-faf', (_event, { url, filename }) => {
     doRequest(url);
 });
 
-// Mantido por compatibilidade — abre pasta de downloads
 ipcMain.handle('open-downloads-folder', async () => {
     try {
         await shell.openPath(app.getPath('downloads'));
@@ -521,8 +497,6 @@ ipcMain.handle('open-external', async (_event, url) => {
         return { success: false, error: error.message };
     }
 });
-
-// ─── LIFECYCLE ───────────────────────────────────────────────────────────────
 
 app.whenReady().then(() => {
     console.log('[~] NyanTools v3.8.0');

@@ -1,8 +1,4 @@
-/* ══════════════════════════════════════════════════
-   PROFILE.JS v1.2.0 — NyanTools にゃん~
-   - Economy block colapsável (Bug 4)
-   - Limpeza geral do código
- ═══════════════════════════════════════════════════*/
+
 
 const Profile = {
     _tab: 'profile',
@@ -368,8 +364,6 @@ const Profile = {
         return { totalTime, activeDays, streak, totalAccess, topTools, weekDays };
     },
 
-    // ── AVATAR ──────────────────────────────────────
-
     _openAvatarPicker() {
         document.getElementById('avatar-file-input')?.click();
     },
@@ -445,8 +439,6 @@ const Profile = {
         }
     },
 
-    // ── USERNAME ──────────────────────────────────────
-
     _onUsernameInput(input) {
         const count = document.getElementById('username-count');
         if (count) count.textContent = `${input.value.length}/30`;
@@ -482,8 +474,6 @@ const Profile = {
         Router.render();
     },
 
-    // ── PASSWORD ──────────────────────────────────────
-
     _savePassword() {
         const current  = document.getElementById('profile-pass-current')?.value;
         const next     = document.getElementById('profile-pass-new')?.value;
@@ -508,8 +498,6 @@ const Profile = {
         ['profile-pass-current','profile-pass-new','profile-pass-confirm']
             .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
     },
-
-    // ── HELPERS ───────────────────────────────────────
 
     _setTab(tab) {
         this._tab = tab;

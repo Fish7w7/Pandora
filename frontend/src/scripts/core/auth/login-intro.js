@@ -1,17 +1,4 @@
-/* ═══════════════════════════════════════════════════════
-   LOGIN-INTRO.JS v2.0 — NyanTools にゃん~
 
-   REGRAS:
-   1. Efeito aparece DENTRO da intro (não depois, não no login)
-   2. Efeito só funciona se o tema atual BATE com o tema da intro comprada
-      - Sakura  → tema pink    (se usuário mudou o tema depois, sem efeito)
-      - Midnight → tema indigo
-      - Neon    → tema teal
-      - Chamas  → tema red
-   3. Usuário sem a intro comprada + tema certo → sem efeito
-   4. Intro termina → efeito some junto
-   5. Overlay NÃO persiste na tela de login
-   ═══════════════════════════════════════════════════════ */
 
 const LoginIntro = {
 
@@ -27,8 +14,6 @@ const LoginIntro = {
         glitch:  'teal',
         fire:    'red',
     },
-
-    // ── VERIFICAÇÕES ─────────────────────────────────────
 
     _shouldPlay() {
         return window.Utils?.loadData('intro_disabled') !== true;
@@ -74,7 +59,6 @@ const LoginIntro = {
         return map[theme] || '#a855f7';
     },
 
-    // ── CRIAR OVERLAY DE EFEITO ──────────────────────────
     // Retorna um elemento DOM para ser anexado DENTRO de #login-intro-screen
     // (z-index abaixo do conteúdo da intro mas visível na tela preta)
 
@@ -251,8 +235,6 @@ const LoginIntro = {
         return null;
     },
 
-    // ── BUILD DA TELA DE INTRO ───────────────────────────
-
     _build() {
         const color      = this._getThemeColor();
         const colorFaded = color + '44';
@@ -337,8 +319,6 @@ const LoginIntro = {
         });
     },
 
-    // ── FINISH ───────────────────────────────────────────
-
     _finish() {
         if (this._skipped) return;
         this._skipped = true;
@@ -350,8 +330,6 @@ const LoginIntro = {
             this._callback?.();
         }, 620);
     },
-
-    // ── RUN ──────────────────────────────────────────────
 
     run(callback) {
         this._callback = callback;
@@ -376,8 +354,6 @@ const LoginIntro = {
         this._el.addEventListener('click', () => this._finish());
         setTimeout(() => this._finish(), 4500);
     },
-
-    // ── SETTINGS ─────────────────────────────────────────
 
     setEnabled(enabled) {
         window.Utils?.saveData('intro_disabled', !enabled);

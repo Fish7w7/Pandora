@@ -1,4 +1,3 @@
-// Mini Game - Cobrinha v3.0.0 FIXED にゃん~
 const MiniGame = {
     canvas: null,
     ctx: null,
@@ -13,8 +12,7 @@ const MiniGame = {
     isPaused: false,
     _keydownHandler: null,
     _isGameOver: false,
-    
-    // Configurações do jogo
+
     config: {
         gridSize: 20,
         cellSize: 20,
@@ -22,7 +20,6 @@ const MiniGame = {
         initialSnakeLength: 3
     },
 
-    // Itens especiais de comida
     foodTypes: {
         normal: { color: '#ef4444', glow: 'rgba(239,68,68,0.6)',  points: 10, symbol: '🍎', chance: 1.00 },
         star:   { color: '#f59e0b', glow: 'rgba(245,158,11,0.7)', points: 20, symbol: '⭐', chance: 0.20 },
@@ -31,7 +28,6 @@ const MiniGame = {
     currentFoodType: 'normal',
     _stars: null,
 
-    // Cores do jogo
     colors: {
         background:         '#080d1a',
         bgGlow1:            'rgba(16,185,129,0.04)',

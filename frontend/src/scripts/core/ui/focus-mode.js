@@ -1,7 +1,4 @@
-/* ═══════════════════════════════════════════════════════
-   FOCUS-MODE.JS v1.0 — NyanTools にゃん~
-   Modo Apresentação / Foco — Ctrl+Shift+F
-   ═══════════════════════════════════════════════════════ */
+
 
 const FocusMode = {
     active: false,
@@ -22,9 +19,7 @@ const FocusMode = {
         console.log('🎯 FocusMode v1.0 inicializado — Ctrl+Shift+F para ativar');
     },
 
-    // ──────────────────────────────────────────────────────
     // HTML INJECTION
-    // ──────────────────────────────────────────────────────
 
     _injectHTML() {
         // Focus Header (barra superior em modo foco)
@@ -116,9 +111,7 @@ const FocusMode = {
         logoRow.appendChild(btn);
     },
 
-    // ──────────────────────────────────────────────────────
     // EVENT LISTENERS
-    // ──────────────────────────────────────────────────────
 
     _setupListeners() {
         // Peek zone — hover na borda esquerda
@@ -164,9 +157,7 @@ const FocusMode = {
         };
     },
 
-    // ──────────────────────────────────────────────────────
     // TOGGLE / ENABLE / DISABLE
-    // ──────────────────────────────────────────────────────
 
     toggle() {
         this.active ? this.disable() : this.enable();
@@ -195,9 +186,7 @@ const FocusMode = {
         console.log('🎯 Modo Foco: OFF');
     },
 
-    // ──────────────────────────────────────────────────────
     // PEEK (hover sidebar)
-    // ──────────────────────────────────────────────────────
 
     _startPeek() {
         if (!this.active) return;
@@ -227,9 +216,7 @@ const FocusMode = {
         }, 150);
     },
 
-    // ──────────────────────────────────────────────────────
     // UI UPDATES
-    // ──────────────────────────────────────────────────────
 
     _updateUserInfo() {
         const usernameEl = document.getElementById('focus-username');
@@ -279,9 +266,7 @@ const FocusMode = {
         }
     },
 
-    // ──────────────────────────────────────────────────────
     // TOAST
-    // ──────────────────────────────────────────────────────
 
     _showToast(icon, text) {
         const toast = document.getElementById('focus-toast');
@@ -302,9 +287,7 @@ const FocusMode = {
         }, 2500);
     },
 
-    // ──────────────────────────────────────────────────────
     // RENDER no Settings (opcional, para a aba de config)
-    // ──────────────────────────────────────────────────────
 
     renderSettingsRow() {
         const isActive = this.active;
@@ -332,7 +315,6 @@ const FocusMode = {
     }
 };
 
-// ─── INTEGRAÇÃO COM KEYBOARD SHORTCUTS ───────────────────
 if (window.KeyboardShortcuts) {
     KeyboardShortcuts.shortcuts['ctrl+shift+f'] = {
         action: 'toggleFocusMode',
@@ -362,7 +344,6 @@ if (window.KeyboardShortcuts) {
     });
 }
 
-// ─── EXPORT ──────────────────────────────────────────────
 window.FocusMode = FocusMode;
 
 // Auto-init quando DOM estiver pronto

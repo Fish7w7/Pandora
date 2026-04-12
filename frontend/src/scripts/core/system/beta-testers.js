@@ -5,11 +5,6 @@ const _PHOTOS = [
 ];
 /* eslint-enable */
 
-/* ══════════════════════════════════════════════════
-   BETA-TESTERS.JS — NyanTools にゃん~
-   Easter egg: Konami Code ↑↑↓↓←→←→BA
- ═══════════════════════════════════════════════════*/
-
 const BetaTesters = {
 
     _current: 0,

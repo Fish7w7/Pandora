@@ -1,7 +1,4 @@
-/*══════════════════════════════
-// TERMO - Wordle em Português にゃん~
-// Versão Otimizada v2.0
-══════════════════════════════*/
+
 const Termo = {
     wordList: [
         'FORCA', 'TEMPO', 'MUNDO', 'GATOS', 'JOGOS', 'LIVRO', 'PRAIA',
@@ -27,9 +24,7 @@ const Termo = {
         ['⌫', ...'ZXCVBNM'.split('')]
     ],
     
-    // ══════════════════════════════
     // RENDER PRINCIPAL
-    // ══════════════════════════════
     
     render() {
         // Log de debug
@@ -234,9 +229,7 @@ const Termo = {
         `;
     },
     
-    // ══════════════════════════════
     // INICIALIZAÇÃO
-    // ══════════════════════════════
     
     init() {
         this.currentWord = this.getDailyWord();
@@ -305,9 +298,7 @@ const Termo = {
         document.addEventListener('keydown', listener);
     },
     
-    // ══════════════════════════════
     // LÓGICA DO JOGO
-    // ══════════════════════════════
     
     selectCell(index) {
         if (this.gameOver) return;
@@ -440,9 +431,7 @@ const Termo = {
         return guess;
     },
     
-    // ══════════════════════════════
     // UTILITÁRIOS
-    // ══════════════════════════════
     
     getDailyWord() {
         const today = this.getToday();

@@ -1,22 +1,4 @@
-/* ══════════════════════════════════════════════════
-   CHALLENGES.JS v1.0.0 — NyanTools にゃん~ v3.9.0
-   Desafios entre amigos (duelos 24h)
 
-   ESTRUTURA FIRESTORE:
-   challenges/{challengeId}/
-     challenger: { uid, tag, username, avatar }
-     challenged: { uid, tag, username, avatar }
-     gameId, gameName, gameIcon
-     status: 'pending' | 'active' | 'completed' | 'expired'
-     challengerScore: number | null
-     challengedScore: number | null
-     winnerId: uid | null
-     createdAt: Timestamp
-     expiresAt: Timestamp  (+24h de createdAt)
-     rewardXP: number
-     rewardChips: number
-
- ═══════════════════════════════════════════════════*/
 
 const Challenges = {
 
@@ -31,8 +13,6 @@ const Challenges = {
     REWARD_XP:    60,
     REWARD_CHIPS: 40,
     DURATION_H:   24,
-
-    // ── CRIAR DESAFIO ─────────────────────────────────────────────────────────
 
     async create(targetUID, gameId) {
         if (!NyanAuth.isOnline()) {
@@ -88,8 +68,6 @@ const Challenges = {
         return ref.id;
     },
 
-    // ── ACEITAR DESAFIO ───────────────────────────────────────────────────────
-
     async accept(challengeId) {
         await NyanFirebase.updateDoc(`challenges/${challengeId}`, { status: 'active' });
         Utils.showNotification('⚔️ Desafio aceito! Jogue e registre seu score!', 'success');
@@ -103,8 +81,6 @@ const Challenges = {
         Utils.showNotification('Desafio recusado', 'info');
         this._renderTab();
     },
-
-    // ── REGISTRAR SCORE ───────────────────────────────────────────────────────
 
     async submitScore(challengeId, score) {
         const ch    = await NyanFirebase.getDoc(`challenges/${challengeId}`);
@@ -127,8 +103,6 @@ const Challenges = {
             Utils.showNotification(`✅ Score ${score} registrado! Aguardando adversário...`, 'success');
         }
     },
-
-    // ── RESOLVER DESAFIO ──────────────────────────────────────────────────────
 
     async _resolveChallenge(challengeId, ch) {
         const cScore = ch.challengerScore;
@@ -158,8 +132,6 @@ const Challenges = {
 
     // Limite de docs completed/expired mantidos no histórico por usuário
     HISTORY_LIMIT: 15,
-
-    // ── RENDER PRINCIPAL ──────────────────────────────────────────────────────
 
     render() {
         if (!NyanAuth.isOnline()) return Friends._renderOfflineState();
@@ -287,8 +259,6 @@ const Challenges = {
         container.innerHTML = items.map((c, i) => this._renderChallenge(c, myUID, i)).join('');
     },
 
-    // ── CARREGAR DESAFIOS ─────────────────────────────────────────────────────
-
     async loadChallenges() {
         const myUID = NyanAuth.getUID();
         this._myUID = myUID;
@@ -309,7 +279,6 @@ const Challenges = {
         const unique = all.filter(c => { if (seen.has(c.id)) return false; seen.add(c.id); return true; });
         unique.sort((a, b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
 
-        // ── Auto-limpar histórico: manter só os HISTORY_LIMIT mais recentes ──
         const finished = unique.filter(c => c.status === 'completed' || c.status === 'expired');
         if (finished.length > this.HISTORY_LIMIT) {
             const toDelete = finished.slice(this.HISTORY_LIMIT);
@@ -321,7 +290,6 @@ const Challenges = {
             unique.splice(0, unique.length, ...unique.filter(c => !deleteIds.has(c.id)));
         }
 
-        // ── Auto-expirar desafios vencidos (expiresAt passou) ────────────────
         const now = Date.now() / 1000;
         await Promise.all(unique
             .filter(c => (c.status === 'pending' || c.status === 'active') && c.expiresAt?.seconds < now)
@@ -336,7 +304,6 @@ const Challenges = {
 
         this._allChallenges = unique;
 
-        // ── Calcular stats ───────────────────────────────────────────────────
         const wins   = unique.filter(c => c.status === 'completed' && c.winnerId === myUID).length;
         const losses = unique.filter(c => c.status === 'completed' && c.winnerId && c.winnerId !== myUID).length;
         const total  = unique.filter(c => c.status === 'completed').length;
@@ -370,8 +337,6 @@ const Challenges = {
 
         this._renderTab();
     },
-
-    // ── RENDER DE UM DESAFIO ──────────────────────────────────────────────────
 
     _renderChallenge(ch, myUID, index = 0) {
         const d      = document.body.classList.contains('dark-theme');
@@ -521,8 +486,6 @@ const Challenges = {
         </div>`;
     },
 
-    // ── PROMPT PARA INSERIR SCORE ─────────────────────────────────────────────
-
     _promptScore(challengeId, gameId) {
         const game = this.GAMES.find(g => g.id === gameId);
         const d    = document.body.classList.contains('dark-theme');
@@ -572,8 +535,6 @@ const Challenges = {
         document.body.appendChild(modal);
         setTimeout(() => modal.querySelector('#score-input')?.focus(), 100);
     },
-
-    // ── JOGAR PELO DESAFIO ───────────────────────────────────────────────────
 
     // Mapa gameId → toolId do router
     // Mapa gameId (challenges) → gameId do OfflineZone
@@ -784,8 +745,6 @@ const Challenges = {
         setTimeout(installGameHooks, 2000);
     },
 
-        // ── MODAL PARA CRIAR DESAFIO ──────────────────────────────────────────────
-
     showCreateModal(targetUID, targetTag) {
         const d    = document.body.classList.contains('dark-theme');
         const bg   = d ? '#0e0e18' : '#ffffff';
@@ -865,8 +824,6 @@ const Challenges = {
         modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
         document.body.appendChild(modal);
     },
-
-    // ── INIT ──────────────────────────────────────────────────────────────────
 
     init() {
         this._setupGameHook();

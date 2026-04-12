@@ -1,5 +1,3 @@
-// CHAT.JS — NyanTools にゃん~
-
 const Chat = {
 
     _currentChatId: null,

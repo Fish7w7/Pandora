@@ -1,20 +1,9 @@
-/* ══════════════════════════════════════════════════
-   MISSIONS.JS v1.0.0 — NyanTools にゃん~
-   Sistema de Missões Diárias e Desafio Semanal
-   v3.8.0 "Nyan Economy"
- ═══════════════════════════════════════════════════*/
-
 const Missions = {
 
     KEY:         'nyan_missions',
     STREAK_KEY:  'nyan_missions_streak',
 
-    // ── POOL COMPLETO DE MISSÕES ──────────────────────
-    // id único · dificuldade · descrição · recompensa
-    // check(ctx) recebe contexto com dados do evento atual
-
     POOL: [
-        // ── FÁCIL ─────────────────────────────────────
         {
             id: 'play_any',
             diff: 'easy',
@@ -62,7 +51,6 @@ const Missions = {
             progress: () => ({ current: 0, max: 1 }),
         },
 
-        // ── MÉDIO ──────────────────────────────────────
         {
             id: 'typeracer_50wpm',
             diff: 'medium',
@@ -119,7 +107,6 @@ const Missions = {
             progress: () => ({ current: 0, max: 1 }),
         },
 
-        // ── DIFÍCIL ────────────────────────────────────
         {
             id: 'typeracer_80wpm',
             diff: 'hard',
@@ -176,7 +163,6 @@ const Missions = {
         },
     ],
 
-    // ── POOL DE DESAFIOS SEMANAIS ─────────────────────
     WEEKLY_POOL: [
         {
             id: 'weekly_typeracer_100',
@@ -230,15 +216,12 @@ const Missions = {
         },
     ],
 
-    // ── RECOMPENSAS POR DIFICULDADE ───────────────────
     REWARDS: {
         easy:   { xp: 25,  chips: 15  },
         medium: { xp: 50,  chips: 30  },
         hard:   { xp: 80,  chips: 60  },
         weekly: { xp: 200, chips: 100 },
     },
-
-    // ── SEED / DATA ───────────────────────────────────
 
     _getToday() {
         const d = new Date();
@@ -274,8 +257,6 @@ const Missions = {
         return arr.slice(0, n);
     },
 
-    // ── LOAD / SAVE ───────────────────────────────────
-
     load() {
         return Utils.loadData(this.KEY) || {};
     },
@@ -283,8 +264,6 @@ const Missions = {
     save(data) {
         Utils.saveData(this.KEY, data);
     },
-
-    // ── GERAR MISSÕES DO DIA ──────────────────────────
 
     getDailyMissions() {
         const today = this._getToday();
@@ -360,7 +339,6 @@ const Missions = {
         return weekly;
     },
 
-    // ── PROCESSAR EVENTO ──────────────────────────────
     /**
      * Chamado pelos jogos/ferramentas quando algo acontece.
      * ctx = { event, ...dados específicos }
@@ -385,7 +363,6 @@ const Missions = {
         let changed = false;
         const state = data.state || {};
 
-        // ── Missões diárias ──────────────────────────
         const missions = (data.missions || []).map(m => {
             if (m.completed) return m;
 
@@ -417,7 +394,6 @@ const Missions = {
             return m;
         });
 
-        // ── Desafio semanal ──────────────────────────
         let weekly = data.weekly;
         if (weekly && !weekly.completed) {
             const weekState = data.weeklyState || {};
@@ -474,8 +450,6 @@ const Missions = {
         }
     },
 
-    // ── COMPLETAR MISSÃO ──────────────────────────────
-
     _completeMission(m) {
         const reward  = this.REWARDS[m.diff];
         const streak  = this._getMissionStreak();
@@ -513,8 +487,6 @@ const Missions = {
         console.log(`[Missions] Desafio semanal completo: ${w.title}`);
     },
 
-    // ── STREAK DE MISSÕES ─────────────────────────────
-
     _getMissionStreak() {
         return Utils.loadData(this.STREAK_KEY) || 0;
     },
@@ -544,8 +516,6 @@ const Missions = {
             );
         }
     },
-
-    // ── RENDER ────────────────────────────────────────
 
     render() {
         const missions = this.getDailyMissions();
@@ -729,8 +699,6 @@ const Missions = {
         </div>`;
     },
 
-    // ── RENDER MINI (para sidebar) ────────────────────
-
     renderSidebarWidget() {
         const missions  = this.getDailyMissions();
         const doneCount = missions.filter(m => m.completed).length;
@@ -801,7 +769,6 @@ const Missions = {
         </div>`;
     },
 
-    // ── BADGE NA NAV (ponto vermelho no item) ─────────
     getPendingCount() {
         // Usar load() direto para não disparar reset acidental via getDailyMissions
         const data = this.load();
@@ -812,7 +779,6 @@ const Missions = {
         return (data.missions || []).filter(m => !m.completed).length;
     },
 
-    // ── REFRESH UI ────────────────────────────────────
     _refreshBadge() {
         const pending = this.getPendingCount();
         const badge   = document.getElementById('missions-nav-badge');
@@ -835,7 +801,6 @@ const Missions = {
         }
     },
 
-    // ── INIT ──────────────────────────────────────────
     init() {
         // Garantir que as missões do dia existem
         this.getDailyMissions();

@@ -1,8 +1,4 @@
-/*═════════════════════════════════════════════
-// SISTEMA DE CONFIGURAÇÕES - NyanTools にゃん~
-// Versão Renovada v3.1.2
-═══════════════════════════════════════════════
-*/
+
 
 const ThemeManager = {
     currentTheme: 'purple',
@@ -80,9 +76,7 @@ const ThemeManager = {
     }
 };
 
-// ══════════════════════════════
 // RENDER DE TEMAS (funções auxiliares)
-// ══════════════════════════════
 
 function renderThemeSelector() {
     const currentId = Utils.loadData('app_color_theme') || 'purple';
@@ -131,9 +125,7 @@ function renderThemeSelector() {
     `;
 }
 
-// ══════════════════════════════
 // SETTINGS PRINCIPAL
-// ══════════════════════════════
 
 const Settings = {
     currentTab: 'appearance',
@@ -147,9 +139,7 @@ const Settings = {
         { id: 'about',         name: 'Sobre',          icon: 'ℹ️'  }
     ],
 
-    // ══════════════════════════════
     // RENDER PRINCIPAL
-    // ══════════════════════════════
 
     render() {
         return `
@@ -205,9 +195,7 @@ const Settings = {
         return (renderers[this.currentTab] || (() => ''))();
     },
 
-    // ══════════════════════════════
     // TAB: APARÊNCIA
-    // ══════════════════════════════
 
     renderAppearance() {
         const theme = Utils.loadData('app_theme') || 'light';
@@ -246,10 +234,7 @@ const Settings = {
         `;
     },
 
-    // ══════════════════════════════
-    // ══════════════════════════════
     // TAB: INTERFACE
-    // ══════════════════════════════
 
     renderInterface() {
         const focusActive = window.FocusMode?.active || false;
@@ -321,7 +306,6 @@ const Settings = {
         return '<div style="display:flex;flex-direction:column;gap:1.25rem;">' + focusCard + introCard + '</div>';
     },
 
-
         _renderModeCard(id, name, emoji, desc, gradient, currentTheme, isDark) {
         const isActive = currentTheme === id;
         const textColor = isDark ? 'text-white' : 'text-gray-800';
@@ -341,9 +325,7 @@ const Settings = {
         `;
     },
 
-    // ══════════════════════════════
     // TAB: ATUALIZAÇÕES
-    // ══════════════════════════════
 
     renderUpdates() {
         return AutoUpdater?.render() || `
@@ -354,9 +336,7 @@ const Settings = {
         `;
     },
 
-    // ══════════════════════════════
     // TAB: NOTIFICAÇÕES
-    // ══════════════════════════════
 
     renderNotifications() {
         const notifEnabled = Utils.loadData('notifications_enabled') !== false;
@@ -481,9 +461,7 @@ const Settings = {
         `;
     },
 
-    // ══════════════════════════════
     // TAB: DADOS
-    // ══════════════════════════════
 
     renderData() {
         const storageKB = this._getStorageKB();
@@ -566,9 +544,7 @@ const Settings = {
         `;
     },
 
-    // ══════════════════════════════
     // TAB: SOBRE
-    // ══════════════════════════════
 
     renderAbout() {
         const year = new Date().getFullYear();
@@ -700,7 +676,6 @@ const Settings = {
                     </div>
                 </div>
 
-
                 <!-- Licença -->
                 <div class="bg-gray-50 border border-gray-200 rounded-2xl p-5 flex items-center justify-between">
                     <div class="flex items-center gap-3">
@@ -716,9 +691,7 @@ const Settings = {
         `;
     },
 
-    // ══════════════════════════════
     // ACTIONS
-    // ══════════════════════════════
 
     init() {
         this.loadSettings();
@@ -788,7 +761,6 @@ const Settings = {
         return `${this._getStorageKB().toFixed(2)} KB`;
     },
 
-    // ── Modal customizado (substitui confirm() nativo) ──────────────────
     _confirm(opts) {
         return new Promise(function(resolve) {
             var d   = document.body.classList.contains('dark-theme');
@@ -821,7 +793,6 @@ const Settings = {
             overlay.onclick = function(e) { if (e.target === overlay) close(false); };
         });
     },
-
 
     exportData() {
         const data = {};
@@ -894,9 +865,7 @@ const Settings = {
     }
 };
 
-// ══════════════════════════════
 // AUTO-INICIALIZAÇÃO
-// ══════════════════════════════
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => ThemeManager.init());

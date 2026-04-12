@@ -13,7 +13,6 @@ const Dashboard = {
         currentWeekStart: null
     },
 
-    // ── Helpers de card consistentes ─────────────
     _isDark() {
         return document.body.classList.contains('dark-theme');
     },
@@ -115,7 +114,6 @@ const Dashboard = {
         `;
     },
 
-    // ─── LIVE REFRESH ──────────────────────────────────────────────────────────
     refreshWeeklyChart() {
         const chartContainer = document.getElementById('weekly-chart-container');
         if (!chartContainer) return;
@@ -597,8 +595,6 @@ const Dashboard = {
         `, false);
     },
 
-    // ─── HELPERS ──────────────────────────────────────────────────────────────
-
     getWeekStart() {
         const today = new Date();
         const sunday = new Date(today);
@@ -698,7 +694,6 @@ const Dashboard = {
         const today = new Date().toISOString().split('T')[0];
         const weekStart = this.getWeekStart();
 
-        // ── Virada de semana ─────────────────────────────────────────────
         if (this.stats.currentWeekStart !== weekStart) {
             const hadData = Object.values(this.stats.weeklyActivity).some(v => v > 0);
             if (this.stats.currentWeekStart && hadData) {
@@ -711,7 +706,6 @@ const Dashboard = {
             this.stats.currentWeekStart = weekStart;
         }
 
-        // ── Recalcular weeklyActivity a partir do dailyActivity ──────────
         // dailyActivity é a fonte de verdade (chave YYYY-MM-DD).
         // weeklyActivity (chave 0-6) é reconstruído para evitar divergência.
         if (this.stats.dailyActivity) {
@@ -727,7 +721,6 @@ const Dashboard = {
             this.stats.weeklyActivity = rebuilt;
         }
 
-        // ── Streak diário ────────────────────────────────────────────────
         if (this.stats.lastAccessDate !== today) {
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);
@@ -745,7 +738,6 @@ const Dashboard = {
             this.stats.dailyActivity[today] = 1;
         }
 
-        // ── Poda de dados antigos (365 dias) ─────────────────────────────
         const cutoff = new Date();
         cutoff.setDate(cutoff.getDate() - 365);
         Object.keys(this.stats.dailyActivity).forEach(key => {

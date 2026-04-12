@@ -1,7 +1,4 @@
-/* ═══════════════════════════════════════════════════════
-   QUIZ.JS v1.0.0 — NyanTools にゃん~
-   v3.7.0 "Zona Arcade" —
-   ═══════════════════════════════════════════════════════ */
+
 
 const QuizDiario = {
 
@@ -12,7 +9,6 @@ const QuizDiario = {
     _questions: [],
     _phase: 'intro',
 
-    // ── BANCO DE PERGUNTAS (100 para começar, expansível) ──
     _bank: [
         // TECNOLOGIA
         { q: "Qual linguagem de programação foi criada por Guido van Rossum?", o: ["Java","Python","Ruby","Perl"], a: 1, e: "Python foi criado por Guido van Rossum e lançado em 1991." },
@@ -116,7 +112,6 @@ const QuizDiario = {
         { q: "Qual bebida é mais consumida no mundo depois da água?", o: ["Café","Refrigerante","Chá","Suco"], a: 2, e: "O chá é a segunda bebida mais consumida no mundo, especialmente na Ásia." },
     ],
 
-    // ── SEED DIÁRIA ───────────────────────────────────
     _getToday() {
         const d = new Date();
         return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
@@ -134,7 +129,6 @@ const QuizDiario = {
         return shuffled.slice(0, this.QUESTIONS_PER_DAY);
     },
 
-    // ── ESTADO DO DIA ─────────────────────────────────
     _getTodayResult() {
         const saved = Utils.loadData('quiz_today');
         if (!saved || saved.date !== this._getToday()) return null;
@@ -157,7 +151,6 @@ const QuizDiario = {
         // beat_record já disparado dentro de Economy.checkRecord
     },
 
-    // ── HELPERS ───────────────────────────────────────
     _isDark() { return document.body.classList.contains('dark-theme'); },
     _colors() {
         const d = this._isDark();
@@ -171,7 +164,6 @@ const QuizDiario = {
         };
     },
 
-    // ── RENDER ────────────────────────────────────────
     render() {
         const todayResult = this._getTodayResult();
         if (todayResult) return this._renderAlreadyPlayed(todayResult.score);

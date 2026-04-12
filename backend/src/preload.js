@@ -1,11 +1,4 @@
-// ════════════════════════════════════
-// PRELOAD.JS — Ponte segura Electron ↔ Frontend
-// NyanTools にゃん~ v3.2.1
-// ════════════════════════════════════
-
 const { contextBridge, ipcRenderer } = require('electron');
-
-// ─── VALIDAÇÕES DE SEGURANÇA ─────────────────────────────────────────────────
 
 function isValidFilePath(filePath) {
     if (typeof filePath !== 'string' || filePath.length === 0) return false;
@@ -85,7 +78,6 @@ try {
     }
 }
 
-// ─── CLEANUP ─────────────────────────────────────────────────────────────────
 window.addEventListener('beforeunload', () => {
     ipcRenderer.removeAllListeners('download-progress');
     ipcRenderer.removeAllListeners('updater-status');

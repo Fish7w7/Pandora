@@ -1,7 +1,4 @@
-/*═══════════════════════════════════════════════════════
-   UPDATER.JS v3.1 — NyanTools にゃん~
-   Sistema de atualização completo
-═══════════════════════════════════════════════════════*/
+
 
 const AutoUpdater = {
     currentVersion: '3.8.0',
@@ -60,7 +57,6 @@ const AutoUpdater = {
         ]
     },
 ],
-
 
     render() {
         if (!this._devEnvChecked) {
@@ -432,7 +428,6 @@ const AutoUpdater = {
         `;
     },
 
-
     async init() {
         if (window.App?.version) {
             this.currentVersion = window.App.version;
@@ -650,7 +645,6 @@ const AutoUpdater = {
         return 'unknown';
     },
 
-
     _confirmDownload() {
         const version = this.latestVersion?.tag_name || 'nova versão';
         document.getElementById('nyan-update-confirm')?.remove();
@@ -812,7 +806,6 @@ const AutoUpdater = {
         Router?.render();
     },
 
-
     viewReleaseNotes() {
         const url = this.latestVersion?.html_url || this.githubReleasesUrl;
         if (window.electronAPI?.openExternal) {
@@ -897,7 +890,6 @@ const AutoUpdater = {
         const s = secs % 60;
         return s > 0 ? `${m}m ${s}s` : `${m}m`;
     },
-
 
     async _forceCheck() {
         const backup = this.minCheckInterval;

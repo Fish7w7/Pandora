@@ -23,9 +23,7 @@ const TicTacToe = {
         [0, 4, 8], [2, 4, 6]             // Diagonais
     ],
     
-    // ══════════════════════════════
     // RENDER PRINCIPAL
-    // ══════════════════════════════
     
     render() {
         if (!this.gameMode) {
@@ -297,9 +295,7 @@ const TicTacToe = {
         `;
     },
     
-    // ══════════════════════════════
     // CONTROLE DO JOGO
-    // ══════════════════════════════
     
     selectMode(mode) {
         this.gameMode = mode;
@@ -371,9 +367,7 @@ const TicTacToe = {
         }
     },
     
-    // ══════════════════════════════
     // ESTRATÉGIAS DE IA
-    // ══════════════════════════════
     
     getRandomMove() {
         const available = this.board.map((cell, i) => cell === null ? i : null).filter(i => i !== null);
@@ -583,9 +577,7 @@ const TicTacToe = {
         }
     },
     
-    // ══════════════════════════════
     // UTILITÁRIOS
-    // ══════════════════════════════
     
     checkWinner() {
         return this.winningLines.some(line => {

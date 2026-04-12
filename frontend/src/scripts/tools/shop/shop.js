@@ -3,8 +3,6 @@
 
 const Shop = {
 
-    // ── CONFIG ────────────────────────────────────────────────────────────────
-
     DAILY_PER_CAT: 2,      // itens por categoria na rotação diária
     DAILY_MAX_GAP: 15,     // gap máx de nível para aparecer na rotação
 
@@ -18,8 +16,6 @@ const Shop = {
 
     _tab:         'shop',   // 'shop' | 'inventory'
     _selectedCat: 'title',  // categoria selecionada na loja
-
-    // ── SEED DIÁRIA ───────────────────────────────────────────────────────────
 
     _getDaySeed() {
         const d   = new Date();
@@ -79,8 +75,6 @@ const Shop = {
         return items;
     },
 
-    // ── TEMA ─────────────────────────────────────────────────────────────────
-
     _isDark() { return document.body.classList.contains('dark-theme'); },
 
     _c() {
@@ -96,8 +90,6 @@ const Shop = {
             panelBg: d ? 'rgba(255,255,255,0.025)': '#f8f8fc',
         };
     },
-
-    // ── RENDER PRINCIPAL ──────────────────────────────────────────────────────
 
     render() {
         const c     = this._c();
@@ -204,8 +196,6 @@ const Shop = {
         </div>`;
     },
 
-    // ── ABA LOJA ──────────────────────────────────────────────────────────────
-
     _renderShopTab() {
         const c    = this._c();
         const d    = this._isDark();
@@ -259,8 +249,6 @@ const Shop = {
         </div>`;
     },
 
-    // ── ABA INVENTÁRIO ────────────────────────────────────────────────────────
-
     _renderInventoryTab() {
         const c     = this._c();
         const d     = this._isDark();
@@ -293,8 +281,6 @@ const Shop = {
             </div>`;
         }).join('');
     },
-
-    // ── CARD DE ITEM ──────────────────────────────────────────────────────────
 
     _renderCard(item, index = 0) {
         const c        = this._c();
@@ -391,8 +377,6 @@ const Shop = {
             </button>
         </div>`;
     },
-
-    // ── AÇÕES ─────────────────────────────────────────────────────────────────
 
     _setTab(tab) {
         this._tab = tab;
@@ -551,8 +535,6 @@ const Shop = {
         if (content) content.innerHTML = this._tab === 'shop' ? this._renderShopTab() : this._renderInventoryTab();
     },
 
-    // ── MODAL ─────────────────────────────────────────────────────────────────
-
     _showModal({ title, body, confirmText, confirmColor, secondaryText, onConfirm, onSecondary }) {
         document.getElementById('shop-modal')?.remove();
         const d     = this._isDark();
@@ -603,8 +585,6 @@ const Shop = {
         }
         document.body.appendChild(modal);
     },
-
-    // ── COMPAT / INIT ─────────────────────────────────────────────────────────
 
     init() {
         this._tab = 'shop';

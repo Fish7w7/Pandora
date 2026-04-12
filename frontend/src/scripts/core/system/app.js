@@ -1,8 +1,3 @@
-/* ══════════════════════════════════════════════════
-   APP.JS  v3.9.0 "Nyan Network"
-   v3.9.0: sistema social online (Firebase)
- ═══════════════════════════════════════════════════*/
-
 const App = {
     version: '3.9.0',
     user: null,
@@ -24,7 +19,6 @@ const App = {
         { id: 'shop',       name: 'Loja',       icon: '🛍️', description: 'Compre itens com chips' },
         { id: 'offline', name: 'Zona Offline', icon: '📶', description: 'Jogos sem internet' },
         { id: 'settings', name: 'Configurações', icon: '⚙️', description: 'Personalize o app' },
-        // v3.9.0 — Nyan Network
         { id: 'friends',     name: 'Amigos',       icon: '👥', description: 'Lista de amigos e solicitações' },
         { id: 'chat',        name: 'Mensagens',     icon: '💬', description: 'Chat privado com amigos' },
         { id: 'leaderboard', name: 'Placar Global', icon: '🏆', description: 'Top 10 por jogo' },
@@ -105,15 +99,11 @@ const App = {
     showMainApp(user = this.user) {
         this.user = user;
 
-        // ── v3.9.0: primeira vez no app → mostrar modal de conta online
-        // ANTES de entrar no app, ainda sobre a tela de login
         const isFirstTime = !Utils.loadData('nyan_online_linked');
         if (isFirstTime && window.NyanFirebase) {
-            // Inicializar Firebase em background e mostrar modal sobre o login
             NyanFirebase.init().then(ready => {
                 if (ready) {
                     NyanAuth._showAuthModal(user.username);
-                    // Quando o modal for fechado (pulado ou conta criada), entrar no app
                     const observer = new MutationObserver(() => {
                         if (!document.getElementById('nyantag-modal')) {
                             observer.disconnect();
@@ -125,7 +115,7 @@ const App = {
                     this._enterApp(user);
                 }
             });
-            return; // não entrar no app ainda
+            return;
         }
 
         this._enterApp(user);
@@ -142,7 +132,6 @@ const App = {
         if (mainApp)     mainApp.classList.add('visible');
         if (userDisplay) userDisplay.textContent = user.username;
 
-        // Mostrar NyanTag na linha de status da sidebar (se já vinculado)
         const savedTag = Utils.loadData('nyan_online_tag');
         const statusEl = document.getElementById('sidebar-online-status');
         if (savedTag && statusEl) {
@@ -151,9 +140,7 @@ const App = {
             statusEl.style.fontWeight = '700';
             statusEl.style.fontSize   = '0.62rem';
         }
-        // Jogo favorito na sidebar
         this._updateFavGame();
-        // Restaurar estado colapsado da sidebar
         setTimeout(() => this._restoreSidebarState(), 100);
         if (userAvatar) {
             const savedAvatar = Utils.loadData('nyan_profile_avatar');
@@ -167,7 +154,6 @@ const App = {
                 userAvatar.textContent = user.username.charAt(0).toUpperCase();
             }
 
-            // Monitorar mudanças no avatar e sincronizar com Firebase
             const observer = new MutationObserver(() => {
                 const newAvatar = Utils.loadData('nyan_profile_avatar');
                 if (newAvatar && window.NyanAuth?.isOnline?.()) {
@@ -253,14 +239,11 @@ const App = {
         }
         this.startActivityTracking();
 
-        // v3.9.0 — inicializar sistemas online em background (sem bloqueio)
         setTimeout(() => {
             if (window.NyanAuth && window.NyanFirebase?.isReady?.()) {
                 NyanAuth._syncLocalProfile?.();
                 if (window.Leaderboard) Leaderboard.setupAutoSync();
-                // Iniciar badges sociais em tempo real
                 setTimeout(() => this._initSocialBadges(), 1000);
-                // Atualizar jogo favorito
                 setTimeout(() => this._updateFavGame(), 500);
             }
         }, 2500);
@@ -298,7 +281,6 @@ const App = {
         if (!sidebar) return;
         const isCollapsed = sidebar.classList.toggle('collapsed');
         if (btn) btn.textContent = isCollapsed ? '▶' : '◀';
-        // Salvar preferência
         Utils.saveData('sidebar_collapsed', isCollapsed);
     },
 
@@ -319,8 +301,6 @@ const App = {
 
         const { collection, query, where, onSnapshot, getDocs } = NyanFirebase.fn;
 
-        // ── Badge de mensagens não lidas ──────────────────────────────────────
-        // Ouvir todos os chats onde sou participante e somar unread
         const chatsRef = query(collection(NyanFirebase.db, 'chats'), where('participants', 'array-contains', uid));
         const unsubChats = onSnapshot(chatsRef, (snap) => {
             let totalUnread = 0;
@@ -336,7 +316,6 @@ const App = {
                     badge.style.display = 'none';
                 }
             }
-            // Atualizar título da aba de chat
             if (totalUnread > 0) {
                 document.title = `(${totalUnread}) NyanTools にゃん~ v3.9.0`;
             } else if (!document.title.startsWith('(')) {
@@ -345,8 +324,6 @@ const App = {
         }, () => {});
         NyanFirebase._listeners.push(unsubChats);
 
-        // ── Badge de desafios pendentes ───────────────────────────────────────
-        // Desafios onde fui desafiado (challenged.uid == uid) e status == 'pending'
         const pendingChallenges = query(
             collection(NyanFirebase.db, 'challenges'),
             where('challenged.uid', '==', uid),
@@ -366,7 +343,6 @@ const App = {
         }, () => {});
         NyanFirebase._listeners.push(unsubChallenges);
 
-        // ── Notificação quando amigo bate seu recorde ─────────────────────────
         this._watchFriendRecords(uid);
     },
 
@@ -374,7 +350,6 @@ const App = {
         if (!NyanFirebase.isReady()) return;
         const { query, collection, where, getDocs, onSnapshot } = NyanFirebase.fn;
 
-        // Buscar amigos
         const fsSnap = await getDocs(query(
             collection(NyanFirebase.db, 'friendships'),
             where('users', 'array-contains', myUID)
@@ -388,7 +363,6 @@ const App = {
 
         if (friendUIDs.length === 0) return;
 
-        // Meu melhor score atual para comparar
         const myScores = {
             sc_typeracer: parseFloat(Utils.loadData('typeracer_highscore')) || 0,
             sc_2048:      parseFloat(Utils.loadData('game_2048_highscore')) || 0,
@@ -398,19 +372,16 @@ const App = {
         };
         const gameNames = { sc_typeracer:'Type Racer', sc_2048:'2048', sc_flappy:'Flappy Nyan', sc_quiz:'Quiz Diário', sc_snake:'Cobrinha' };
 
-        // Ouvir mudanças nos perfis dos amigos
         friendUIDs.slice(0, 10).forEach(fuid => {
             const unsubFriend = onSnapshot(
                 NyanFirebase.docRef(`users/${fuid}`),
                 (snap) => {
                     if (!snap.exists()) return;
                     const data = snap.data();
-                    // Checar cada jogo
                     Object.entries(gameNames).forEach(([key, name]) => {
                         const theirScore = parseFloat(data[key]) || 0;
                         const myScore    = myScores[key];
                         if (!theirScore || !myScore) return;
-                        // Se o amigo ultrapassou meu recorde
                         if (theirScore > myScore) {
                             const notifKey = `notif_beaten_${fuid}_${key}`;
                             const lastNotif = Utils.loadData(notifKey);
@@ -483,11 +454,9 @@ const App = {
                             : `<span id="missions-nav-badge" style="display:none;"></span>`;
                     })()
                     : '';
-                // Badge de mensagens não lidas
                 const chatBadge = tool.id === 'chat'
                     ? `<span id="chat-nav-badge" style="display:none;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;background:#a855f7;border-radius:99px;font-size:0.55rem;font-weight:800;color:white;margin-left:auto;"></span>`
                     : '';
-                // Badge de desafios pendentes
                 const challengeBadge = tool.id === 'challenges'
                     ? `<span id="challenges-nav-badge" style="display:none;align-items:center;justify-content:center;min-width:16px;height:16px;padding:0 4px;background:#fbbf24;border-radius:99px;font-size:0.55rem;font-weight:800;color:white;margin-left:auto;"></span>`
                     : '';
@@ -624,7 +593,6 @@ const App = {
     }
 };
 
-// Easter Egg
 function showEasterEgg() {
     document.getElementById('easter-egg-modal')?.remove();
     const modal = document.createElement('div');
@@ -677,7 +645,6 @@ function showEasterEgg() {
     }
 }
 
-// Inicialização
 document.addEventListener('DOMContentLoaded', () => App.init());
 
 document.addEventListener('click', (e) => {
@@ -697,9 +664,6 @@ document.addEventListener('click', (e) => {
 window.App          = App;
 window.showEasterEgg = showEasterEgg;
 
-// ── RIPPLE EFFECT v3.7.3 ─────────────────────────────────────────────────────
-// FIX DEFINITIVO: sem overflow:hidden no botão — wave usa opacity fade simples
-// O wave fica contido via scale(0)→scale(1) + opacity 0, sem clipar o botão
 document.addEventListener('click', (e) => {
     const btn = e.target.closest(
         'button[class*="bg-gradient"], .btn-primary, .btn-secondary, .btn-danger'
@@ -710,11 +674,9 @@ document.addEventListener('click', (e) => {
     const rect = btn.getBoundingClientRect();
     if (rect.width === 0 || rect.height === 0) return;
 
-    // Criar wave SEM adicionar overflow:hidden ao botão
     const wave = document.createElement('span');
     wave.className = 'nyan-ripple-wave';
 
-    // Tamanho = metade da maior dimensão (fica contido sem precisar clip)
     const size = Math.min(rect.width, rect.height) * 0.8;
     const x    = e.clientX - rect.left - size / 2;
     const y    = e.clientY - rect.top  - size / 2;
@@ -732,7 +694,6 @@ document.addEventListener('click', (e) => {
         transform-origin:center;
     `;
 
-    // Botão precisa só de position:relative (sem overflow:hidden)
     if (getComputedStyle(btn).position === 'static') {
         btn.style.position = 'relative';
     }

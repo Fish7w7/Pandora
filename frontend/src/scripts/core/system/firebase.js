@@ -1,21 +1,3 @@
-/* ══════════════════════════════════════════════════
-   FIREBASE.JS v1.0.0 — NyanTools にゃん~ v3.9.0
-   Módulo central de conexão Firebase
-   ── Inicialização · Auth · Firestore · RTDB ──
- ═══════════════════════════════════════════════════
-
-   SETUP:
-   1. Crie um projeto em https://console.firebase.google.com
-   2. Ative: Authentication (Anonymous + Email/Password) e Firestore
-   3. Cole seu firebaseConfig abaixo substituindo os placeholders
-   4. Defina as regras do Firestore (ver docs/firestore-rules.txt)
-
- ═══════════════════════════════════════════════════*/
-
-// ─── CONFIG ──────────────────────────────────────────────────────────────────
-// Substitua com os valores do seu projeto Firebase Console:
-// Projeto → Configurações do projeto → Seus apps → SDK do Firebase
-
 const FIREBASE_CONFIG = {
   apiKey: "AIzaSyChGdu1TgEHiA_iYWEu4IqHu-d1UAuCQy4",
   authDomain: "nyan-network-e1ecf.firebaseapp.com",
@@ -24,13 +6,9 @@ const FIREBASE_CONFIG = {
   messagingSenderId: "1069283085488",
   appId: "1:1069283085488:web:21aee7cda4a2a6629a7f75",
   measurementId: "G-RPNWFK2BDH",
-  // Realtime Database — copie a URL em: Firebase Console → Realtime Database → Dados
-  // Formato: https://SEU-PROJETO-default-rtdb.firebaseio.com
-  // Deixe vazio ("") para desabilitar presença e usar só Firestore
   databaseURL: "https://nyan-network-e1ecf-default-rtdb.firebaseio.com"
 };
 
-// ─── SDK URLS (CDN — sem bundler necessário) ──────────────────────────────────
 const FB_VERSION = '10.12.2';
 const FB_BASE    = `https://www.gstatic.com/firebasejs/${FB_VERSION}`;
 
@@ -42,22 +20,18 @@ const FB_SDKS = {
     storage:   `${FB_BASE}/firebase-storage.js`,
 };
 
-// ─── ESTADO GLOBAL ────────────────────────────────────────────────────────────
 const NyanFirebase = {
     app:       null,
     auth:      null,
-    db:        null,   // Firestore
-    rtdb:      null,   // Realtime Database (presença)
+    db:        null,
+    rtdb:      null,
     storage:   null,
     ready:     false,
     _listeners: [],
 
-    // ── INICIALIZAÇÃO ─────────────────────────────────────────────────────────
-
     async init() {
         if (this.ready) return true;
 
-        // Verificar se config foi preenchido (ainda tem placeholder)
         if (FIREBASE_CONFIG.apiKey === 'COLE_SUA_API_KEY') {
             console.warn('[Firebase] ⚠️ firebaseConfig não configurado — modo offline');
             this._setOfflineMode();
@@ -78,7 +52,6 @@ const NyanFirebase = {
         }
     },
 
-    // Carrega os SDKs dinamicamente via import()
     async _loadSDKs() {
         const [appMod, authMod, fsMod, dbMod, storageMod] = await Promise.all([
             import(FB_SDKS.app),
@@ -88,7 +61,6 @@ const NyanFirebase = {
             import(FB_SDKS.storage),
         ]);
 
-        // Guardar referências dos módulos no escopo do NyanFirebase
         this._mod = { appMod, authMod, fsMod, dbMod, storageMod };
     },
 
@@ -104,7 +76,6 @@ const NyanFirebase = {
         this.db      = getFirestore(this.app);
         this.storage = getStorage(this.app);
 
-        // Realtime Database é opcional — só inicializa se databaseURL estiver configurado
         if (FIREBASE_CONFIG.databaseURL) {
             try {
                 this.rtdb = getDatabase(this.app);
@@ -116,9 +87,7 @@ const NyanFirebase = {
 
         console.log('[Firebase] ✅ Serviços inicializados — projeto:', FIREBASE_CONFIG.projectId);
 
-        // Expor módulos para uso nos outros arquivos
         this.fn = {
-            // Firestore
             doc:         this._mod.fsMod.doc,
             collection:  this._mod.fsMod.collection,
             getDoc:      this._mod.fsMod.getDoc,
@@ -138,7 +107,6 @@ const NyanFirebase = {
             increment:   this._mod.fsMod.increment,
             Timestamp:   this._mod.fsMod.Timestamp,
 
-            // Auth
             signInAnonymously:              this._mod.authMod.signInAnonymously,
             signInWithEmailAndPassword:     this._mod.authMod.signInWithEmailAndPassword,
             createUserWithEmailAndPassword: this._mod.authMod.createUserWithEmailAndPassword,
@@ -147,7 +115,6 @@ const NyanFirebase = {
             signOut:                        this._mod.authMod.signOut,
             updateProfile:                  this._mod.authMod.updateProfile,
 
-            // Realtime Database (presença)
             ref:      this._mod.dbMod.ref,
             set:      this._mod.dbMod.set,
             get:      this._mod.dbMod.get,
@@ -155,17 +122,14 @@ const NyanFirebase = {
             onDisconnect: this._mod.dbMod.onDisconnect,
             serverTimestampRTDB: this._mod.dbMod.serverTimestamp,
 
-            // Storage
             storageRef: this._mod.storageMod.ref,
             uploadBytes: this._mod.storageMod.uploadBytes,
             getDownloadURL: this._mod.storageMod.getDownloadURL,
         };
     },
 
-    // ── PRESENÇA (online/offline em tempo real) ───────────────────────────────
-
     _setupPresence() {
-        if (!this.rtdb) return; // RTDB não configurado
+        if (!this.rtdb) return;
         const { onAuthStateChanged } = this._mod.authMod;
         onAuthStateChanged(this.auth, (user) => {
             if (user) this._registerPresence(user.uid);
@@ -173,10 +137,8 @@ const NyanFirebase = {
     },
 
     _registerPresence(uid) {
-        // Setar online no Firestore
         this.updateDoc(`users/${uid}`, { status: 'online', lastSeen: this.fn.serverTimestamp() }).catch(() => {});
 
-        // Fallback: beforeunload seta offline no Firestore imediatamente
         window.addEventListener('beforeunload', () => {
             this.updateDoc(`users/${uid}`, { status: 'offline' }).catch(() => {});
         });
@@ -186,11 +148,9 @@ const NyanFirebase = {
         const { ref, set, onDisconnect, serverTimestamp, onValue } = this.fn;
         const presenceRef = ref(this.rtdb, `presence/${uid}`);
 
-        // Setar online/offline no RTDB
         set(presenceRef, { online: true,  lastSeen: serverTimestamp() });
         onDisconnect(presenceRef).set({ online: false, lastSeen: serverTimestamp() });
 
-        // Ouvir RTDB e sincronizar status no Firestore
         if (onValue) {
             onValue(presenceRef, (snapshot) => {
                 const data = snapshot.val();
@@ -203,30 +163,22 @@ const NyanFirebase = {
         }
     },
 
-    // ── MODO OFFLINE ──────────────────────────────────────────────────────────
-
     _setOfflineMode() {
         this.ready = false;
-        // Expor stubs para não quebrar chamadas de código
         this.fn = new Proxy({}, {
             get: () => () => Promise.resolve(null)
         });
         window.dispatchEvent(new CustomEvent('nyan:firebase-offline'));
     },
 
-    // ── HELPERS UTILITÁRIOS ───────────────────────────────────────────────────
-
-    // Gera referência de documento
     docRef(path) {
         return this.fn.doc(this.db, path);
     },
 
-    // Gera referência de coleção
     colRef(path) {
         return this.fn.collection(this.db, path);
     },
 
-    // Ler documento único
     async getDoc(path) {
         try {
             const snap = await this.fn.getDoc(this.docRef(path));
@@ -237,7 +189,6 @@ const NyanFirebase = {
         }
     },
 
-    // Escrever/sobrescrever documento
     async setDoc(path, data, merge = true) {
         try {
             await this.fn.setDoc(this.docRef(path), data, { merge });
@@ -248,7 +199,6 @@ const NyanFirebase = {
         }
     },
 
-    // Atualizar campos específicos
     async updateDoc(path, data) {
         try {
             await this.fn.updateDoc(this.docRef(path), data);
@@ -259,7 +209,6 @@ const NyanFirebase = {
         }
     },
 
-    // Registrar listener em tempo real (retorna função de cleanup)
     onSnapshot(path, callback) {
         if (!this.ready) return () => {};
         const ref = typeof path === 'string' ? this.docRef(path) : path;
@@ -271,13 +220,10 @@ const NyanFirebase = {
         return unsub;
     },
 
-    // Limpar todos os listeners (chamado no logout)
     cleanupListeners() {
         this._listeners.forEach(unsub => { try { unsub(); } catch(_) {} });
         this._listeners = [];
     },
-
-    // ── STATUS ────────────────────────────────────────────────────────────────
 
     isReady() { return this.ready; },
     isOffline() { return !this.ready; },
@@ -291,9 +237,6 @@ const NyanFirebase = {
     },
 };
 
-// ─── AUTO-INIT ao carregar ────────────────────────────────────────────────────
-// Inicializa assim que o script carrega para estar pronto quando o login ocorrer
-// O App.showMainApp() vai encontrar o Firebase já conectado na primeira vez
 document.addEventListener('DOMContentLoaded', () => {
     NyanFirebase.init().catch(() => {});
 });

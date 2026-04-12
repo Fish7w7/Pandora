@@ -1,4 +1,4 @@
-/* MUSIC.JS v2.0.0 — NyanTools にゃん~ */
+
 
 const MusicPlayer = {
     currentSong: null,
@@ -160,8 +160,6 @@ const MusicPlayer = {
         </div>`;
     },
 
-    // ── MINI PLAYER (inalterado) ─────────────────────────────────────────────
-
     renderMiniPlayer() {
         if (!this.currentSong) return '';
         const playlist = this.playlists[this.currentPlaylist];
@@ -256,8 +254,6 @@ const MusicPlayer = {
         document.addEventListener('mouseup', () => { if (dragging) { dragging = false; mp.style.cursor = 'move'; } });
     },
 
-    // ── INIT & AUDIO ────────────────────────────────────────────────────────
-
     init() {
         if (!this.audio) {
             this.audio = new Audio();
@@ -271,8 +267,6 @@ const MusicPlayer = {
         if (this.audio.src !== this.currentSong.file) this.audio.src = this.currentSong.file;
         this.updateMiniPlayer();
     },
-
-    // ── CONTROLES ───────────────────────────────────────────────────────────
 
     togglePlay() {
         if (!this.audio) { Utils.showNotification?.('⚠️ Player não inicializado', 'warning'); return; }

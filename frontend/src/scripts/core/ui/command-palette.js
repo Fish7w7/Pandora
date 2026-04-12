@@ -1,24 +1,14 @@
-/* ═══════════════════════════════════════════════════════
-   COMMAND-PALETTE.JS v1.0 — NyanTools にゃん~
-   Ctrl+P — Busca universal: ferramentas, notas, tarefas, ações
-   ═══════════════════════════════════════════════════════ */
-
 const CommandPalette = {
     isOpen: false,
     selectedIndex: 0,
     currentItems: [],
     _query: '',
 
-
     init() {
         this._injectHTML();
         this._setupListeners();
         console.log('🔍 CommandPalette v1.0 inicializado — Ctrl+P para abrir');
     },
-
-    // ──────────────────────────────────────────────────────
-    // HTML
-    // ──────────────────────────────────────────────────────
 
     _injectHTML() {
         if (document.getElementById('cmd-overlay')) return;
@@ -28,7 +18,6 @@ const CommandPalette = {
         el.innerHTML = `
             <div id="cmd-panel" role="dialog" aria-modal="true" aria-label="Command Palette">
 
-                <!-- Input -->
                 <div id="cmd-input-wrap">
                     <svg id="cmd-search-icon" width="17" height="17" viewBox="0 0 24 24" fill="none"
                          stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -42,16 +31,13 @@ const CommandPalette = {
                     <span id="cmd-kbd-esc">ESC</span>
                 </div>
 
-                <!-- Resultados -->
                 <div id="cmd-results" role="listbox"></div>
 
-                <!-- Vazio -->
                 <div id="cmd-empty">
                     <div id="cmd-empty-icon">🔍</div>
                     <div id="cmd-empty-text">Nenhum resultado para "<span id="cmd-empty-query"></span>"</div>
                 </div>
 
-                <!-- Footer -->
                 <div id="cmd-footer">
                     <div class="cmd-footer-hint">
                         <kbd>↑</kbd><kbd>↓</kbd> navegar
@@ -75,12 +61,7 @@ const CommandPalette = {
         document.body.appendChild(el);
     },
 
-    // ──────────────────────────────────────────────────────
-    // LISTENERS
-    // ──────────────────────────────────────────────────────
-
     _setupListeners() {
-        // Ctrl+P para abrir
         document.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'p') {
                 const isTyping = ['INPUT','TEXTAREA'].includes(e.target.tagName) ||
@@ -103,7 +84,6 @@ const CommandPalette = {
             if (e.target.id === 'cmd-overlay') this.close();
         });
 
-        // Input de busca — com debounce para não re-renderizar a cada tecla
         let _debounceTimer = null;
         document.getElementById('cmd-input').addEventListener('input', (e) => {
             this._query = e.target.value;
@@ -117,10 +97,6 @@ const CommandPalette = {
             }, 60);
         });
     },
-
-    // ──────────────────────────────────────────────────────
-    // OPEN / CLOSE
-    // ──────────────────────────────────────────────────────
 
     open() {
         this.isOpen = true;
@@ -136,7 +112,6 @@ const CommandPalette = {
         input.value = '';
         input.focus();
 
-        // Delegação de eventos no container — registrada uma vez por abertura
         const clickHandler = (e) => {
             const item = e.target.closest('.cmd-item');
             if (!item) return;
@@ -152,7 +127,6 @@ const CommandPalette = {
             this._updateSelection();
         };
 
-        // Limpar listeners anteriores e re-registrar
         const fresh = results.cloneNode(false);
         results.parentNode.replaceChild(fresh, results);
         fresh.addEventListener('click', clickHandler);
@@ -169,10 +143,6 @@ const CommandPalette = {
     toggle() {
         this.isOpen ? this.close() : this.open();
     },
-
-    // ──────────────────────────────────────────────────────
-    // DATA SOURCES
-    // ──────────────────────────────────────────────────────
 
     _getTools() {
         const tools = window.App?.tools || [];
@@ -281,10 +251,6 @@ const CommandPalette = {
         ];
     },
 
-    // ──────────────────────────────────────────────────────
-    // BUSCA / FILTRO
-    // ──────────────────────────────────────────────────────
-
     _match(item, q) {
         if (!q) return true;
         const haystack = `${item.name} ${item.sub || ''} ${item.id || ''}`.toLowerCase();
@@ -300,10 +266,6 @@ const CommandPalette = {
              + text.slice(idx + q.length);
     },
 
-    // ──────────────────────────────────────────────────────
-    // RENDER
-    // ──────────────────────────────────────────────────────
-
     _render() {
         const q       = this._query.trim();
         const results  = document.getElementById('cmd-results');
@@ -315,10 +277,8 @@ const CommandPalette = {
         const tasks   = this._getTasks().filter(i => this._match(i, q));
         const actions = this._getActions().filter(i => this._match(i, q));
 
-        // Lista plana para navegação por teclado
         this.currentItems = [...tools, ...notes, ...tasks, ...actions];
 
-        // Clamp selectedIndex
         if (this.selectedIndex >= this.currentItems.length) {
             this.selectedIndex = 0;
         }
@@ -376,13 +336,11 @@ const CommandPalette = {
         };
 
         if (!q) {
-            // Sem query: mostrar tudo organizado
             renderGroup('Ferramentas', tools);
             if (notes.length) renderGroup('Notas Recentes', notes.slice(0, 3));
             if (tasks.length) renderGroup('Tarefas Ativas', tasks.slice(0, 3));
             renderGroup('Ações', actions);
         } else {
-            // Com query: agrupar apenas os que têm resultado
             if (tools.length)   renderGroup('Ferramentas', tools);
             if (notes.length)   renderGroup('Notas', notes.slice(0, 5));
             if (tasks.length)   renderGroup('Tarefas', tasks.slice(0, 5));
@@ -393,10 +351,6 @@ const CommandPalette = {
 
         this._scrollToSelected();
     },
-
-    // ──────────────────────────────────────────────────────
-    // NAVEGAÇÃO POR TECLADO
-    // ──────────────────────────────────────────────────────
 
     _moveSelection(delta) {
         const total = this.currentItems.length;
@@ -421,17 +375,12 @@ const CommandPalette = {
         }
     },
 
-    // ──────────────────────────────────────────────────────
-    // EXECUTAR
-    // ──────────────────────────────────────────────────────
-
     _executeSelected() {
         const item = this.currentItems[this.selectedIndex];
         if (item?.action) item.action();
     },
 };
 
-// ─── INTEGRAÇÃO COM KEYBOARD SHORTCUTS ───────────────────
 if (window.KeyboardShortcuts) {
     KeyboardShortcuts.shortcuts['ctrl+p'] = {
         action: 'openCommandPalette',
@@ -448,5 +397,4 @@ if (window.KeyboardShortcuts) {
     };
 }
 
-// ─── EXPORT ──────────────────────────────────────────────
 window.CommandPalette = CommandPalette;

@@ -1,8 +1,4 @@
-/* ══════════════════════════════════════════════════
-   SHARE-TO-FEED.JS v1.0.0 — NyanTools にゃん~
-   Botão de compartilhamento de scores no Feed
-   Chamado por qualquer jogo ao terminar uma partida.
- ═══════════════════════════════════════════════════*/
+
 
 const ShareToFeed = {
 

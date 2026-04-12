@@ -1,28 +1,10 @@
-/* ══════════════════════════════════════════════════
-   FRIENDS.JS v1.0.0 — NyanTools にゃん~ v3.9.0
-   Sistema de Amigos
-
-   ESTRUTURA FIRESTORE:
-   users/{uid}/
-     friends: [uid, uid, ...]
-     friendRequests: [{ from: uid, tag: "name#1234", sentAt: Timestamp }]
-
-   friendships/{uid_a}_{uid_b}/   (uid_a < uid_b, ordem alfabética)
-     users: [uid_a, uid_b]
-     createdAt: Timestamp
-
- ═══════════════════════════════════════════════════*/
-
 const Friends = {
 
-    _listeners: {},   // listeners ativos por uid
-    _cache: {},       // cache de perfis de amigos
+    _listeners: {},
+    _cache: {},
     _requestsBadge: 0,
 
-    // ── RENDER PRINCIPAL ──────────────────────────────────────────────────────
-
     render() {
-        // Se for rota de perfil público, renderizar isso
         if (Router?.currentRoute === 'profile-public' && window._viewingProfile) {
             return this._renderPublicProfile();
         }
@@ -112,8 +94,6 @@ const Friends = {
         </div>`;
     },
 
-    // ── ABA: LISTA DE AMIGOS ──────────────────────────────────────────────────
-
     async renderFriendsList() {
         const uid = NyanAuth.getUID();
         const d   = document.body.classList.contains('dark-theme');
@@ -147,14 +127,11 @@ const Friends = {
             friendUIDs.map(fuid => NyanFirebase.getDoc(`users/${fuid}`))
         );
 
-
         const validFriends = friends.filter(Boolean);
         // Após renderizar, subscrever presença do RTDB (next tick)
         setTimeout(() => this._subscribePresence(validFriends.map(f => f.uid)), 50);
         return validFriends.map(f => this._renderFriendCard(f, bg, bdr, text, sub, muted, d)).join('');
     },
-
-    // ── PRESENÇA EM TEMPO REAL (RTDB) ────────────────────────────────────────
 
     _presenceUnsubs: [],
 
@@ -261,8 +238,6 @@ const Friends = {
         </div>`;
     },
 
-    // ── ABA: SOLICITAÇÕES ─────────────────────────────────────────────────────
-
     async renderRequests() {
         const uid  = NyanAuth.getUID();
         const d    = document.body.classList.contains('dark-theme');
@@ -315,8 +290,6 @@ const Friends = {
             </div>
         </div>`).join('');
     },
-
-    // ── ABA: ONLINE AGORA ─────────────────────────────────────────────────────
 
     async renderOnline() {
         const uid = NyanAuth.getUID();
@@ -374,8 +347,6 @@ const Friends = {
         setTimeout(() => this._subscribePresence(onlineFriendUIDs), 50);
         return online.map(f => this._renderFriendCard(f, bg, bdr, text, sub, muted, d)).join('');
     },
-
-    // ── AÇÕES ─────────────────────────────────────────────────────────────────
 
     async sendRequest() {
         const input  = document.getElementById('friend-tag-input');
@@ -532,8 +503,6 @@ const Friends = {
         this.switchTab('list');
     },
 
-    // ── NAVEGAÇÃO ─────────────────────────────────────────────────────────────
-
     async switchTab(tab) {
         // Cancelar listeners de presença anteriores ao trocar aba
         if (tab !== 'list') {
@@ -563,8 +532,6 @@ const Friends = {
         content.innerHTML = `<div style="text-align:center;padding:2rem;opacity:0.4;font-size:0.8rem;">Carregando...</div>`;
         content.innerHTML = await (renderers[tab] || renderers.list)();
     },
-
-    // ── PERFIL PÚBLICO ───────────────────────────────────────────────────────
 
     _renderPublicProfile() {
         const d = document.body.classList.contains('dark-theme');
@@ -717,14 +684,12 @@ const Friends = {
         const sub   = d ? 'rgba(255,255,255,0.5)'  : 'rgba(0,0,0,0.52)';
         const avBdr = d ? '#0e0e18' : '#fff';
 
-        // ── Avatar ───────────────────────────────────────────────────────
         const avatarHTML = profile.avatar
             ? `<img src="${profile.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`
             : (window.AvatarGenerator
                 ? AvatarGenerator.generate(profile.username || 'nyan', 92)
                 : `<div style="width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#ec4899);display:flex;align-items:center;justify-content:center;color:white;font-weight:900;font-size:2.2rem;">${(profile.username||'N')[0].toUpperCase()}</div>`);
 
-        // ── Status ───────────────────────────────────────────────────────
         const STATUS_MAP = { online:'Online', playing:'Jogando', away:'Ausente', offline:'Offline' };
         const STATUS_COL = { online:'#4ade80', playing:'#a855f7', away:'#fbbf24', offline:'#9ca3af' };
         let statusLabel = 'Offline', statusColor = '#9ca3af';
@@ -740,14 +705,12 @@ const Friends = {
             } catch(e) {}
         }
 
-        // ── Membro desde ─────────────────────────────────────────────────
         let memberSince = '';
         if (profile.joinedAt?.seconds) {
             memberSince = new Date(profile.joinedAt.seconds * 1000)
                 .toLocaleDateString('pt-BR', { month:'short', year:'numeric' });
         }
 
-        // ── Scores ───────────────────────────────────────────────────────
         const scoreMap = {};
         Friends.GAME_RECORDS.forEach(g => {
             const val = profile[g.fsKey];
@@ -763,7 +726,6 @@ const Friends = {
         }
         const favoriteGame = Friends._getFavoriteGame(scoreMap);
 
-        // ── Version badge (vai no banner) ────────────────────────────────
         const myVersion    = window.App?.version || '3.9.0';
         const theirVersion = profile.version || '?';
         let vBadgeEmoji = '', vBadgeText = '', vBadgeTitle = '';
@@ -775,7 +737,6 @@ const Friends = {
             else                       { vBadgeEmoji='🔵'; vBadgeText='v'+theirVersion; vBadgeTitle='Versão mais nova — eles têm v'+theirVersion+', você tem v'+myVersion; }
         }
 
-        // ── isFriend ─────────────────────────────────────────────────────
         const myUID    = NyanAuth.getUID();
         const isFriend = await NyanFirebase.fn.getDocs(
             NyanFirebase.fn.query(
@@ -784,7 +745,6 @@ const Friends = {
             )
         ).then(snap => snap.docs.some(d => d.data().users.includes(uid))).catch(() => false);
 
-        // ── Records ──────────────────────────────────────────────────────
         const SCORE_MAX = { typeracer_highscore:200, game_2048_highscore:131072,
                             flappy_bird_highscore:100, quiz_highscore:10,
                             termo_best:6, snake_highscore:500 };
@@ -805,7 +765,6 @@ const Friends = {
             </div>`;
         }).filter(Boolean).join('');
 
-        // ── Achievements ─────────────────────────────────────────────────
         const theirAch = profile.sc_achievements || {};
         let achHTML = '';
         if (Object.keys(theirAch).length > 0) {
@@ -829,7 +788,6 @@ const Friends = {
                 </div>`;
         }
 
-        // ── Render version badge no banner ────────────────────────────────
         const vBadgeEl = document.getElementById('nyan-pp-version-badge');
         if (vBadgeEl && vBadgeEmoji) {
             vBadgeEl.style.display = 'flex';
@@ -838,7 +796,6 @@ const Friends = {
             vBadgeEl.addEventListener('mouseleave', () => Friends._hideVersionTooltip());
         }
 
-        // ── Render avatar (substitui shimmer do card) ─────────────────────
         const avatarWrapEl = document.getElementById('nyan-pp-card')?.firstElementChild;
         if (avatarWrapEl) {
             avatarWrapEl.innerHTML = `
@@ -853,7 +810,6 @@ const Friends = {
                 </div>`;
         }
 
-        // ── Render conteúdo principal ─────────────────────────────────────
         ppContent.style.textAlign = 'left';
         ppContent.innerHTML = `
             <div id="nyan-pp-name">${profile.username || 'Usuário'}</div>
@@ -1054,8 +1010,6 @@ const Friends = {
         Router?.navigate('chat');
     },
 
-    // ── ESTADO OFFLINE ────────────────────────────────────────────────────────
-
     _renderOfflineState() {
         const d    = document.body.classList.contains('dark-theme');
         const bg   = d ? 'rgba(255,255,255,0.04)' : '#ffffff';
@@ -1085,8 +1039,6 @@ const Friends = {
             </div>
         </div>`;
     },
-
-    // ── INIT ──────────────────────────────────────────────────────────────────
 
     init() {
         // Se for rota de perfil público, carregar dados + Esc para voltar

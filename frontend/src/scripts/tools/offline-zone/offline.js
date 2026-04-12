@@ -1,4 +1,4 @@
-/* OFFLINE.JS v2.0.0 — NyanTools にゃん~ */
+
 
 const OfflineZone = {
     currentGame: null,
