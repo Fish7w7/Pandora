@@ -1,7 +1,7 @@
 
 
 const AutoUpdater = {
-    currentVersion: '3.8.0',
+    currentVersion: '3.9.0',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -24,12 +24,31 @@ const AutoUpdater = {
 
     // CHANGELOG
 
-    changelog: [
+      changelog: [
+    {
+        version: '3.9.0',
+        date: '2026-04-12T12:00:00',
+        label: 'Atual',
+        labelColor: 'bg-green-500',
+        author: 'Gabriel & Clara',
+        changes: [
+            { type: '🌐', text: 'Nyan Network — duas semanas de muito trabalho, eu e a Clara não paramos até entregar o maior update social da história do NyanTools にゃん~' },
+            { type: '👥', text: 'Sistema de Amigos — adicione por NyanTag, aceite/recuse convites, veja lista com status e versão em tempo real' },
+            { type: '💬', text: 'Chat privado 1:1 com cada amigo — histórico persistente no Firebase e notificação de mensagem nova na sidebar' },
+            { type: '🖼️', text: 'Murais por Jogo — feed de resultados dos amigos com reações 🐱⭐💎🔥, comentários e botão "Compartilhar" ao fim de qualquer partida' },
+            { type: '⚔️', text: 'Desafios de 24h — desafie amigos diretamente em qualquer jogo, duelo side-by-side com notificação de desafio recebido' },
+            { type: '📊', text: 'Perfil Público — bio, frase personalizada, recordes, conquistas com data e botão "Me comparar" side-by-side' },
+            { type: '🏷️', text: 'NyanTag — identidade única online; badge de versão 🟢🟡🔵, "Membro desde", última vez online e jogo favorito automático' },
+            { type: '🟢', text: 'Status em tempo real — Online, Jogando, Ausente, Offline; notificação quando amigo bate seu recorde' },
+            { type: '🏆', text: 'Placar Global — Top 10 por jogo, filtro global vs só amigos, sua posição sempre visível mesmo fora do Top 10' },
+            { type: '🛒', text: 'Sistema da Loja revisado e corrigido' },
+        ]
+    },
     {
         version: '3.8.0',
         date: '2026-03-22T12:00:00',
-        label: 'Atual',
-        labelColor: 'bg-green-500',
+        label: null,
+        labelColor: '',
         author: 'Gabriel & Clara',
         changes: [
             { type: '✨', text: 'Sistema de XP e Níveis — ganhe experiência jogando e completando missões, com marcos em nv10/25/50' },
@@ -42,18 +61,6 @@ const AutoUpdater = {
             { type: '🌈', text: 'Bordas de avatar — Simples, Roxa, Dourada, Neon animada + bordas de marco por nível' },
             { type: '↔️', text: 'Efeitos de navegação — Slide, Zoom e Bounce ao trocar de página' },
             { type: '📊', text: 'Bloco Economy no Perfil — nível, chips, barra de XP e histórico de recompensas recentes' },
-        ]
-    },
-    {
-        version: '3.7.1',
-        date: '2026-03-19T23:00:00',
-        label: null,
-        labelColor: '',
-        author: 'Gabriel',
-        changes: [
-            { type: '🐛', text: 'Zona Offline: Termo, Forca e Jogo da Velha fechavam o jogo ao re-renderizar internamente' },
-            { type: '🐛', text: '2048: botões "Novo Jogo" e "Continuar" estavam com tamanho errado por classes Tailwind sem compilar' },
-            { type: '🐛', text: 'Assistente IA: campo de mensagem e botão Enviar estavam grandes por classes Tailwind sem compilar' },
         ]
     },
 ],

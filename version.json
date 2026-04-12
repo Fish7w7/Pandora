@@ -1,55 +1,35 @@
 {
-  "version": "3.8.0",
-  "buildDate": "2026-03-22",
+  "version": "3.9.0",
+  "buildDate": "2026-04-12",
   "changelog": [
-    "✨ Sistema de XP e Níveis — ganhe experiência jogando e completando missões",
-    "💰 Chips — moeda do NyanTools, ganha e gasta na Loja",
-    "📋 Missões Diárias — 3 missões por dia + 1 desafio semanal com recompensas",
-    "🛍️ Loja — compre títulos, bordas de avatar, temas visuais, efeitos e partículas",
-    "🎒 Inventário — equipe itens comprados e veja efeitos em tempo real",
-    "🌸 Temas Visuais — Sakura, Midnight, Neon e Chamas com efeitos no login",
-    "✨ Partículas de Perfil — estrelas, corações e patinhas em órbita no avatar",
-    "🌈 Bordas de Avatar — animadas, coloridas e desbloqueáveis por nível",
-    "↔️ Efeitos de Navegação — Slide, Zoom e Bounce ao trocar de página",
-    "📊 Bloco de Economia no Perfil — nível, XP, chips e histórico de recompensas"
+    "👥 Sistema de Amigos — adicione por NyanTag, aceite convites e veja status em tempo real",
+    "💬 Chat privado 1:1 com histórico persistente no Firebase",
+    "🏆 Placar Global — Top 10 por jogo com filtro global vs só amigos",
+    "📰 Feed de atividade — linha do tempo com resultados, conquistas e recordes dos amigos",
+    "⚔️ Desafios de 24h — duelos side-by-side entre amigos em qualquer jogo",
+    "🏷️ NyanTag — identidade única online com badge de versão e status customizável",
+    "🟢 Status em tempo real — Online, Jogando, Ausente, Offline",
+    "📊 Perfil público — bio, recordes, conquistas com data e comparação lado a lado",
+    "🖼️ Murais por jogo — feed de resultados com reações 🐱⭐💎🔥 e comentários",
+    "🛒 Sistema da Loja revisado e corrigido"
   ],
-  "tag_name": "v3.8.0",
-  "releaseDate": "2026-03-22",
-  "name": "NyanTools v3.8.0 にゃん~",
-  "codename": "Nyan Economy",
-  "body": "## ✨ NyanTools v3.8.0 — Nyan Economy にゃん~\n\nSistema econômico completo: XP, níveis, chips, missões diárias, loja e inventário.\n\n### ✨ NOVIDADES\n- Sistema de XP e Níveis com marcos (Veterano nv10, Mestre nv25, Lendário nv50)\n- Chips — moeda do NyanTools integrada a todos os jogos\n- Missões Diárias — 3 por dia (fácil/médio/difícil) + desafio semanal\n- Loja com rotação semanal — títulos, bordas, temas, efeitos e partículas\n- Inventário com equipar/desequipar em tempo real\n- Temas visuais com efeitos de login (Sakura 🌸, Midnight 🌙, Neon ⚡, Chamas 🔥)\n- Partículas de perfil em órbita ao redor do avatar\n- Bordas animadas incluindo Borda Neon com pulso de cor\n- Efeitos de navegação: Slide, Zoom e Bounce\n- Bloco Economy no Perfil com barra de XP e histórico\n\n---\n\n**Versão Anterior:** v3.7.1\n**Autor:** Gabriel + Clara",
+  "tag_name": "v3.9.0",
+  "releaseDate": "2026-04-12",
+  "name": "NyanTools v3.9.0 にゃん~",
+  "codename": "Nyan Network",
+  "body": "## 🌐 NyanTools v3.9.0 — Nyan Network にゃん~\n\n> **FEATURE UPDATE:** Duas semanas de muito trabalho — eu e a Clara não paramos até entregar o maior update social da história do NyanTools: amigos, chat, desafios, murais, placares e perfis públicos. にゃん~\n\n---\n\n### 👥 Sistema de Amigos\n- Adicione amigos pelo NyanTag único\n- Aceite, recuse convites\n- Lista de amigos com status e versão em tempo real\n- Notificação quando um amigo bate seu recorde\n\n### 💬 Chat Privado\n- Conversa 1:1 com cada amigo\n- Histórico persistente no Firebase\n- Notificação de mensagem nova na sidebar\n\n### 🖼️ Murais por Jogo\n- Feed de resultados postados por amigos em cada jogo\n- Reações rápidas: 🐱⭐💎🔥\n- Comentários nos resultados\n- Botão \"Compartilhar\" ao terminar qualquer jogo\n\n### ⚔️ Desafios\n- Desafie amigos diretamente em qualquer jogo\n- Duelo side-by-side com prazo de 24h\n- Notificação de desafio recebido\n\n### 📊 Perfil Público\n- Avatar gerado ou foto de perfil\n- Bio curta, frase personalizada\n- Recordes de todos os jogos + conquistas com data de desbloqueio\n- Botão \"Me comparar\" — side-by-side dos seus recordes vs os da pessoa\n- Jogo favorito calculado automaticamente pelo dashboard\n- Badge de versão: 🟢 igual / 🟡 desatualizado / 🔵 mais novo\n- \"Membro desde\" + última vez online\n\n### 🏆 Placar Global\n- Top 10 por jogo\n- Filtro: global vs só amigos\n- Sua posição sempre visível mesmo fora do Top 10\n\n### 📰 Feed de Atividade\n- Linha do tempo dos amigos — resultados, conquistas, recordes quebrados\n\n### 🛒 Loja\n- Sistema da loja revisado e corrigido\n\n---\n\n**Versão Anterior:** v3.8.0  \n**Autores:** Gabriel + Clara  \n**Tempo de desenvolvimento:** ~2 semanas",
   "previousVersion": {
-    "version": "3.7.1",
-    "tag": "v3.7.1",
-    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.7.1"
+    "version": "3.8.0",
+    "tag": "v3.8.0",
+    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.8.0"
   },
-  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.8.0",
-  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.8.0",
+  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.9.0",
+  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.9.0",
   "statistics": {
-    "filesNew": 4,
-    "filesRewritten": 2,
-    "filesModified": 14,
-    "bugsFixed": 0,
-    "featuresAdded": 10
-  },
-  "filesModified": [
-    "frontend/src/scripts/core/gamification/economy.js",
-    "frontend/src/scripts/core/gamification/missions.js",
-    "frontend/src/scripts/core/gamification/inventory.js",
-    "frontend/src/scripts/tools/shop/shop.js",
-    "frontend/src/scripts/core/system/app.js",
-    "frontend/src/scripts/core/system/router.js",
-    "frontend/src/scripts/core/auth/login-intro.js",
-    "frontend/src/scripts/core/ui/focus-mode.js",
-    "frontend/src/scripts/tools/profile/profile.js",
-    "frontend/src/scripts/tools/offline-zone/typeracer.js",
-    "frontend/src/scripts/tools/offline-zone/quiz.js",
-    "frontend/src/scripts/tools/offline-zone/2048.js",
-    "frontend/src/scripts/tools/offline-zone/flappy-bird.js",
-    "frontend/src/scripts/tools/offline-zone/forca.js",
-    "frontend/src/scripts/tools/offline-zone/termo.js",
-    "frontend/src/scripts/tools/offline-zone/tictactoe.js",
-    "frontend/src/scripts/tools/offline-zone/slotmachine.js",
-    "frontend/public/version.json"
-  ]
+    "filesNew": 6,
+    "filesRewritten": 3,
+    "filesModified": 18,
+    "bugsFixed": 1,
+    "featuresAdded": 14
+  }
 }

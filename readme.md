@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.8.0-purple?style=for-the-badge&logo=electron)
+![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.9.0-purple?style=for-the-badge&logo=electron)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)
 ![Electron](https://img.shields.io/badge/Electron-27.0.0-47848F?style=for-the-badge&logo=electron)
@@ -60,6 +60,16 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
 - ⌨️ **Atalhos de Teclado** — Navegação rápida com Ctrl+1-9 e Ctrl+P
 - 🐾 **Easter Egg** — Konami Code escondido (↑↑↓↓←→←→BA)
 
+### 🌐 Social (Nyan Network)
+- 👥 **Sistema de Amigos** — Adicione por NyanTag, aceite/recuse convites
+- 💬 **Chat Privado 1:1** — Histórico persistente no Firebase
+- 🟢 **Status em Tempo Real** — Online, Jogando, Ausente, Offline
+- 📊 **Perfil Público** — Bio, recordes, conquistas e comparação lado a lado
+- 🏆 **Placar Global** — Top 10 por jogo com filtro global vs só amigos
+- 📰 **Feed de Atividade** — Linha do tempo com resultados e recordes dos amigos
+- ⚔️ **Desafios de 24h** — Duelos side-by-side entre amigos em qualquer jogo
+- 🖼️ **Murais por Jogo** — Feed com reações 🐱⭐💎🔥 e comentários
+
 ---
 
 ## 📥 Instalação
@@ -72,7 +82,7 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
    ```
 
 2. **Execute o Instalador**
-   - Baixe `NyanTools-3.8.0-Setup.exe`
+   - Baixe `NyanTools-3.9.0-Setup.exe`
    - Execute e siga o assistente de instalação
 
 3. **Pronto! にゃん~**
@@ -111,6 +121,11 @@ npm run dev
 
 **Modelo usado**: `gemini-2.5-flash`
 
+#### **🔥 Firebase (Nyan Network)**
+1. Crie um projeto em [console.firebase.google.com](https://console.firebase.google.com)
+2. Ative **Firestore** e **Authentication**
+3. Cole o `firebaseConfig` nas configurações do app
+
 ---
 
 ## 🛠️ Ferramentas Incluídas
@@ -128,6 +143,8 @@ npm run dev
 - Editar nome de usuário com atualização em tempo real na sidebar
 - Trocar senha com validação
 - Tab de Estatísticas: tempo total, dias ativos, sequência, top ferramentas
+- Bio e frase personalizada
+- Badge de versão e jogo favorito automático
 
 ### 3. 🏆 Conquistas
 - 🐣 **Primeiro Passo** — Primeiro login no NyanTools
@@ -217,7 +234,16 @@ Jogos sem internet:
 - Bordas aplicadas na sidebar e no perfil simultaneamente
 - Temas com efeitos especiais no login
 
-### 18. ⚙️ Configurações
+### 18. 🌐 Nyan Network
+- **Sistema de Amigos** — Adicione por NyanTag, aceite/recuse convites, status em tempo real
+- **Chat Privado 1:1** — Histórico persistente no Firebase, notificação na sidebar
+- **Murais por Jogo** — Feed de resultados com reações e comentários
+- **Desafios de 24h** — Duelos side-by-side com prazo e notificações
+- **Perfil Público** — Bio, recordes, conquistas e botão "Me comparar"
+- **Placar Global** — Top 10 por jogo, filtro global vs amigos
+- **Feed de Atividade** — Linha do tempo de resultados, conquistas e recordes
+
+### 19. ⚙️ Configurações
 
 **5 Abas Completas:**
 
@@ -310,6 +336,13 @@ NyanTools/
 │       │       │   ├── 2048.js
 │       │       │   ├── flappy-bird.js
 │       │       │   └── tictactoe.js
+│       │       ├── network/
+│       │       │   ├── friends.js
+│       │       │   ├── chat.js
+│       │       │   ├── challenges.js
+│       │       │   ├── leaderboard.js
+│       │       │   ├── murals.js
+│       │       │   └── activity-feed.js
 │       │       ├── password-generator/password.js
 │       │       ├── settings/settings.js
 │       │       ├── temp-email/temp-email.js
@@ -347,12 +380,12 @@ npm run build:all      # Todas as plataformas
 
 ```
 dist/
-├── NyanTools-3.8.0-Setup.exe       # Windows — instalador
-├── NyanTools 3.8.0.exe             # Windows — portátil
-├── NyanTools-3.8.0-x64.dmg        # macOS Intel
-├── NyanTools-3.8.0-arm64.dmg      # macOS Apple Silicon
-├── NyanTools-3.8.0-x64.AppImage   # Linux
-└── NyanTools-3.8.0-amd64.deb      # Linux Debian/Ubuntu
+├── NyanTools-3.9.0-Setup.exe       # Windows — instalador
+├── NyanTools 3.9.0.exe             # Windows — portátil
+├── NyanTools-3.9.0-x64.dmg        # macOS Intel
+├── NyanTools-3.9.0-arm64.dmg      # macOS Apple Silicon
+├── NyanTools-3.9.0-x64.AppImage   # Linux
+└── NyanTools-3.9.0-amd64.deb      # Linux Debian/Ubuntu
 ```
 
 ---
@@ -369,6 +402,7 @@ dist/
 - **MyMemory** — Tradução gratuita
 - **Google Gemini** — IA conversacional
 - **GitHub API** — Atualizações automáticas
+- **Firebase** — Autenticação, Firestore (Nyan Network)
 
 ### **Build**
 - **Electron Builder** — Empacotamento multiplataforma
@@ -380,7 +414,7 @@ dist/
 
 ## 📝 Roadmap
 
-### **✅ v3.6.0 "Smooth & Pretty" — Atual**
+### **✅ v3.6.0 "Smooth & Pretty"**
 - [x] Avatar SVG gerado automaticamente por nome
 - [x] Redesign dos cards do Dashboard e Zona Offline
 - [x] Empty States ilustrados (Notas, Tarefas, Favoritos)
@@ -406,7 +440,7 @@ dist/
 - [x] Caça-Níquel — jogo casual com símbolos do NyanTools
 - [x] Quiz Diário — 10 perguntas de cultura geral, mesmas para todos no mesmo dia
 
-### **✅ v3.8.0 "Nyan Economy" — Atual**
+### **✅ v3.8.0 "Nyan Economy"**
 - [x] Sistema de XP e Níveis com marcos (Veterano nv10, Mestre nv25, Lendário nv50)
 - [x] Chips — moeda integrada a todos os jogos e missões
 - [x] Missões Diárias — 3 por dia + desafio semanal com recompensas
@@ -418,12 +452,17 @@ dist/
 - [x] Efeitos de navegação: Slide, Zoom e Bounce
 - [x] Bloco Economy no Perfil com barra de XP e histórico
 
-### **🚧 v3.9.0 "Nyan Network" — Próxima**
-- [ ] Perfil público com URL compartilhável
-- [ ] Sistema de amigos e chat privado
-- [ ] Murais de jogos com ranking global
-- [ ] Feed de atividade dos amigos
-- [ ] Desafios entre jogadores
+### **✅ v3.9.0 "Nyan Network" — Atual**
+- [x] Sistema de Amigos — adicionar por NyanTag, aceitar/recusar convites
+- [x] Status em tempo real — Online, Jogando, Ausente, Offline
+- [x] Chat privado 1:1 com histórico persistente no Firebase
+- [x] Murais por jogo — feed com reações 🐱⭐💎🔥 e comentários
+- [x] Desafios de 24h — duelos side-by-side entre amigos
+- [x] Perfil público — bio, recordes, conquistas e comparação lado a lado
+- [x] Placar Global — Top 10 por jogo, filtro global vs amigos
+- [x] Feed de atividade — linha do tempo de resultados e recordes
+- [x] NyanTag — identidade única com badge de versão
+- [x] Loja revisada e corrigida
 
 ---
 
@@ -459,6 +498,7 @@ MIT License — Copyright (c) 2026 Fish7w7
 - [Google Gemini](https://deepmind.google/technologies/gemini/) — IA
 - [Cloudinary](https://cloudinary.com/) — CDN para músicas
 - [GitHub API](https://docs.github.com/en/rest) — Atualizações
+- [Firebase](https://firebase.google.com/) — Banco de dados e autenticação (Nyan Network)
 
 ---
 
@@ -508,7 +548,7 @@ MIT License — Copyright (c) 2026 Fish7w7
 
 *Your Purr-fect Toolkit! 🐱✨*
 
-**v3.8.0 — Nyan Economy 💰**
+**v3.9.0 — Nyan Network 🌐**
 
 **[⬆ Voltar ao topo](#-nyantools-にゃん)**
 

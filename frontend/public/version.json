@@ -1,14 +1,16 @@
 {
   "version": "3.9.0",
-  "buildDate": "2026-03-22",
+  "buildDate": "2026-04-12",
   "changelog": [
-    "👥 Sistema de Amigos — adicione por NyanTag#1234",
-    "💬 Chat privado 1:1 com histórico persistente",
-    "🏆 Placar Global — Top 10 por jogo com filtro de amigos",
-    "📰 Feed de atividade dos amigos com reações e comentários",
-    "⚔️ Desafios de 24h — duelos entre amigos em qualquer jogo",
-    "🏷️ NyanTag — identidade única online para cada jogador",
-    "🟢 Status em tempo real (Online, Jogando, Ausente, Offline)",
-    "📊 Perfil público com recordes, conquistas e comparação lado a lado"
+    "👥 Sistema de Amigos — adicione por NyanTag, aceite convites e veja status em tempo real",
+    "💬 Chat privado 1:1 com histórico persistente no Firebase",
+    "🏆 Placar Global — Top 10 por jogo com filtro global vs só amigos",
+    "📰 Feed de atividade — linha do tempo com resultados, conquistas e recordes dos amigos",
+    "⚔️ Desafios de 24h — duelos side-by-side entre amigos em qualquer jogo",
+    "🏷️ NyanTag — identidade única online com badge de versão e status customizável",
+    "🟢 Status em tempo real — Online, Jogando, Ausente, Offline",
+    "📊 Perfil público — bio, recordes, conquistas com data e comparação lado a lado",
+    "🖼️ Murais por jogo — feed de resultados com reações 🐱⭐💎🔥 e comentários",
+    "🛒 Sistema da Loja revisado e corrigido"
   ]
 }

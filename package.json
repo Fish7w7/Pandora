@@ -1,7 +1,7 @@
 {
   "name": "nyantools",
-  "version": "3.8.0",
-  "description": "NyanTools - Your purr-fect toolkit にゃん~ | Nyan Economy — XP, níveis, chips, missões, loja e inventário",
+  "version": "3.9.0",
+ "description": "NyanTools - Your purr-fect toolkit にゃん~ | Nyan Network — amigos, chat privado, desafios, murais, placares globais e perfis públicos",
   "main": "backend/src/main.js",
   "scripts": {
     "start": "electron .",

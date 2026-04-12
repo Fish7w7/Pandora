@@ -66,7 +66,7 @@ function createWindow() {
 
     const indexPath = path.join(__dirname, '../../frontend/public/index.html');
 
-    console.log('[~] NyanTools v3.8.0');
+    console.log('[~] NyanTools v3.9.0');
     console.log('[>] Diretório:', __dirname);
     console.log('[>] Carregando:', indexPath);
 
@@ -499,7 +499,7 @@ ipcMain.handle('open-external', async (_event, url) => {
 });
 
 app.whenReady().then(() => {
-    console.log('[~] NyanTools v3.8.0');
+    console.log('[~] NyanTools v3.9.0');
     console.log('[>] App path:', app.getAppPath());
     console.log('[>] Plataforma:', process.platform);
 
