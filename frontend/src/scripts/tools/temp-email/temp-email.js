@@ -1,14 +1,12 @@
-/* TEMP-EMAIL.JS v2.0.0 — NyanTools にゃん~ */
-
 const TempEmail = {
     currentEmail: null,
 
     domains: ['tempmail.com','guerrillamail.com','mailinator.com','maildrop.cc','throwaway.email'],
 
     services: [
-        { name: 'Temp-Mail',    url: 'https://temp-mail.org',           icon: '📬', desc: 'Interface moderna' },
-        { name: 'MinuteInbox',  url: 'https://www.minuteinbox.com',      icon: '⏱️', desc: 'Rápido e simples' },
-        { name: 'Tempail',      url: 'https://tempail.com',              icon: '⚡', desc: 'Sem anúncios' }
+        { name: 'Temp-Mail',   url: 'https://temp-mail.org',          icon: '📬', desc: 'Interface moderna' },
+        { name: 'MinuteInbox', url: 'https://www.minuteinbox.com',     icon: '⏱️', desc: 'Rápido e simples' },
+        { name: 'Tempail',     url: 'https://tempail.com',             icon: '⚡', desc: 'Sem anúncios' }
     ],
 
     render() {
@@ -16,7 +14,7 @@ const TempEmail = {
         const bg      = d ? 'rgba(255,255,255,0.04)' : '#ffffff';
         const border  = d ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.07)';
         const text    = d ? '#e2e8f0' : '#1e293b';
-        const subtext = d ? 'rgba(255,255,255,0.4)'  : 'rgba(0,0,0,0.4)';
+        const subtext = d ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)';
         const inputBg = d ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.02)';
         const label   = d ? 'rgba(255,255,255,0.3)'  : 'rgba(0,0,0,0.35)';
 
@@ -32,19 +30,16 @@ const TempEmail = {
             .te-service-btn{display:flex;flex-direction:column;align-items:center;gap:0.375rem;padding:1rem 0.75rem;border-radius:12px;border:1px solid ${border};background:${inputBg};cursor:pointer;transition:all 0.15s;font-family:'DM Sans',sans-serif;color:${text};flex:1}
             .te-service-btn:hover{border-color:rgba(168,85,247,0.4);background:rgba(168,85,247,0.07)}
             .te-email-display{font-family:'JetBrains Mono','Fira Code','Courier New',monospace;font-size:1rem;font-weight:700;color:${text};word-break:break-all;line-height:1.5;padding:1rem;background:${inputBg};border:1px solid ${border};border-radius:10px;margin-bottom:0.75rem}
-            .te-warn{font-size:0.72rem;color:${d?'rgba(255,165,0,0.7)':'rgba(180,100,0,0.8)'};background:${d?'rgba(255,165,0,0.08)':'rgba(255,165,0,0.08)'};border:1px solid rgba(255,165,0,0.2);border-radius:8px;padding:0.625rem 0.875rem;line-height:1.5}
+            .te-warn{font-size:0.72rem;color:${d?'rgba(255,165,0,0.7)':'rgba(180,100,0,0.8)'};background:rgba(255,165,0,0.08);border:1px solid rgba(255,165,0,0.2);border-radius:8px;padding:0.625rem 0.875rem;line-height:1.5}
         </style>
 
         <div class="te-root">
-
-            <!-- Header -->
             <div style="text-align:center;margin-bottom:1.5rem;">
                 <div style="font-size:2.8rem;margin-bottom:0.5rem;">📧</div>
                 <h1 style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0 0 0.25rem;">Email Temporário</h1>
                 <p style="font-size:0.82rem;color:${subtext};font-weight:500;">Três formas de proteger seu email real にゃん~</p>
             </div>
 
-            <!-- Opção 1: Serviços externos -->
             <div class="te-card">
                 <span class="te-label">Opção 1 — Serviços online (recomendado)</span>
                 <p style="font-size:0.8rem;color:${subtext};margin-bottom:0.875rem;line-height:1.5;">
@@ -60,25 +55,17 @@ const TempEmail = {
                 </div>
             </div>
 
-            <!-- Opção 2: Gerador -->
             <div class="te-card">
                 <span class="te-label">Opção 2 — Gerar email aleatório</span>
                 <p style="font-size:0.8rem;color:${subtext};margin-bottom:0.875rem;line-height:1.5;">
                     Gera um endereço para usar em cadastros. Acesse o domínio manualmente para ver mensagens.
                 </p>
-
                 ${this.currentEmail ? `
                     <div class="te-email-display">${this.currentEmail}</div>
                     <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                        <button class="te-btn te-btn-primary" onclick="TempEmail.copyEmail()" style="flex:1;">
-                            📋 Copiar email
-                        </button>
-                        <button class="te-btn te-btn-secondary" onclick="TempEmail.openInboxPage()">
-                            📬 Ver caixa
-                        </button>
-                        <button class="te-btn te-btn-secondary" onclick="TempEmail.generateSimple()">
-                            🔄 Novo
-                        </button>
+                        <button class="te-btn te-btn-primary" onclick="TempEmail.copyEmail()" style="flex:1;">📋 Copiar email</button>
+                        <button class="te-btn te-btn-secondary" onclick="TempEmail.openInboxPage()">📬 Ver caixa</button>
+                        <button class="te-btn te-btn-secondary" onclick="TempEmail.generateSimple()">🔄 Novo</button>
                     </div>
                 ` : `
                     <button class="te-btn te-btn-primary" style="width:100%;padding:0.875rem;" onclick="TempEmail.generateSimple()">
@@ -87,7 +74,6 @@ const TempEmail = {
                 `}
             </div>
 
-            <!-- Opção 3: Gmail trick -->
             <div class="te-card">
                 <span class="te-label">Opção 3 — Truque do Gmail / Outlook</span>
                 <p style="font-size:0.8rem;color:${subtext};margin-bottom:0.875rem;line-height:1.5;">
@@ -103,12 +89,10 @@ const TempEmail = {
                 </div>
             </div>
 
-            <!-- Aviso de segurança -->
             <div class="te-warn">
                 ⚠️ <strong>Emails temporários são públicos.</strong> Use para newsletters e cadastros de teste.
                 Nunca use para bancos, redes sociais importantes ou documentos.
             </div>
-
         </div>`;
     },
 
@@ -118,11 +102,8 @@ const TempEmail = {
     },
 
     openExternal(url) {
-        if (window.electronAPI?.openExternal) {
-            window.electronAPI.openExternal(url);
-        } else {
-            window.open(url, '_blank');
-        }
+        if (window.electronAPI?.openExternal) window.electronAPI.openExternal(url);
+        else window.open(url, '_blank');
         Utils.showNotification('🌐 Abrindo no navegador...', 'success');
     },
 
@@ -141,11 +122,11 @@ const TempEmail = {
         if (!this.currentEmail) return;
         const [username, domain] = this.currentEmail.split('@');
         const urls = {
-            'mailinator.com':   `https://www.mailinator.com/v4/public/inboxes.jsp?to=${username}`,
-            'maildrop.cc':      `https://maildrop.cc/inbox/${username}`,
+            'mailinator.com':    `https://www.mailinator.com/v4/public/inboxes.jsp?to=${username}`,
+            'maildrop.cc':       `https://maildrop.cc/inbox/${username}`,
             'guerrillamail.com': 'https://www.guerrillamail.com',
-            'tempmail.com':     'https://temp-mail.org',
-            'throwaway.email':  'https://www.throwaway.email'
+            'tempmail.com':      'https://temp-mail.org',
+            'throwaway.email':   'https://www.throwaway.email'
         };
         this.openExternal(urls[domain] || 'https://temp-mail.org');
     },

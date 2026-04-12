@@ -1,6 +1,3 @@
-/* TRANSLATOR.JS v2.0.1 — NyanTools にゃん~
-   FIX: missão 'Poliglota' agora contabiliza ao traduzir */
-
 const Translator = {
     sourceLang: 'en',
     targetLang: 'pt',
@@ -32,8 +29,8 @@ const Translator = {
         const selectBg = d ? 'rgba(255,255,255,0.06)' : '#f8fafc';
         const labelClr = d ? 'rgba(255,255,255,0.3)'  : 'rgba(0,0,0,0.35)';
 
-        const srcLang = this.languages.find(l => l.code === this.sourceLang);
-        const tgtLang = this.languages.find(l => l.code === this.targetLang);
+        const srcLang  = this.languages.find(l => l.code === this.sourceLang);
+        const tgtLang  = this.languages.find(l => l.code === this.targetLang);
         const selectOpts = (current) => this.languages.map(l =>
             `<option value="${l.code}" ${current === l.code ? 'selected' : ''}>${l.flag} ${l.name}</option>`
         ).join('');
@@ -88,9 +85,7 @@ const Translator = {
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-bottom:0.75rem;">
                 <div class="trl-card" style="padding-bottom:1rem;">
                     <label class="trl-label">Texto original</label>
-                    <textarea id="source-text" class="trl-textarea" rows="8"
-                              placeholder="Digite ou cole o texto aqui..."
-                              oninput="Translator.updateUI()"></textarea>
+                    <textarea id="source-text" class="trl-textarea" rows="8" placeholder="Digite ou cole o texto aqui..." oninput="Translator.updateUI()"></textarea>
                     <div class="trl-char-count" id="source-char-count">0 caracteres</div>
                 </div>
                 <div class="trl-card" style="padding-bottom:1rem;">
@@ -98,21 +93,17 @@ const Translator = {
                         <label class="trl-label" style="margin-bottom:0;">Tradução</label>
                         <span id="translation-status" style="font-size:0.72rem;font-weight:700;"></span>
                     </div>
-                    <textarea id="translated-text" class="trl-textarea" rows="8"
-                              placeholder="A tradução aparecerá aqui..."
-                              readonly></textarea>
+                    <textarea id="translated-text" class="trl-textarea" rows="8" placeholder="A tradução aparecerá aqui..." readonly></textarea>
                     <div class="trl-char-count" style="opacity:0;">·</div>
                 </div>
             </div>
 
             <div class="trl-card">
                 <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
-                    <button class="trl-btn trl-btn-primary" onclick="Translator.translate()" style="flex:1;min-width:120px;">
-                        🔄 Traduzir
-                    </button>
+                    <button class="trl-btn trl-btn-primary" onclick="Translator.translate()" style="flex:1;min-width:120px;">🔄 Traduzir</button>
                     <button class="trl-btn trl-btn-secondary" onclick="Translator.copy()">📋 Copiar</button>
-                    <button class="trl-btn trl-btn-secondary" onclick="Translator.speak('source')" title="Ouvir original">🔊 Ouvir original</button>
-                    <button class="trl-btn trl-btn-secondary" onclick="Translator.speak('target')" title="Ouvir tradução">🔊 Ouvir tradução</button>
+                    <button class="trl-btn trl-btn-secondary" onclick="Translator.speak('source')">🔊 Ouvir original</button>
+                    <button class="trl-btn trl-btn-secondary" onclick="Translator.speak('target')">🔊 Ouvir tradução</button>
                     <button class="trl-btn trl-btn-secondary" onclick="Translator.clear()">🗑️ Limpar</button>
                 </div>
             </div>
@@ -146,11 +137,7 @@ const Translator = {
         const statusEl     = document.getElementById('translation-status');
         if (!sourceText || !translatedEl) return;
 
-        if (!sourceText.trim()) {
-            translatedEl.value = '';
-            if (statusEl) statusEl.innerHTML = '';
-            return;
-        }
+        if (!sourceText.trim()) { translatedEl.value = ''; if (statusEl) statusEl.innerHTML = ''; return; }
 
         if (this.sourceLang === this.targetLang) {
             translatedEl.value = sourceText;
@@ -167,11 +154,7 @@ const Translator = {
             const data = await Utils.fetchAPI(url);
             if (data?.responseData?.translatedText) {
                 translatedEl.value = data.responseData.translatedText;
-                if (statusEl) {
-                    statusEl.innerHTML = '<span style="color:#22c55e;">✅ Concluído</span>';
-                    setTimeout(() => { statusEl.innerHTML = ''; }, 2000);
-                }
-                // FIX: rastrear missão de uso do tradutor ao completar tradução
+                if (statusEl) { statusEl.innerHTML = '<span style="color:#22c55e;">✅ Concluído</span>'; setTimeout(() => { statusEl.innerHTML = ''; }, 2000); }
                 window.Missions?.track?.({ event: 'open_tool', tool: 'translator' });
             } else {
                 throw new Error('Resposta inválida');
@@ -196,18 +179,12 @@ const Translator = {
 
     copy() {
         const text = document.getElementById('translated-text')?.value;
-        if (text && !text.startsWith('⏳') && !text.startsWith('❌')) {
-            Utils.copyToClipboard(text);
-        } else {
-            Utils.showNotification('❌ Nada para copiar', 'error');
-        }
+        if (text && !text.startsWith('⏳') && !text.startsWith('❌')) Utils.copyToClipboard(text);
+        else Utils.showNotification('❌ Nada para copiar', 'error');
     },
 
     clear() {
-        ['source-text','translated-text'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.value = '';
-        });
+        ['source-text','translated-text'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
         const counter = document.getElementById('source-char-count');
         const status  = document.getElementById('translation-status');
         if (counter) counter.textContent = '0 caracteres';
@@ -221,9 +198,9 @@ const Translator = {
         const lang = which === 'source' ? this.sourceLang : this.targetLang;
         if (!text || text.startsWith('⏳') || text.startsWith('❌')) { Utils.showNotification('❌ Nenhum texto para ouvir', 'error'); return; }
         window.speechSynthesis.cancel();
-        const utt  = new SpeechSynthesisUtterance(text);
-        utt.lang   = { pt:'pt-BR',en:'en-US',es:'es-ES',fr:'fr-FR',de:'de-DE',it:'it-IT',ja:'ja-JP',ko:'ko-KR',zh:'zh-CN',ru:'ru-RU',ar:'ar-SA',hi:'hi-IN' }[lang] || lang;
-        utt.rate   = 0.9;
+        const utt = new SpeechSynthesisUtterance(text);
+        utt.lang  = { pt:'pt-BR',en:'en-US',es:'es-ES',fr:'fr-FR',de:'de-DE',it:'it-IT',ja:'ja-JP',ko:'ko-KR',zh:'zh-CN',ru:'ru-RU',ar:'ar-SA',hi:'hi-IN' }[lang] || lang;
+        utt.rate  = 0.9;
         utt.onstart = () => Utils.showNotification('🔊 Reproduzindo...', 'info');
         utt.onerror = () => Utils.showNotification('❌ Erro ao reproduzir áudio', 'error');
         window.speechSynthesis.speak(utt);

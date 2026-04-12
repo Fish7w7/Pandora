@@ -1,36 +1,29 @@
-/* ═════════════════════════════════════════════
-   ROUTER.JS v3.2.0
-   v3.9.0: rotas sociais — friends, chat,
-           leaderboard, feed, challenges
- ═══════════════════════════════════════════════*/
-
 const Router = {
     currentRoute: 'home',
 
     routes: {
-        'home': null,
-        'password': 'PasswordGenerator',
-        'weather': 'Weather',
-        'translator': 'Translator',
-        'ai-assistant': 'AIAssistant',
-        'mini-game': 'MiniGame',
-        'temp-email': 'TempEmail',
-        'music': 'MusicPlayer',
-        'offline': 'OfflineZone',
-        'settings': 'Settings',
-        'updates': 'AutoUpdater',
-        'notes': 'Notes',
-        'tasks': 'Tasks',
-        'missions':    'Missions',
-        'shop':        'Shop',
-        'profile':     'Profile',
-        // v3.9.0 — Nyan Network
-        'friends':     'Friends',
-        'profile-public': 'Friends',
-        'chat':        'Chat',
-        'leaderboard': 'Leaderboard',
-        'feed':        'Feed',
-        'challenges':  'Challenges',
+        'home':          null,
+        'password':      'PasswordGenerator',
+        'weather':       'Weather',
+        'translator':    'Translator',
+        'ai-assistant':  'AIAssistant',
+        'mini-game':     'MiniGame',
+        'temp-email':    'TempEmail',
+        'music':         'MusicPlayer',
+        'offline':       'OfflineZone',
+        'settings':      'Settings',
+        'updates':       'AutoUpdater',
+        'notes':         'Notes',
+        'tasks':         'Tasks',
+        'missions':      'Missions',
+        'shop':          'Shop',
+        'profile':       'Profile',
+        'friends':       'Friends',
+        'profile-public':'Friends',
+        'chat':          'Chat',
+        'leaderboard':   'Leaderboard',
+        'feed':          'Feed',
+        'challenges':    'Challenges',
     },
 
     _history: ['home'],
@@ -41,20 +34,14 @@ const Router = {
         this.currentRoute = toolId;
         App.updateActiveNav(toolId);
 
-        if (window.Dashboard && toolId !== 'home') {
-            Dashboard.trackToolAccess(toolId);
-        }
-
-        if (window.Missions) {
-            Missions.track({ event: 'open_tool', tool: toolId });
-        }
+        if (window.Dashboard && toolId !== 'home') Dashboard.trackToolAccess(toolId);
+        if (window.Missions) Missions.track({ event: 'open_tool', tool: toolId });
 
         if (this._historyIdx < this._history.length - 1) {
             this._history = this._history.slice(0, this._historyIdx + 1);
         }
         this._history.push(toolId);
         this._historyIdx = this._history.length - 1;
-
         this.render();
     },
 
@@ -79,16 +66,10 @@ const Router = {
 
     render() {
         const container = document.getElementById('tool-container');
-        if (!container) return;
-        if (!App.user) {
-            console.warn('⚠️ Router.render() chamado sem usuário autenticado. Abortando.');
-            return;
-        }
+        if (!container || !App.user) return;
 
         const navEffect = window.Inventory?.getNavEffect?.();
-        if (navEffect) {
-            this._applyNavEffect(container, navEffect);
-        }
+        if (navEffect) this._applyNavEffect(container, navEffect);
 
         container.innerHTML = '';
 
@@ -114,9 +95,7 @@ const Router = {
     },
 
     attachMiniPlayer(container) {
-        if (this.currentRoute !== 'music' &&
-            window.MusicPlayer?.isPlaying &&
-            window.MusicPlayer?.currentSong) {
+        if (this.currentRoute !== 'music' && window.MusicPlayer?.isPlaying && window.MusicPlayer?.currentSong) {
             setTimeout(() => {
                 document.getElementById('mini-player')?.remove();
                 if (window.MusicPlayer.renderMiniPlayer) {
@@ -127,7 +106,7 @@ const Router = {
     },
 
     renderHome() {
-        const tools    = App.tools.filter(t => t.id !== 'home');
+        const tools = App.tools.filter(t => t.id !== 'home');
         const username = App.user?.username || 'Usuário';
         return `
             <div class="max-w-6xl mx-auto">
@@ -182,14 +161,12 @@ const Router = {
             </div>`;
     },
 
-    // FIX: efeito Flip agora faz rotação lateral real (perspectiva 3D)
-    // FIX: Zoom e Slide são distintos
     _applyNavEffect(container, effectId) {
         const effects = {
             effect_slide: () => {
-                container.style.transition   = 'none';
-                container.style.transform    = 'translateX(32px)';
-                container.style.opacity      = '0';
+                container.style.transition = 'none';
+                container.style.transform  = 'translateX(32px)';
+                container.style.opacity    = '0';
                 requestAnimationFrame(() => {
                     container.style.transition = 'transform 0.28s cubic-bezier(0.34,1.2,0.64,1), opacity 0.2s ease';
                     container.style.transform  = 'translateX(0)';
@@ -197,9 +174,9 @@ const Router = {
                 });
             },
             effect_zoom: () => {
-                container.style.transition   = 'none';
-                container.style.transform    = 'scale(0.94)';
-                container.style.opacity      = '0';
+                container.style.transition = 'none';
+                container.style.transform  = 'scale(0.94)';
+                container.style.opacity    = '0';
                 requestAnimationFrame(() => {
                     container.style.transition = 'transform 0.25s cubic-bezier(0.34,1.56,0.64,1), opacity 0.2s ease';
                     container.style.transform  = 'scale(1)';
@@ -218,7 +195,6 @@ const Router = {
                 });
             },
         };
-
         const applyDefault = () => {
             container.style.transition = 'none';
             container.style.opacity    = '0';
@@ -227,7 +203,6 @@ const Router = {
                 container.style.opacity    = '1';
             });
         };
-
         (effects[effectId] || applyDefault)();
     },
 
@@ -236,7 +211,6 @@ const Router = {
             if (e.altKey && e.key === 'ArrowLeft')  { e.preventDefault(); this.back(); }
             if (e.altKey && e.key === 'ArrowRight') { e.preventDefault(); this.forward(); }
         });
-        console.log('🧭 Router v3.2.0 inicializado');
     }
 };
 

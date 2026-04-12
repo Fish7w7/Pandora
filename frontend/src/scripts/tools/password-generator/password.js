@@ -1,5 +1,3 @@
-/* PASSWORD.JS v2.0.0 — NyanTools にゃん~ */
-
 const PasswordGenerator = {
     config: {
         length: 16,
@@ -44,7 +42,7 @@ const PasswordGenerator = {
         this.state.currentPassword = this._buildPassword();
 
         const d = document.body.classList.contains('dark-theme');
-        const info = this.getStrengthInfo(this.calculateStrength());
+        const info     = this.getStrengthInfo(this.calculateStrength());
         const strength = this.calculateStrength();
 
         setTimeout(() => {
@@ -64,7 +62,7 @@ const PasswordGenerator = {
             .pwd-strength-fill{height:100%;border-radius:99px;transition:width 0.5s cubic-bezier(0.34,1.56,0.64,1),background 0.3s}
             .pwd-strength-label{font-size:0.72rem;font-weight:700;letter-spacing:0.06em;text-transform:uppercase;min-width:72px;text-align:right}
             .pwd-section{background:${d?'rgba(255,255,255,0.03)':'rgba(0,0,0,0.02)'};border:1px solid ${d?'rgba(255,255,255,0.07)':'rgba(0,0,0,0.06)'};border-radius:14px;padding:1.25rem;margin-bottom:0.75rem}
-            .pwd-section-label{font-size:0.68rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:${d?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.35)'};margin-bottom:0.875rem}
+            .pwd-section-label{font-size:0.68rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:${d?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.35)'};margin-bottom:0.875rem;display:block}
             .pwd-length-row{display:flex;align-items:center;gap:1rem}
             .pwd-length-num{font-size:1.6rem;font-weight:900;font-variant-numeric:tabular-nums;color:#a855f7;min-width:2.5rem;text-align:center;line-height:1}
             .pwd-slider{flex:1;-webkit-appearance:none;appearance:none;height:5px;border-radius:99px;outline:none;cursor:pointer}
@@ -81,7 +79,6 @@ const PasswordGenerator = {
             .pwd-toggle-mono{font-family:monospace;font-size:0.75rem;margin-left:auto;opacity:0.5}
             .pwd-generate-btn{width:100%;padding:0.875rem;background:linear-gradient(135deg,#a855f7,#ec4899);border:none;border-radius:12px;color:white;font-size:0.95rem;font-weight:800;cursor:pointer;letter-spacing:0.02em;font-family:'DM Sans',sans-serif;box-shadow:0 4px 20px rgba(168,85,247,0.35);transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:0.5rem;margin-bottom:0.75rem}
             .pwd-generate-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(168,85,247,0.45)}
-            .pwd-generate-btn:active{transform:translateY(0)}
             .pwd-actions{display:grid;grid-template-columns:1fr 1fr;gap:0.5rem;margin-bottom:0.75rem}
             .pwd-action-btn{padding:0.625rem;border-radius:10px;font-size:0.78rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;border:1px solid ${d?'rgba(255,255,255,0.09)':'rgba(0,0,0,0.08)'};background:${d?'rgba(255,255,255,0.04)':'rgba(0,0,0,0.02)'};color:${d?'rgba(255,255,255,0.55)':'rgba(0,0,0,0.5)'};transition:all 0.15s;display:flex;align-items:center;justify-content:center;gap:0.4rem}
             .pwd-action-btn:hover{background:${d?'rgba(255,255,255,0.08)':'rgba(0,0,0,0.05)'};color:${d?'white':'#1e293b'}}
@@ -117,17 +114,15 @@ const PasswordGenerator = {
                     <button class="pwd-mode-btn ${this.config.mode==='random'?'active':''}" onclick="PasswordGenerator.setMode('random')">🎲 Aleatória</button>
                     <button class="pwd-mode-btn ${this.config.mode==='passphrase'?'active':''}" onclick="PasswordGenerator.setMode('passphrase')">💬 Frase-Senha</button>
                 </div>
-                ${this.config.mode==='passphrase'?`<div style="font-size:0.72rem;color:${d?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.35)'};line-height:1.5;">Palavras separadas por hífen — fácil de memorizar, igualmente segura.<br>Ex: <span style="font-family:monospace;color:#a855f7;">tigre-nuvem-cristal-vulcao</span></div>`:''}
+                ${this.config.mode==='passphrase'?`<div style="font-size:0.72rem;color:${d?'rgba(255,255,255,0.3)':'rgba(0,0,0,0.35)'};line-height:1.8;">Palavras separadas por hífen — fácil de memorizar.<br>Ex: <span style="font-family:monospace;color:#a855f7;">tigre-nuvem-cristal-vulcao</span></div>`:''}
             </div>
 
             <div class="pwd-section">
                 <div class="pwd-section-label">Comprimento</div>
                 <div class="pwd-length-row">
                     <input type="range" class="pwd-slider" id="pwd-length"
-                           min="${this.config.mode==='passphrase'?3:8}"
-                           max="${this.config.mode==='passphrase'?8:64}"
-                           value="${this.config.length}"
-                           oninput="PasswordGenerator.setLength(this.value)">
+                           min="${this.config.mode==='passphrase'?3:8}" max="${this.config.mode==='passphrase'?8:64}"
+                           value="${this.config.length}" oninput="PasswordGenerator.setLength(this.value)">
                     <div class="pwd-length-num" id="pwd-length-num">${this.config.length}</div>
                 </div>
                 <div class="pwd-slider-marks">
@@ -164,7 +159,7 @@ const PasswordGenerator = {
     _renderHistory() {
         if (!this.state.history.length) return '';
         const d = document.body.classList.contains('dark-theme');
-        const dimColor = d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
+        const muted = d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
         const items = this.state.history.map((item, i) => {
             const info = this.getStrengthInfo(item.strength);
             return `<div class="pwd-history-item">
@@ -179,7 +174,7 @@ const PasswordGenerator = {
         return `<div class="pwd-section" style="margin-top:0.25rem;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.875rem;">
                 <div class="pwd-section-label" style="margin-bottom:0;">Histórico (${this.state.history.length})</div>
-                <button onclick="PasswordGenerator.clearHistory()" style="font-size:0.68rem;font-weight:700;color:${dimColor};background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color 0.15s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='${dimColor}'">Limpar</button>
+                <button onclick="PasswordGenerator.clearHistory()" style="font-size:0.68rem;font-weight:700;color:${muted};background:none;border:none;cursor:pointer;font-family:'DM Sans',sans-serif;transition:color 0.15s;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='${muted}'">Limpar</button>
             </div>
             ${items}
         </div>`;
@@ -259,15 +254,15 @@ const PasswordGenerator = {
     _updateDisplay() {
         const el = document.getElementById('pwd-text');
         if (el) el.innerHTML = this._colorize(this.state.currentPassword);
-        const fill = document.querySelector('.pwd-strength-fill');
+        const fill  = document.querySelector('.pwd-strength-fill');
         const label = document.querySelector('.pwd-strength-label');
         if (fill && label) {
-            const s = this.calculateStrength();
+            const s    = this.calculateStrength();
             const info = this.getStrengthInfo(s);
-            fill.style.width = s + '%';
+            fill.style.width      = s + '%';
             fill.style.background = info.color;
-            label.style.color = info.color;
-            label.textContent = info.label;
+            label.style.color     = info.color;
+            label.textContent     = info.label;
         }
     },
 
@@ -325,7 +320,7 @@ const PasswordGenerator = {
             <div style="background:linear-gradient(145deg,#0e0e1a,#14102a);border:1px solid rgba(168,85,247,0.25);border-radius:16px;padding:1.75rem;width:100%;max-width:300px;margin:0 1rem;box-shadow:0 32px 80px rgba(0,0,0,0.7);animation:ncUp 0.25s cubic-bezier(0.34,1.56,0.64,1);font-family:'DM Sans',sans-serif;">
                 <div style="font-size:1.8rem;margin-bottom:0.75rem;">🗑️</div>
                 <div style="font-size:1rem;font-weight:800;color:white;margin-bottom:0.375rem;font-family:'Syne',sans-serif;">Limpar histórico?</div>
-                <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);margin-bottom:1.5rem;line-height:1.5;">As ${this.state.history.length} senhas salvas serão removidas.</div>
+                <div style="font-size:0.8rem;color:rgba(255,255,255,0.45);margin-bottom:1.5rem;">As ${this.state.history.length} senhas salvas serão removidas.</div>
                 <div style="display:flex;gap:0.625rem;">
                     <button id="pwd-clear-cancel" style="flex:1;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);font-size:0.875rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancelar</button>
                     <button id="pwd-clear-confirm" style="flex:1;padding:0.6rem;border-radius:10px;background:rgba(239,68,68,0.85);border:1px solid rgba(239,68,68,0.4);color:white;font-size:0.875rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;">Limpar</button>
@@ -346,12 +341,12 @@ const PasswordGenerator = {
     analyzePassword() {
         if (!this.state.currentPassword) { Utils?.showNotification('⚠️ Gere uma senha primeiro', 'warning'); return; }
         const pw = this.state.currentPassword;
-        const s = this.calculateStrength();
+        const s  = this.calculateStrength();
         const info = this.getStrengthInfo(s);
-        const len = pw.length;
         const hasUpper = /[A-Z]/.test(pw), hasLower = /[a-z]/.test(pw);
-        const hasNum = /[0-9]/.test(pw), hasSym = /[^A-Za-z0-9]/.test(pw);
-        const types = [hasUpper,hasLower,hasNum,hasSym].filter(Boolean).length;
+        const hasNum   = /[0-9]/.test(pw), hasSym = /[^A-Za-z0-9]/.test(pw);
+        const types    = [hasUpper, hasLower, hasNum, hasSym].filter(Boolean).length;
+        const len      = pw.length;
         const crackTime = len<8||types<2?'Segundos':len<12||types<3?'Horas a dias':len<16?'Semanas a meses':len<20?'Décadas':'Milhões de anos';
         const recs = [...(len<16?['Aumentar para 16+ caracteres']:[]),...(types<4?['Ativar todos os tipos de caracteres']:[]),...(!hasSym?['Adicionar símbolos especiais']:[])];
 
