@@ -1,35 +1,31 @@
 {
-  "version": "3.9.0",
-  "buildDate": "2026-04-12",
+  "version": "3.10.0",
+  "buildDate": "2026-04-13",
   "changelog": [
-    "👥 Sistema de Amigos — adicione por NyanTag, aceite convites e veja status em tempo real",
-    "💬 Chat privado 1:1 com histórico persistente no Firebase",
-    "🏆 Placar Global — Top 10 por jogo com filtro global vs só amigos",
-    "📰 Feed de atividade — linha do tempo com resultados, conquistas e recordes dos amigos",
-    "⚔️ Desafios de 24h — duelos side-by-side entre amigos em qualquer jogo",
-    "🏷️ NyanTag — identidade única online com badge de versão e status customizável",
-    "🟢 Status em tempo real — Online, Jogando, Ausente, Offline",
-    "📊 Perfil público — bio, recordes, conquistas com data e comparação lado a lado",
-    "🖼️ Murais por jogo — feed de resultados com reações 🐱⭐💎🔥 e comentários",
-    "🛒 Sistema da Loja revisado e corrigido"
+    "🌍 Nyan Worlds — nova direção em mundos de uso: jogar, conversar, organizar e evoluir perfil",
+    "🏠 Home personalizada com continuar de onde parou, missões do dia, amigos online, notas recentes e atalhos dinâmicos",
+    "🧑 Perfil 2.0 com base para vitrines, histórico e identidade mais pessoal",
+    "🟢 Presença rica com contexto vivo: jogando, focado em tarefas, ausente e mais",
+    "🔗 Integração entre notas, tarefas, IA e camadas sociais para um ecossistema mais conectado",
+    "🐛 Correção da Zona Offline: Forca e Termo não voltam mais para a tela inicial ao abrir"
   ],
-  "tag_name": "v3.9.0",
-  "releaseDate": "2026-04-12",
-  "name": "NyanTools v3.9.0 にゃん~",
-  "codename": "Nyan Network",
-  "body": "## 🌐 NyanTools v3.9.0 — Nyan Network にゃん~\n\n> **FEATURE UPDATE:** Duas semanas de muito trabalho — eu e a Clara não paramos até entregar o maior update social da história do NyanTools: amigos, chat, desafios, murais, placares e perfis públicos. にゃん~\n\n---\n\n### 👥 Sistema de Amigos\n- Adicione amigos pelo NyanTag único\n- Aceite, recuse convites\n- Lista de amigos com status e versão em tempo real\n- Notificação quando um amigo bate seu recorde\n\n### 💬 Chat Privado\n- Conversa 1:1 com cada amigo\n- Histórico persistente no Firebase\n- Notificação de mensagem nova na sidebar\n\n### 🖼️ Murais por Jogo\n- Feed de resultados postados por amigos em cada jogo\n- Reações rápidas: 🐱⭐💎🔥\n- Comentários nos resultados\n- Botão \"Compartilhar\" ao terminar qualquer jogo\n\n### ⚔️ Desafios\n- Desafie amigos diretamente em qualquer jogo\n- Duelo side-by-side com prazo de 24h\n- Notificação de desafio recebido\n\n### 📊 Perfil Público\n- Avatar gerado ou foto de perfil\n- Bio curta, frase personalizada\n- Recordes de todos os jogos + conquistas com data de desbloqueio\n- Botão \"Me comparar\" — side-by-side dos seus recordes vs os da pessoa\n- Jogo favorito calculado automaticamente pelo dashboard\n- Badge de versão: 🟢 igual / 🟡 desatualizado / 🔵 mais novo\n- \"Membro desde\" + última vez online\n\n### 🏆 Placar Global\n- Top 10 por jogo\n- Filtro: global vs só amigos\n- Sua posição sempre visível mesmo fora do Top 10\n\n### 📰 Feed de Atividade\n- Linha do tempo dos amigos — resultados, conquistas, recordes quebrados\n\n### 🛒 Loja\n- Sistema da loja revisado e corrigido\n\n---\n\n**Versão Anterior:** v3.8.0  \n**Autores:** Gabriel + Clara  \n**Tempo de desenvolvimento:** ~2 semanas",
+  "tag_name": "v3.10.0",
+  "releaseDate": "2026-04-13",
+  "name": "NyanTools v3.10.0 にゃん~",
+  "codename": "Nyan Worlds",
+  "body": "## 🌍 NyanTools v3.10.0 — Nyan Worlds にゃん~\n\n> **FEATURE UPDATE:** Esta versão inicia a fase Nyan Worlds, unindo produtividade social e arcade competitivo em uma experiência mais pessoal. にゃん~\n\n---\n\n### 🧠 Visão do Release\n- Mundos de uso conectados: jogar, conversar, organizar e evoluir perfil\n- Base para evolução de temporadas, eventos e sistemas sociais mais profundos\n\n### 🏠 Home personalizada\n- Estrutura para uma tela inicial mais inteligente\n- Espaço para \"continuar de onde parou\", missões, amigos online e atalhos dinâmicos\n\n### 🧑 Perfil 2.0 e presença rica\n- Preparação do perfil para identidade mais forte\n- Presença contextual mais viva no ecossistema social\n\n### 🔗 Ferramentas conectadas\n- Direção para integrar notas, tarefas, IA e progressão de forma mais orgânica\n\n### 🐛 Correções\n- Corrigido bug da Zona Offline onde Forca/Termo voltavam para a tela inicial ao entrar no jogo\n\n---\n\n**Versão Anterior:** v3.9.0  \n**Autores:** Gabriel + Clara  \n**Linha desta versão:** Nyan Worlds",
   "previousVersion": {
-    "version": "3.8.0",
-    "tag": "v3.8.0",
-    "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.8.0"
+      "version": "3.9.0",
+      "tag": "v3.9.0",
+      "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.9.0"
   },
-  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.9.0",
-  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.9.0",
+  "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.10.0",
+  "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.10.0",
   "statistics": {
     "filesNew": 6,
     "filesRewritten": 3,
     "filesModified": 18,
     "bugsFixed": 1,
-    "featuresAdded": 14
+    "featuresAdded": 6
   }
 }

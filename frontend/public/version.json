@@ -1,16 +1,12 @@
 {
-  "version": "3.9.0",
-  "buildDate": "2026-04-12",
+  "version": "3.10.0",
+  "buildDate": "2026-04-13",
   "changelog": [
-    "👥 Sistema de Amigos — adicione por NyanTag, aceite convites e veja status em tempo real",
-    "💬 Chat privado 1:1 com histórico persistente no Firebase",
-    "🏆 Placar Global — Top 10 por jogo com filtro global vs só amigos",
-    "📰 Feed de atividade — linha do tempo com resultados, conquistas e recordes dos amigos",
-    "⚔️ Desafios de 24h — duelos side-by-side entre amigos em qualquer jogo",
-    "🏷️ NyanTag — identidade única online com badge de versão e status customizável",
-    "🟢 Status em tempo real — Online, Jogando, Ausente, Offline",
-    "📊 Perfil público — bio, recordes, conquistas com data e comparação lado a lado",
-    "🖼️ Murais por jogo — feed de resultados com reações 🐱⭐💎🔥 e comentários",
-    "🛒 Sistema da Loja revisado e corrigido"
+    "🌍 Nyan Worlds — nova direção em mundos de uso: jogar, conversar, organizar e evoluir perfil",
+    "🏠 Home personalizada com continuar de onde parou, missões do dia, amigos online, notas recentes e atalhos dinâmicos",
+    "🧑 Perfil 2.0 com base para vitrines, histórico e identidade mais pessoal",
+    "🟢 Presença rica com contexto vivo: jogando, focado em tarefas, ausente e mais",
+    "🔗 Integração entre notas, tarefas, IA e camadas sociais para um ecossistema mais conectado",
+    "🐛 Correção da Zona Offline: Forca e Termo não voltam mais para a tela inicial ao abrir"
   ]
 }

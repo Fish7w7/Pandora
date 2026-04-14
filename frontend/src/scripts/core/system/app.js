@@ -1,5 +1,5 @@
 const App = {
-    version: '3.9.0',
+    version: '3.10.0',
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
@@ -317,9 +317,9 @@ const App = {
                 }
             }
             if (totalUnread > 0) {
-                document.title = `(${totalUnread}) NyanTools にゃん~ v3.9.0`;
+                document.title = `(${totalUnread}) NyanTools にゃん~ v3.10.0`;
             } else if (!document.title.startsWith('(')) {
-                document.title = 'NyanTools にゃん~ v3.9.0';
+                document.title = 'NyanTools にゃん~ v3.10.0';
             }
         }, () => {});
         NyanFirebase._listeners.push(unsubChats);

@@ -95,6 +95,7 @@ const Dashboard = {
     init() {
         this.loadStats();
         this.updateStats();
+        setTimeout(() => this.hydratePersonalizedHome(), 50);
         console.log('📊 Dashboard inicializado com sucesso!');
     },
     
@@ -105,6 +106,7 @@ const Dashboard = {
         return `
             <div class="max-w-7xl mx-auto">
                 ${this.renderHeader()}
+                ${this.renderPersonalizedHome()}
                 ${this.renderQuickStats()}
                 ${this.renderActivitySection()}
                 ${this.renderToolsUsage()}
@@ -135,6 +137,161 @@ const Dashboard = {
                 <p class="text-gray-600 text-lg">Veja como você está usando o NyanTools にゃん~</p>
             </div>
         `;
+    },
+
+    renderPersonalizedHome() {
+        const c = this._colors();
+        const lastRoute = Utils.loadData('last_tool_route');
+        const lastRouteAt = Utils.loadData('last_tool_route_at');
+        const lastTool = lastRoute ? this.getToolInfo(lastRoute) : null;
+        const lastSeen = lastRouteAt ? this.formatLastAccess(lastRouteAt) : 'agora há pouco';
+
+        const missions = window.Missions?.getDailyMissions?.() || [];
+        const nextMission = missions.find(m => !m.completed) || null;
+        const notes = (Utils.loadData('notes') || []).slice(0, 3);
+        const shortcuts = this.getDynamicShortcuts(4);
+
+        const notesHtml = notes.length
+            ? notes.map(n => `
+                <button onclick="Router.navigate('notes')" style="
+                    width:100%;text-align:left;padding:0.5rem 0.625rem;border-radius:10px;border:1px solid ${c.innerBdr};
+                    background:${c.inner};color:${c.text};font-size:0.75rem;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+                ">📝 ${(n.title || 'Sem título')}</button>
+            `).join('')
+            : `<div style="font-size:0.72rem;color:${c.sub};">Sem notas recentes</div>`;
+
+        const shortcutsHtml = shortcuts.map(s => `
+            <button onclick="Router.navigate('${s.id}')" style="
+                padding:0.5rem 0.625rem;border-radius:10px;border:1px solid ${c.innerBdr};background:${c.inner};
+                color:${c.text};font-size:0.72rem;font-weight:700;cursor:pointer;
+            ">${s.icon} ${s.name}</button>
+        `).join('');
+
+        return this._section('🌍', 'Nyan Worlds · Home personalizada', `
+            <div style="display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:0.75rem;">
+                <div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:12px;padding:0.9rem;">
+                    <div style="font-size:0.64rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.45rem;">Continuar de onde parou</div>
+                    ${lastTool
+                        ? `<button onclick="Router.navigate('${lastRoute}')" style="width:100%;text-align:left;border:none;background:transparent;cursor:pointer;padding:0;">
+                                <div style="font-size:0.9rem;font-weight:800;color:${c.title};">${lastTool.icon} ${lastTool.name}</div>
+                                <div style="font-size:0.72rem;color:${c.sub};margin-top:0.15rem;">Último acesso ${lastSeen}</div>
+                           </button>`
+                        : `<div style="font-size:0.75rem;color:${c.sub};">Ainda sem histórico recente</div>`
+                    }
+                </div>
+
+                <div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:12px;padding:0.9rem;">
+                    <div style="font-size:0.64rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.45rem;">Missão do dia</div>
+                    ${nextMission
+                        ? `<button onclick="Router.navigate('missions')" style="width:100%;text-align:left;border:none;background:transparent;cursor:pointer;padding:0;">
+                                <div style="font-size:0.85rem;font-weight:700;color:${c.title};">${nextMission.icon} ${nextMission.title}</div>
+                                <div style="font-size:0.72rem;color:${c.sub};margin-top:0.15rem;">${nextMission.desc}</div>
+                           </button>`
+                        : `<button onclick="Router.navigate('missions')" style="width:100%;text-align:left;border:none;background:transparent;cursor:pointer;padding:0;">
+                                <div style="font-size:0.85rem;font-weight:700;color:#22c55e;">✅ Tudo concluído hoje</div>
+                                <div style="font-size:0.72rem;color:${c.sub};margin-top:0.15rem;">Abra missões para ver o desafio semanal</div>
+                           </button>`
+                    }
+                </div>
+
+                <div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:12px;padding:0.9rem;">
+                    <div style="font-size:0.64rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.45rem;">Amigos online</div>
+                    <div id="dash-online-count" style="font-size:0.9rem;font-weight:800;color:${c.title};">Carregando...</div>
+                    <div id="dash-online-list" style="font-size:0.72rem;color:${c.sub};margin-top:0.2rem;">Buscando presença em tempo real</div>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:0.75rem;margin-top:0.75rem;">
+                <div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:12px;padding:0.9rem;">
+                    <div style="font-size:0.64rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.45rem;">Notas recentes</div>
+                    <div style="display:flex;flex-direction:column;gap:0.45rem;">
+                        ${notesHtml}
+                    </div>
+                </div>
+
+                <div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:12px;padding:0.9rem;">
+                    <div style="font-size:0.64rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.45rem;">Atalhos dinâmicos</div>
+                    <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:0.45rem;">
+                        ${shortcutsHtml}
+                    </div>
+                </div>
+            </div>
+        `);
+    },
+
+    getDynamicShortcuts(limit = 4) {
+        const normalizedAccess = this.normalizeToolAccess();
+        const topIds = Object.entries(normalizedAccess)
+            .sort((a, b) => b[1] - a[1])
+            .map(([id]) => id)
+            .filter(id => id !== 'home' && id !== 'profile')
+            .slice(0, limit);
+
+        const fallback = ['notes', 'tasks', 'offline', 'missions'];
+        const chosen = [...new Set([...topIds, ...fallback])].slice(0, limit);
+        return chosen.map(id => ({ id, ...this.getToolInfo(id) }));
+    },
+
+    formatLastAccess(timestamp) {
+        const diff = Date.now() - Number(timestamp || 0);
+        if (diff < 60000) return 'agora';
+        if (diff < 3600000) return `há ${Math.floor(diff / 60000)} min`;
+        if (diff < 86400000) return `há ${Math.floor(diff / 3600000)}h`;
+        return `há ${Math.floor(diff / 86400000)} dia(s)`;
+    },
+
+    async hydratePersonalizedHome() {
+        const countEl = document.getElementById('dash-online-count');
+        const listEl  = document.getElementById('dash-online-list');
+        if (!countEl || !listEl) return;
+
+        if (!window.NyanAuth?.isOnline?.() || !window.NyanFirebase?.isReady?.()) {
+            countEl.textContent = 'Offline social';
+            listEl.textContent = 'Conecte a conta online para ver presença dos amigos';
+            return;
+        }
+
+        const uid = NyanAuth.getUID?.();
+        if (!uid) return;
+
+        try {
+            const { query, collection, where, getDocs, ref, get } = NyanFirebase.fn;
+            const fsSnap = await getDocs(
+                query(collection(NyanFirebase.db, 'friendships'), where('users', 'array-contains', uid))
+            );
+
+            const friendUIDs = fsSnap.docs.map(d => {
+                const users = d.data().users || [];
+                return users.find(u => u !== uid);
+            }).filter(Boolean);
+
+            if (friendUIDs.length === 0) {
+                countEl.textContent = '0 online';
+                listEl.textContent = 'Adicione amigos para ativar esta seção';
+                return;
+            }
+
+            const onlineUIDs = [];
+            for (const fuid of friendUIDs) {
+                const snap = await get(ref(NyanFirebase.rtdb, `presence/${fuid}`)).catch(() => null);
+                const data = snap?.val?.();
+                if (data?.online === true) onlineUIDs.push(fuid);
+            }
+
+            if (onlineUIDs.length === 0) {
+                countEl.textContent = '0 online';
+                listEl.textContent = `${friendUIDs.length} amigo(s) no total`;
+                return;
+            }
+
+            const profiles = await Promise.all(onlineUIDs.slice(0, 3).map(fuid => NyanFirebase.getDoc(`users/${fuid}`)));
+            const names = profiles.filter(Boolean).map(p => p.username).filter(Boolean);
+            countEl.textContent = `${onlineUIDs.length} online`;
+            listEl.textContent = names.length ? names.join(' · ') : 'Amigos online agora';
+        } catch (_) {
+            countEl.textContent = 'Indisponível';
+            listEl.textContent = 'Não foi possível carregar presença agora';
+        }
     },
     
     renderQuickStats() {

@@ -1,7 +1,7 @@
 {
   "name": "nyantools",
-  "version": "3.9.0",
- "description": "NyanTools - Your purr-fect toolkit にゃん~ | Nyan Network — amigos, chat privado, desafios, murais, placares globais e perfis públicos",
+  "version": "3.10.0",
+ "description": "NyanTools - Your purr-fect toolkit にゃん~ | Nyan Worlds — home personalizada, perfil 2.0, presença rica e ecossistema conectado",
   "main": "backend/src/main.js",
   "scripts": {
     "start": "electron .",

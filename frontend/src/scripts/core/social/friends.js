@@ -726,7 +726,7 @@ const Friends = {
         }
         const favoriteGame = Friends._getFavoriteGame(scoreMap);
 
-        const myVersion    = window.App?.version || '3.9.0';
+        const myVersion    = window.App?.version || '3.10.0';
         const theirVersion = profile.version || '?';
         let vBadgeEmoji = '', vBadgeText = '', vBadgeTitle = '';
         if (theirVersion !== '?' && myVersion) {

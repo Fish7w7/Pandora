@@ -32,6 +32,10 @@ const Router = {
     navigate(toolId) {
         if (toolId === this.currentRoute) return;
         this.currentRoute = toolId;
+        if (toolId !== 'home') {
+            Utils.saveData('last_tool_route', toolId);
+            Utils.saveData('last_tool_route_at', Date.now());
+        }
         App.updateActiveNav(toolId);
 
         if (window.Dashboard && toolId !== 'home') Dashboard.trackToolAccess(toolId);

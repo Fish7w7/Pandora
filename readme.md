@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.9.0-purple?style=for-the-badge&logo=electron)
+![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.10.0-purple?style=for-the-badge&logo=electron)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)
 ![Electron](https://img.shields.io/badge/Electron-27.0.0-47848F?style=for-the-badge&logo=electron)
@@ -82,7 +82,7 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
    ```
 
 2. **Execute o Instalador**
-   - Baixe `NyanTools-3.9.0-Setup.exe`
+   - Baixe `NyanTools-3.10.0-Setup.exe`
    - Execute e siga o assistente de instalação
 
 3. **Pronto! にゃん~**
@@ -380,12 +380,12 @@ npm run build:all      # Todas as plataformas
 
 ```
 dist/
-├── NyanTools-3.9.0-Setup.exe       # Windows — instalador
-├── NyanTools 3.9.0.exe             # Windows — portátil
-├── NyanTools-3.9.0-x64.dmg        # macOS Intel
-├── NyanTools-3.9.0-arm64.dmg      # macOS Apple Silicon
-├── NyanTools-3.9.0-x64.AppImage   # Linux
-└── NyanTools-3.9.0-amd64.deb      # Linux Debian/Ubuntu
+├── NyanTools-3.10.0-Setup.exe       # Windows — instalador
+├── NyanTools 3.10.0.exe             # Windows — portátil
+├── NyanTools-3.10.0-x64.dmg        # macOS Intel
+├── NyanTools-3.10.0-arm64.dmg      # macOS Apple Silicon
+├── NyanTools-3.10.0-x64.AppImage   # Linux
+└── NyanTools-3.10.0-amd64.deb      # Linux Debian/Ubuntu
 ```
 
 ---
@@ -452,7 +452,7 @@ dist/
 - [x] Efeitos de navegação: Slide, Zoom e Bounce
 - [x] Bloco Economy no Perfil com barra de XP e histórico
 
-### **✅ v3.9.0 "Nyan Network" — Atual**
+### **✅ v3.10.0 "Nyan Worlds" — Atual**
 - [x] Sistema de Amigos — adicionar por NyanTag, aceitar/recusar convites
 - [x] Status em tempo real — Online, Jogando, Ausente, Offline
 - [x] Chat privado 1:1 com histórico persistente no Firebase
@@ -548,7 +548,7 @@ MIT License — Copyright (c) 2026 Fish7w7
 
 *Your Purr-fect Toolkit! 🐱✨*
 
-**v3.9.0 — Nyan Network 🌐**
+**v3.10.0 — Nyan Worlds 🌍**
 
 **[⬆ Voltar ao topo](#-nyantools-にゃん)**
 

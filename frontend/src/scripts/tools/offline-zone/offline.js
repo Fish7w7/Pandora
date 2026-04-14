@@ -20,9 +20,6 @@ const OfflineZone = {
     render() {
         // Se startGame() está em andamento, renderizar o jogo imediatamente
         if (this._startingGame && this.currentGame) return this._renderGame();
-        // Se chegou aqui via navegação normal, mostrar menu (init() limpará currentGame após render)
-        // mas já resetar aqui para não mostrar jogo de sessão anterior
-        if (!this._startingGame) { this.currentGame = null; }
         if (this.currentGame) return this._renderGame();
 
         const d      = document.body.classList.contains('dark-theme');
@@ -203,6 +200,9 @@ const OfflineZone = {
         // _startingGame é true apenas quando startGame() chama Router.render()
         // Nesse caso, não resetar o estado — o jogo está prestes a ser renderizado
         if (this._startingGame) return;
+        // Durante a sessão de um jogo, Router.render() pode ser chamado várias vezes
+        // (ex.: atualizações do Termo/Forca). Não podemos resetar o estado aqui.
+        if (this._insideGame) return;
         // Navegação normal para a zona offline — resetar estado do jogo
         this._insideGame = false;
         this.currentGame = null;

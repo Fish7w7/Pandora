@@ -1,7 +1,7 @@
 
 
 const AutoUpdater = {
-    currentVersion: '3.9.0',
+    currentVersion: '3.10.0',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -26,6 +26,21 @@ const AutoUpdater = {
 
       changelog: [
     {
+        version: '3.10.0',
+        date: '2026-04-13T12:00:00',
+        label: 'Atual',
+        labelColor: 'bg-green-500',
+        author: 'Gabriel',
+        changes: [
+            { type: '🌍', text: 'Nyan Worlds — nova direção focada em mundos de uso: jogar, conversar, organizar e evoluir perfil' },
+            { type: '🏠', text: 'Home personalizada com continuar de onde parou, missões do dia, amigos online, notas recentes e atalhos dinâmicos' },
+            { type: '🧑', text: 'Perfil 2.0 com identidade ampliada e base para vitrines, histórico e estatísticas comparativas' },
+            { type: '🟢', text: 'Presença rica mais viva para mostrar contexto atual (jogando, focado, ausente, etc.)' },
+            { type: '🔗', text: 'Integração entre sistemas para fortalecer o ecossistema de produtividade social e arcade competitivo' },
+            { type: '🐛', text: 'Correção da Zona Offline: Forca e Termo não retornam mais indevidamente para a tela inicial' },
+        ]
+    },
+    {
         version: '3.9.0',
         date: '2026-04-12T12:00:00',
         label: 'Atual',
@@ -42,25 +57,6 @@ const AutoUpdater = {
             { type: '🟢', text: 'Status em tempo real — Online, Jogando, Ausente, Offline; notificação quando amigo bate seu recorde' },
             { type: '🏆', text: 'Placar Global — Top 10 por jogo, filtro global vs só amigos, sua posição sempre visível mesmo fora do Top 10' },
             { type: '🛒', text: 'Sistema da Loja revisado e corrigido' },
-        ]
-    },
-    {
-        version: '3.8.0',
-        date: '2026-03-22T12:00:00',
-        label: null,
-        labelColor: '',
-        author: 'Gabriel & Clara',
-        changes: [
-            { type: '✨', text: 'Sistema de XP e Níveis — ganhe experiência jogando e completando missões, com marcos em nv10/25/50' },
-            { type: '💰', text: 'Chips — moeda do NyanTools integrada a todos os jogos e recompensas' },
-            { type: '📋', text: 'Missões Diárias — 3 por dia (fácil/médio/difícil) + desafio semanal com recompensas em XP e chips' },
-            { type: '🛍️', text: 'Loja com rotação semanal — títulos, bordas de avatar, temas visuais, efeitos de navegação e partículas' },
-            { type: '🎒', text: 'Inventário — equipe itens em tempo real com efeitos aplicados instantaneamente' },
-            { type: '🌸', text: 'Temas visuais com efeitos de login — Sakura (pétalas), Midnight (estrelas), Neon (glitch), Chamas (fogo)' },
-            { type: '✨', text: 'Partículas de perfil — estrelas, corações e patinhas em órbita ao redor do avatar na sidebar' },
-            { type: '🌈', text: 'Bordas de avatar — Simples, Roxa, Dourada, Neon animada + bordas de marco por nível' },
-            { type: '↔️', text: 'Efeitos de navegação — Slide, Zoom e Bounce ao trocar de página' },
-            { type: '📊', text: 'Bloco Economy no Perfil — nível, chips, barra de XP e histórico de recompensas recentes' },
         ]
     },
 ],

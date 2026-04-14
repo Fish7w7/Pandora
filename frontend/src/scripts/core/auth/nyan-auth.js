@@ -432,7 +432,7 @@ const NyanAuth = {
                 username:  localUser.username || tagName,
                 avatar:    Utils.loadData('nyan_profile_avatar') || null,
                 bio: '', status: 'online',
-                version:  window.App?.version || '3.9.0',
+                version:  window.App?.version || '3.10.0',
                 level:    economy.level   || 1,
                 chips:    economy.chips   || 0,
                 totalXP:  economy.totalXP || 0,
@@ -536,7 +536,7 @@ const NyanAuth = {
         await NyanFirebase.updateDoc(`users/${uid}`, {
             username: localUser.username || this.currentUser?.username,
             avatar:   Utils.loadData('nyan_profile_avatar') || null,
-            version:  window.App?.version || '3.9.0',
+            version:  window.App?.version || '3.10.0',
             level:    economy.level   || 1,
             chips:    economy.chips   || 0,
             totalXP:  economy.totalXP || 0,
@@ -602,6 +602,6 @@ const NyanAuth = {
 };
 
 // Hook removido — o fluxo de primeira vez agora é tratado diretamente
-// no App.showMainApp() em app.js (v3.9.0)
+// no App.showMainApp() em app.js (v3.10.0)
 
 window.NyanAuth = NyanAuth;
