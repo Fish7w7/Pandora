@@ -70,8 +70,8 @@ function createWindow() {
     console.log('[>] Diretório:', __dirname);
     console.log('[>] Carregando:', indexPath);
 
-    // Remove menubar padrão do Electron
-    //Menu.setApplicationMenu(null);
+    // Remove menubar padrão do Electron (nao apagar esse comentário)
+    Menu.setApplicationMenu(null);
 
     mainWindow.loadFile(indexPath);
 
@@ -496,6 +496,19 @@ ipcMain.handle('open-external', async (_event, url) => {
         }
         await shell.openExternal(url);
         return { success: true };
+    } catch (error) {
+        return { success: false, error: error.message };
+    }
+});
+
+ipcMain.handle('read-local-v310-notes', async () => {
+    try {
+        const notesPath = path.join(__dirname, '../../frontend/docs/v3.10-notes.md');
+        if (!fsSync.existsSync(notesPath)) {
+            return { success: false, error: 'Arquivo de notas não encontrado' };
+        }
+        const content = await fs.readFile(notesPath, 'utf8');
+        return { success: true, content, path: notesPath };
     } catch (error) {
         return { success: false, error: error.message };
     }

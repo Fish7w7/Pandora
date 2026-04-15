@@ -10,107 +10,105 @@ const QuizDiario = {
     _phase: 'intro',
 
     _bank: [
-        // TECNOLOGIA
-        { q: "Qual linguagem de programação foi criada por Guido van Rossum?", o: ["Java","Python","Ruby","Perl"], a: 1, e: "Python foi criado por Guido van Rossum e lançado em 1991." },
-        { q: "O que significa a sigla HTML?", o: ["HyperText Markup Language","High Transfer Markup Language","HyperText Machine Learning","Hard Text Modeling Language"], a: 0, e: "HTML é a linguagem de marcação padrão para criação de páginas web." },
-        { q: "Quantos bits tem um byte?", o: ["4","16","8","32"], a: 2, e: "Um byte é composto por 8 bits, unidade básica de armazenamento digital." },
-        { q: "Qual empresa criou o sistema operacional Android?", o: ["Apple","Microsoft","Google","Samsung"], a: 2, e: "O Android foi desenvolvido pelo Google e lançado em 2008." },
-        { q: "O que é um algoritmo?", o: ["Um tipo de vírus","Sequência de instruções para resolver um problema","Hardware de computador","Linguagem de banco de dados"], a: 1, e: "Algoritmo é um conjunto finito de instruções para resolver um problema." },
-        { q: "Qual foi o primeiro computador eletrônico do mundo?", o: ["ENIAC","IBM PC","Apple I","Colossus"], a: 0, e: "O ENIAC (1945) é considerado o primeiro computador eletrônico de uso geral." },
-        { q: "O que significa CPU?", o: ["Central Processing Unit","Computer Personal Unit","Central Program Utility","Core Processing Update"], a: 0, e: "CPU é a Unidade Central de Processamento, o 'cérebro' do computador." },
-        { q: "Qual empresa fundou o JavaScript?", o: ["Google","Microsoft","Netscape","Apple"], a: 2, e: "JavaScript foi criado por Brendan Eich na Netscape em 1995." },
-        { q: "O que é open source?", o: ["Software pago","Software com código-fonte aberto","Hardware modular","Rede privada"], a: 1, e: "Open source é software cujo código-fonte é disponível publicamente." },
-        { q: "Qual é o maior sistema de controle de versão do mundo?", o: ["SVN","Git","Mercurial","Bazaar"], a: 1, e: "Git foi criado por Linus Torvalds em 2005 e é o mais usado no mundo." },
-        // CIÊNCIAS
-        { q: "Qual é o elemento mais abundante no universo?", o: ["Oxigênio","Hélio","Carbono","Hidrogênio"], a: 3, e: "O hidrogênio compõe cerca de 75% da massa do universo visível." },
-        { q: "Quantos ossos tem o corpo humano adulto?", o: ["206","180","250","300"], a: 0, e: "O corpo humano adulto possui 206 ossos. Bebês nascem com cerca de 270." },
-        { q: "Qual é a velocidade da luz no vácuo?", o: ["300.000 km/s","150.000 km/s","450.000 km/s","200.000 km/s"], a: 0, e: "A velocidade da luz no vácuo é aproximadamente 299.792 km/s." },
-        { q: "Qual planeta é conhecido como planeta vermelho?", o: ["Vênus","Júpiter","Marte","Saturno"], a: 2, e: "Marte é chamado de planeta vermelho por causa do óxido de ferro em sua superfície." },
-        { q: "O que é fotossíntese?", o: ["Processo de respiração animal","Conversão de luz em energia pelas plantas","Decomposição de matéria orgânica","Reprodução das algas"], a: 1, e: "Fotossíntese é o processo pelo qual plantas convertem luz solar em glicose." },
-        { q: "Qual é o maior planeta do Sistema Solar?", o: ["Saturno","Netuno","Terra","Júpiter"], a: 3, e: "Júpiter é o maior planeta, com massa 2,5 vezes maior que todos os outros juntos." },
-        { q: "Quantos cromossomos tem uma célula humana normal?", o: ["23","46","48","44"], a: 1, e: "Células humanas têm 46 cromossomos, organizados em 23 pares." },
-        { q: "Qual gás as plantas absorvem durante a fotossíntese?", o: ["Oxigênio","Nitrogênio","Dióxido de carbono","Metano"], a: 2, e: "As plantas absorvem CO₂ e liberam O₂ durante a fotossíntese." },
-        { q: "O que estuda a Astronomia?", o: ["Composição química dos minerais","Corpos celestes e fenômenos do universo","Movimentos das placas tectônicas","Comportamento dos oceanos"], a: 1, e: "Astronomia é a ciência que estuda estrelas, planetas, galáxias e o universo." },
-        { q: "Qual é o símbolo químico do ouro?", o: ["Ag","Fe","Au","Cu"], a: 2, e: "Au vem do latim 'Aurum', que significa ouro." },
-        // GEOGRAFIA
-        { q: "Qual é o maior país do mundo em área?", o: ["China","Canadá","Brasil","Rússia"], a: 3, e: "A Rússia tem 17,1 milhões de km², sendo o maior país do mundo." },
-        { q: "Qual é a capital do Japão?", o: ["Osaka","Tóquio","Quioto","Hiroshima"], a: 1, e: "Tóquio é a capital do Japão e a cidade mais populosa do mundo." },
-        { q: "Qual é o rio mais longo do mundo?", o: ["Amazonas","Nilo","Mississippi","Yangtze"], a: 1, e: "O Nilo tem aproximadamente 6.650 km de comprimento, sendo o maior do mundo." },
-        { q: "Em qual continente está localizado o Egito?", o: ["Ásia","Europa","América","África"], a: 3, e: "O Egito está localizado no nordeste da África, na margem do Mar Mediterrâneo." },
-        { q: "Qual é o oceano mais profundo do mundo?", o: ["Atlântico","Índico","Ártico","Pacífico"], a: 3, e: "O Oceano Pacífico contém a Fossa das Marianas, com 11 km de profundidade." },
-        { q: "Qual país tem a maior população do mundo?", o: ["Índia","China","EUA","Indonésia"], a: 0, e: "A Índia ultrapassou a China em 2023, com mais de 1,4 bilhão de habitantes." },
-        { q: "Qual é a capital da Austrália?", o: ["Sydney","Melbourne","Brisbane","Camberra"], a: 3, e: "Camberra é a capital da Austrália, escolhida como compromisso entre Sydney e Melbourne." },
-        { q: "Qual é o deserto mais quente do mundo?", o: ["Gobi","Ártico","Saara","Atacama"], a: 2, e: "O Saara é o maior deserto quente do mundo, cobrindo grande parte do norte da África." },
-        { q: "Qual montanha é a mais alta do mundo?", o: ["K2","Monte Branco","Aconcágua","Everest"], a: 3, e: "O Monte Everest tem 8.848 metros de altitude, sendo o ponto mais alto da Terra." },
-        { q: "Quantos estados tem o Brasil?", o: ["24","27","26","28"], a: 1, e: "O Brasil possui 26 estados e 1 Distrito Federal, totalizando 27 unidades federativas." },
-        // HISTÓRIA
-        { q: "Em que ano ocorreu a Revolução Francesa?", o: ["1776","1815","1789","1804"], a: 2, e: "A Revolução Francesa começou em 1789 com a queda da Bastilha em 14 de julho." },
-        { q: "Quem foi o primeiro presidente dos Estados Unidos?", o: ["Abraham Lincoln","Thomas Jefferson","Benjamin Franklin","George Washington"], a: 3, e: "George Washington foi o primeiro presidente dos EUA, de 1789 a 1797." },
-        { q: "Em que ano o Brasil proclamou sua independência?", o: ["1808","1822","1889","1500"], a: 1, e: "O Brasil declarou independência de Portugal em 7 de setembro de 1822." },
-        { q: "Quem construiu as pirâmides de Gizé?", o: ["Romanos","Gregos","Egípcios","Persas"], a: 2, e: "As pirâmides de Gizé foram construídas pelos egípcios antigos há cerca de 4.500 anos." },
-        { q: "Em que ano terminou a Segunda Guerra Mundial?", o: ["1943","1944","1946","1945"], a: 3, e: "A Segunda Guerra Mundial terminou em 1945 com a rendição da Alemanha e do Japão." },
-        { q: "Quem descobriu o Brasil?", o: ["Cristóvão Colombo","Vasco da Gama","Pedro Álvares Cabral","Américo Vespúcio"], a: 2, e: "Pedro Álvares Cabral chegou ao Brasil em 22 de abril de 1500." },
-        { q: "O que foi a Guerra Fria?", o: ["Conflito armado entre EUA e URSS","Tensão política entre EUA e URSS","Guerra no Ártico","Conflito no Polo Norte"], a: 1, e: "A Guerra Fria (1947-1991) foi uma tensão geopolítica entre os EUA e a URSS sem conflito direto." },
-        { q: "Em que ano caiu o Muro de Berlim?", o: ["1991","1987","1985","1989"], a: 3, e: "O Muro de Berlim caiu em 9 de novembro de 1989, marcando o fim da Guerra Fria." },
-        { q: "Quem foi Napoleão Bonaparte?", o: ["Rei da França","Imperador francês e general","Czar da Rússia","Presidente dos EUA"], a: 1, e: "Napoleão Bonaparte foi um general e imperador francês que dominou grande parte da Europa." },
-        { q: "Qual civilização criou os Jogos Olímpicos originais?", o: ["Romana","Persa","Egípcia","Grega"], a: 3, e: "Os Jogos Olímpicos foram criados na Grécia Antiga em 776 a.C., em Olímpia." },
-        // CULTURA POP
-        { q: "Qual é a franquia de filmes de maior bilheteria de todos os tempos?", o: ["Star Wars","Harry Potter","Marvel Cinematic Universe","James Bond"], a: 2, e: "O Marvel Cinematic Universe é a franquia mais lucrativa da história do cinema." },
-        { q: "Quem criou o personagem Sherlock Holmes?", o: ["Agatha Christie","Arthur Conan Doyle","Edgar Allan Poe","Charles Dickens"], a: 1, e: "Arthur Conan Doyle criou Sherlock Holmes em 1887 no livro 'Um Estudo em Vermelho'." },
-        { q: "Qual banda lançou o álbum 'Thriller'?", o: ["Prince","Michael Jackson","Madonna","Whitney Houston"], a: 1, e: "Thriller (1982) de Michael Jackson é o álbum mais vendido da história, com 66M cópias." },
-        { q: "De onde é originário o anime?", o: ["Coreia do Sul","China","Japão","Tailândia"], a: 2, e: "Anime é o estilo de animação originário do Japão, com características visuais únicas." },
-        { q: "Qual é o jogo eletrônico mais vendido de todos os tempos?", o: ["Minecraft","Tetris","Grand Theft Auto V","Pac-Man"], a: 1, e: "Tetris vendeu mais de 500 milhões de cópias contando todas as plataformas." },
-        { q: "Quem escreveu 'Dom Quixote'?", o: ["Miguel de Cervantes","Lope de Vega","Francisco de Quevedo","Luís de Camões"], a: 0, e: "Miguel de Cervantes escreveu Dom Quixote (1605), considerado o primeiro romance moderno." },
-        { q: "Qual é a série de TV mais assistida da história?", o: ["Breaking Bad","Game of Thrones","Friends","Grey's Anatomy"], a: 1, e: "Game of Thrones estabeleceu recordes de audiência ao longo de suas 8 temporadas." },
-        { q: "Quem pintou a Mona Lisa?", o: ["Michelangelo","Rafael","Leonardo da Vinci","Botticelli"], a: 2, e: "Leonardo da Vinci pintou a Mona Lisa entre 1503 e 1519, hoje no Museu do Louvre." },
-        { q: "Qual o nome do bruxo protagonista da série de J.K. Rowling?", o: ["Hermione Granger","Ron Weasley","Harry Potter","Neville Longbottom"], a: 2, e: "Harry Potter é o protagonista da série que vendeu mais de 500 milhões de livros." },
-        { q: "Quem é o criador do Facebook?", o: ["Jack Dorsey","Elon Musk","Bill Gates","Mark Zuckerberg"], a: 3, e: "Mark Zuckerberg fundou o Facebook em 2004 enquanto estudava em Harvard." },
-        // ESPORTES
-        { q: "Qual país ganhou mais Copas do Mundo de futebol?", o: ["Alemanha","Argentina","Itália","Brasil"], a: 3, e: "O Brasil ganhou 5 Copas do Mundo: 1958, 1962, 1970, 1994 e 2002." },
-        { q: "Quantos jogadores tem um time de futebol em campo?", o: ["9","10","11","12"], a: 2, e: "Cada time de futebol joga com 11 jogadores em campo, incluindo o goleiro." },
-        { q: "Em qual cidade foram realizados os Jogos Olímpicos de 2016?", o: ["São Paulo","Buenos Aires","Rio de Janeiro","Brasília"], a: 2, e: "Os Jogos Olímpicos de 2016 foram realizados no Rio de Janeiro, Brasil." },
-        { q: "Qual esporte usa um volante (shuttlecock)?", o: ["Tênis","Squash","Badminton","Pingue-pongue"], a: 2, e: "O badminton usa um peteca (shuttlecock), jogado com raquetes leves sobre uma rede." },
-        { q: "Quem detém o recorde de mais gols na história da seleção brasileira?", o: ["Romário","Ronaldo","Neymar","Pelé"], a: 2, e: "Neymar superou o recorde de Pelé em 2023, se tornando o maior artilheiro da seleção." },
-        { q: "Qual é o esporte mais praticado no mundo?", o: ["Basquete","Cricket","Futebol","Tênis"], a: 2, e: "O futebol tem mais de 4 bilhões de fãs e é o esporte mais popular do mundo." },
-        { q: "Em qual esporte existe o 'Grand Slam'?", o: ["Futebol","Golfe","Tênis","Todos os anteriores"], a: 3, e: "Grand Slam existe no tênis (4 torneios), golfe (4 majors) e rúgbi (torneio europeu)." },
-        { q: "Quantos anéis tem o símbolo olímpico?", o: ["4","6","5","7"], a: 2, e: "Os 5 anéis olímpicos representam os 5 continentes unidos pelos Jogos Olímpicos." },
-        { q: "Qual é o apelido da seleção brasileira de futebol?", o: ["Os Guerreiros","Canarinho","A Amarela","Verde e Amarelo"], a: 1, e: "A seleção brasileira é chamada de Canarinho por causa do uniforme amarelo e verde." },
-        { q: "Quem é considerado o melhor jogador de basquete da história?", o: ["Kobe Bryant","LeBron James","Magic Johnson","Michael Jordan"], a: 3, e: "Michael Jordan ganhou 6 títulos da NBA com o Chicago Bulls e é amplamente reconhecido como o maior." },
-        // CURIOSIDADES
-        { q: "Qual animal não pode pular?", o: ["Canguru","Hipopótamo","Elefante","Gorila"], a: 2, e: "O elefante é o único mamífero que não consegue pular devido ao seu peso e estrutura óssea." },
-        { q: "Quantas câmaras tem o coração humano?", o: ["2","3","4","6"], a: 2, e: "O coração humano tem 4 câmaras: 2 átrios e 2 ventrículos." },
-        { q: "Qual é o animal terrestre mais rápido?", o: ["Leopardo","Guepardo","Leão","Cavalo"], a: 1, e: "O guepardo pode atingir 120 km/h em sprints curtos, sendo o mais rápido em terra." },
-        { q: "Quantas pernas tem uma aranha?", o: ["6","8","10","12"], a: 1, e: "Aranhas têm 8 patas, sendo aracnídeos e não insetos (que têm 6)." },
-        { q: "Qual é o único mamífero capaz de voar?", o: ["Esquilo-voador","Morcego","Planador da Índia","Colugo"], a: 1, e: "O morcego é o único mamífero com voo verdadeiro, usando asas de membrana." },
-        { q: "Quantas cores tem o arco-íris?", o: ["5","6","7","8"], a: 2, e: "O arco-íris tem 7 cores: vermelho, laranja, amarelo, verde, azul, anil e violeta." },
-        { q: "Qual país tem mais lagos do mundo?", o: ["Rússia","Brasil","EUA","Canadá"], a: 3, e: "O Canadá tem mais de 2 milhões de lagos, mais do que qualquer outro país." },
-        { q: "O que é DNA?", o: ["Proteína muscular","Hormônio digestivo","Molécula portadora de informação genética","Vitamina essencial"], a: 2, e: "DNA (ácido desoxirribonucleico) é a molécula que carrega as instruções genéticas." },
-        { q: "Qual é o metal mais leve que existe?", o: ["Alumínio","Titânio","Lítio","Magnésio"], a: 2, e: "O lítio é o metal mais leve, com densidade de apenas 0,53 g/cm³." },
-        { q: "Quantas horas tem um dia em Marte?", o: ["22h","26h","24h 37min","28h"], a: 2, e: "Um dia marciano (sol) dura 24 horas e 37 minutos, muito similar ao da Terra." },
-        // BRASIL
-        { q: "Qual é a capital do Brasil?", o: ["São Paulo","Rio de Janeiro","Brasília","Salvador"], a: 2, e: "Brasília é a capital do Brasil desde 1960, quando substituiu o Rio de Janeiro." },
-        { q: "Qual é a maior floresta tropical do mundo?", o: ["Congo","Daintree","Mata Atlântica","Amazônia"], a: 3, e: "A Floresta Amazônica cobre 5,5 milhões de km², sendo a maior floresta tropical." },
-        { q: "Em que ano foi fundada a cidade de São Paulo?", o: ["1554","1600","1500","1822"], a: 0, e: "São Paulo foi fundada por padres jesuítas em 25 de janeiro de 1554." },
-        { q: "Qual é o bioma mais ameaçado do Brasil?", o: ["Cerrado","Pampa","Mata Atlântica","Caatinga"], a: 2, e: "A Mata Atlântica perdeu mais de 85% de sua cobertura original e é um dos biomas mais ameaçados." },
-        { q: "Quem foi Tiradentes?", o: ["Militar e mártir da Inconfidência Mineira","Primeiro presidente do Brasil","Herói da Guerra do Paraguai","Descobridor do Brasil"], a: 0, e: "Tiradentes (Joaquim José da Silva Xavier) foi executado em 1792 por liderar a Inconfidência Mineira." },
-        { q: "Qual é o estado com maior área do Brasil?", o: ["Pará","Minas Gerais","Mato Grosso","Amazonas"], a: 3, e: "O Amazonas é o maior estado do Brasil com 1,57 milhão de km²." },
-        { q: "Qual é a moeda atual do Brasil?", o: ["Cruzeiro","Real","Cruzado","Centavo"], a: 1, e: "O Real (R$) é a moeda do Brasil desde 1994, introduzida pelo Plano Real." },
-        { q: "Quem foi o primeiro presidente do Brasil?", o: ["Getúlio Vargas","Dom Pedro II","Deodoro da Fonseca","Floriano Peixoto"], a: 2, e: "Marechal Deodoro da Fonseca proclamou a República e se tornou o primeiro presidente em 1889." },
-        { q: "Qual é a língua oficial do Brasil?", o: ["Espanhol","Tupi-Guarani","Português","Inglês"], a: 2, e: "O português é a língua oficial do Brasil, trazida pelos colonizadores portugueses." },
-        { q: "Em qual estado está o Pantanal?", o: ["Amazonas","Pará","Goiás","Mato Grosso do Sul"], a: 3, e: "O Pantanal está principalmente no Mato Grosso do Sul e Mato Grosso, e parte na Bolívia e Paraguai." },
-        // ARTE E LITERATURA
-        { q: "Quem escreveu 'O Senhor dos Anéis'?", o: ["C.S. Lewis","George R.R. Martin","J.R.R. Tolkien","Terry Pratchett"], a: 2, e: "J.R.R. Tolkien publicou O Senhor dos Anéis entre 1954 e 1955." },
-        { q: "Quem pintou a Capela Sistina?", o: ["Rafael","Leonardo da Vinci","Michelangelo","Botticelli"], a: 2, e: "Michelangelo pintou o teto da Capela Sistina entre 1508 e 1512 por encomenda do Papa Júlio II." },
-        { q: "Qual é a obra mais famosa de Machado de Assis?", o: ["O Cortiço","Dom Casmurro","Iracema","O Guarani"], a: 1, e: "Dom Casmurro (1899) é considerada a obra prima de Machado de Assis e da literatura brasileira." },
-        { q: "Quem compôs a 5ª Sinfonia?", o: ["Mozart","Bach","Chopin","Beethoven"], a: 3, e: "A 5ª Sinfonia de Beethoven (1808) com seus famosos 4 primeiros compassos é uma das mais conhecidas." },
-        { q: "Qual movimento artístico é associado a Salvador Dalí?", o: ["Impressionismo","Cubismo","Surrealismo","Expressionismo"], a: 2, e: "Salvador Dalí foi o mais icônico representante do Surrealismo, movimento que explorava o inconsciente." },
-        // ALIMENTAÇÃO
-        { q: "Qual fruta tem mais vitamina C?", o: ["Laranja","Acerola","Limão","Morango"], a: 1, e: "A acerola tem até 80 vezes mais vitamina C que a laranja." },
-        { q: "De onde é originária a pizza?", o: ["EUA","França","Grécia","Itália"], a: 3, e: "A pizza moderna surgiu em Nápoles, Itália, no século XVIII." },
-        { q: "Qual é o ingrediente principal do guacamole?", o: ["Tomate","Abacate","Pimenta","Limão"], a: 1, e: "O guacamole é feito principalmente de abacate amassado, originário do México." },
-        { q: "Quantas calorias tem 1 grama de gordura?", o: ["4","7","9","11"], a: 2, e: "Gorduras fornecem 9 kcal por grama, mais que proteínas e carboidratos (4 kcal/g cada)." },
-        { q: "Qual bebida é mais consumida no mundo depois da água?", o: ["Café","Refrigerante","Chá","Suco"], a: 2, e: "O chá é a segunda bebida mais consumida no mundo, especialmente na Ásia." },
-    ],
+    { q: "Qual linguagem de programação foi criada por Guido van Rossum?", o: ["Java", "Python", "Ruby", "Perl"], a: 1, e: "Python foi criado por Guido van Rossum e lançado no início dos anos 1990." },
+    { q: "O que significa a sigla HTML?", o: ["HyperText Markup Language", "High Transfer Markup Language", "HyperText Machine Learning", "Hard Text Modeling Language"], a: 0, e: "HTML é a linguagem de marcação usada para estruturar páginas web." },
+    { q: "Quantos bits tem um byte?", o: ["4", "16", "8", "32"], a: 2, e: "Um byte é formado por 8 bits." },
+    { q: "Qual empresa popularizou o sistema operacional Android?", o: ["Apple", "Microsoft", "Google", "Samsung"], a: 2, e: "O Android é desenvolvido pelo Google." },
+    { q: "O que é um algoritmo?", o: ["Um tipo de vírus", "Sequência de instruções para resolver um problema", "Hardware de computador", "Linguagem de banco de dados"], a: 1, e: "Algoritmo é um conjunto de passos usados para resolver um problema." },
+    { q: "O que significa CPU?", o: ["Central Processing Unit", "Computer Personal Unit", "Central Program Utility", "Core Processing Update"], a: 0, e: "CPU é a Unidade Central de Processamento." },
+    { q: "Quem criou a linguagem JavaScript?", o: ["Tim Berners-Lee", "Linus Torvalds", "Brendan Eich", "Bill Gates"], a: 2, e: "JavaScript foi criado por Brendan Eich em 1995." },
+    { q: "O que significa software open source?", o: ["Software pago", "Software com código-fonte aberto", "Software exclusivo para empresas", "Software sem internet"], a: 1, e: "Open source indica que o código-fonte pode ser acessado e estudado." },
+    { q: "Qual sistema de controle de versão é o mais usado atualmente?", o: ["SVN", "Git", "Mercurial", "Bazaar"], a: 1, e: "Git é o sistema de versionamento mais popular no desenvolvimento moderno." },
+    { q: "Qual linguagem é amplamente usada para estilizar páginas web?", o: ["SQL", "Python", "CSS", "C"], a: 2, e: "CSS é usado para definir aparência e layout de páginas web." },
+
+    { q: "Qual é o elemento mais abundante no universo?", o: ["Oxigênio", "Hélio", "Carbono", "Hidrogênio"], a: 3, e: "O hidrogênio é o elemento mais abundante no universo." },
+    { q: "Quantos ossos tem o corpo humano adulto?", o: ["206", "180", "250", "300"], a: 0, e: "Um adulto normalmente possui 206 ossos." },
+    { q: "Qual é a velocidade da luz no vácuo?", o: ["300.000 km/s", "150.000 km/s", "450.000 km/s", "200.000 km/s"], a: 0, e: "A luz viaja a aproximadamente 300 mil km/s no vácuo." },
+    { q: "Qual planeta é conhecido como planeta vermelho?", o: ["Vênus", "Júpiter", "Marte", "Saturno"], a: 2, e: "Marte é chamado de planeta vermelho por causa do óxido de ferro em sua superfície." },
+    { q: "O que é fotossíntese?", o: ["Processo de respiração animal", "Conversão de luz em energia pelas plantas", "Decomposição de matéria orgânica", "Reprodução das algas"], a: 1, e: "Na fotossíntese, plantas usam luz para produzir energia química." },
+    { q: "Qual é o maior planeta do Sistema Solar?", o: ["Saturno", "Netuno", "Terra", "Júpiter"], a: 3, e: "Júpiter é o maior planeta do Sistema Solar." },
+    { q: "Quantos cromossomos tem uma célula humana normal?", o: ["23", "46", "48", "44"], a: 1, e: "As células humanas têm 46 cromossomos, organizados em 23 pares." },
+    { q: "Qual gás as plantas absorvem durante a fotossíntese?", o: ["Oxigênio", "Nitrogênio", "Dióxido de carbono", "Metano"], a: 2, e: "As plantas absorvem dióxido de carbono e liberam oxigênio." },
+    { q: "O que estuda a Astronomia?", o: ["Composição química dos minerais", "Corpos celestes e fenômenos do universo", "Movimentos das placas tectônicas", "Comportamento dos oceanos"], a: 1, e: "Astronomia estuda estrelas, planetas, galáxias e outros fenômenos do universo." },
+    { q: "Qual é o símbolo químico do ouro?", o: ["Ag", "Fe", "Au", "Cu"], a: 2, e: "O símbolo do ouro é Au." },
+
+    { q: "Qual é o maior país do mundo em área?", o: ["China", "Canadá", "Brasil", "Rússia"], a: 3, e: "A Rússia é o maior país do mundo em extensão territorial." },
+    { q: "Qual é a capital do Japão?", o: ["Osaka", "Tóquio", "Quioto", "Hiroshima"], a: 1, e: "Tóquio é a capital do Japão." },
+    { q: "Em qual continente está localizado o Egito?", o: ["Ásia", "Europa", "América", "África"], a: 3, e: "O Egito fica no nordeste da África." },
+    { q: "Qual é o oceano mais profundo do mundo?", o: ["Atlântico", "Índico", "Ártico", "Pacífico"], a: 3, e: "O Oceano Pacífico é o mais profundo do planeta." },
+    { q: "Qual é a capital da Austrália?", o: ["Sydney", "Melbourne", "Brisbane", "Camberra"], a: 3, e: "Camberra é a capital da Austrália." },
+    { q: "Qual é o deserto quente mais famoso e extenso do mundo?", o: ["Gobi", "Saara", "Atacama", "Kalahari"], a: 1, e: "O Saara é o maior deserto quente do mundo." },
+    { q: "Qual montanha é a mais alta do mundo acima do nível do mar?", o: ["K2", "Monte Branco", "Aconcágua", "Everest"], a: 3, e: "O Monte Everest é o ponto mais alto da Terra acima do nível do mar." },
+    { q: "Quantos estados tem o Brasil?", o: ["24", "27", "26", "28"], a: 1, e: "O Brasil tem 26 estados e 1 Distrito Federal, totalizando 27 unidades federativas." },
+    { q: "Qual é a capital do Brasil?", o: ["São Paulo", "Rio de Janeiro", "Brasília", "Salvador"], a: 2, e: "Brasília é a capital do Brasil desde 1960." },
+    { q: "Qual é a maior floresta tropical do mundo?", o: ["Congo", "Daintree", "Mata Atlântica", "Amazônia"], a: 3, e: "A Amazônia é a maior floresta tropical do planeta." },
+
+    { q: "Em que ano ocorreu a Revolução Francesa?", o: ["1776", "1815", "1789", "1804"], a: 2, e: "A Revolução Francesa começou em 1789." },
+    { q: "Quem foi o primeiro presidente dos Estados Unidos?", o: ["Abraham Lincoln", "Thomas Jefferson", "Benjamin Franklin", "George Washington"], a: 3, e: "George Washington foi o primeiro presidente dos EUA." },
+    { q: "Em que ano o Brasil proclamou sua independência?", o: ["1808", "1822", "1889", "1500"], a: 1, e: "A independência do Brasil foi proclamada em 1822." },
+    { q: "Quem construiu as pirâmides de Gizé?", o: ["Romanos", "Gregos", "Egípcios", "Persas"], a: 2, e: "As pirâmides de Gizé foram construídas pelos antigos egípcios." },
+    { q: "Em que ano terminou a Segunda Guerra Mundial?", o: ["1943", "1944", "1946", "1945"], a: 3, e: "A Segunda Guerra Mundial terminou em 1945." },
+    { q: "Quem chegou ao Brasil em 1500 na expedição portuguesa tradicionalmente ensinada nas escolas?", o: ["Cristóvão Colombo", "Vasco da Gama", "Pedro Álvares Cabral", "Américo Vespúcio"], a: 2, e: "Pedro Álvares Cabral chegou ao território brasileiro em 1500." },
+    { q: "O que foi a Guerra Fria?", o: ["Conflito armado direto entre EUA e URSS", "Tensão política e ideológica entre EUA e URSS", "Guerra no Ártico", "Conflito apenas econômico"], a: 1, e: "A Guerra Fria foi um período de tensão política, militar e ideológica entre EUA e URSS." },
+    { q: "Em que ano caiu o Muro de Berlim?", o: ["1991", "1987", "1985", "1989"], a: 3, e: "O Muro de Berlim caiu em 1989." },
+    { q: "Quem foi Napoleão Bonaparte?", o: ["Rei da França", "Imperador francês e líder militar", "Czar da Rússia", "Presidente dos EUA"], a: 1, e: "Napoleão foi um importante líder militar e imperador francês." },
+    { q: "Qual civilização criou os Jogos Olímpicos originais?", o: ["Romana", "Persa", "Egípcia", "Grega"], a: 3, e: "Os Jogos Olímpicos surgiram na Grécia Antiga." },
+
+    { q: "Quem criou o personagem Sherlock Holmes?", o: ["Agatha Christie", "Arthur Conan Doyle", "Edgar Allan Poe", "Charles Dickens"], a: 1, e: "Sherlock Holmes foi criado por Arthur Conan Doyle." },
+    { q: "Qual artista lançou o álbum 'Thriller'?", o: ["Prince", "Michael Jackson", "Madonna", "Whitney Houston"], a: 1, e: "'Thriller' é um dos álbuns mais famosos de Michael Jackson." },
+    { q: "De onde é originário o anime?", o: ["Coreia do Sul", "China", "Japão", "Tailândia"], a: 2, e: "Anime é a animação associada ao Japão." },
+    { q: "Qual é o jogo eletrônico mais vendido de todos os tempos em muitas listas populares?", o: ["Minecraft", "Tetris", "GTA V", "Pac-Man"], a: 0, e: "Minecraft aparece com frequência como o jogo mais vendido em rankings modernos." },
+    { q: "Quem escreveu 'Dom Quixote'?", o: ["Miguel de Cervantes", "Lope de Vega", "Francisco de Quevedo", "Luís de Camões"], a: 0, e: "'Dom Quixote' foi escrito por Miguel de Cervantes." },
+    { q: "Quem pintou a Mona Lisa?", o: ["Michelangelo", "Rafael", "Leonardo da Vinci", "Botticelli"], a: 2, e: "A Mona Lisa é uma obra de Leonardo da Vinci." },
+    { q: "Qual é o nome do protagonista da série de J.K. Rowling?", o: ["Hermione Granger", "Ron Weasley", "Harry Potter", "Neville Longbottom"], a: 2, e: "Harry Potter é o protagonista da famosa saga de fantasia." },
+    { q: "Quem fundou o Facebook?", o: ["Jack Dorsey", "Elon Musk", "Bill Gates", "Mark Zuckerberg"], a: 3, e: "Mark Zuckerberg fundou o Facebook em 2004." },
+    { q: "Quem escreveu 'O Senhor dos Anéis'?", o: ["C.S. Lewis", "George R.R. Martin", "J.R.R. Tolkien", "Terry Pratchett"], a: 2, e: "J.R.R. Tolkien é o autor de 'O Senhor dos Anéis'." },
+    { q: "Qual é a obra mais famosa de Machado de Assis entre as alternativas abaixo?", o: ["O Cortiço", "Dom Casmurro", "Iracema", "O Guarani"], a: 1, e: "'Dom Casmurro' é uma das obras mais conhecidas de Machado de Assis." },
+
+    { q: "Qual país ganhou mais Copas do Mundo de futebol masculino?", o: ["Alemanha", "Argentina", "Itália", "Brasil"], a: 3, e: "O Brasil é a seleção com mais títulos de Copa do Mundo masculina." },
+    { q: "Quantos jogadores tem um time de futebol em campo?", o: ["9", "10", "11", "12"], a: 2, e: "Cada equipe tem 11 jogadores em campo." },
+    { q: "Em qual cidade foram realizados os Jogos Olímpicos de 2016?", o: ["São Paulo", "Buenos Aires", "Rio de Janeiro", "Brasília"], a: 2, e: "Os Jogos Olímpicos de 2016 aconteceram no Rio de Janeiro." },
+    { q: "Qual esporte usa um volante, também chamado de shuttlecock?", o: ["Tênis", "Squash", "Badminton", "Pingue-pongue"], a: 2, e: "O badminton usa um volante em vez de bola." },
+    { q: "Qual é o esporte mais popular do mundo?", o: ["Basquete", "Cricket", "Futebol", "Tênis"], a: 2, e: "O futebol é considerado o esporte mais popular do planeta." },
+    { q: "Em qual esporte existe o termo 'Grand Slam' de forma muito conhecida?", o: ["Futebol", "Golfe", "Tênis", "Natação"], a: 2, e: "No tênis, Grand Slam se refere aos quatro torneios mais importantes." },
+    { q: "Quantos anéis tem o símbolo olímpico?", o: ["4", "6", "5", "7"], a: 2, e: "O símbolo olímpico possui 5 anéis." },
+    { q: "Qual é o apelido mais famoso da seleção brasileira de futebol?", o: ["Os Guerreiros", "Canarinho", "A Amarela", "Verde e Amarelo"], a: 1, e: "A seleção brasileira é popularmente chamada de Canarinho." },
+    { q: "Quem é frequentemente lembrado como um dos maiores jogadores de basquete da história?", o: ["Kobe Bryant", "LeBron James", "Magic Johnson", "Michael Jordan"], a: 3, e: "Michael Jordan é um dos nomes mais icônicos da história do basquete." },
+    { q: "Em qual esporte Pelé ficou mundialmente famoso?", o: ["Basquete", "Tênis", "Futebol", "Vôlei"], a: 2, e: "Pelé é um dos maiores nomes da história do futebol." },
+
+    { q: "Qual animal não consegue pular?", o: ["Canguru", "Hipopótamo", "Elefante", "Gorila"], a: 2, e: "O elefante é conhecido por não conseguir pular." },
+    { q: "Quantas câmaras tem o coração humano?", o: ["2", "3", "4", "6"], a: 2, e: "O coração humano possui 4 câmaras." },
+    { q: "Qual é o animal terrestre mais rápido?", o: ["Leopardo", "Guepardo", "Leão", "Cavalo"], a: 1, e: "O guepardo é o animal terrestre mais rápido." },
+    { q: "Quantas pernas tem uma aranha?", o: ["6", "8", "10", "12"], a: 1, e: "Aranhas possuem 8 pernas." },
+    { q: "Qual é o único mamífero com voo verdadeiro?", o: ["Esquilo-voador", "Morcego", "Planador", "Colugo"], a: 1, e: "O morcego é o único mamífero capaz de voo verdadeiro." },
+    { q: "Quantas cores são tradicionalmente associadas ao arco-íris?", o: ["5", "6", "7", "8"], a: 2, e: "Tradicionalmente, o arco-íris é descrito com 7 cores." },
+    { q: "O que é DNA?", o: ["Proteína muscular", "Hormônio digestivo", "Molécula que carrega informação genética", "Vitamina essencial"], a: 2, e: "O DNA armazena a informação genética dos seres vivos." },
+    { q: "Qual é o metal mais leve?", o: ["Alumínio", "Titânio", "Lítio", "Magnésio"], a: 2, e: "O lítio é considerado o metal mais leve." },
+    { q: "Quanto tempo dura aproximadamente um dia em Marte?", o: ["22h", "26h", "24h 37min", "28h"], a: 2, e: "Um dia marciano dura cerca de 24 horas e 37 minutos." },
+    { q: "Qual fruta entre as alternativas é famosa por ter muita vitamina C?", o: ["Laranja", "Acerola", "Limão", "Morango"], a: 1, e: "A acerola é muito rica em vitamina C." },
+
+    { q: "Em que ano foi fundada a cidade de São Paulo?", o: ["1554", "1600", "1500", "1822"], a: 0, e: "São Paulo foi fundada em 1554." },
+    { q: "Qual é o bioma brasileiro mais lembrado pela grande perda de cobertura original?", o: ["Cerrado", "Pampa", "Mata Atlântica", "Caatinga"], a: 2, e: "A Mata Atlântica sofreu intensa devastação ao longo da história." },
+    { q: "Quem foi Tiradentes?", o: ["Militar e mártir da Inconfidência Mineira", "Primeiro presidente do Brasil", "Herói da Guerra do Paraguai", "Descobridor do Brasil"], a: 0, e: "Tiradentes foi um dos principais nomes da Inconfidência Mineira." },
+    { q: "Qual é o maior estado do Brasil em área?", o: ["Pará", "Minas Gerais", "Mato Grosso", "Amazonas"], a: 3, e: "O Amazonas é o maior estado brasileiro em extensão territorial." },
+    { q: "Qual é a moeda atual do Brasil?", o: ["Cruzeiro", "Real", "Cruzado", "Centavo"], a: 1, e: "A moeda oficial do Brasil é o real." },
+    { q: "Quem foi o primeiro presidente do Brasil?", o: ["Getúlio Vargas", "Dom Pedro II", "Deodoro da Fonseca", "Floriano Peixoto"], a: 2, e: "Deodoro da Fonseca foi o primeiro presidente do Brasil." },
+    { q: "Qual é a língua oficial do Brasil?", o: ["Espanhol", "Tupi-Guarani", "Português", "Inglês"], a: 2, e: "A língua oficial do Brasil é o português." },
+    { q: "Em qual estado brasileiro o Pantanal é mais associado?", o: ["Amazonas", "Pará", "Goiás", "Mato Grosso do Sul"], a: 3, e: "O Pantanal é fortemente associado ao Mato Grosso do Sul, embora também se estenda por outras áreas." },
+    { q: "Qual festa popular brasileira é famosa pelos desfiles de escolas de samba?", o: ["Festa Junina", "Carnaval", "Bumba meu boi", "Círio de Nazaré"], a: 1, e: "O Carnaval é uma das festas mais famosas do Brasil." },
+    { q: "Qual cidade brasileira é conhecida pelo Cristo Redentor?", o: ["Salvador", "São Paulo", "Rio de Janeiro", "Recife"], a: 2, e: "O Cristo Redentor fica no Rio de Janeiro." },
+
+    { q: "Quem pintou o teto da Capela Sistina?", o: ["Rafael", "Leonardo da Vinci", "Michelangelo", "Botticelli"], a: 2, e: "Michelangelo foi o responsável pela pintura do teto da Capela Sistina." },
+    { q: "Quem compôs a 5ª Sinfonia?", o: ["Mozart", "Bach", "Chopin", "Beethoven"], a: 3, e: "A 5ª Sinfonia é uma das obras mais famosas de Beethoven." },
+    { q: "Qual movimento artístico é associado a Salvador Dalí?", o: ["Impressionismo", "Cubismo", "Surrealismo", "Expressionismo"], a: 2, e: "Salvador Dalí é um dos maiores nomes do surrealismo." },
+    { q: "De onde é originária a pizza moderna?", o: ["EUA", "França", "Grécia", "Itália"], a: 3, e: "A pizza moderna ficou famosa em Nápoles, na Itália." },
+    { q: "Qual é o ingrediente principal do guacamole?", o: ["Tomate", "Abacate", "Pimenta", "Limão"], a: 1, e: "O guacamole é preparado principalmente com abacate." },
+    { q: "Quantas calorias tem 1 grama de gordura?", o: ["4", "7", "9", "11"], a: 2, e: "Cada grama de gordura fornece 9 calorias." },
+    { q: "Qual bebida é uma das mais consumidas no mundo depois da água?", o: ["Café", "Refrigerante", "Chá", "Suco"], a: 2, e: "O chá está entre as bebidas mais consumidas do mundo." },
+    { q: "Qual doce brasileiro é feito com leite condensado e chocolate?", o: ["Quindim", "Brigadeiro", "Pé de moleque", "Beijinho"], a: 1, e: "O brigadeiro é um dos doces mais populares do Brasil." },
+    { q: "Qual instrumento musical tem teclas pretas e brancas?", o: ["Violino", "Flauta", "Piano", "Tambor"], a: 2, e: "O piano é conhecido por seu teclado de teclas brancas e pretas." },
+    { q: "Qual gênero musical nasceu na Jamaica?", o: ["Samba", "Reggae", "Jazz", "Tango"], a: 1, e: "O reggae surgiu na Jamaica e se popularizou mundialmente." }
+],
 
     _getToday() {
         const d = new Date();
@@ -137,7 +135,6 @@ const QuizDiario = {
 
     _saveTodayResult(score) {
         Utils.saveData('quiz_today', { date: this._getToday(), score });
-        // Salvar recorde
         const best = Utils.loadData('quiz_highscore') || 0;
         const isNewRecord = score > best;
         // checkRecord ANTES de salvar — economy compara com valor atual no storage
@@ -148,7 +145,6 @@ const QuizDiario = {
         if (score === 10) window.Economy?.grant?.('quiz_perfect');
         window.Economy?.grant?.('play_game');
         window.Missions?.track?.({ event: 'quiz_finish', score });
-        // beat_record já disparado dentro de Economy.checkRecord
     },
 
     _isDark() { return document.body.classList.contains('dark-theme'); },
@@ -255,7 +251,6 @@ const QuizDiario = {
         </style>
         <div style="max-width:600px;margin:0 auto;font-family:var(--font-body,'DM Sans',sans-serif);">
 
-            <!-- Header -->
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;">
                 <span id="qz-counter" style="font-size:var(--text-xs,0.68rem);font-weight:700;color:${c.muted};">Pergunta ${this._current+1} de ${this.QUESTIONS_PER_DAY}</span>
                 <span id="qz-score" style="font-size:var(--text-xs,0.68rem);font-weight:700;
@@ -264,20 +259,17 @@ const QuizDiario = {
                 </span>
             </div>
 
-            <!-- Progresso -->
             <div style="height:4px;background:${c.inner};border-radius:99px;overflow:hidden;margin-bottom:1.25rem;">
                 <div id="qz-progress" style="height:100%;width:${progress}%;
                     background:linear-gradient(90deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));
                     border-radius:99px;transition:width 0.3s;"></div>
             </div>
 
-            <!-- Pergunta -->
             <div style="background:${c.bg};border:1px solid ${c.border};border-radius:var(--radius-xl,18px);
                 padding:1.5rem;margin-bottom:1rem;animation:qzSlideIn 0.3s ease both;" id="qz-question">
                 <div style="font-size:var(--text-lg,1.1rem);font-weight:700;color:${c.text};line-height:1.5;">${q.q}</div>
             </div>
 
-            <!-- Opções -->
             <div style="display:flex;flex-direction:column;gap:0.5rem;" id="qz-options">
                 ${q.o.map((opt, i) => `
                 <div class="qz-opt" id="qz-opt-${i}" onclick="QuizDiario.answer(${i})"
@@ -311,7 +303,6 @@ const QuizDiario = {
         const correct = idx === q.a;
         if (correct) this._score++;
 
-        // Colorir opções no DOM diretamente
         q.o.forEach((_, i) => {
             const el = document.getElementById(`qz-opt-${i}`);
             if (!el) return;
@@ -330,7 +321,6 @@ const QuizDiario = {
             }
         });
 
-        // Mostrar explicação
         const qEl = document.getElementById('qz-question');
         if (qEl) {
             const c = this._colors();
@@ -343,11 +333,9 @@ const QuizDiario = {
                 </div>`);
         }
 
-        // Atualizar score no header
         const scoreEl = document.getElementById('qz-score');
         if (scoreEl) scoreEl.textContent = `✅ ${this._score} pontos`;
 
-        // Avançar para próxima
         setTimeout(() => {
             this._current++;
             this._answered = false;
@@ -362,7 +350,6 @@ const QuizDiario = {
         }, 1800);
     },
 
-    // Atualiza apenas o conteúdo da pergunta sem recriar toda a tela
     _updateQuestion() {
         const q = this._questions[this._current];
         const c = this._colors();
@@ -417,7 +404,6 @@ const QuizDiario = {
                 ${isRecord ? 'Novo Recorde!' : 'Quiz Concluído!'}</h2>
             <div style="font-size:var(--text-sm,0.78rem);font-weight:700;color:${color};margin-bottom:1.5rem;">${label}</div>
 
-            <!-- Score -->
             <div style="background:${c.inner};border-radius:var(--radius-xl,18px);padding:1.5rem;margin-bottom:1rem;">
                 <div style="font-size:3rem;font-weight:900;font-family:var(--font-display,'Syne',sans-serif);
                     color:var(--theme-primary,#a855f7);line-height:1;">${this._score}<span style="font-size:1.5rem;color:${c.muted};">/10</span></div>

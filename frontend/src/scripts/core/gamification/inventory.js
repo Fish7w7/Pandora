@@ -9,6 +9,8 @@ const Inventory = {
         { id:'title_genius',   type:'title',  name:'Gênio do Quiz',     icon:'🧠', rarity:'rare',      price:500,  minLevel:8,  preview:'Para quem tira 10/10 no Quiz' },
         { id:'title_legend',   type:'title',  name:'Lendário',          icon:'👑', rarity:'epic',      price:1000, minLevel:25, preview:'Reservado para os veteranos' },
         { id:'title_nyan',     type:'title',  name:'にゃん~ Master',    icon:'🐱', rarity:'epic',      price:800,  minLevel:15, preview:'O título mais kawaii de todos' },
+        { id:'title_patchday_310', type:'title', name:'Patch Day v3.10', icon:'🎁', rarity:'weekly', price:0, minLevel:1, preview:'Recompensa exclusiva de lançamento da v3.10', eventOnly:true },
+        { id:'title_security_sentinel_v310', type:'title', name:'Sentinela v3.10', icon:'🛡️', rarity:'milestone', price:0, minLevel:1, preview:'Concedido individualmente por salvar a integridade da v3.10', exclusive:true },
 
         { id:'border_simple',  type:'border', name:'Borda Simples',     icon:'⬜', rarity:'common',    price:400,  minLevel:5,  preview:'Borda branca discreta',
           css:'border: 2px solid rgba(255,255,255,0.6);' },
@@ -64,11 +66,19 @@ const Inventory = {
                 100% { border-color:#818cf8; box-shadow:0 0 6px 2px rgba(129,140,248,0.8); }
             }`
         },
+        { id:'border_patchday_310', type:'border', name:'Patch Neon', icon:'🛠️', rarity:'epic', price:1250, minLevel:1, preview:'Borda limitada do evento de patch v3.10', eventOnly:true,
+          css:'border: 2.5px solid #22d3ee; box-shadow: 0 0 8px rgba(34,211,238,0.6), 0 0 18px rgba(236,72,153,0.35); animation: patchPulse 2.4s ease-in-out infinite;',
+          extraStyle:`@keyframes patchPulse {
+              0%,100% { border-color:#22d3ee; box-shadow:0 0 8px rgba(34,211,238,0.6),0 0 18px rgba(236,72,153,0.35); }
+              50% { border-color:#ec4899; box-shadow:0 0 10px rgba(236,72,153,0.7),0 0 20px rgba(34,211,238,0.4); }
+          }`
+        },
 
         { id:'theme_sakura',   type:'theme', name:'Sakura',            icon:'🌸', rarity:'rare',   price:1200, minLevel:10, preview:'Rosa · pétalas caindo no login',  themeId:'pink',   effect:'sakura' },
         { id:'theme_midnight', type:'theme', name:'Midnight',          icon:'🌙', rarity:'rare',   price:1200, minLevel:10, preview:'Índigo · partículas de estrelas',  themeId:'indigo', effect:'stars' },
         { id:'theme_neon',     type:'theme', name:'Neon',              icon:'⚡', rarity:'epic',   price:1800, minLevel:15, preview:'Teal · efeito glitch no login',   themeId:'teal',   effect:'glitch' },
         { id:'theme_fire',     type:'theme', name:'Chamas',            icon:'🔥', rarity:'epic',   price:1800, minLevel:15, preview:'Vermelho · partículas de fogo',  themeId:'red',    effect:'fire' },
+        { id:'theme_patchpulse_intro', type:'theme', name:'Patch Pulse Intro', icon:'🌀', rarity:'weekly', price:1250, minLevel:1, preview:'Intro limitada do evento v3.10 com pulso neon', themeId:'teal', effect:'patchpulse', eventOnly:true, preserveTheme:true },
 
         { id:'effect_slide', type:'effect', name:'Slide',  icon:'↔️', rarity:'common', price:600,  minLevel:7,  preview:'Troca de ferramenta com deslize lateral' },
         { id:'effect_zoom',  type:'effect', name:'Zoom',   icon:'🔍', rarity:'common', price:600,  minLevel:7,  preview:'Zoom suave ao trocar de página' },
@@ -88,7 +98,27 @@ const Inventory = {
     },
 
     load() {
-        return Utils.loadData(this.KEY) || { owned:[], equipped:{} };
+        const legacyTitleId = 'title_bug_hunter_v310';
+        const currentTitleId = 'title_security_sentinel_v310';
+        const data = Utils.loadData(this.KEY) || { owned:[], equipped:{} };
+        let changed = false;
+
+        data.owned = Array.isArray(data.owned) ? data.owned : [];
+        data.equipped = data.equipped && typeof data.equipped === 'object' ? data.equipped : {};
+
+        if (data.owned.includes(legacyTitleId)) {
+            data.owned = data.owned.map((id) => (id === legacyTitleId ? currentTitleId : id));
+            data.owned = Array.from(new Set(data.owned));
+            changed = true;
+        }
+
+        if (data.equipped.title === legacyTitleId) {
+            data.equipped.title = currentTitleId;
+            changed = true;
+        }
+
+        if (changed) this.save(data);
+        return data;
     },
 
     save(data) {
@@ -113,7 +143,6 @@ const Inventory = {
         if (item.milestone) return { ok:false, reason:'Este item é desbloqueado por marco de nível' };
         if (this.owns(itemId)) return { ok:false, reason:'Você já possui este item' };
         const currentLevel = window.Economy?.getLevel?.() || 1;
-        // weeklyPrice > 0 = compra da loja semanal — ignora restrição de nível
         if (!weeklyPrice && currentLevel < item.minLevel) return { ok:false, reason:`Nível ${item.minLevel} necessário (você está no ${currentLevel})` };
         const finalPrice = weeklyPrice > 0 ? weeklyPrice : item.price;
         const chips = window.Economy?.getChips?.() || 0;
@@ -134,6 +163,7 @@ const Inventory = {
         data.equipped[item.type] = itemId;
         this.save(data);
         this._applyEquipped(item);
+        this._syncEquippedToCloud(item.type, item);
         Utils.showNotification?.(`✅ "${item.name}" equipado!`, 'success');
         return true;
     },
@@ -144,11 +174,15 @@ const Inventory = {
         delete data.equipped[type];
         this.save(data);
         this._removeEquipped(type);
+        this._syncEquippedToCloud(type, null);
     },
 
     getEquipped(type) { return this.load().equipped?.[type] || null; },
     getEquippedItem(type) { const id = this.getEquipped(type); return id ? this.getItem(id) : null; },
-    getItem(itemId) { return this.CATALOG.find(i => i.id === itemId) || null; },
+    getItem(itemId) {
+        const normalizedId = itemId === 'title_bug_hunter_v310' ? 'title_security_sentinel_v310' : itemId;
+        return this.CATALOG.find(i => i.id === normalizedId) || null;
+    },
     getByType(type) { return this.CATALOG.filter(i => i.type === type); },
     getOwned() { return (this.load().owned || []).map(id => this.getItem(id)).filter(Boolean); },
 
@@ -170,14 +204,12 @@ const Inventory = {
         }
     },
 
-    // FIX: aplicar borda também no avatar da tela de perfil
     _applyBorder(item) {
         this._removeBorder();
 
         const css = item.css || '';
         if (!css) return;
 
-        // Keyframes primeiro, depois seletores
         let styleContent = '';
         if (item.extraStyle) styleContent += item.extraStyle + '\n';
 
@@ -217,10 +249,8 @@ const Inventory = {
     },
 
     _removeBorder() {
-        // Remover o <style> injetado — remove o efeito de todos os elementos de uma vez
         document.getElementById('inventory-border-style')?.remove();
 
-        // Limpar data-border e estilos inline residuais
         [
             document.getElementById('user-avatar'),
             document.getElementById('avatar-preview-wrap'),
@@ -234,17 +264,131 @@ const Inventory = {
     },
 
     _applyTitle(item) {
-        // Será renderizado pelo profile.js ao ler getEquippedItem('title')
     },
 
     _removeTitle() {
         document.getElementById('profile-equipped-title')?.remove();
     },
 
+    getProfileTitleFromProfile(profile = null) {
+        if (profile?.specialTitle?.id) {
+            const forcedIcon = (
+                profile.specialTitle.id === 'title_security_sentinel_v310' ||
+                profile.specialTitle.id === 'title_bug_hunter_v310'
+            ) ? '🛡️' : null;
+            return {
+                id: profile.specialTitle.id,
+                name: profile.specialTitle.name || 'Titulo especial',
+                icon: forcedIcon || profile.specialTitle.icon || '🏅',
+                rarity: profile.specialTitle.rarity || 'weekly',
+            };
+        }
+        if (profile?.profileTitle?.id) {
+            const forcedIcon = (
+                profile.profileTitle.id === 'title_security_sentinel_v310' ||
+                profile.profileTitle.id === 'title_bug_hunter_v310'
+            ) ? '🛡️' : null;
+            return {
+                id: profile.profileTitle.id,
+                name: profile.profileTitle.name || 'Titulo',
+                icon: forcedIcon || profile.profileTitle.icon || '🏅',
+                rarity: profile.profileTitle.rarity || 'common',
+            };
+        }
+        if (profile?.profileTitleId) {
+            const byId = this.getItem(profile.profileTitleId);
+            if (byId) return byId;
+        }
+        return this.getEquippedItem('title');
+    },
+
+    getTitleBadgeStyle(title = null) {
+        const id = typeof title === 'string' ? title : (title?.id || '');
+        const dark = document.body.classList.contains('dark-theme');
+
+        if (id === 'title_security_sentinel_v310' || id === 'title_bug_hunter_v310') {
+            return `
+                font-family:var(--font-mono,'JetBrains Mono',monospace);
+                letter-spacing:0.035em;
+                color:${dark ? '#8fffe0' : '#005f56'};
+                background:${dark
+                    ? 'linear-gradient(135deg, rgba(3,12,20,0.94), rgba(4,32,44,0.92))'
+                    : 'linear-gradient(135deg, rgba(0,255,136,0.16), rgba(0,207,255,0.16))'};
+                border:1px solid ${dark ? 'rgba(0,255,136,0.45)' : 'rgba(0,148,116,0.35)'};
+                box-shadow:${dark
+                    ? '0 0 10px rgba(0,255,136,0.22), inset 0 0 0 1px rgba(0,207,255,0.2)'
+                    : '0 0 8px rgba(0,207,255,0.18), inset 0 0 0 1px rgba(0,255,136,0.2)'};
+                text-shadow:${dark ? '0 0 8px rgba(0,255,136,0.35)' : 'none'};
+            `;
+        }
+
+        return '';
+    },
+
+    getProfileBorderFromProfile(profile = null) {
+        if (profile?.profileBorder?.id) {
+            const byId = this.getItem(profile.profileBorder.id);
+            if (byId) return byId;
+        }
+        if (profile?.profileBorderId) {
+            const byId = this.getItem(profile.profileBorderId);
+            if (byId) return byId;
+        }
+        if (profile && typeof profile === 'object') return null;
+        return this.getEquippedItem('border');
+    },
+
+    _syncEquippedToCloud(type, item) {
+        try {
+            if (type !== 'title' && type !== 'border') return;
+            if (!window.NyanAuth?.isOnline?.() || !window.NyanFirebase?.isReady?.()) return;
+            const uid = window.NyanAuth?.getUID?.();
+            if (!uid) return;
+
+            if (type === 'border') {
+                if (item?.id) {
+                    window.NyanFirebase.updateDoc(`users/${uid}`, {
+                        profileBorderId: item.id,
+                        profileBorder: {
+                            id: item.id,
+                            name: item.name,
+                            icon: item.icon,
+                            rarity: item.rarity || 'common',
+                        },
+                    }).catch(() => {});
+                } else {
+                    window.NyanFirebase.updateDoc(`users/${uid}`, {
+                        profileBorderId: null,
+                        profileBorder: null,
+                    }).catch(() => {});
+                }
+                return;
+            }
+
+            if (item?.id) {
+                window.NyanFirebase.updateDoc(`users/${uid}`, {
+                    profileTitleId: item.id,
+                    profileTitle: {
+                        id: item.id,
+                        name: item.name,
+                        icon: item.icon,
+                        rarity: item.rarity || 'common',
+                    },
+                }).catch(() => {});
+            } else {
+                window.NyanFirebase.updateDoc(`users/${uid}`, {
+                    profileTitleId: null,
+                    profileTitle: null,
+                }).catch(() => {});
+            }
+        } catch (_) {}
+    },
+
     // _applyTheme: ao equipar um tema de intro, aplica o tema de cor correspondente.
     // O efeito da intro é lido diretamente pelo LoginIntro via getEquippedItem('theme').
     // Não salva mais shop_login_effect — não é necessário.
     _applyTheme(item) {
+        if (item.preserveTheme) return;
         if (item.themeId && window.ThemeManager) {
             ThemeManager.applyTheme(item.themeId, true); // silent = true
         }
@@ -255,11 +399,9 @@ const Inventory = {
         window._navEffect = item.id;
     },
 
-    // FIX: partículas fixadas no avatar da sidebar corretamente
     _applyParticle(item) {
         this._removeParticle();
 
-        // Âncora: .sidebar-user (card inteiro da sidebar)
         const sidebarUser = document.querySelector('.sidebar-user');
         if (!sidebarUser) return;
         if (getComputedStyle(sidebarUser).position === 'static') {
@@ -321,7 +463,6 @@ const Inventory = {
         container.id = 'avatar-particles';
         container.style.cssText = 'position:absolute;inset:-2px;pointer-events:none;z-index:200;overflow:visible;border-radius:inherit;';
 
-        // Glow na borda do card (estilo Discord)
         const glow = document.createElement('div');
         glow.style.cssText = `
             position:absolute; inset:0; border-radius:inherit;
@@ -331,7 +472,6 @@ const Inventory = {
         `;
         container.appendChild(glow);
 
-        // 8 partículas nas bordas do card (cantos + meios dos lados)
         const positions = [
             { top:'-6px',    left:'12%'   },
             { top:'-6px',    left:'50%'   },
@@ -374,7 +514,6 @@ const Inventory = {
         });
     },
 
-    // Retorna o effect do tema equipado (lido pelo LoginIntro para decidir o efeito)
     getLoginEffect() {
         const themeItem = this.getEquippedItem('theme');
         return themeItem?.effect || null;
@@ -386,7 +525,6 @@ const Inventory = {
     },
 
     render() {
-        // Inventário é a loja filtrada por "Comprado" — sem duplicar interface
         if (window.Shop) {
             Shop._statusFilter = 'owned';
             Shop._typeFilter   = 'all';

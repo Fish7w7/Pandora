@@ -367,7 +367,6 @@ const Notes = {
         }
     },
     
-    // Modal de confirmação dark glass (substitui confirm() nativo)
     _showConfirm({ icon = '⚠️', title, message, confirmLabel = 'Confirmar', confirmColor = 'rgba(239,68,68,0.85)', onConfirm }) {
         document.getElementById('nyan-confirm-modal')?.remove();
         const modal = document.createElement('div');
@@ -449,7 +448,6 @@ const Notes = {
     
     sortNotes() {
         this.notes.sort((a, b) => {
-            // Pins sempre no topo
             if (a.pinned && !b.pinned) return -1;
             if (!a.pinned && b.pinned) return 1;
             return b.created - a.created;
@@ -491,16 +489,11 @@ const Notes = {
         const now = new Date();
         const diff = now - date;
         
-        // Menos de 1 minuto
         if (diff < 60000) return 'Agora mesmo';
-        // Menos de 1 hora
         if (diff < 3600000) return `${Math.floor(diff / 60000)} min atrás`;
-        // Menos de 24 horas
         if (diff < 86400000) return `${Math.floor(diff / 3600000)}h atrás`;
-        // Menos de 7 dias
         if (diff < 604800000) return `${Math.floor(diff / 86400000)}d atrás`;
         
-        // Mais antigo: mostrar data completa
         return date.toLocaleDateString('pt-BR', { 
             day: '2-digit', 
             month: 'short',
@@ -520,7 +513,6 @@ const Notes = {
         this.loadNotes();
         this.sortNotes();
         this.modalOpen = false;
-        console.log('📝 Notas carregadas:', this.notes.length);
     }
 };
 

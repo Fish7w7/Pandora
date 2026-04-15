@@ -230,13 +230,12 @@ const Missions = {
 
     _getWeekStart() {
         const d = new Date();
-        const day = d.getDay(); // 0=Dom
+        const day = d.getDay();
         const monday = new Date(d);
-        monday.setDate(d.getDate() - ((day + 6) % 7)); // volta para segunda
+        monday.setDate(d.getDate() - ((day + 6) % 7));
         return `${monday.getFullYear()}-${String(monday.getMonth()+1).padStart(2,'0')}-${String(monday.getDate()).padStart(2,'0')}`;
     },
 
-    // Seed determinístico baseado em string → número
     _seed(str) {
         let h = 5381;
         for (let i = 0; i < str.length; i++) {
@@ -245,7 +244,6 @@ const Missions = {
         return Math.abs(h);
     },
 
-    // Selecionar N itens do pool usando seed (mesmos para todos no mesmo dia)
     _pickSeeded(pool, n, seed) {
         const arr = [...pool];
         let s = seed;
@@ -269,19 +267,16 @@ const Missions = {
         const today = this._getToday();
         const data  = this.load();
 
-        // Se já gerou hoje, retornar do cache
         if (data.date === today && data.missions) {
             return data.missions;
         }
 
-        // Separar pool por dificuldade
         const easy   = this.POOL.filter(m => m.diff === 'easy');
         const medium = this.POOL.filter(m => m.diff === 'medium');
         const hard   = this.POOL.filter(m => m.diff === 'hard');
 
         const seed = this._seed(today);
 
-        // 1 fácil + 1 médio + 1 difícil por dia
         const picked = [
             ...this._pickSeeded(easy,   1, seed),
             ...this._pickSeeded(medium, 1, seed ^ 0xdeadbeef),
@@ -300,12 +295,11 @@ const Missions = {
             counter:   m.counter || false,
         }));
 
-        // Preservar streak e estado semanal, resetar missões diárias
         const newData = {
             ...data,
             date:     today,
             missions,
-            state:    {}, // contexto de progresso do dia (contadores)
+            state:    {},
         };
 
         this.save(newData);
@@ -354,10 +348,9 @@ const Missions = {
         const data    = this.load();
         const today   = this._getToday();
 
-        // Resetar se virou o dia
         if (data.date !== today) {
             this.getDailyMissions();
-            return this.track(ctx); // retry com dados frescos
+            return this.track(ctx);
         }
 
         let changed = false;
@@ -369,7 +362,6 @@ const Missions = {
             const def = this.POOL.find(p => p.id === m.id);
             if (!def) return m;
 
-            // Atualizar estado de progresso para contadores
             if (def.counter && def.check(ctx)) {
                 state[m.id] = (state[m.id] || 0) + 1;
                 const prog  = def.progress(state[m.id] !== undefined ? { plays: state[m.id], slotSpins: state[m.id] } : {});
@@ -387,7 +379,6 @@ const Missions = {
                 changed     = true;
                 this._completeMission(m);
             } else {
-                // Atualizar progresso sem completar (para exibir barra)
                 this._updateProgress(m, def, ctx, state);
             }
 
@@ -418,23 +409,20 @@ const Missions = {
             }
         }
 
-        if (changed || true) { // sempre salvar progresso
+        if (changed || true) {
             data.missions = missions;
             data.weekly   = weekly;
             data.state    = state;
             this.save(data);
         }
 
-        // Atualizar badge na sidebar se visível
         this._refreshBadge();
 
-        // Verificar streak de missões completas
         const allDone = missions.every(m => m.completed);
         if (allDone) this._checkMissionStreak();
     },
 
     _updateProgress(m, def, ctx, state) {
-        // Atualiza apenas campos numéricos de progresso sem completar
         if (ctx.event === 'typeracer_finish' && def.id.includes('typeracer')) {
             state.bestWpm  = Math.max(state.bestWpm || 0, ctx.wpm || 0);
             m.progress     = Math.min(state.bestWpm, m.max);
@@ -472,7 +460,6 @@ const Missions = {
             'success'
         );
 
-        console.log(`[Missions] Completa: ${m.title} (${m.diff})${mult > 1 ? ' ×1.5 streak' : ''}`);
         this._refreshBadge();
     },
 
@@ -484,7 +471,6 @@ const Missions = {
             `🏆 Desafio semanal: "${w.title}" — +200 XP · +100 chips! にゃん~`,
             'success'
         );
-        console.log(`[Missions] Desafio semanal completo: ${w.title}`);
     },
 
     _getMissionStreak() {
@@ -496,7 +482,7 @@ const Missions = {
         const today      = this._getToday();
         const streakData = Utils.loadData(this.STREAK_KEY + '_data') || {};
 
-        if (streakData.lastComplete === today) return; // já contou hoje
+        if (streakData.lastComplete === today) return;
 
         const yesterday = new Date();
         yesterday.setDate(yesterday.getDate() - 1);
@@ -534,13 +520,11 @@ const Missions = {
         const muted  = d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
         const inner  = d ? 'rgba(255,255,255,0.05)' : '#f8fafc';
 
-        // Tempo até meia-noite
         const now  = new Date();
         const mid  = new Date(now); mid.setHours(24,0,0,0);
         const diff = Math.round((mid - now) / 60000);
         const resetIn = `${Math.floor(diff/60)}h ${diff%60}m`;
 
-        // Tempo até próxima segunda
         const dayOfWeek  = now.getDay();
         const daysToMon  = (8 - dayOfWeek) % 7 || 7;
         const nextMon    = new Date(now); nextMon.setDate(now.getDate() + daysToMon); nextMon.setHours(0,0,0,0);
@@ -566,7 +550,6 @@ const Missions = {
                 ${m.completed ? 'opacity:0.75;' : ''}
             ">
                 <div style="display:flex;align-items:flex-start;gap:0.75rem;">
-                    <!-- Ícone -->
                     <div style="
                         width:38px;height:38px;border-radius:10px;flex-shrink:0;
                         background:${dc.bg};border:1px solid ${dc.border};
@@ -575,7 +558,6 @@ const Missions = {
                         ${m.completed ? 'filter:grayscale(0.3);' : ''}
                     ">${m.completed ? '✅' : m.icon}</div>
 
-                    <!-- Info -->
                     <div style="flex:1;min-width:0;">
                         <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.2rem;flex-wrap:wrap;">
                             <span style="font-size:0.85rem;font-weight:700;color:${text};font-family:'Syne',sans-serif;">${m.title}</span>
@@ -586,7 +568,6 @@ const Missions = {
                         </div>
                         <p style="font-size:0.75rem;color:${sub};margin:0 0 ${m.max>1 || m.completed?'0.5rem':'0'};">${m.desc}</p>
 
-                        <!-- Barra de progresso (para missões com contador) -->
                         ${m.max > 1 ? `
                         <div style="height:4px;background:${inner};border-radius:99px;overflow:hidden;">
                             <div style="height:100%;width:${pct}%;background:${dc.text};border-radius:99px;transition:width 0.4s ease;"></div>
@@ -595,7 +576,6 @@ const Missions = {
                         ` : ''}
                     </div>
 
-                    <!-- Recompensa -->
                     <div style="text-align:right;flex-shrink:0;">
                         <div style="font-size:0.65rem;font-weight:700;color:${this.REWARDS[m.diff]?.xp || 0 > 0 ? (d?'#a78bfa':'#7c3aed') : muted};">
                             +${this.REWARDS[m.diff]?.xp} XP
@@ -608,7 +588,6 @@ const Missions = {
             </div>`;
         }).join('');
 
-        // Card do desafio semanal
         const weeklyCard = weekly ? `
         <div style="
             background:${weekly.completed ? (d?'rgba(74,222,128,0.06)':'#f0fdf4') : (d?'rgba(245,158,11,0.08)':'#fffbeb')};
@@ -649,7 +628,6 @@ const Missions = {
         return `
         <div style="max-width:600px;margin:0 auto;font-family:var(--font-body,'DM Sans',sans-serif);">
 
-            <!-- Header -->
             <div style="text-align:center;margin-bottom:1.75rem;">
                 <div style="font-size:2.5rem;margin-bottom:0.4rem;">📋</div>
                 <h1 style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:900;margin:0 0 0.25rem;
@@ -660,7 +638,6 @@ const Missions = {
                 <p style="font-size:0.75rem;color:${muted};margin:0;">Novas missões em <strong style="color:${sub};">${resetIn}</strong></p>
             </div>
 
-            <!-- Status do dia -->
             <div style="background:${inner};border:1px solid ${border};border-radius:14px;padding:0.875rem 1rem;
                 margin-bottom:1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
                 <div style="display:flex;align-items:center;gap:0.625rem;">
@@ -684,14 +661,12 @@ const Missions = {
                 </div>` : ''}
             </div>
 
-            <!-- Missões do dia -->
             <div style="font-size:0.68rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;
                 color:${muted};margin-bottom:0.625rem;">Missões de hoje</div>
             <div style="display:flex;flex-direction:column;gap:0.625rem;margin-bottom:1.5rem;">
                 ${missionCards}
             </div>
 
-            <!-- Desafio semanal -->
             <div style="font-size:0.68rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;
                 color:${muted};margin-bottom:0.625rem;">Desafio semanal · renova ${weekReset}</div>
             ${weeklyCard}
@@ -706,7 +681,6 @@ const Missions = {
         const pct       = Math.round((doneCount / total) * 100);
         const allDone   = doneCount === total;
 
-        // Próxima missão pendente com texto truncado
         const nextMission = missions.find(m => !m.completed);
         const previewText = nextMission
             ? `${nextMission.icon} ${nextMission.title}`
@@ -734,7 +708,6 @@ const Missions = {
            onmouseover="this.style.background='${bgHover}'"
            onmouseout="this.style.background='${bgColor}'">
 
-            <!-- Header: label + contador -->
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
                 <span style="
                     font-size:0.6rem;font-weight:800;letter-spacing:0.1em;
@@ -747,14 +720,12 @@ const Missions = {
                 ">${doneCount}/${total}</span>
             </div>
 
-            <!-- Barra de progresso -->
             <div style="height:4px;background:rgba(255,255,255,0.12);border-radius:99px;overflow:hidden;margin-bottom:0.4rem;">
                 <div class="missions-progress-bar" style="height:100%;width:${pct}%;
                     background:${barColor};
                     border-radius:99px;transition:width 0.4s ease;"></div>
             </div>
 
-            <!-- Preview da próxima missão -->
             <div style="
                 font-size:0.7rem;
                 font-weight:600;
@@ -770,7 +741,6 @@ const Missions = {
     },
 
     getPendingCount() {
-        // Usar load() direto para não disparar reset acidental via getDailyMissions
         const data = this.load();
         const today = this._getToday();
         if (!data.missions || data.date !== today) {
@@ -786,10 +756,8 @@ const Missions = {
             badge.style.display = pending > 0 ? 'flex' : 'none';
             badge.textContent   = pending;
         }
-        // Atualizar widget da sidebar se visível
         const widget = document.getElementById('missions-sidebar-widget');
         if (widget) {
-            // Re-renderizar widget diretamente em vez de usar regex frágil
             const missions  = this.getDailyMissions();
             const doneCount = missions.filter(m => m.completed).length;
             const total     = missions.length;
@@ -802,11 +770,131 @@ const Missions = {
     },
 
     init() {
-        // Garantir que as missões do dia existem
         this.getDailyMissions();
         this.getWeeklyChallenge();
-        console.log(`[Missions v1.0.0] ${this.getPendingCount()} missões pendentes hoje`);
     },
 };
 
+if (!Missions.__nyanWorldsExtended) {
+    Missions.__nyanWorldsExtended = true;
+
+    const has = (id) => Missions.POOL.some((m) => m.id === id);
+    const hasWeekly = (id) => Missions.WEEKLY_POOL.some((m) => m.id === id);
+
+    if (!has('create_task_once')) {
+        Missions.POOL.push({
+            id: 'create_task_once',
+            diff: 'easy',
+            icon: '📝',
+            title: 'Primeiro passo',
+            desc: 'Crie uma tarefa no app',
+            check: (ctx) => ctx.event === 'task_created',
+            progress: () => ({ current: 0, max: 1 }),
+        });
+    }
+
+    if (!has('convert_note_task')) {
+        Missions.POOL.push({
+            id: 'convert_note_task',
+            diff: 'medium',
+            icon: '🔗',
+            title: 'Fluxo conectado',
+            desc: 'Converta uma nota em tarefa',
+            check: (ctx) => ctx.event === 'note_to_task',
+            progress: () => ({ current: 0, max: 1 }),
+        });
+    }
+
+    if (!has('complete_3_tasks')) {
+        Missions.POOL.push({
+            id: 'complete_3_tasks',
+            diff: 'medium',
+            icon: '✅',
+            title: 'Ritmo produtivo',
+            desc: 'Conclua 3 tarefas no dia',
+            check: (ctx) => ctx.event === 'task_completed',
+            progress: (state) => ({ current: state.plays || 0, max: 3 }),
+            counter: true,
+        });
+    }
+
+    if (!has('tool_session_5')) {
+        Missions.POOL.push({
+            id: 'tool_session_5',
+            diff: 'hard',
+            icon: '🧩',
+            title: 'Mundo conectado',
+            desc: 'Acione 5 ciclos de uso de ferramenta',
+            check: (ctx) => ctx.event === 'tool_session',
+            progress: (state) => ({ current: state.plays || 0, max: 5 }),
+            counter: true,
+        });
+    }
+
+    if (!hasWeekly('weekly_productive_chain')) {
+        Missions.WEEKLY_POOL.push({
+            id: 'weekly_productive_chain',
+            icon: '📈',
+            title: 'Cadeia produtiva',
+            desc: 'Conclua 12 ações produtivas na semana',
+            check: (ctx) => ['task_created', 'task_completed', 'note_to_task', 'note_created'].includes(ctx.event),
+            progress: () => ({ current: 0, max: 12 }),
+            counter: true,
+        });
+    }
+}
+
 window.Missions = Missions;
+
+(function finalizeMissionsV310() {
+    if (!window.Missions || Missions.__v310Finalized) return;
+    Missions.__v310Finalized = true;
+
+    const __origCompleteMission = Missions._completeMission?.bind(Missions);
+    Missions._completeMission = function(mission) {
+        __origCompleteMission?.(mission);
+        try {
+            window.ProfileV2?.recordActivity?.('mission_done', {
+                id: mission?.id,
+                title: mission?.title || 'Missao',
+                diff: mission?.diff || 'easy',
+            });
+        } catch (_) {}
+        try {
+            window.dispatchEvent(new CustomEvent('nyan:connected-action', {
+                detail: {
+                    event: 'mission_done',
+                    payload: {
+                        id: mission?.id,
+                        title: mission?.title || 'Missao',
+                        diff: mission?.diff || 'easy',
+                    },
+                    at: Date.now(),
+                }
+            }));
+        } catch (_) {}
+    };
+
+    const __origCompleteWeekly = Missions._completeWeekly?.bind(Missions);
+    Missions._completeWeekly = function(weekly) {
+        __origCompleteWeekly?.(weekly);
+        try {
+            window.ProfileV2?.recordActivity?.('weekly_done', {
+                id: weekly?.id,
+                title: weekly?.title || 'Desafio semanal',
+            });
+        } catch (_) {}
+        try {
+            window.dispatchEvent(new CustomEvent('nyan:connected-action', {
+                detail: {
+                    event: 'weekly_done',
+                    payload: {
+                        id: weekly?.id,
+                        title: weekly?.title || 'Desafio semanal',
+                    },
+                    at: Date.now(),
+                }
+            }));
+        } catch (_) {}
+    };
+})();

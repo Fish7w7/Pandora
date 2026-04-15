@@ -1,5 +1,3 @@
-// SHOP.JS v4.0.0 — NyanTools にゃん~
-// Loja estilo Valorant: rotação diária por categoria + inventário separado
 
 const Shop = {
 
@@ -16,6 +14,13 @@ const Shop = {
 
     _tab:         'shop',   // 'shop' | 'inventory'
     _selectedCat: 'title',  // categoria selecionada na loja
+    PATCH_EVENT: {
+        id: 'v310_patch_day',
+        title: 'Patch Day v3.10',
+        subtitle: 'Obrigada pela ajuda da comunidade na correcao do exploit',
+        endsAt: '2026-04-22T23:59:59-03:00',
+        items: ['title_patchday_310', 'border_patchday_310', 'theme_patchpulse_intro'],
+    },
 
     _getDaySeed() {
         const d   = new Date();
@@ -46,33 +51,79 @@ const Shop = {
         return h > 0 ? `${h}h ${m}min` : `${m}min`;
     },
 
-    // Retorna os itens da rotação diária para UMA categoria
     getDailyForCat(catId) {
         const seed        = this._getDaySeed();
         const catSeed     = seed ^ catId.split('').reduce((a, c) => a ^ c.charCodeAt(0), 0);
         const playerLevel = window.Economy?.getLevel?.() || 1;
 
-        // Pool: não possuídos, não marcos, dentro do gap de nível
         let pool = Inventory.getByType(catId).filter(i =>
             !i.milestone &&
+            !i.exclusive &&
+            !i.eventOnly &&
             !Inventory.owns(i.id) &&
             (i.minLevel - playerLevel) <= this.DAILY_MAX_GAP
         );
 
-        // Fallback: relaxa filtro de posse se pool muito pequeno
         if (pool.length < this.DAILY_PER_CAT) {
-            pool = Inventory.getByType(catId).filter(i => !i.milestone);
+            pool = Inventory.getByType(catId).filter(i => !i.milestone && !i.exclusive && !i.eventOnly);
         }
-        // Fallback total: inclui tudo da categoria
         if (pool.length === 0) {
-            pool = Inventory.getByType(catId);
+            pool = Inventory.getByType(catId).filter(i => !i.exclusive && !i.eventOnly);
         }
 
         const shuffled = this._seededShuffle(pool, catSeed);
         const items    = shuffled.slice(0, this.DAILY_PER_CAT);
-        // Primeiro item é o exclusivo do dia
         if (items[0]) items[0] = { ...items[0], isDailyExclusive: true };
         return items;
+    },
+
+    _getPatchEventData() {
+        const endsAt = Date.parse(this.PATCH_EVENT.endsAt || '');
+        if (!Number.isFinite(endsAt)) return null;
+        if (Date.now() > endsAt) return null;
+
+        const items = (this.PATCH_EVENT.items || [])
+            .map(id => Inventory.getItem(id))
+            .filter(Boolean);
+
+        if (!items.length) return null;
+        return { ...this.PATCH_EVENT, endsAt, items };
+    },
+
+    _renderPatchEvent() {
+        const event = this._getPatchEventData();
+        if (!event) return '';
+
+        const c = this._c();
+        const d = this._isDark();
+        const remaining = Math.max(0, event.endsAt - Date.now());
+        const h = Math.floor(remaining / 3600000);
+        const m = Math.floor((remaining % 3600000) / 60000);
+        const countdown = h > 0 ? `${h}h ${m}min` : `${m}min`;
+
+        return `
+            <div style="margin-bottom:1rem;border-radius:16px;padding:1rem;
+                background:linear-gradient(135deg, rgba(16,185,129,0.14), rgba(168,85,247,0.18) 48%, rgba(236,72,153,0.2));
+                border:1px solid ${d ? 'rgba(255,255,255,0.12)' : 'rgba(168,85,247,0.22)'};">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+                    <div>
+                        <div style="font-size:0.66rem;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;color:${c.muted};">Evento especial</div>
+                        <div style="font-size:1.05rem;font-weight:900;font-family:'Syne',sans-serif;color:${c.text};">🎉 ${event.title}</div>
+                        <div style="font-size:0.74rem;color:${c.sub};margin-top:0.2rem;">${event.subtitle}</div>
+                    </div>
+                    <div style="font-size:0.64rem;font-weight:800;color:${d ? '#fcd34d' : '#92400e'};
+                        background:${d ? 'rgba(245,158,11,0.14)' : 'rgba(245,158,11,0.12)'};
+                        border:1px solid ${d ? 'rgba(245,158,11,0.28)' : 'rgba(245,158,11,0.3)'};
+                        border-radius:999px;padding:0.3rem 0.65rem;white-space:nowrap;">
+                        ⏱ ${countdown}
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;">
+                    ${event.items.map((item, i) => this._renderCard(item, i)).join('')}
+                </div>
+            </div>
+        `;
     },
 
     _isDark() { return document.body.classList.contains('dark-theme'); },
@@ -113,7 +164,6 @@ const Shop = {
 
         <div style="max-width:820px;margin:0 auto;font-family:var(--font-body,'DM Sans',sans-serif);">
 
-            <!-- HEADER -->
             <div style="display:flex;align-items:flex-start;justify-content:space-between;
                 flex-wrap:wrap;gap:1rem;margin-bottom:1.5rem;">
                 <div>
@@ -127,7 +177,6 @@ const Shop = {
                     </p>
                 </div>
 
-                <!-- Chips + Nível + XP -->
                 <div style="display:flex;flex-direction:column;align-items:flex-end;gap:0.5rem;min-width:180px;">
                     <div style="display:flex;gap:0.5rem;">
                         <div style="display:flex;align-items:center;gap:0.5rem;background:${c.inner};
@@ -168,7 +217,10 @@ const Shop = {
                 </div>
             </div>
 
-            <!-- ABAS: Loja / Inventário -->
+            <div id="shop-event-content">
+                ${this._tab === 'shop' ? this._renderPatchEvent() : ''}
+            </div>
+
             <div style="display:flex;gap:0.25rem;background:${c.inner};border:1px solid ${c.border};
                 border-radius:14px;padding:0.3rem;margin-bottom:1.25rem;">
                 <button class="shop-tab-btn" onclick="Shop._setTab('shop')" id="shop-tab-shop"
@@ -189,7 +241,6 @@ const Shop = {
                 </button>
             </div>
 
-            <!-- CONTEÚDO DA ABA -->
             <div id="shop-main-content">
                 ${this._tab === 'shop' ? this._renderShopTab() : this._renderInventoryTab()}
             </div>
@@ -205,12 +256,10 @@ const Shop = {
         return `
         <div style="display:flex;gap:1rem;">
 
-            <!-- Coluna esquerda: categorias -->
             <div id="shop-cat-sidebar" style="width:140px;flex-shrink:0;">
                 ${this._renderCatSidebar()}
             </div>
 
-            <!-- Coluna direita: itens da categoria selecionada -->
             <div style="flex:1;min-width:0;" id="shop-items-panel">
                 ${this._renderCatItems(items, cat)}
             </div>
@@ -262,7 +311,6 @@ const Shop = {
             </div>`;
         }
 
-        // Agrupar por tipo
         return this.CATEGORIES.map(cat => {
             const catItems = owned.filter(i => i.type === cat.id);
             if (catItems.length === 0) return '';
@@ -317,6 +365,10 @@ const Shop = {
             btnText     = `${item.price.toLocaleString('pt-BR')} chips`;
             btnStyle    = `background:rgba(239,68,68,0.1);color:${d?'#f87171':'#be123c'};border:1px solid rgba(239,68,68,0.2);`;
             btnDisabled = true;
+        } else if ((item.price || 0) <= 0) {
+            btnText  = `Resgatar grátis`;
+            btnStyle = `background:linear-gradient(135deg,#10b981,#14b8a6);color:white;border:none;`;
+            btnClick = `Shop._buy('${item.id}')`;
         } else {
             btnText  = `Comprar · ${item.price.toLocaleString('pt-BR')} chips`;
             btnStyle = `background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));color:white;border:none;`;
@@ -334,7 +386,6 @@ const Shop = {
             border-radius:14px;padding:0.875rem;
             display:flex;flex-direction:column;gap:0.5rem;animation-delay:${index * 0.05}s;">
 
-            <!-- Ícone + raridade -->
             <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.25rem;">
                 <div style="width:48px;height:48px;border-radius:12px;flex-shrink:0;
                     background:${rarity.bg};border:1px solid ${rarity.color}33;
@@ -353,17 +404,19 @@ const Shop = {
                         color:#4ade80;background:rgba(74,222,128,0.1);
                         border:1px solid rgba(74,222,128,0.25);border-radius:99px;padding:2px 7px;white-space:nowrap;">
                         ✓ Ativo</span>` : ''}
+                    ${item.eventOnly ? `<span style="font-size:0.55rem;font-weight:800;text-transform:uppercase;
+                        color:${d?'#6ee7b7':'#047857'};background:${d?'rgba(16,185,129,0.16)':'rgba(16,185,129,0.12)'};
+                        border:1px solid ${d?'rgba(16,185,129,0.35)':'rgba(16,185,129,0.3)'};border-radius:99px;padding:2px 7px;white-space:nowrap;">
+                        Evento</span>` : ''}
                 </div>
             </div>
 
-            <!-- Nome + preview -->
             <div style="flex:1;">
                 <div style="font-size:0.85rem;font-weight:700;color:${c.text};font-family:'Syne',sans-serif;
                     line-height:1.2;margin-bottom:0.15rem;">${item.name}</div>
                 ${item.preview ? `<div style="font-size:0.65rem;color:${c.muted};line-height:1.4;">${item.preview}</div>` : ''}
             </div>
 
-            <!-- Botão -->
             <button ${btnDisabled ? 'disabled' : ''} onclick="${btnClick || ''}"
                 style="width:100%;padding:0.48rem 0.5rem;border-radius:9px;
                 font-size:0.72rem;font-weight:700;font-family:'DM Sans',sans-serif;
@@ -382,6 +435,8 @@ const Shop = {
         this._tab = tab;
         const content = document.getElementById('shop-main-content');
         if (content) content.innerHTML = tab === 'shop' ? this._renderShopTab() : this._renderInventoryTab();
+        const eventContent = document.getElementById('shop-event-content');
+        if (eventContent) eventContent.innerHTML = tab === 'shop' ? this._renderPatchEvent() : '';
 
         const d = this._isDark();
         const c = this._c();
@@ -434,10 +489,8 @@ const Shop = {
 
     _selectCat(catId) {
         this._selectedCat = catId;
-        // Re-render sidebar (dot some da categoria ativa)
         const sidebar = document.getElementById('shop-cat-sidebar');
         if (sidebar) sidebar.innerHTML = this._renderCatSidebar();
-        // Re-render painel de itens
         const panel = document.getElementById('shop-items-panel');
         const cat   = this.CATEGORIES.find(c => c.id === catId) || this.CATEGORIES[0];
         const items = this.getDailyForCat(catId);
@@ -530,7 +583,8 @@ const Shop = {
     _afterAction() {
         const chipsEl = document.getElementById('shop-chips-display');
         if (chipsEl) chipsEl.textContent = (window.Economy?.getChips?.() || 0).toLocaleString('pt-BR');
-        // Re-render só o painel ativo sem recarregar a página inteira
+        const eventContent = document.getElementById('shop-event-content');
+        if (eventContent) eventContent.innerHTML = this._tab === 'shop' ? this._renderPatchEvent() : '';
         const content = document.getElementById('shop-main-content');
         if (content) content.innerHTML = this._tab === 'shop' ? this._renderShopTab() : this._renderInventoryTab();
     },

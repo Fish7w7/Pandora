@@ -483,7 +483,6 @@ const Tasks = {
         Router.render();
     },
     
-    // Modal de confirmação dark glass (substitui confirm() nativo)
     _showConfirm({ icon = '⚠️', title, message, confirmLabel = 'Confirmar', confirmColor = 'rgba(239,68,68,0.85)', onConfirm }) {
         document.getElementById('nyan-confirm-modal')?.remove();
         const modal = document.createElement('div');
@@ -636,7 +635,6 @@ const Tasks = {
     init() {
         this.loadTasks();
         this.modalOpen = false;
-        console.log('✅ Tarefas carregadas:', this.tasks.length);
     }
 };
 

@@ -43,7 +43,6 @@ const NyanFirebase = {
             this._initServices();
             this._setupPresence();
             this.ready = true;
-            console.log('[Firebase] ✅ Conectado ao projeto:', FIREBASE_CONFIG.projectId);
             return true;
         } catch (err) {
             console.error('[Firebase] ❌ Falha na inicialização:', err.message);
@@ -85,7 +84,6 @@ const NyanFirebase = {
             }
         }
 
-        console.log('[Firebase] ✅ Serviços inicializados — projeto:', FIREBASE_CONFIG.projectId);
 
         this.fn = {
             doc:         this._mod.fsMod.doc,

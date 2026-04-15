@@ -3,7 +3,6 @@
 const LoginPhrases = {
 
     _phrases: [
-        // Motivacionais PT
         'O começo de tudo é um clique. にゃん~',
         'Produtividade é um hábito, não um talento.',
         'Pequenos passos todos os dias chegam longe.',
@@ -35,7 +34,6 @@ const LoginPhrases = {
         'Seu futuro eu vai agradecer.',
         'Faz o que der. É suficiente.',
 
-        // Anime / Cultura japonesa
         '頑張って! Gambatte — faça o seu melhor!',
         'Nana korobi ya oki — caia sete vezes, levante oito.',
         'Ichi-go ichi-e — este momento nunca se repetirá.',
@@ -47,7 +45,6 @@ const LoginPhrases = {
         'Kodawari — atenção obsessiva aos detalhes.',
         'Ganbatte kudasai — por favor, faça o seu melhor!',
 
-        // Curiosidades tech
         'Sabia que o primeiro bug de computador foi uma mariposa real? (1947)',
         "O termo 'pixel' vem de 'picture element'.",
         'O primeiro email foi enviado em 1971 por Ray Tomlinson.',
@@ -61,7 +58,6 @@ const LoginPhrases = {
         'Há mais combinações de baralho do que átomos na Terra.',
         'O Wi-Fi foi inventado por acidente ao estudar buracos negros.',
 
-        // Trocadilhos gatos / NyanTools
         'Miau-ravilhoso te ver de novo! にゃん~',
         'Pronto para ser purr-dutivo hoje? にゃん~',
         'Suas ferramentas te esperam, mestre. にゃん~',
@@ -75,7 +71,6 @@ const LoginPhrases = {
         'Miau! Tudo pronto por aqui. にゃん~',
         'Cat-apulte sua produtividade hoje! にゃん~',
 
-        // Cultura pop / referências
         'Com grandes ferramentas vêm grandes responsabilidades. にゃん~',
         'Que a produtividade esteja com você.',
         'Na dúvida, organize. にゃん~',
@@ -87,7 +82,6 @@ const LoginPhrases = {
         'Achievement unlocked: Mais um dia incrível!',
         'New day, new quests. にゃん~',
 
-        // Curiosidades aleatórias
         "A palavra 'serendipidade' não tem tradução em muitos idiomas.",
         'Mel nunca estraga. Potes de 3000 anos foram encontrados no Egito.',
         'As abelhas podem reconhecer rostos humanos.',
@@ -154,23 +148,19 @@ const LoginPhrases = {
         const special = this._getSpecialDate();
         const rand = Math.random();
 
-        // 10% chance de data especial (se existir)
         if (special && rand < 0.10) {
             return special[Math.floor(Math.random() * special.length)];
         }
 
-        // 25% chance de frase por horário
         if (rand < 0.35) {
             const arr = this._timeBasedPhrases[this._getTimePeriod()];
             return arr[Math.floor(Math.random() * arr.length)];
         }
 
-        // 65% frase do banco geral
         return this._phrases[Math.floor(Math.random() * this._phrases.length)];
     },
 
     inject() {
-        // Evitar duplicatas
         if (document.getElementById('login-phrase')) return;
 
         const subtitle = document.querySelector('#login-screen .text-white\\/40');
@@ -193,7 +183,6 @@ const LoginPhrases = {
         el.title = 'Clique para outra frase にゃん~';
         el.textContent = this.getRandom();
 
-        // Clique → nova frase com fade
         el.addEventListener('click', () => {
             el.style.opacity = '0';
             setTimeout(() => {
@@ -210,11 +199,9 @@ const LoginPhrases = {
             requestAnimationFrame(() => { el.style.opacity = '1'; });
         });
 
-        console.log('💬 LoginPhrases: frase injetada');
     },
 
     init() {
-        // Tentar imediatamente
         setTimeout(() => this.inject(), 100);
         const observer = new MutationObserver(() => {
             const ls = document.getElementById('login-screen');
@@ -228,7 +215,6 @@ const LoginPhrases = {
             attributeFilter: ['class'],
         });
 
-        console.log('💬 LoginPhrases v1.0 inicializado');
     },
 };
 

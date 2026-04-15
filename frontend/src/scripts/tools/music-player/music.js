@@ -73,16 +73,13 @@ const MusicPlayer = {
 
         <div class="mp-root">
 
-            <!-- Header -->
             <div style="text-align:center;margin-bottom:1.5rem;">
                 <div style="font-size:2.8rem;margin-bottom:0.5rem;">🎵</div>
                 <h1 style="font-family:'Syne',sans-serif;font-size:1.8rem;font-weight:900;background:linear-gradient(135deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin:0 0 0.25rem;">Player de Música</h1>
                 <p style="font-size:0.82rem;color:${subtext};font-weight:500;">Streaming via Cloudinary CDN にゃん~</p>
             </div>
 
-            <!-- Player principal -->
             <div class="mp-card">
-                <!-- Capa + info -->
                 <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem;">
                     <div style="width:64px;height:64px;border-radius:14px;background:linear-gradient(135deg,${playlist.color},#ec4899);display:flex;align-items:center;justify-content:center;font-size:2rem;flex-shrink:0;box-shadow:0 4px 16px rgba(0,0,0,0.15);">
                         ${song.cover}
@@ -94,7 +91,6 @@ const MusicPlayer = {
                     </div>
                 </div>
 
-                <!-- Barra de progresso -->
                 <div style="margin-bottom:1rem;">
                     <input type="range" id="progress-bar" class="mp-slider" min="0" max="100" value="0"
                            style="width:100%;" onchange="MusicPlayer.seekTo(this.value)">
@@ -104,7 +100,6 @@ const MusicPlayer = {
                     </div>
                 </div>
 
-                <!-- Controles -->
                 <div style="display:flex;align-items:center;justify-content:center;gap:0.625rem;margin-bottom:1rem;">
                     <button class="mp-ctrl" onclick="MusicPlayer.previous()" title="Anterior">${SVG_PREV}</button>
                     <button class="mp-play" id="main-play-button" onclick="MusicPlayer.togglePlay()">
@@ -113,7 +108,6 @@ const MusicPlayer = {
                     <button class="mp-ctrl" onclick="MusicPlayer.next()" title="Próxima">${SVG_NEXT}</button>
                 </div>
 
-                <!-- Volume -->
                 <div style="display:flex;align-items:center;gap:0.75rem;">
                     <span style="font-size:1rem;flex-shrink:0;">🔊</span>
                     <input type="range" id="volume-control" class="mp-slider" min="0" max="100" value="${this.volume}"
@@ -122,7 +116,6 @@ const MusicPlayer = {
                 </div>
             </div>
 
-            <!-- Tabs de playlists -->
             <div class="mp-card" style="padding:0.875rem 1.25rem;">
                 <div style="display:flex;gap:0.5rem;overflow-x:auto;">
                     ${Object.entries(this.playlists).map(([key, pl]) => `
@@ -133,7 +126,6 @@ const MusicPlayer = {
                 </div>
             </div>
 
-            <!-- Lista de músicas -->
             <div class="mp-card">
                 <span class="mp-label">${playlist.icon} ${playlist.name} · ${playlist.songs.length} músicas</span>
                 ${playlist.songs.map((s, i) => {

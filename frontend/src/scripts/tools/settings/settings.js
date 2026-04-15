@@ -16,8 +16,10 @@ const ThemeManager = {
 
     init() {
         const saved = Utils.loadData('app_color_theme') || 'purple';
-        this.currentTheme = saved;
-        this.applyTheme(saved, true);
+        const resolved = this.themes[saved] ? saved : 'purple';
+        if (resolved !== saved) Utils.saveData('app_color_theme', resolved);
+        this.currentTheme = resolved;
+        this.applyTheme(resolved, true);
     },
 
     applyTheme(themeId, silent = false) {
@@ -40,7 +42,6 @@ const ThemeManager = {
         }
     },
 
-    // Atualiza banner + cards sem re-render completo
     _refreshThemeCards() {
         const t = this.themes[this.currentTheme];
         const banner = document.getElementById('theme-banner');
@@ -76,7 +77,6 @@ const ThemeManager = {
     }
 };
 
-// RENDER DE TEMAS (funções auxiliares)
 
 function renderThemeSelector() {
     const currentId = Utils.loadData('app_color_theme') || 'purple';
@@ -84,7 +84,6 @@ function renderThemeSelector() {
 
     return `
         <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
-            <!-- Banner tema atual -->
             <div id="theme-banner" class="bg-gradient-to-r ${theme.gradient} p-6 text-white">
                 <div class="flex items-center gap-4">
                     <div class="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-2xl flex items-center justify-center text-4xl shadow-inner">
@@ -98,7 +97,6 @@ function renderThemeSelector() {
                 </div>
             </div>
 
-            <!-- Grid de temas -->
             <div class="p-6">
                 <p class="text-sm text-gray-500 font-semibold mb-4 uppercase tracking-wider">Escolha um tema</p>
                 <div class="grid grid-cols-4 gap-3">
@@ -125,7 +123,6 @@ function renderThemeSelector() {
     `;
 }
 
-// SETTINGS PRINCIPAL
 
 const Settings = {
     currentTab: 'appearance',
@@ -139,7 +136,6 @@ const Settings = {
         { id: 'about',         name: 'Sobre',          icon: 'ℹ️'  }
     ],
 
-    // RENDER PRINCIPAL
 
     render() {
         return `
@@ -195,7 +191,6 @@ const Settings = {
         return (renderers[this.currentTab] || (() => ''))();
     },
 
-    // TAB: APARÊNCIA
 
     renderAppearance() {
         const theme = Utils.loadData('app_theme') || 'light';
@@ -203,7 +198,6 @@ const Settings = {
 
         return `
             <div class="space-y-5">
-                <!-- Modo claro/escuro -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <div class="flex items-center gap-3 mb-5">
                         <span class="text-2xl">🌓</span>
@@ -218,7 +212,6 @@ const Settings = {
                     </div>
                 </div>
 
-                <!-- Cores / Tema -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <div class="flex items-center gap-3 mb-5">
                         <span class="text-2xl">🎨</span>
@@ -234,7 +227,6 @@ const Settings = {
         `;
     },
 
-    // TAB: INTERFACE
 
     renderInterface() {
         const focusActive = window.FocusMode?.active || false;
@@ -325,18 +317,17 @@ const Settings = {
         `;
     },
 
-    // TAB: ATUALIZAÇÕES
 
     renderUpdates() {
-        return AutoUpdater?.render() || `
+        const updatesContent = AutoUpdater?.render() || `
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-8 text-center">
                 <div class="text-5xl mb-3">🔄</div>
                 <p class="text-gray-500 font-semibold">Sistema de atualizações não disponível</p>
             </div>
         `;
+        return updatesContent;
     },
 
-    // TAB: NOTIFICAÇÕES
 
     renderNotifications() {
         const notifEnabled = Utils.loadData('notifications_enabled') !== false;
@@ -382,7 +373,6 @@ const Settings = {
 
         return `
             <div class="space-y-5">
-                <!-- Configuração principal -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 space-y-4">
                     <div class="flex items-center gap-3 mb-2">
                         <span class="text-2xl">🔔</span>
@@ -410,7 +400,6 @@ const Settings = {
                     </div>
                 </div>
 
-                <!-- Tipos de alerta -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <div class="flex items-center gap-3 mb-4">
                         <span class="text-2xl">🎛️</span>
@@ -422,7 +411,6 @@ const Settings = {
                     <div class="space-y-2">${typeRows}</div>
                 </div>
 
-                <!-- Histórico -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <div class="flex items-center justify-between mb-4">
                         <div class="flex items-center gap-3">
@@ -461,7 +449,6 @@ const Settings = {
         `;
     },
 
-    // TAB: DADOS
 
     renderData() {
         const storageKB = this._getStorageKB();
@@ -472,7 +459,6 @@ const Settings = {
 
         return `
             <div class="space-y-5">
-                <!-- Uso de armazenamento -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <div class="flex items-center gap-3 mb-5">
                         <span class="text-2xl">📊</span>
@@ -500,7 +486,6 @@ const Settings = {
                     </div>
                 </div>
 
-                <!-- Ações de dados -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <div class="flex items-center gap-3 mb-5">
                         <span class="text-2xl">🔧</span>
@@ -544,7 +529,6 @@ const Settings = {
         `;
     },
 
-    // TAB: SOBRE
 
     renderAbout() {
         const year = new Date().getFullYear();
@@ -566,7 +550,6 @@ const Settings = {
 
         return `
             <div class="space-y-5">
-                <!-- Hero -->
                 <div class="bg-gradient-to-br from-gray-800 via-gray-900 to-black rounded-2xl p-8 text-white shadow-2xl text-center relative overflow-hidden">
                     <div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(circle at 20% 50%, #a855f7 0%, transparent 50%), radial-gradient(circle at 80% 50%, #ec4899 0%, transparent 50%)"></div>
                     <div class="relative">
@@ -582,12 +565,10 @@ const Settings = {
                 </div>
 
                 <div class="grid grid-cols-2 gap-5">
-                    <!-- Desenvolvedores -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                         <h3 class="font-black text-gray-800 mb-4 flex items-center gap-2"><span>👥</span> Desenvolvedores</h3>
                         <div class="space-y-3">
 
-                            <!-- Fish7w7 -->
                             <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                                 <span class="text-2xl">👨‍💻</span>
                                 <div>
@@ -616,13 +597,11 @@ const Settings = {
                                 </div>
                             </a>
 
-                            <!-- Divisor -->
                             <div class="flex items-center gap-3 py-1">
                                 <div class="flex-1 h-px bg-gray-100"></div>
                                 <div class="flex-1 h-px bg-gray-100"></div>
                             </div>
 
-                            <!-- Clara -->
                             <div class="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
                                 <span class="text-2xl">👩‍💻</span>
                                 <div>
@@ -644,7 +623,6 @@ const Settings = {
                         </div>
                     </div>
 
-                    <!-- Links úteis -->
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                         <h3 class="font-black text-gray-800 mb-4 flex items-center gap-2"><span>🔗</span> Links Úteis</h3>
                         <div class="space-y-2">
@@ -662,7 +640,6 @@ const Settings = {
                     </div>
                 </div>
 
-                <!-- Tecnologias -->
                 <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
                     <h3 class="font-black text-gray-800 mb-4 flex items-center gap-2"><span>🛠️</span> Tecnologias</h3>
                     <div class="grid grid-cols-6 gap-3">
@@ -676,7 +653,6 @@ const Settings = {
                     </div>
                 </div>
 
-                <!-- Licença -->
                 <div class="bg-gray-50 border border-gray-200 rounded-2xl p-5 flex items-center justify-between">
                     <div class="flex items-center gap-3">
                         <span class="text-2xl">📄</span>
@@ -691,7 +667,6 @@ const Settings = {
         `;
     },
 
-    // ACTIONS
 
     init() {
         this.loadSettings();
@@ -711,7 +686,6 @@ const Settings = {
             document.body.classList.remove('dark-theme');
             Utils.showNotification?.('☀️ Tema claro ativado', 'success');
         }
-        // Limpar MiniGame antes de re-renderizar para evitar loop órfão
         if (window.MiniGame?.cleanup) MiniGame.cleanup();
         Router?.render();
     },
@@ -756,7 +730,6 @@ const Settings = {
         return total / 1024;
     },
 
-    // Mantido para compatibilidade
     calculateStorageSize() {
         return `${this._getStorageKB().toFixed(2)} KB`;
     },
@@ -865,7 +838,6 @@ const Settings = {
     }
 };
 
-// AUTO-INICIALIZAÇÃO
 
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => ThemeManager.init());

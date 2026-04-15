@@ -24,7 +24,6 @@ const ShareToFeed = {
         const container = document.getElementById(containerId);
         if (!container) return;
 
-        // Remover botão anterior se existir
         container.querySelector('.share-feed-btn')?.remove();
 
         const game = this.GAMES[gameId];
@@ -128,12 +127,10 @@ const ShareToFeed = {
             '<button onclick="document.getElementById(\'share-toast\').remove()" ' +
                 'style="flex-shrink:0;background:none;border:none;cursor:pointer;font-size:1rem;color:' + muted + ';padding:0 0.25rem;">✕</button>';
 
-        // Auto-remover após 8s
         const autoRemove = setTimeout(() => toast.remove(), 8000);
 
         document.body.appendChild(toast);
 
-        // Injetar animação se não existir
         if (!document.getElementById('share-toast-style')) {
             const style = document.createElement('style');
             style.id = 'share-toast-style';

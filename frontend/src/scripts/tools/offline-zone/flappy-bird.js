@@ -532,7 +532,6 @@ const FlappyBird = {
         const capH = 22;
         const groundY = this.canvas.height - 60;
 
-        // ---- CANO SUPERIOR ----
         const topBodyH = pipe.topHeight - capH;
 
         ctx.fillStyle = this._pipeGrad(pipe.x, true);
@@ -552,7 +551,6 @@ const FlappyBird = {
         this.roundRect(ctx, pipe.x - 2, topBodyH + 3, capW - 10, capH / 2, 3);
         ctx.fill();
 
-        // ---- CANO INFERIOR ----
         const bottomCapY = pipe.topHeight + this.pipeGap;
         const bottomBodyY = bottomCapY + capH;
         const bottomBodyH = groundY - bottomBodyY;

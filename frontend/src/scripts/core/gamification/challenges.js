@@ -76,7 +76,6 @@ const Challenges = {
 
     async decline(challengeId) {
         await NyanFirebase.updateDoc(`challenges/${challengeId}`, { status: 'expired' });
-        // Remover localmente sem reload completo
         this._allChallenges = this._allChallenges.filter(c => c.id !== challengeId);
         Utils.showNotification('Desafio recusado', 'info');
         this._renderTab();
@@ -92,13 +91,11 @@ const Challenges = {
 
         await NyanFirebase.updateDoc(`challenges/${challengeId}`, { [field]: score });
 
-        // Verificar se ambos jogaram
         const updated = await NyanFirebase.getDoc(`challenges/${challengeId}`);
         if (updated.challengerScore !== null && updated.challengedScore !== null) {
             await this._resolveChallenge(challengeId, updated);
         }
 
-        // Notificação só se não veio do hook (que já notifica)
         if (!window._activeChallenge) {
             Utils.showNotification(`✅ Score ${score} registrado! Aguardando adversário...`, 'success');
         }
@@ -120,7 +117,6 @@ const Challenges = {
             winnerId,
         });
 
-        // Dar recompensas ao vencedor
         const myUID = NyanAuth.getUID();
         if (winnerId === myUID) {
             window.Economy?.grant?.('mission_medium');
@@ -130,7 +126,6 @@ const Challenges = {
         }
     },
 
-    // Limite de docs completed/expired mantidos no histórico por usuário
     HISTORY_LIMIT: 15,
 
     render() {
@@ -153,7 +148,6 @@ const Challenges = {
         </style>
         <div style="max-width:620px;margin:0 auto;font-family:'DM Sans',sans-serif;">
 
-            <!-- Cabeçalho -->
             <div style="text-align:center;margin-bottom:1.5rem;">
                 <div style="font-size:2.2rem;margin-bottom:0.3rem;">⚔️</div>
                 <h1 style="font-family:'Syne',sans-serif;font-size:1.9rem;font-weight:900;margin:0 0 0.2rem;
@@ -164,10 +158,8 @@ const Challenges = {
                 <p style="font-size:0.72rem;color:${muted};margin:0;">Duelos de 24h com seus amigos にゃん~</p>
             </div>
 
-            <!-- Stats row (preenchida por JS) -->
             <div id="ch-stats-row" style="display:flex;gap:0.5rem;justify-content:center;margin-bottom:1.25rem;"></div>
 
-            <!-- Abas -->
             <div style="display:flex;gap:0.25rem;background:${bg};border:1px solid ${bdr};
                 border-radius:14px;padding:0.3rem;margin-bottom:1rem;">
                 <button id="chtab-active" onclick="Challenges._switchTab('active')"
@@ -191,7 +183,6 @@ const Challenges = {
                 </button>
             </div>
 
-            <!-- Conteúdo das abas -->
             <div id="challenges-content">
                 <div style="text-align:center;padding:2rem;color:${muted};font-size:0.8rem;">Carregando...</div>
             </div>
@@ -274,7 +265,6 @@ const Challenges = {
             ...asChallenged.docs.map(d => ({ id: d.id, ...d.data() })),
         ];
 
-        // Deduplicate e ordenar por data desc
         const seen = new Set();
         const unique = all.filter(c => { if (seen.has(c.id)) return false; seen.add(c.id); return true; });
         unique.sort((a, b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
@@ -285,7 +275,6 @@ const Challenges = {
             toDelete.forEach(c => {
                 deleteDoc(doc(NyanFirebase.db, 'challenges', c.id)).catch(() => {});
             });
-            // Remover da lista local também
             const deleteIds = new Set(toDelete.map(c => c.id));
             unique.splice(0, unique.length, ...unique.filter(c => !deleteIds.has(c.id)));
         }
@@ -295,7 +284,6 @@ const Challenges = {
             .filter(c => (c.status === 'pending' || c.status === 'active') && c.expiresAt?.seconds < now)
             .map(c => NyanFirebase.updateDoc(`challenges/${c.id}`, { status: 'expired' }).catch(() => {}))
         );
-        // Atualizar status local
         unique.forEach(c => {
             if ((c.status === 'pending' || c.status === 'active') && c.expiresAt?.seconds < now) {
                 c.status = 'expired';
@@ -329,7 +317,6 @@ const Challenges = {
                 </div>`).join('');
         }
 
-        // Atualizar badge da aba pendentes
         const pendingBtn = document.getElementById('chtab-pending');
         if (pendingBtn && pending > 0) {
             pendingBtn.textContent = `⏳ Pendentes (${pending})`;
@@ -357,7 +344,6 @@ const Challenges = {
         const color = STATUS_COLOR[ch.status] || STATUS_COLOR.expired;
         const label = STATUS_LABEL[ch.status] || 'Desconhecido';
 
-        // Barra de tempo restante
         let timeBar = '';
         if ((ch.status === 'pending' || ch.status === 'active') && ch.expiresAt?.seconds && ch.createdAt?.seconds) {
             const totalSec   = ch.expiresAt.seconds - ch.createdAt.seconds;
@@ -377,7 +363,6 @@ const Challenges = {
             </div>`;
         }
 
-        // Resultado destacado
         let resultBanner = '';
         if (ch.status === 'completed' && ch.winnerId) {
             const won = ch.winnerId === myUID;
@@ -391,7 +376,6 @@ const Challenges = {
             </div>`;
         }
 
-        // Botão de ação
         let actionBtn = '';
         if (ch.status === 'pending' && !isChallenger) {
             actionBtn = `
@@ -431,7 +415,6 @@ const Challenges = {
         <div class="ch-card" style="background:${bg};border:1px solid ${bdr};border-radius:16px;
             padding:1rem 1.1rem;margin-bottom:0.7rem;animation-delay:${index * 0.06}s;">
 
-            <!-- Header -->
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.8rem;">
                 <div style="display:flex;align-items:center;gap:0.6rem;">
                     <span style="font-size:1.2rem;">${ch.gameIcon}</span>
@@ -450,7 +433,6 @@ const Challenges = {
 
             ${resultBanner}
 
-            <!-- Placar VS -->
             <div style="display:grid;grid-template-columns:1fr 28px 1fr;gap:0.5rem;align-items:center;">
                 <div style="text-align:center;padding:0.65rem 0.5rem;background:${paneBg};border-radius:10px;">
                     <div style="font-size:0.62rem;color:${muted};margin-bottom:0.3rem;font-weight:600;">Você</div>
@@ -476,7 +458,6 @@ const Challenges = {
                 </div>
             </div>
 
-            <!-- Recompensas -->
             <div style="display:flex;justify-content:flex-end;margin-top:0.55rem;">
                 <span style="font-size:0.62rem;color:${muted};">+${ch.rewardXP} XP · +${ch.rewardChips} chips</span>
             </div>
@@ -536,8 +517,6 @@ const Challenges = {
         setTimeout(() => modal.querySelector('#score-input')?.focus(), 100);
     },
 
-    // Mapa gameId → toolId do router
-    // Mapa gameId (challenges) → gameId do OfflineZone
     GAME_ROUTES: {
         'typeracer': 'typeracer',
         '2048':      'game2048',
@@ -547,7 +526,6 @@ const Challenges = {
         'snake':     'snake',
     },
 
-    // Mapa gameId → storageKey (mesma do Economy.checkRecord)
     GAME_KEYS: {
         'typeracer': 'typeracer_highscore',
         '2048':      'game_2048_highscore',
@@ -558,25 +536,18 @@ const Challenges = {
     },
 
     startPlay(challengeId, gameId) {
-        // Resetar flags de hook para reinstalar nos jogos (podem ter sido carregados depois do init)
         if (window.Game2048)   { delete Game2048._challengeHooked; }
         if (window.FlappyBird) { delete FlappyBird._challengeHooked; }
         if (window.MiniGame)   { delete MiniGame._challengeHooked; }
         this._hookInstalled = false;
         this._setupGameHook();
 
-        // Salvar score anterior para comparar ao sair
         const prevScore = Utils.loadData(this.GAME_KEYS[gameId]);
 
-        // Guardar desafio ativo globalmente
         window._activeChallenge = { challengeId, gameId, prevScore, _submitted: false };
 
-        // Mostrar badge flutuante
         this._showChallengeBadge(gameId);
 
-        // Navegar direto para o jogo via OfflineZone
-        // IMPORTANTE: setar _insideGame=true ANTES de qualquer render
-        // para que OfflineZone.init() não resete currentGame
         const offlineGameId = this.GAME_ROUTES[gameId];
         if (window.OfflineZone && offlineGameId) {
             OfflineZone._insideGame = true;
@@ -597,7 +568,6 @@ const Challenges = {
             Router?.navigate('mini-game');
         }
 
-        // Fallback: monitorar backToMenu do OfflineZone para capturar score ao sair
         this._watchOfflineZone(challengeId, gameId);
     },
 
@@ -627,7 +597,6 @@ const Challenges = {
                     Utils.showNotification('⚠️ Jogue uma partida para registrar o score', 'warning');
                 }
             }
-            // Restaurar original e executar
             OfflineZone.backToMenu = origBack;
             this._ozPatched = false;
             origBack();
@@ -652,7 +621,6 @@ const Challenges = {
             <span onclick="document.getElementById('challenge-badge').remove();window._activeChallenge=null;"
                 style="opacity:0.7;font-size:0.9rem;line-height:1;margin-left:4px;">✕</span>`;
 
-        // Injetar animação CSS se não existir
         if (!document.getElementById('challenge-badge-style')) {
             const style = document.createElement('style');
             style.id = 'challenge-badge-style';
@@ -662,12 +630,10 @@ const Challenges = {
         document.body.appendChild(badge);
     },
 
-    // Hook para capturar score ao fim de partida — independente de recorde
     _setupGameHook() {
         if (this._hookInstalled) return;
         this._hookInstalled = true;
 
-        // Função central de submissão
         const trySubmit = (score) => {
             const active = window._activeChallenge;
             if (!active || active._submitted) return;
@@ -682,7 +648,6 @@ const Challenges = {
             }).catch(() => { active._submitted = false; });
         };
 
-        // 1) Hook no Economy.checkRecord (captura recordes — ainda útil para alguns jogos)
         const origCheckRecord = window.Economy?.checkRecord?.bind(window.Economy);
         if (origCheckRecord) {
             window.Economy.checkRecord = (storageKey, newScore, higherIsBetter = true) => {
@@ -695,10 +660,7 @@ const Challenges = {
             };
         }
 
-        // 2) Hooks diretos nos jogos para capturar score SEMPRE (não só recordes)
-        // Aguardar jogos carregarem e instalar hooks
         const installGameHooks = () => {
-            // 2048 — hook no updateStats (chamado ao fim da partida: vitória ou derrota)
             if (window.Game2048 && !Game2048._challengeHooked) {
                 Game2048._challengeHooked = true;
                 const orig2048 = Game2048.updateStats?.bind(Game2048);
@@ -710,7 +672,6 @@ const Challenges = {
                     }
                 };
             }
-            // Flappy — hook no endGame
             if (window.FlappyBird && !FlappyBird._challengeHooked) {
                 FlappyBird._challengeHooked = true;
                 const origFlappy = FlappyBird.endGame?.bind(FlappyBird);
@@ -723,7 +684,6 @@ const Challenges = {
                     return result;
                 };
             }
-            // Snake — hook no gameOver
             if (window.MiniGame && !MiniGame._challengeHooked) {
                 MiniGame._challengeHooked = true;
                 const origSnake = MiniGame.gameOver?.bind(MiniGame);
@@ -735,12 +695,8 @@ const Challenges = {
                     return origSnake(...args);
                 };
             }
-            // TypeRacer — checkRecord sempre chamado ao final, coberto pelo hook 1
-            // Quiz — checkRecord sempre chamado ao final, coberto pelo hook 1
-            // Termo — checkRecord sempre chamado ao final, coberto pelo hook 1
         };
 
-        // Instalar agora e também após navegação (jogos podem não estar carregados ainda)
         installGameHooks();
         setTimeout(installGameHooks, 2000);
     },
@@ -773,11 +729,9 @@ const Challenges = {
             .ch-game-row:active { transform:scale(0.98); }
             </style>
 
-            <!-- Handle -->
             <div style="width:40px;height:4px;border-radius:99px;background:${d?'rgba(255,255,255,0.18)':'rgba(0,0,0,0.15)'};
                 margin:0.875rem auto 1.25rem;"></div>
 
-            <!-- Título -->
             <div style="margin-bottom:1.1rem;">
                 <div style="font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:900;color:${text};margin-bottom:0.2rem;">
                     ⚔️ Desafiar <span style="color:var(--theme-primary,#a855f7);">${targetTag}</span>
@@ -785,7 +739,6 @@ const Challenges = {
                 <div style="font-size:0.72rem;color:${sub};">Escolha o jogo do duelo — vale 24h a partir de agora</div>
             </div>
 
-            <!-- Recompensa -->
             <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
                 <div style="background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.2);
                     border-radius:10px;padding:0.35rem 0.75rem;font-size:0.68rem;font-weight:700;color:#4ade80;">
@@ -797,7 +750,6 @@ const Challenges = {
                 </div>
             </div>
 
-            <!-- Jogos -->
             <div id="ch-game-list">
                 ${this.GAMES.map(g => `
                 <div class="ch-game-row" onclick="
@@ -812,7 +764,6 @@ const Challenges = {
                 </div>`).join('')}
             </div>
 
-            <!-- Cancelar -->
             <button onclick="document.getElementById('challenge-create-modal').remove()"
                 style="width:100%;margin-top:0.75rem;padding:0.65rem;border-radius:12px;cursor:pointer;
                 background:transparent;border:1px solid ${bdr};
@@ -827,11 +778,9 @@ const Challenges = {
 
     init() {
         this._setupGameHook();
-        // Esconder badge ao entrar na aba
         const badge = document.getElementById('challenges-nav-badge');
         if (badge) badge.style.display = 'none';
         setTimeout(() => this.loadChallenges(), 100);
-        console.log('[Challenges] v1.0.0 inicializado');
     },
 };
 

@@ -1,8 +1,5 @@
-// JOGO DA VELHA - NyanTools にゃん~
-// Versão Otimizada v2.0
 
 const TicTacToe = {
-    // Estado do jogo
     board: Array(9).fill(null),
     currentPlayer: 'X',
     gameMode: null,
@@ -18,12 +15,11 @@ const TicTacToe = {
     },
     
     winningLines: [
-        [0, 1, 2], [3, 4, 5], [6, 7, 8], // Linhas
-        [0, 3, 6], [1, 4, 7], [2, 5, 8], // Colunas
-        [0, 4, 8], [2, 4, 6]             // Diagonais
+        [0, 1, 2], [3, 4, 5], [6, 7, 8],
+        [0, 3, 6], [1, 4, 7], [2, 5, 8],
+        [0, 4, 8], [2, 4, 6]
     ],
     
-    // RENDER PRINCIPAL
     
     render() {
         if (!this.gameMode) {
@@ -295,7 +291,6 @@ const TicTacToe = {
         `;
     },
     
-    // CONTROLE DO JOGO
     
     selectMode(mode) {
         this.gameMode = mode;
@@ -367,14 +362,12 @@ const TicTacToe = {
         }
     },
     
-    // ESTRATÉGIAS DE IA
     
     getRandomMove() {
         const available = this.board.map((cell, i) => cell === null ? i : null).filter(i => i !== null);
         return available[Math.floor(Math.random() * available.length)];
     },
     
-    // FÁCIL: bloqueia vitória iminente do jogador, mas não ataca.
     getEasyMove() {
         for (let i = 0; i < 9; i++) {
             if (this.board[i] === null) {
@@ -390,7 +383,6 @@ const TicTacToe = {
     },
     
     getMediumMove() {
-        // Tentar vencer
         for (let i = 0; i < 9; i++) {
             if (this.board[i] === null) {
                 this.board[i] = 'O';
@@ -402,7 +394,6 @@ const TicTacToe = {
             }
         }
         
-        // Bloquear vitória
         for (let i = 0; i < 9; i++) {
             if (this.board[i] === null) {
                 this.board[i] = 'X';
@@ -414,10 +405,8 @@ const TicTacToe = {
             }
         }
         
-        // Centro
         if (this.board[4] === null) return 4;
         
-        // Cantos
         const corners = [0, 2, 6, 8].filter(i => this.board[i] === null);
         if (corners.length > 0) {
             return corners[Math.floor(Math.random() * corners.length)];
@@ -426,7 +415,6 @@ const TicTacToe = {
         return this.getRandomMove();
     },
     
-    // DIFÍCIL: Minimax com 25% de chance de errar.
     getMinimaxMove() {
         const emptyCells = this.board.filter(cell => cell === null).length;
                 if (Math.random() < 0.25) {
@@ -468,7 +456,6 @@ const TicTacToe = {
     },
 
     getMediumMove() {
-        // Tentar vencer
         for (let i = 0; i < 9; i++) {
             if (this.board[i] === null) {
                 this.board[i] = 'O';
@@ -480,7 +467,6 @@ const TicTacToe = {
             }
         }
         
-        // Bloquear vitória
         for (let i = 0; i < 9; i++) {
             if (this.board[i] === null) {
                 this.board[i] = 'X';
@@ -492,10 +478,8 @@ const TicTacToe = {
             }
         }
         
-        // Centro
         if (this.board[4] === null) return 4;
         
-        // Cantos
         const corners = [0, 2, 6, 8].filter(i => this.board[i] === null);
         if (corners.length > 0) {
             return corners[Math.floor(Math.random() * corners.length)];
@@ -506,12 +490,10 @@ const TicTacToe = {
     getMinimaxMove() {
         const emptyCells = this.board.filter(cell => cell === null).length;
         
-        // Primeira jogada
         if (emptyCells === 9) {
             return Math.random() < 0.7 ? 4 : [0, 2, 6, 8][Math.floor(Math.random() * 4)];
         }
         
-        // Segunda jogada
         if (emptyCells === 8) {
             if (this.board[4] === 'X') {
                 const corners = [0, 2, 6, 8];
@@ -577,7 +559,6 @@ const TicTacToe = {
         }
     },
     
-    // UTILITÁRIOS
     
     checkWinner() {
         return this.winningLines.some(line => {

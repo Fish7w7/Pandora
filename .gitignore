@@ -33,3 +33,18 @@ temp/
 # Electron updater dev config
 dev-app-update.yml
 backend/src/dev-app-update.yml
+
+# Test / coverage
+coverage/
+.nyc_output/
+
+# Caches
+.cache/
+.parcel-cache/
+.eslintcache
+*.tsbuildinfo
+
+# Local runtime files
+*.pid
+*.pid.lock
+*.seed

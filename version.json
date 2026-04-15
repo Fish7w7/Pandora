@@ -1,16 +1,18 @@
 {
   "version": "3.10.0",
-  "buildDate": "2026-04-13",
+  "buildDate": "2026-04-15",
   "changelog": [
-    "🌍 Nyan Worlds — nova direção em mundos de uso: jogar, conversar, organizar e evoluir perfil",
-    "🏠 Home personalizada com continuar de onde parou, missões do dia, amigos online, notas recentes e atalhos dinâmicos",
-    "🧑 Perfil 2.0 com base para vitrines, histórico e identidade mais pessoal",
-    "🟢 Presença rica com contexto vivo: jogando, focado em tarefas, ausente e mais",
-    "🔗 Integração entre notas, tarefas, IA e camadas sociais para um ecossistema mais conectado",
-    "🐛 Correção da Zona Offline: Forca e Termo não voltam mais para a tela inicial ao abrir"
+    "Nyan Worlds: nova fase conectando jogar, socializar, organizar e evoluir perfil",
+    "Home personalizada e dashboard refinado com menos poluicao visual",
+    "Perfil 2.0 com banner, bio (200), historico, estatisticas e identidade mais forte",
+    "Presenca social em tempo real mais estavel entre status, ferramenta e contexto",
+    "Fluxos conectados entre notas, tarefas, missoes, progresso e perfil",
+    "Regra oficial da v3.10: concluir tarefa nao gera XP/chips (exploit bloqueado)",
+    "Evento Patch Day v3.10 com itens especiais e intro limitada",
+    "Pacote de estabilidade: Zona Offline, render de perfil e sincronizacao visual"
   ],
   "tag_name": "v3.10.0",
-  "releaseDate": "2026-04-13",
+  "releaseDate": "2026-04-15",
   "name": "NyanTools v3.10.0 にゃん~",
   "codename": "Nyan Worlds",
   "body": "## 🌍 NyanTools v3.10.0 — Nyan Worlds にゃん~\n\n> **FEATURE UPDATE:** Esta versão inicia a fase Nyan Worlds, unindo produtividade social e arcade competitivo em uma experiência mais pessoal. にゃん~\n\n---\n\n### 🧠 Visão do Release\n- Mundos de uso conectados: jogar, conversar, organizar e evoluir perfil\n- Base para evolução de temporadas, eventos e sistemas sociais mais profundos\n\n### 🏠 Home personalizada\n- Estrutura para uma tela inicial mais inteligente\n- Espaço para \"continuar de onde parou\", missões, amigos online e atalhos dinâmicos\n\n### 🧑 Perfil 2.0 e presença rica\n- Preparação do perfil para identidade mais forte\n- Presença contextual mais viva no ecossistema social\n\n### 🔗 Ferramentas conectadas\n- Direção para integrar notas, tarefas, IA e progressão de forma mais orgânica\n\n### 🐛 Correções\n- Corrigido bug da Zona Offline onde Forca/Termo voltavam para a tela inicial ao entrar no jogo\n\n---\n\n**Versão Anterior:** v3.9.0  \n**Autores:** Gabriel + Clara  \n**Linha desta versão:** Nyan Worlds",
@@ -22,10 +24,10 @@
   "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.10.0",
   "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.10.0",
   "statistics": {
-    "filesNew": 6,
-    "filesRewritten": 3,
-    "filesModified": 18,
-    "bugsFixed": 1,
-    "featuresAdded": 6
+    "filesNew": 8,
+    "filesRewritten": 4,
+    "filesModified": 24,
+    "bugsFixed": 9,
+    "featuresAdded": 12
   }
 }

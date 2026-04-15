@@ -7,22 +7,18 @@ const LoginIntro = {
     _callback:   null,
     _skipped:    false,
 
-    // Mapa: id do item de tema → tema que ele exige estar ativo
     EFFECT_THEME_MAP: {
         sakura:  'pink',
         stars:   'indigo',
         glitch:  'teal',
         fire:    'red',
+        patchpulse: '*',
     },
 
     _shouldPlay() {
         return window.Utils?.loadData('intro_disabled') !== true;
     },
 
-    // Retorna o efeito ativo SE:
-    //   a) o item de tema correspondente está EQUIPADO no inventário
-    //   b) E o tema atual da UI BATE com o tema do item
-    // Caso contrário retorna null
     _getActiveEffect() {
         if (!window.Inventory) return null;
 
@@ -34,12 +30,12 @@ const LoginIntro = {
         if (!requiredTheme) return null;
 
         const currentTheme = window.Utils?.loadData('app_color_theme') || 'purple';
+        if (requiredTheme === '*') return effect;
         if (currentTheme !== requiredTheme) return null;     // tema trocado → sem efeito
 
         return effect;
     },
 
-    // Cor de destaque da intro baseada no tema ativo
     _getThemeColor() {
         const effect = this._getActiveEffect();
         if (effect) {
@@ -48,6 +44,7 @@ const LoginIntro = {
                 glitch: '#22d3ee',
                 stars:  '#818cf8',
                 fire:   '#ef4444',
+                patchpulse: '#22d3ee',
             };
             if (effectColors[effect]) return effectColors[effect];
         }
@@ -59,8 +56,6 @@ const LoginIntro = {
         return map[theme] || '#a855f7';
     },
 
-    // Retorna um elemento DOM para ser anexado DENTRO de #login-intro-screen
-    // (z-index abaixo do conteúdo da intro mas visível na tela preta)
 
     _createEffectOverlay(effect) {
         const container = document.createElement('div');
@@ -185,6 +180,72 @@ const LoginIntro = {
                 line.style.animationDuration= `${2 + (i % 3) * 0.5}s`;
                 container.appendChild(line);
             }
+            return container;
+        }
+
+        if (effect === 'patchpulse') {
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes introPatchGridPulse {
+                    0%,100% { opacity:0.18; transform:scale(1); }
+                    50%     { opacity:0.32; transform:scale(1.02); }
+                }
+                @keyframes introPatchTrace {
+                    0%   { transform:translateX(-110%); opacity:0; }
+                    12%  { opacity:0.9; }
+                    70%  { opacity:0.8; }
+                    100% { transform:translateX(110%); opacity:0; }
+                }
+                @keyframes introPatchSpark {
+                    0%,100% { opacity:0.25; transform:translateY(0) scale(0.9); }
+                    50%     { opacity:1; transform:translateY(-6px) scale(1.2); }
+                }
+                .intro-patch-grid {
+                    position:absolute; inset:0; pointer-events:none;
+                    background:
+                        linear-gradient(90deg, rgba(34,211,238,0.09) 1px, transparent 1px),
+                        linear-gradient(0deg, rgba(16,185,129,0.08) 1px, transparent 1px);
+                    background-size:26px 26px;
+                    animation:introPatchGridPulse 2.4s ease-in-out infinite;
+                }
+                .intro-patch-trace {
+                    position:absolute; left:0; right:0; height:2px; pointer-events:none;
+                    background:linear-gradient(90deg, transparent, rgba(34,211,238,0.85), rgba(16,185,129,0.85), transparent);
+                    animation:introPatchTrace linear infinite;
+                }
+                .intro-patch-spark {
+                    position:absolute; color:#67e8f9; pointer-events:none;
+                    text-shadow:0 0 10px rgba(34,211,238,0.55);
+                    animation:introPatchSpark ease-in-out infinite;
+                }
+            `;
+            container.appendChild(style);
+
+            const grid = document.createElement('div');
+            grid.className = 'intro-patch-grid';
+            container.appendChild(grid);
+
+            for (let i = 0; i < 4; i++) {
+                const t = document.createElement('div');
+                t.className = 'intro-patch-trace';
+                t.style.top = `${18 + i * 18}%`;
+                t.style.animationDuration = `${3 + i * 0.7}s`;
+                t.style.animationDelay = `${i * 0.6}s`;
+                container.appendChild(t);
+            }
+
+            for (let i = 0; i < 12; i++) {
+                const s = document.createElement('div');
+                s.className = 'intro-patch-spark';
+                s.textContent = i % 3 === 0 ? '✦' : '•';
+                s.style.left = `${6 + (i * 8) % 88}%`;
+                s.style.top = `${10 + (i * 11) % 76}%`;
+                s.style.fontSize = i % 3 === 0 ? '0.95rem' : '0.7rem';
+                s.style.animationDuration = `${1.9 + (i % 4) * 0.35}s`;
+                s.style.animationDelay = `${i * 0.12}s`;
+                container.appendChild(s);
+            }
+
             return container;
         }
 
@@ -340,8 +401,6 @@ const LoginIntro = {
         this._el = this._build();
         document.body.appendChild(this._el);
 
-        // Injetar efeito DENTRO da tela de intro (não no body separado)
-        // Só funciona se tema ativo bate com o efeito comprado
         const activeEffect = this._getActiveEffect();
         if (activeEffect) {
             const effectOverlay = this._createEffectOverlay(activeEffect);

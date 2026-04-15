@@ -1,6 +1,5 @@
 
 const Forca = {
-    // Lista de palavras com dificuldade
     words: [
         { word: 'PARALELEPIPEDO', hint: 'Figura geométrica 3D com 6 faces', difficulty: 'hard' },
         { word: 'OTORRINOLARINGOLOGISTA', hint: 'Médico de ouvido, nariz e garganta', difficulty: 'hard' },
@@ -44,7 +43,6 @@ const Forca = {
         { word: 'QUOCIENTE', hint: 'Resultado da divisão', difficulty: 'medium' }
     ],
     
-    // Estado do jogo
     currentWord: null,
     currentHint: '',
     currentDifficulty: '',
@@ -60,7 +58,6 @@ const Forca = {
     timeStarted: null,
     timeTaken: 0,
     
-    // Mapas de dificuldade
     difficultyConfig: {
         easy: { emoji: '😊', label: 'Fácil', color: 'bg-green-100 text-green-700' },
         medium: { emoji: '🤔', label: 'Médio', color: 'bg-yellow-100 text-yellow-700' },
@@ -68,7 +65,6 @@ const Forca = {
         insane: { emoji: '💀', label: 'INSANO', color: 'bg-red-100 text-red-700' }
     },
     
-    // RENDER PRINCIPAL
     
     render() {
         if (!this.isReady || !this.currentWord) {
@@ -404,10 +400,8 @@ const Forca = {
         `;
     },
     
-    // INICIALIZAÇÃO
     
     init() {
-        console.log('🎯 Inicializando Forca...');
         
         try {
             const dailyWord = this.getDailyWord();
@@ -432,7 +426,6 @@ const Forca = {
             }
             
             this.isReady = true;
-            console.log('✅ Forca inicializado!');
             
             Router?.render();
         } catch (error) {
@@ -442,7 +435,6 @@ const Forca = {
         }
     },
     
-    // LÓGICA DO JOGO
     
     guessLetter(letter) {
         if (!this.currentWord || this.gameOver || this.guessedLetters.includes(letter)) return;
@@ -525,7 +517,6 @@ const Forca = {
         this.saveGameState();
     },
     
-    // UTILITÁRIOS
     
     getDailyWord() {
         const today = this.getToday();
@@ -686,7 +677,6 @@ const Forca = {
     },
     
     handleBackspace() {
-        // Placeholder para compatibilidade com teclado
     }
 };
 

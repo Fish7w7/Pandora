@@ -7,7 +7,6 @@ const CommandPalette = {
     init() {
         this._injectHTML();
         this._setupListeners();
-        console.log('🔍 CommandPalette v1.0 inicializado — Ctrl+P para abrir');
     },
 
     _injectHTML() {

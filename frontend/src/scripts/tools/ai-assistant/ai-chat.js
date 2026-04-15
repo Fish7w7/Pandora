@@ -137,7 +137,6 @@ const AIAssistant = {
     },
     
     init() {
-        console.log('✅ AIAssistant inicializado');
         this.loadConversation();
     },
     

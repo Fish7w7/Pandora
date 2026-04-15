@@ -50,6 +50,7 @@ try {
         
         openDownloadsFolder: () => invoke('open-downloads-folder'),
         openExternal: (url) => invoke('open-external', url),
+        readV310Notes: () => invoke('read-local-v310-notes'),
         resetUpdateCooldown: () => invoke('reset-update-cooldown'),
         isDevEnvironment: () => invoke('is-dev-environment'),
         onDownloadProgress: (callback) => {

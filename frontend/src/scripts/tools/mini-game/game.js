@@ -45,7 +45,6 @@ const MiniGame = {
         
         return `
             <div class="max-w-3xl mx-auto" style="position:relative;">
-                <!-- Fundo decorativo — visível só no tema claro -->
                 <div style="
                     position:fixed; inset:0; z-index:-1; pointer-events:none;
                     background: radial-gradient(ellipse at 30% 20%, rgba(16,185,129,0.06) 0%, transparent 50%),
@@ -213,7 +212,6 @@ const MiniGame = {
         this.resetGame();
         this.setupKeyboardListeners();
         this.draw();
-        console.log('🐍 Cobrinha inicializado');
     },
 
     _generateStars() {
@@ -235,11 +233,9 @@ const MiniGame = {
 
     drawBackground() {
         const ctx = this.ctx;
-        // Fundo base
         ctx.fillStyle = this.colors.background;
         ctx.fillRect(0, 0, 400, 400);
 
-        // Brilhos atmosféricos nos cantos
         const g1 = ctx.createRadialGradient(0, 0, 0, 0, 0, 200);
         g1.addColorStop(0, this.colors.bgGlow1);
         g1.addColorStop(1, 'transparent');
@@ -252,7 +248,6 @@ const MiniGame = {
         ctx.fillStyle = g2;
         ctx.fillRect(0, 0, 400, 400);
 
-        // Estrelas
         if (this._stars) {
             this._stars.forEach(s => {
                 ctx.globalAlpha = s.a;
@@ -298,7 +293,6 @@ const MiniGame = {
                 this._roundRect(x+1, y+1, cs-2, cs-2, 5);
                 this.ctx.shadowBlur = 0;
 
-                // Olhos
                 this.ctx.fillStyle = '#ffffff';
                 this.ctx.fillRect(x+5, y+6, 3, 3);
                 this.ctx.fillRect(x+12, y+6, 3, 3);
@@ -317,7 +311,6 @@ const MiniGame = {
                 this._roundRect(x+2, y+2, cs-4, cs-4, 4);
                 this.ctx.globalAlpha = 1;
 
-                // Escama sutil no centro
                 if (index % 2 === 0) {
                     this.ctx.fillStyle = 'rgba(255,255,255,0.06)';
                     this._roundRect(x+5, y+5, cs-10, cs-10, 2);
@@ -327,7 +320,6 @@ const MiniGame = {
         this.ctx.shadowBlur = 0;
     },
 
-    // Helper: retângulo com bordas arredondadas
     _roundRect(x, y, w, h, r) {
         this.ctx.beginPath();
         this.ctx.moveTo(x + r, y);
@@ -357,17 +349,14 @@ const MiniGame = {
         this.ctx.fill();
         this.ctx.shadowBlur = 0;
 
-        // Brilho
         this.ctx.fillStyle = 'rgba(255,255,255,0.35)';
         this.ctx.beginPath();
         this.ctx.arc(x - 2, y - 2, 3, 0, Math.PI * 2);
         this.ctx.fill();
 
-        // Haste da maçã / detalhe
         this.ctx.fillStyle = '#10b981';
         this.ctx.fillRect(x - 1, y - pulse - 2, 2, 3);
 
-        // Anel extra para itens especiais
         if (this.currentFoodType !== 'normal') {
             this.ctx.strokeStyle = ft.color;
             this.ctx.lineWidth = 1.5;
@@ -678,7 +667,6 @@ const MiniGame = {
             this._keydownHandler = null;
         }
         
-        console.log('🐍 Cobrinha cleanup executado');
     }
 };
 

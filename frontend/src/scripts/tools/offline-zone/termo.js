@@ -24,16 +24,7 @@ const Termo = {
         ['⌫', ...'ZXCVBNM'.split('')]
     ],
     
-    // RENDER PRINCIPAL
-    
     render() {
-        // Log de debug
-        console.log('🎨 Renderizando Termo:', {
-            guesses: this.guesses.length,
-            gameOver: this.gameOver,
-            won: this.won
-        });
-        
         return `
             <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-2xl mx-auto">
                 ${this.renderHeader()}
@@ -69,22 +60,18 @@ const Termo = {
     buildGridRows() {
         const rows = [];
         
-        // Tentativas feitas
         for (let i = 0; i < this.guesses.length; i++) {
             rows.push(this.renderCompletedRow(this.guesses[i]));
         }
-        
-        // Linha atual
+
         if (!this.gameOver && this.guesses.length < this.maxAttempts) {
             rows.push(this.renderCurrentRow());
-            
-            // Linhas vazias
+
             const emptyRows = this.maxAttempts - this.guesses.length - 1;
             for (let i = 0; i < emptyRows; i++) {
                 rows.push(this.renderEmptyRow());
             }
         } else {
-            // Jogo acabou - renderizar linhas vazias
             const emptyRows = this.maxAttempts - this.guesses.length;
             for (let i = 0; i < emptyRows; i++) {
                 rows.push(this.renderEmptyRow());
@@ -229,8 +216,6 @@ const Termo = {
         `;
     },
     
-    // INICIALIZAÇÃO
-    
     init() {
         this.currentWord = this.getDailyWord();
         
@@ -243,7 +228,6 @@ const Termo = {
             this.loadGameState();
         }
         
-        console.log('📤 Termo inicializado:', this.currentWord);
         
         if (this.guesses.length > 0) {
             setTimeout(() => {
@@ -272,7 +256,6 @@ const Termo = {
         }
         
         const listener = (e) => {
-            // Auto-remove se o Termo não estiver mais na página
             if (!document.getElementById('termo-grid')) {
                 document.removeEventListener('keydown', listener);
                 window.termoKeyListener = null;
@@ -297,8 +280,6 @@ const Termo = {
         window.termoKeyListener = listener;
         document.addEventListener('keydown', listener);
     },
-    
-    // LÓGICA DO JOGO
     
     selectCell(index) {
         if (this.gameOver) return;
@@ -401,15 +382,13 @@ const Termo = {
         const guessArray = guessWord.split('');
         const usedIndices = new Set();
         
-        // Marcar corretas
         for (let i = 0; i < 5; i++) {
             if (guessArray[i] === wordArray[i]) {
                 guess[i] = { letter: guessArray[i], status: 'correct' };
                 usedIndices.add(i);
             }
         }
-        
-        // Marcar presentes
+
         for (let i = 0; i < 5; i++) {
             if (guess[i]) continue;
             
@@ -430,8 +409,6 @@ const Termo = {
         
         return guess;
     },
-    
-    // UTILITÁRIOS
     
     getDailyWord() {
         const today = this.getToday();
@@ -540,7 +517,6 @@ const Termo = {
             this.currentGuess = ['', '', '', '', ''];
             this.selectedCell = 0;
         } else {
-            console.log('⚠️ Nenhum estado válido encontrado, resetando...');
             this.resetGame();
         }
     },

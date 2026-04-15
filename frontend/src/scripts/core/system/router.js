@@ -12,6 +12,7 @@ const Router = {
         'music':         'MusicPlayer',
         'offline':       'OfflineZone',
         'settings':      'Settings',
+        'v310-notes':    'V310Notes',
         'updates':       'AutoUpdater',
         'notes':         'Notes',
         'tasks':         'Tasks',

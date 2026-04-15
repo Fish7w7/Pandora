@@ -49,7 +49,6 @@ const LoginBackground = {
         container.appendChild(canvas);
         loginScreen.insertBefore(container, loginScreen.firstChild);
 
-        // Render após inserção para ter dimensões reais
         requestAnimationFrame(() => {
             canvas.width  = loginScreen.offsetWidth  || window.innerWidth;
             canvas.height = loginScreen.offsetHeight || window.innerHeight;
@@ -101,7 +100,6 @@ const LoginBackground = {
             this._removeStars();
         }
 
-        console.log(`🌅 LoginBackground v1.2: "${cfg.label}"`);
     },
 
     init() {
@@ -115,7 +113,6 @@ const LoginBackground = {
             attributes: true, subtree: true, attributeFilter: ['class'],
         });
 
-        console.log('🌅 LoginBackground v1.2 inicializado');
     },
 };
 

@@ -407,7 +407,6 @@ const Game2048 = {
             this.gameState = 'lost';
             this.updateStats(false);
             setTimeout(() => {
-                // Game Over sem notificação
             }, 500);
         }
     },

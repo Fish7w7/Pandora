@@ -27,7 +27,6 @@ const App = {
     ],
     
     init() {
-        console.log(`🐱 NyanTools v${this.version} iniciando... にゃん~`);
         
         this.applyThemeOnStart();
         
@@ -55,7 +54,6 @@ const App = {
     applyThemeOnStart() {
         const applyTheme = () => {
             const savedTheme = window.Utils?.loadData('app_theme') || 'light';
-            console.log('🎨 Aplicando tema:', savedTheme);
             document.body.classList.toggle('dark-theme', savedTheme === 'dark');
             if (window.Utils?.saveData) {
                 window.Utils.saveData('app_theme', savedTheme);

@@ -44,7 +44,6 @@ const LoginParticles = {
             ctx.fill();
         }
 
-        console.log('✨ LoginParticles v3.1: render único');
     },
 
     destroy() {
@@ -72,7 +71,6 @@ const LoginParticles = {
             attributes: true, subtree: true, attributeFilter: ['class'],
         });
 
-        console.log('✨ LoginParticles v3.1 inicializado');
     },
 };
 

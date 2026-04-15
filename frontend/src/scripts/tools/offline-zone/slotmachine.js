@@ -10,14 +10,11 @@ const SlotMachine = {
     _result:     null,
     _reels:      ['🐱','🐱','🐱'],
     _lastWin:    0,
-    _spinMode:   1,      // 1, 5 ou 10 giros
-    _spinQueue:  0,      // giros restantes na fila
-    _totalWin:   0,      // acumulado da sequência
-    _totalCost:  0,      // custo total da sequência
+    _spinMode:   1,
+    _spinQueue:  0,
+    _totalWin:   0,
+    _totalCost:  0,
 
-    // Chips vivem em nyan_economy.chips (permanentes, sem reset).
-    // O bônus diário de +100 é SOMADO ao saldo existente,
-    // nunca sobrescreve. Só é concedido uma vez por dia.
     _BONUS_DATE_KEY: 'nyan_slot_bonus_date',
     _DAILY_BONUS:    100,
 
@@ -26,7 +23,6 @@ const SlotMachine = {
         return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
     },
 
-    // Verifica e concede bônus diário — retorna true se concedeu
     _checkDailyBonus() {
         const last = Utils.loadData(this._BONUS_DATE_KEY);
         if (last === this._getToday()) return false;
@@ -42,13 +38,11 @@ const SlotMachine = {
         return true;
     },
 
-    // Retorna o saldo atual de chips (sem efeitos colaterais)
     getChips() {
         if (window.Economy) return Economy.getChips();
         return parseInt(Utils.loadData('nyan_chips') || '0', 10);
     },
 
-    // Debita chips ao girar
     _debitSpin() {
         if (window.Economy) {
             Economy.spendChips(this.COST);
@@ -58,7 +52,6 @@ const SlotMachine = {
         }
     },
 
-    // Credita chips ao ganhar
     _creditWin(amount) {
         if (window.Economy) {
             Economy.grantChips(amount, 'Caça-Níquel ganho');
@@ -87,20 +80,17 @@ const SlotMachine = {
         const total = this.COST * this._spinMode;
         if (this.getChips() < total) return;
 
-        // Iniciar sequência
         this._spinQueue  = this._spinMode;
         this._totalWin   = 0;
         this._totalCost  = 0;
-        // Desabilitar botão imediatamente para toda a sequência
         const btn = document.getElementById('slot-btn');
         if (btn) { btn.disabled = true; btn.style.opacity = '0.5'; btn.style.cursor = 'not-allowed'; }
         this._spinSequence();
     },
 
     setSpinMode(n) {
-        if (this._spinQueue > 0 || this._spinning) return; // bloqueado durante sequência
+        if (this._spinQueue > 0 || this._spinning) return;
         this._spinMode = n;
-        // Atualizar visual dos botões
         [1, 5, 10].forEach(v => {
             const btn = document.getElementById(`spin-mode-${v}`);
             if (!btn) return;
@@ -108,7 +98,6 @@ const SlotMachine = {
             btn.style.background = active ? 'var(--theme-primary,#a855f7)' : 'transparent';
             btn.style.color      = active ? 'white' : 'var(--theme-primary,#a855f7)';
         });
-        // Atualizar custo no botão principal
         const mainBtn = document.getElementById('slot-btn');
         if (mainBtn) {
             const cost = this.COST * n;
@@ -121,7 +110,6 @@ const SlotMachine = {
 
     _spinSequence() {
         if (this._spinQueue <= 0 || this.getChips() < this.COST) {
-            // Sequência finalizada — mostrar resumo
             this._spinning = false;
             this._showSequenceResult();
             return;
@@ -143,24 +131,20 @@ const SlotMachine = {
         const final = [r0, r1, r2];
 
         if (isTurbo) {
-            // Turbo: animação rápida simultânea
             this._animateTurbo(final, animDuration, () => {
                 this._reels = final;
                 this._evalResultSilent(final);
                 this._spinning = false;
                 this._updateChipsOnly();
-                // Pequena pausa entre giros no modo turbo
                 setTimeout(() => this._spinSequence(), this._spinMode >= 10 ? 80 : 150);
             });
         } else {
-            // Normal: animação completa
             this._animateReel(0, final[0], 800);
             this._animateReel(1, final[1], 1300);
             this._animateReel(2, final[2], animDuration, () => {
                 this._reels = final;
                 this._evalResult(final);
                 this._spinning = false;
-                // Fechar ciclo da sequência (necessário mesmo no modo 1x)
                 this._spinSequence();
             });
             this._updateReelAnimation();
@@ -168,7 +152,6 @@ const SlotMachine = {
     },
 
     _animateTurbo(final, duration, onDone) {
-        // Todos os reels giram e param juntos
         [0, 1, 2].forEach(i => {
             const el = document.getElementById(`reel-${i}`);
             if (!el) return;
@@ -184,7 +167,6 @@ const SlotMachine = {
     },
 
     _evalResultSilent(reels) {
-        // Versão silenciosa para uso em sequências turbo (sem _updateUI completo)
         const [a, b, c] = reels;
         if (a === '🐱' && b === '🐱' && c === '🐱') {
             this._lastWin = this.COST * this.PAYOUTS.jackpot;
@@ -209,7 +191,6 @@ const SlotMachine = {
     _updateChipsOnly() {
         const el = document.getElementById('slot-chips');
         if (el) el.textContent = this.getChips().toLocaleString('pt-BR');
-        // Mostrar progresso da sequência
         const resultEl = document.getElementById('slot-result');
         const remaining = this._spinQueue;
         if (resultEl && remaining > 0) {
@@ -222,7 +203,6 @@ const SlotMachine = {
     },
 
     _showSequenceResult() {
-        // Sempre chama _updateUI para re-habilitar o botão, mesmo no modo 1x
         if (this._spinMode === 1) { this._updateUI(); return; }
 
         const net   = this._totalWin - this._totalCost;
@@ -276,7 +256,6 @@ const SlotMachine = {
                 ' style="background:none;border:none;cursor:pointer;font-size:1rem;' +
                 'color:' + xCol + ';padding:0;line-height:1;flex-shrink:0;">✕</button>';
 
-        // Inserir abaixo do botão, dentro da página
         const slotBtn = document.getElementById('slot-btn');
         if (slotBtn && slotBtn.parentNode) {
             slotBtn.parentNode.insertBefore(banner, slotBtn.nextSibling);
@@ -340,7 +319,6 @@ const SlotMachine = {
             this._creditWin(this._lastWin);
         }
 
-        // Slot não dá bônus play_game — tem sistema próprio de chips
         window.Missions?.track?.({ event: 'play_game', game: 'slot' });
         this._updateUI();
     },
@@ -348,7 +326,6 @@ const SlotMachine = {
     _refreshChipsDisplay() {
         const el = document.getElementById('slot-chips');
         if (el) el.textContent = this.getChips().toLocaleString('pt-BR');
-        // Atualizar botão também
         const btn = document.getElementById('slot-btn');
         if (btn && !this._spinning && this._spinQueue <= 0) {
             const canSpin = this.getChips() >= this.COST;
@@ -364,14 +341,12 @@ const SlotMachine = {
         const chipsEl = document.getElementById('slot-chips');
         if (chipsEl) chipsEl.textContent = chips.toLocaleString('pt-BR');
 
-        // Re-atualizar em múltiplos momentos para capturar level up e bônus assíncronos
         clearTimeout(this._chipsRefreshTimer);
         clearTimeout(this._chipsRefreshTimer2);
         this._chipsRefreshTimer = setTimeout(() => {
             const el = document.getElementById('slot-chips');
             if (el) el.textContent = this.getChips().toLocaleString('pt-BR');
         }, 200);
-        // Segunda atualização para garantir captura de level up (que pode vir com delay)
         this._chipsRefreshTimer2 = setTimeout(() => {
             const el = document.getElementById('slot-chips');
             if (el) el.textContent = this.getChips().toLocaleString('pt-BR');
@@ -420,14 +395,12 @@ const SlotMachine = {
         const chips   = this.getChips();
         const canSpin = !this._spinning && chips >= this.COST;
 
-        // Tempo até o próximo bônus diário
         const now = new Date();
         const mid = new Date(now);
         mid.setHours(24, 0, 0, 0);
         const diff      = Math.round((mid - now) / 60000);
         const bonusTime = `${Math.floor(diff / 60)}h${diff % 60}m`;
 
-        // Já recebeu bônus hoje?
         const bonusReceived = Utils.loadData(this._BONUS_DATE_KEY) === this._getToday();
 
         return `
@@ -437,7 +410,6 @@ const SlotMachine = {
         </style>
         <div style="max-width:480px;margin:0 auto;font-family:var(--font-body,'DM Sans',sans-serif);">
 
-            <!-- Header -->
             <div style="text-align:center;margin-bottom:1.5rem;">
                 <div style="font-size:2.5rem;margin-bottom:0.4rem;">🎰</div>
                 <h1 style="font-family:var(--font-display,'Syne',sans-serif);font-size:var(--text-2xl,2rem);font-weight:900;margin:0 0 0.25rem;
@@ -446,7 +418,6 @@ const SlotMachine = {
                 <p style="font-size:var(--text-xs,0.68rem);color:${c.muted};margin:0;">Chips compartilhados com outros jogos de sorte にゃん~</p>
             </div>
 
-            <!-- Saldo + bônus -->
             <div style="display:flex;justify-content:center;gap:1rem;margin-bottom:1.25rem;">
                 <div style="background:${c.inner};border:1px solid ${c.border};border-radius:var(--radius-lg,14px);
                     padding:0.625rem 1.5rem;text-align:center;">
@@ -466,7 +437,6 @@ const SlotMachine = {
                 </div>
             </div>
 
-            <!-- Máquina -->
             <div style="background:${c.bg};border:2px solid ${c.border};border-radius:var(--radius-2xl,24px);padding:1.75rem;margin-bottom:1rem;position:relative;">
                 <div id="slot-payline" style="position:absolute;left:0;right:0;top:50%;transform:translateY(-50%);
                     height:3px;background:linear-gradient(90deg,transparent,var(--theme-primary,#a855f7),transparent);
@@ -494,7 +464,6 @@ const SlotMachine = {
                 </div>
             </div>
 
-            <!-- Seletor de modo -->
             <div style="display:flex;gap:0.5rem;margin-bottom:0.625rem;">
                 ${[1,5,10].map(n => {
                     const cost = this.COST * n;
@@ -515,7 +484,6 @@ const SlotMachine = {
                 }).join('')}
             </div>
 
-            <!-- Botão principal -->
             <button id="slot-btn" onclick="SlotMachine.spin()"
                 ${!canSpin ? 'disabled' : ''}
                 style="width:100%;padding:0.875rem;border-radius:var(--radius-lg,14px);border:none;
@@ -531,7 +499,6 @@ const SlotMachine = {
                 🎰 ${this._spinMode > 1 ? `${this._spinMode}× ` : ''}Girar (${this.COST * this._spinMode} chips)
             </button>
 
-            <!-- Tabela de pagamentos -->
             <div style="background:${c.inner};border:1px solid ${c.border};border-radius:var(--radius-lg,14px);padding:0.875rem;">
                 <div style="font-size:var(--text-xs,0.68rem);font-weight:700;color:${c.muted};text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.625rem;">Tabela de pagamentos</div>
                 <div style="display:flex;flex-direction:column;gap:0.3rem;">
@@ -561,7 +528,6 @@ const SlotMachine = {
     },
 
     init() {
-        // Bônus diário — verificar uma vez ao iniciar
         const bonusGranted = this._checkDailyBonus();
         if (bonusGranted) {
             setTimeout(() => {
@@ -573,7 +539,6 @@ const SlotMachine = {
             }, 500);
         }
 
-        // Listener para atualizar display quando chips mudam externamente (level up, etc.)
         window._slotChipsListener && window.removeEventListener('nyan:chips-changed', window._slotChipsListener);
         window._slotChipsListener = () => this._refreshChipsDisplay();
         window.addEventListener('nyan:chips-changed', window._slotChipsListener);
@@ -581,7 +546,6 @@ const SlotMachine = {
         this._spinning = false;
         this._result   = null;
         this._reels    = ['🐱', '🐱', '🐱'];
-        // Dispara verificação de bônus diário ao abrir o jogo
         this.getChips();
     },
 };

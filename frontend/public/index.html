@@ -482,9 +482,12 @@
         </div>
     </div>
 
+    <!-- Core base -->
     <script src="../src/scripts/utils/helpers.js"></script>
     <script src="../src/scripts/core/auth/auth.js"></script>
     <script src="../src/scripts/core/system/router.js"></script>
+
+    <!-- Tool modules -->
     <script src="../src/scripts/tools/password-generator/password.js"></script>
     <script src="../src/scripts/tools/weather/weather.js"></script>
     <script src="../src/scripts/tools/translator/translator.js"></script>
@@ -492,48 +495,78 @@
     <script src="../src/scripts/tools/mini-game/game.js"></script>
     <script src="../src/scripts/tools/temp-email/temp-email.js"></script>
     <script src="../src/scripts/tools/music-player/music.js"></script>
+    <script src="../src/scripts/tools/notes/notes.js"></script>
+    <script src="../src/scripts/tools/tasks/tasks.js"></script>
+    <script src="../src/scripts/tools/shop/shop.js"></script>
+    <script src="../src/scripts/tools/release-notes/v310-notes.js"></script>
+    <script src="../src/scripts/tools/settings/settings.js"></script>
+    <script src="../src/scripts/tools/profile/profile.js"></script>
+    <script src="../src/scripts/tools/profile/profile-v2.js"></script>
+    <script src="../src/scripts/tools/dashboard/dashboard.js"></script>
+    <script src="../src/scripts/tools/dashboard/dashboard-home-patch.js"></script>
+
+    <!-- Offline zone -->
     <script src="../src/scripts/tools/offline-zone/termo.js"></script>
     <script src="../src/scripts/tools/offline-zone/2048.js"></script>
-    <script src="../src/scripts/tools/dashboard/dashboard.js"></script>
-    <script src="../src/scripts/core/ui/keyboard-shortcuts.js"></script>
     <script src="../src/scripts/tools/offline-zone/typeracer.js"></script>
     <script src="../src/scripts/tools/offline-zone/quiz.js"></script>
     <script src="../src/scripts/tools/offline-zone/slotmachine.js"></script>
     <script src="../src/scripts/tools/offline-zone/forca.js"></script>
-    <script src="../src/scripts/tools/offline-zone/offline.js"></script>
     <script src="../src/scripts/tools/offline-zone/flappy-bird.js"></script>
     <script src="../src/scripts/tools/offline-zone/tictactoe.js"></script>
-    <script src="../src/scripts/tools/settings/settings.js"></script>
-    <script src="../src/scripts/tools/profile/profile.js"></script>
+    <script src="../src/scripts/tools/offline-zone/offline.js"></script>
+
+    <!-- UI + gamification -->
+    <script src="../src/scripts/core/ui/keyboard-shortcuts.js"></script>
     <script src="../src/scripts/core/ui/focus-mode.js"></script>
     <script src="../src/scripts/core/ui/command-palette.js"></script>
     <script src="../src/scripts/core/ui/favorites.js"></script>
-    <script src="../src/scripts/core/gamification/achievements.js"></script>
-    <script src="../src/scripts/core/system/beta-testers.js"></script>
     <script src="../src/scripts/core/social/avatar-generator.js"></script>
+    <script src="../src/scripts/core/gamification/achievements.js"></script>
     <script src="../src/scripts/core/gamification/economy.js"></script>
     <script src="../src/scripts/core/gamification/missions.js"></script>
     <script src="../src/scripts/core/gamification/inventory.js"></script>
-    <script src="../src/scripts/tools/shop/shop.js"></script>
+    <script src="../src/scripts/core/system/beta-testers.js"></script>
+
+    <!-- App + auth visuals -->
     <script src="../src/scripts/core/system/app.js"></script>
     <script src="../src/scripts/tools/updater/updater.js"></script>
-    <script src="../src/scripts/tools/notes/notes.js"></script>
-    <script src="../src/scripts/tools/tasks/tasks.js"></script>
     <script src="../src/scripts/core/auth/login-background.js"></script>
     <script src="../src/scripts/core/auth/login-phrases.js"></script>
     <script src="../src/scripts/core/auth/login-particles.js"></script>
     <script src="../src/scripts/core/auth/login-effects.js"></script>
     <script src="../src/scripts/core/auth/login-intro.js"></script>
 
+    <!-- v3.10 connected patches -->
+    <script src="../src/scripts/core/system/state-manager.js"></script>
+    <script src="../src/scripts/core/system/presence.js"></script>
+    <script src="../src/scripts/core/system/integrations.js"></script>
+    <script src="../src/scripts/core/system/v310-rewards.js"></script>
+    <script src="../src/scripts/tools/notes/notes-integration-patch.js"></script>
+    <script src="../src/scripts/tools/tasks/tasks-integration-patch.js"></script>
+    <script src="../src/scripts/tools/profile/profile-patch-v310.js"></script>
+    <script src="../src/scripts/core/system/app-patch-v310.js"></script>
+
+    <!-- Online modules -->
+    <script src="../src/scripts/core/system/firebase.js"></script>
+    <script src="../src/scripts/core/auth/nyan-auth.js"></script>
+    <script src="../src/scripts/core/social/friends.js"></script>
+    <script src="../src/scripts/core/social/chat.js"></script>
+    <script src="../src/scripts/core/gamification/leaderboard.js"></script>
+    <script src="../src/scripts/core/social/feed.js"></script>
+    <script src="../src/scripts/core/social/share-to-feed.js"></script>
+    <script src="../src/scripts/core/gamification/challenges.js"></script>
+
+    <!-- Runtime hooks -->
     <script>
         window.addEventListener('load', () => {
             const sidebar = document.getElementById('sidebar');
-            const nav     = document.getElementById('nav-menu');
+            const nav = document.getElementById('nav-menu');
             if (!sidebar || !nav) return;
 
-            let targetY  = nav.scrollTop;
-            let rafId    = null;
-            const EASE   = 0.14; // 0 = infinito suave, 1 = instantâneo
+            let targetY = nav.scrollTop;
+            let rafId = null;
+            const EASE = 0.14;
 
             function animateScroll() {
                 const diff = targetY - nav.scrollTop;
@@ -548,30 +581,20 @@
 
             sidebar.addEventListener('wheel', (e) => {
                 e.preventDefault();
-
-                // Acumula o destino — permite scroll rápido sem perder eventos
-                targetY = Math.max(
-                    0,
-                    Math.min(
-                        nav.scrollHeight - nav.clientHeight,
-                        targetY + e.deltaY
-                    )
-                );
-
+                targetY = Math.max(0, Math.min(nav.scrollHeight - nav.clientHeight, targetY + e.deltaY));
                 if (!rafId) rafId = requestAnimationFrame(animateScroll);
             }, { passive: false });
         });
     </script>
 
     <script>
-        window.addEventListener('nyan:online-ready', (e) => {
+        window.addEventListener('nyan:online-ready', () => {
             const dot = document.getElementById('sidebar-presence-dot');
-            if (dot) {
-                dot.style.background = '#a855f7';
-                dot.style.boxShadow = '0 0 4px rgba(168,85,247,0.8)';
-            }
-            // NyanTag exibida apenas no perfil — sidebar mantém só "Online"
+            if (!dot) return;
+            dot.style.background = '#a855f7';
+            dot.style.boxShadow = '0 0 4px rgba(168,85,247,0.8)';
         });
+
         window.addEventListener('nyan:firebase-offline', () => {
             const status = document.getElementById('sidebar-online-status');
             if (status) status.textContent = 'Offline';
@@ -579,24 +602,15 @@
 
         window.addEventListener('load', () => {
             if (!window.Settings) return;
-            const _orig = Settings.exportData.bind(Settings);
+            const originalExport = Settings.exportData.bind(Settings);
             Settings.exportData = function() {
-                _orig();
+                originalExport();
                 const tag = Utils?.loadData?.('nyan_online_tag');
-                if (tag) setTimeout(() =>
-                    Utils.showNotification(`📦 Backup inclui NyanTag: ${tag}`, 'info'), 600);
+                if (!tag) return;
+                setTimeout(() => Utils.showNotification('Backup inclui NyanTag: ' + tag, 'info'), 600);
             };
         });
     </script>
-
-    <script src="../src/scripts/core/system/firebase.js"></script>
-    <script src="../src/scripts/core/auth/nyan-auth.js"></script>
-    <script src="../src/scripts/core/social/friends.js"></script>
-    <script src="../src/scripts/core/social/chat.js"></script>
-    <script src="../src/scripts/core/gamification/leaderboard.js"></script>
-    <script src="../src/scripts/core/social/feed.js"></script>
-    <script src="../src/scripts/core/social/share-to-feed.js"></script>
-    <script src="../src/scripts/core/gamification/challenges.js"></script>
 
 </body>
 </html>

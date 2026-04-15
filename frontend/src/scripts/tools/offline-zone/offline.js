@@ -18,7 +18,6 @@ const OfflineZone = {
     },
 
     render() {
-        // Se startGame() está em andamento, renderizar o jogo imediatamente
         if (this._startingGame && this.currentGame) return this._renderGame();
         if (this.currentGame) return this._renderGame();
 
@@ -79,13 +78,11 @@ const OfflineZone = {
                     this.querySelector('.oz-play').style.borderColor='${g.color}33';
                 ">
 
-                    <!-- Shine overlay -->
                     <div class="oz-shine" style="
                         position:absolute; inset:0; opacity:0; transition:opacity 0.2s; pointer-events:none;
                         background:linear-gradient(135deg, ${g.color}0d 0%, transparent 60%);
                     "></div>
 
-                    <!-- Dot accent -->
                     <div style="
                         position:absolute; top:1rem; right:1rem;
                         width:7px; height:7px; border-radius:50%;
@@ -114,7 +111,6 @@ const OfflineZone = {
 
         <div style="max-width:700px; margin:0 auto; font-family:'DM Sans',sans-serif;">
 
-            <!-- Header -->
             <div style="text-align:center; margin-bottom:2rem;">
                 <div style="font-size:3rem; margin-bottom:0.625rem; animation:ozFadeUp 0.35s ease both;">📶</div>
                 <h1 style="
@@ -133,7 +129,6 @@ const OfflineZone = {
                 </div>
             </div>
 
-            <!-- Grid -->
             <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem;">
                 ${cards}
             </div>
@@ -206,7 +201,6 @@ const OfflineZone = {
         // Navegação normal para a zona offline — resetar estado do jogo
         this._insideGame = false;
         this.currentGame = null;
-        // Limpar escHandler pendente
         if (this._escHandler) {
             document.removeEventListener('keydown', this._escHandler);
             this._escHandler = null;
@@ -220,7 +214,6 @@ const OfflineZone = {
         this._initGame(game);
         Router?.render();
         this._startingGame  = false; // libera após render
-        // Remover handler anterior antes de adicionar novo (evita duplicatas)
         if (this._escHandler) {
             document.removeEventListener('keydown', this._escHandler);
             this._escHandler = null;

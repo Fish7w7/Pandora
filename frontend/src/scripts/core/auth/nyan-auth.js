@@ -13,7 +13,6 @@ const NyanAuth = {
     async init() {
         const fbReady = await NyanFirebase.init();
         if (!fbReady) {
-            console.log('[NyanAuth] Modo offline');
             return false;
         }
 
@@ -24,19 +23,16 @@ const NyanAuth = {
             (user) => this._onAuthChanged(user)
         );
 
-        console.log('[NyanAuth] ✅ Inicializado');
         return true;
     },
 
     async _tryAutoLogin() {
-        // Firebase já tem sessão persistida no browser
         const currentUser = NyanFirebase.auth.currentUser;
         if (currentUser) {
             await this._loadProfile(currentUser.uid);
             return true;
         }
 
-        // Tentar com email+senha salvos
         const email = Utils.loadData(this.KEY_EMAIL);
         const pwd   = Utils.loadData('nyan_online_pwd');
         if (email && pwd) {
@@ -53,7 +49,6 @@ const NyanAuth = {
             }
         }
 
-        // Fallback: restaurar dados do localStorage sem autenticar
         const uid = Utils.loadData(this.KEY_UID);
         if (uid) {
             this.currentUser = await NyanFirebase.getDoc(`users/${uid}`);
@@ -72,7 +67,6 @@ const NyanAuth = {
             Utils.saveData(this.KEY_TAG,    tag);
             Utils.saveData(this.KEY_LINKED, true);
             this._dispatchOnlineReady(uid, tag);
-            console.log('[NyanAuth] Perfil carregado:', tag);
         }
     },
 
@@ -97,16 +91,13 @@ const NyanAuth = {
             return true;
         };
 
-        // Disparar evento global (para outros listeners)
         window.dispatchEvent(new CustomEvent('nyan:online-ready', { detail: { uid, tag } }));
 
-        // Se a sidebar ainda não existe, observar até aparecer
         if (!applyToSidebar()) {
             const observer = new MutationObserver(() => {
                 if (applyToSidebar()) observer.disconnect();
             });
             observer.observe(document.body, { childList: true, subtree: true });
-            // Timeout de segurança: 10s
             setTimeout(() => observer.disconnect(), 10000);
         }
     },
@@ -165,13 +156,11 @@ const NyanAuth = {
 
         const opt = this.STATUS_OPTIONS.find(s => s.key === statusKey) || this.STATUS_OPTIONS[0];
 
-        // Atualizar Firestore
         await NyanFirebase.updateDoc('users/' + uid, {
             status: statusKey,
             lastSeen: NyanFirebase.fn.serverTimestamp()
         }).catch(() => {});
 
-        // Atualizar RTDB
         if (NyanFirebase.rtdb && NyanFirebase.fn.ref && NyanFirebase.fn.set) {
             NyanFirebase.fn.set(
                 NyanFirebase.fn.ref(NyanFirebase.rtdb, 'presence/' + uid),
@@ -179,7 +168,6 @@ const NyanAuth = {
             ).catch(() => {});
         }
 
-        // Atualizar dot na sidebar
         const dot = document.getElementById('sidebar-presence-dot');
         if (dot) {
             dot.style.background = opt.color;
@@ -187,7 +175,6 @@ const NyanAuth = {
         }
         const statusEl = document.getElementById('sidebar-online-status');
         if (statusEl && statusEl.textContent !== Utils.loadData('nyan_online_tag')) {
-            // Se estiver mostrando tag, não substituir
         }
 
         Utils.showNotification(opt.dot + ' Status: ' + opt.label, 'info');
@@ -256,14 +243,12 @@ const NyanAuth = {
                 <p style="font-size:0.75rem;color:${sub};margin:0;">Crie ou acesse sua conta para jogar com amigos</p>
             </div>
 
-            <!-- Tabs -->
             <div style="display:flex;gap:0.25rem;background:rgba(255,255,255,0.04);
                 border:1px solid rgba(255,255,255,0.07);border-radius:12px;padding:0.3rem;margin-bottom:1.25rem;">
                 <button class="nt-tab active" id="nt-tab-reg" onclick="NyanAuth._switchTab('register')">✨ Criar conta</button>
                 <button class="nt-tab" id="nt-tab-login" onclick="NyanAuth._switchTab('login')">🔑 Já tenho conta</button>
             </div>
 
-            <!-- Painel: Cadastro -->
             <div class="nt-panel active" id="nt-panel-register">
                 <div style="display:flex;flex-direction:column;gap:0.625rem;margin-bottom:0.875rem;">
                     <div>
@@ -295,7 +280,6 @@ const NyanAuth = {
                 </div>
             </div>
 
-            <!-- Painel: Login -->
             <div class="nt-panel" id="nt-panel-login">
                 <div style="display:flex;flex-direction:column;gap:0.625rem;margin-bottom:0.75rem;">
                     <div>
@@ -316,7 +300,6 @@ const NyanAuth = {
                 </button>
             </div>
 
-            <!-- Status + Botões -->
             <div id="nt-status" style="font-size:0.72rem;min-height:1.2rem;margin-bottom:0.625rem;"></div>
             <button id="nt-btn" onclick="NyanAuth._submitModal()"
                 style="width:100%;padding:0.8rem;border-radius:12px;border:none;
@@ -336,7 +319,6 @@ const NyanAuth = {
 
         document.body.appendChild(modal);
 
-        // Interatividade do NyanTag
         let _digits = initialDigits;
         const tagInput  = modal.querySelector('#nt-reg-tag');
         const digitsEl  = modal.querySelector('#nt-reg-digits');
@@ -512,7 +494,6 @@ const NyanAuth = {
         if (!uid || !NyanFirebase.isReady()) return;
         const economy   = window.Economy?.getState?.() || {};
         const localUser = Auth.getStoredUser() || {};
-        // Coletar highscores locais para salvar no perfil
         const scoreKeys = {
             'typeracer_highscore': 'sc_typeracer',
             'game_2048_highscore': 'sc_2048',
@@ -527,7 +508,6 @@ const NyanAuth = {
             if (val > 0) scores[firestoreKey] = val;
         }
 
-        // Coletar conquistas desbloqueadas
         const achUnlocked = Utils.loadData('nyan_achievements') || {};
         if (Object.keys(achUnlocked).length > 0) {
             scores['sc_achievements'] = achUnlocked;
@@ -544,15 +524,12 @@ const NyanAuth = {
             sc_updatedAt: NyanFirebase.fn.serverTimestamp(),
             ...scores,
         });
-        // Sincronizar scores no leaderboard também
         if (window.Leaderboard?.syncAllLocalScores) {
             setTimeout(() => Leaderboard.syncAllLocalScores(), 500);
         }
     },
 
     _onAuthChanged(user) {
-        if (user) console.log('[NyanAuth] Auth state: logado', user.uid);
-        else      console.log('[NyanAuth] Auth state: deslogado');
     },
 
     async logout() {
@@ -566,7 +543,6 @@ const NyanAuth = {
         }
         this.currentUser = null;
         if (this._unsubAuth) { this._unsubAuth(); this._unsubAuth = null; }
-        // Mantém KEY_TAG/UID/EMAIL para auto-login no próximo acesso
     },
 
     getNyanTag()  { return Utils.loadData(this.KEY_TAG); },
@@ -601,7 +577,5 @@ const NyanAuth = {
     },
 };
 
-// Hook removido — o fluxo de primeira vez agora é tratado diretamente
-// no App.showMainApp() em app.js (v3.10.0)
 
 window.NyanAuth = NyanAuth;

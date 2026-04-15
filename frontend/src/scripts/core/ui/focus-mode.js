@@ -16,24 +16,19 @@ const FocusMode = {
             setTimeout(() => this.enable(true), 200);
         }
 
-        console.log('🎯 FocusMode v1.0 inicializado — Ctrl+Shift+F para ativar');
     },
 
-    // HTML INJECTION
 
     _injectHTML() {
-        // Focus Header (barra superior em modo foco)
         if (!document.getElementById('focus-header')) {
             const header = document.createElement('div');
             header.id = 'focus-header';
             header.innerHTML = `
-                <!-- Logo / Voltar à sidebar -->
                 <button id="focus-logo-btn" onclick="FocusMode.disable()" title="Sair do Modo Foco">
                     <span class="focus-cat">🐱</span>
                     <span>NyanTools</span>
                 </button>
 
-                <!-- Tool indicator -->
                 <div style="display:flex;align-items:center;gap:0.75rem;">
                     <div class="focus-header-sep"></div>
                     <div id="focus-tool-indicator">
@@ -42,10 +37,8 @@ const FocusMode = {
                     </div>
                 </div>
 
-                <!-- Spacer -->
                 <div style="flex:1;"></div>
 
-                <!-- User info -->
                 <div id="focus-user-info">
                     <span>にゃん~</span>
                     <div class="focus-header-sep"></div>
@@ -54,7 +47,6 @@ const FocusMode = {
 
                 <div class="focus-header-sep"></div>
 
-                <!-- Sair do modo foco -->
                 <button id="focus-exit-btn" onclick="FocusMode.disable()" title="Sair do Modo Foco (Ctrl+Shift+F)">
                     <span>Sair do Foco</span>
                     <kbd>Ctrl+Shift+F</kbd>
@@ -63,21 +55,18 @@ const FocusMode = {
             document.body.appendChild(header);
         }
 
-        // Peek zone (zona de hover na borda esquerda)
         if (!document.getElementById('focus-peek-zone')) {
             const peekZone = document.createElement('div');
             peekZone.id = 'focus-peek-zone';
             document.body.appendChild(peekZone);
         }
 
-        // Overlay (fundo escuro quando sidebar aparece em peek)
         if (!document.getElementById('focus-overlay')) {
             const overlay = document.createElement('div');
             overlay.id = 'focus-overlay';
             document.body.appendChild(overlay);
         }
 
-        // Toast de feedback
         if (!document.getElementById('focus-toast')) {
             const toast = document.createElement('div');
             toast.id = 'focus-toast';
@@ -94,7 +83,6 @@ const FocusMode = {
     _injectSidebarToggle() {
         if (document.getElementById('focus-toggle-btn')) return;
 
-        // Injeta dentro do sidebar-logo (no header), ficando alinhado à direita
         const logoRow = document.querySelector('#sidebar .sidebar-logo');
         if (!logoRow) return;
 
@@ -111,17 +99,14 @@ const FocusMode = {
         logoRow.appendChild(btn);
     },
 
-    // EVENT LISTENERS
 
     _setupListeners() {
-        // Peek zone — hover na borda esquerda
         const peekZone = document.getElementById('focus-peek-zone');
         if (peekZone) {
             peekZone.addEventListener('mouseenter', () => this._startPeek());
             peekZone.addEventListener('mouseleave', () => this._schedulePeekEnd());
         }
 
-        // Sidebar — manter peek enquanto mouse está sobre ela
         const sidebar = document.getElementById('sidebar');
         if (sidebar) {
             sidebar.addEventListener('mouseenter', () => {
@@ -132,7 +117,6 @@ const FocusMode = {
             });
         }
 
-        // Overlay — clicar fecha o peek
         const overlay = document.getElementById('focus-overlay');
         if (overlay) {
             overlay.addEventListener('click', () => this._endPeek());
@@ -157,7 +141,6 @@ const FocusMode = {
         };
     },
 
-    // TOGGLE / ENABLE / DISABLE
 
     toggle() {
         this.active ? this.disable() : this.enable();
@@ -174,7 +157,6 @@ const FocusMode = {
             this._showToast('🎯', 'Modo Foco ativado');
         }
 
-        console.log('🎯 Modo Foco: ON');
     },
 
     disable() {
@@ -183,10 +165,8 @@ const FocusMode = {
         document.body.classList.remove('focus-mode', 'sidebar-peek');
         Utils?.saveData(this.STORAGE_KEY, false);
         this._showToast('👁️', 'Modo Foco desativado');
-        console.log('🎯 Modo Foco: OFF');
     },
 
-    // PEEK (hover sidebar)
 
     _startPeek() {
         if (!this.active) return;
@@ -216,7 +196,6 @@ const FocusMode = {
         }, 150);
     },
 
-    // UI UPDATES
 
     _updateUserInfo() {
         const usernameEl = document.getElementById('focus-username');
@@ -253,7 +232,6 @@ const FocusMode = {
         iconEl.textContent = tool.icon;
         nameEl.textContent = tool.name;
 
-        // Pequena animação de fade
         const indicator = document.getElementById('focus-tool-indicator');
         if (indicator) {
             indicator.style.opacity = '0';
@@ -266,7 +244,6 @@ const FocusMode = {
         }
     },
 
-    // TOAST
 
     _showToast(icon, text) {
         const toast = document.getElementById('focus-toast');
@@ -287,7 +264,6 @@ const FocusMode = {
         }, 2500);
     },
 
-    // RENDER no Settings (opcional, para a aba de config)
 
     renderSettingsRow() {
         const isActive = this.active;
@@ -346,7 +322,6 @@ if (window.KeyboardShortcuts) {
 
 window.FocusMode = FocusMode;
 
-// Auto-init quando DOM estiver pronto
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
     });

@@ -1,4 +1,3 @@
-// Dashboard - Estatísticas de Uso にゃん~ v3.1.0
 const Dashboard = {
     stats: {
         totalTime: 0,
@@ -31,22 +30,24 @@ const Dashboard = {
         };
     },
 
-    // Seção principal com título
-    _section(icon, title, content, mb = true) {
+    _section(icon, title, content, mb = true, defaultCollapsed = false) {
         const c         = this._colors();
         const collapseKey = 'dash_collapsed_' + title.replace(/[^a-zA-Z0-9]/g, '_');
-        const isCollapsed = Utils.loadData(collapseKey) === true;
+        const savedCollapsed = Utils.loadData(collapseKey);
+        const isCollapsed = (savedCollapsed === null || savedCollapsed === undefined)
+            ? defaultCollapsed
+            : savedCollapsed === true;
         const sectionId   = 'dash-section-' + Math.random().toString(36).slice(2, 7);
         return `
             <div style="
                 background:${c.card}; border:1px solid ${c.border};
                 border-radius:var(--radius-xl,18px);
-                padding:1.5rem; ${mb ? 'margin-bottom:1.25rem;' : ''}
-                box-shadow:0 1px 3px rgba(0,0,0,0.08);
+                padding:1.125rem; ${mb ? 'margin-bottom:1rem;' : ''}
+                box-shadow:0 1px 2px rgba(0,0,0,0.06);
             ">
                 <h2 style="
                     font-family:var(--font-display,'Syne',sans-serif);
-                    font-size:var(--text-lg,1.1rem); font-weight:900;
+                    font-size:var(--text-lg,1.05rem); font-weight:900;
                     color:${c.title}; margin:0 ${isCollapsed ? '' : '0 1rem'};
                     display:flex; align-items:center; gap:0.5rem; cursor:pointer;
                     user-select:none;
@@ -65,7 +66,7 @@ const Dashboard = {
                     max-height:${isCollapsed ? '0' : '2000px'};
                     opacity:${isCollapsed ? '0' : '1'};
                 ">
-                    ${content}
+                    <div style="padding-top:0.35rem;">${content}</div>
                 </div>
             </div>`;
     },
@@ -76,7 +77,6 @@ const Dashboard = {
         if (!el) return;
         const isNowCollapsed = el.style.maxHeight !== '0px' && el.style.maxHeight !== '';
         const willCollapse   = isNowCollapsed || el.style.maxHeight === '2000px';
-        // Toggle
         if (willCollapse) {
             el.style.maxHeight = '0';
             el.style.opacity   = '0';
@@ -96,7 +96,6 @@ const Dashboard = {
         this.loadStats();
         this.updateStats();
         setTimeout(() => this.hydratePersonalizedHome(), 50);
-        console.log('📊 Dashboard inicializado com sucesso!');
     },
     
     render() {
@@ -104,14 +103,14 @@ const Dashboard = {
         this.updateStats();
         
         return `
-            <div class="max-w-7xl mx-auto">
+            <div class="max-w-6xl mx-auto" style="padding-bottom:0.75rem;">
                 ${this.renderHeader()}
-                ${this.renderPersonalizedHome()}
                 ${this.renderQuickStats()}
+                ${this.renderPersonalizedHome()}
                 ${this.renderActivitySection()}
+                ${this.renderProductivitySection()}
                 ${this.renderToolsUsage()}
                 ${this.renderGamesSection()}
-                ${this.renderProductivitySection()}
             </div>
         `;
     },
@@ -338,7 +337,6 @@ const Dashboard = {
         `);
     },
 
-    // O HTML real do gráfico — separado para poder ser trocado no DOM pelo refreshWeeklyChart()
     renderWeeklyChartInner() {
         const weekDays = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
         const today = new Date();
@@ -441,14 +439,12 @@ const Dashboard = {
             cell_future: '#f1f5f9',
         };
 
-        // Calcular dias do mês
         const daysInMonth  = new Date(year, month + 1, 0).getDate();
         const firstDayOfWeek = new Date(year, month, 1).getDay(); // 0=Dom
         const monthName = today.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' });
         const totalCells = firstDayOfWeek + daysInMonth;
         const totalRows  = Math.ceil(totalCells / 7);
 
-        // Contar dias ativos no mês
         let activeDays = 0;
         for (let d = 1; d <= daysInMonth; d++) {
             const key = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
@@ -459,7 +455,6 @@ const Dashboard = {
             `<div style="text-align:center;font-size:11px;font-weight:700;color:${c.label};width:28px;">${l}</div>`
         ).join('');
 
-        // Construir linhas da grade
         const rows = [];
         for (let row = 0; row < totalRows; row++) {
             const cells = [];
@@ -631,7 +626,6 @@ const Dashboard = {
             normalized[normalizedId] += count;
         });
         
-        // Remover rotas de navegação e seções sociais (não são "ferramentas")
         const EXCLUDE = [
             'home', 'dashboard', 'settings', 'updates',
             'friends', 'chat', 'leaderboard', 'feed', 'challenges',
@@ -863,8 +857,6 @@ const Dashboard = {
             this.stats.currentWeekStart = weekStart;
         }
 
-        // dailyActivity é a fonte de verdade (chave YYYY-MM-DD).
-        // weeklyActivity (chave 0-6) é reconstruído para evitar divergência.
         if (this.stats.dailyActivity) {
             const rebuilt = {};
             const ws = new Date(weekStart + 'T00:00:00');
@@ -922,5 +914,3 @@ const Dashboard = {
         if (score > current) Utils.saveData('game_2048_highscore', score);
     }
 };
-
-window.Dashboard = Dashboard;

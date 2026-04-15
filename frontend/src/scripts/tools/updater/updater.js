@@ -22,28 +22,29 @@ const AutoUpdater = {
     _progressListenerRegistered: false,
     _nativeResponded: false,
 
-    // CHANGELOG
 
       changelog: [
     {
         version: '3.10.0',
-        date: '2026-04-13T12:00:00',
+        date: '2026-04-15T12:00:00',
         label: 'Atual',
         labelColor: 'bg-green-500',
         author: 'Gabriel',
         changes: [
-            { type: '🌍', text: 'Nyan Worlds — nova direção focada em mundos de uso: jogar, conversar, organizar e evoluir perfil' },
-            { type: '🏠', text: 'Home personalizada com continuar de onde parou, missões do dia, amigos online, notas recentes e atalhos dinâmicos' },
-            { type: '🧑', text: 'Perfil 2.0 com identidade ampliada e base para vitrines, histórico e estatísticas comparativas' },
-            { type: '🟢', text: 'Presença rica mais viva para mostrar contexto atual (jogando, focado, ausente, etc.)' },
-            { type: '🔗', text: 'Integração entre sistemas para fortalecer o ecossistema de produtividade social e arcade competitivo' },
-            { type: '🐛', text: 'Correção da Zona Offline: Forca e Termo não retornam mais indevidamente para a tela inicial' },
+            { type: '🌍', text: 'Nyan Worlds: integracao entre jogar, socializar, organizar e evoluir perfil' },
+            { type: '🏠', text: 'Home personalizada e dashboard refinado com foco em continuidade e menos poluicao visual' },
+            { type: '🧑', text: 'Perfil 2.0 com banner, bio (200), historico, estatisticas e identidade mais forte' },
+            { type: '🟢', text: 'Presenca social em tempo real mais estavel entre status, ferramenta e contexto' },
+            { type: '🔗', text: 'Fluxos conectados entre notas, tarefas, missoes, progresso e perfil' },
+            { type: '🛡️', text: 'Regra oficial da v3.10: concluir tarefa nao gera XP/chips (exploit bloqueado)' },
+            { type: '🎉', text: 'Evento Patch Day v3.10 com recompensas especiais e intro limitada' },
+            { type: '🐛', text: 'Pacote de estabilidade: Zona Offline, render de perfil, textos e sincronizacao visual' },
         ]
     },
     {
         version: '3.9.0',
         date: '2026-04-12T12:00:00',
-        label: 'Atual',
+        label: '',
         labelColor: 'bg-green-500',
         author: 'Gabriel & Clara',
         changes: [
@@ -68,7 +69,6 @@ const AutoUpdater = {
                 window.electronAPI.isDevEnvironment().then(({ isDev }) => {
                     this._isDevEnv = !!isDev;
                     if (isDev) {
-                        console.log('🔧 [Updater] Dev mode disponível — Ctrl+Shift+U');
                         Router?.render();
                     }
                 }).catch(() => { this._isDevEnv = false; });
@@ -106,7 +106,6 @@ const AutoUpdater = {
         const canCheck  = this.canCheckNow();
         const isDev = this._devMode && this._isDevEnv;
 
-        // Calcular "dias desde último update" a partir do changelog[0]
         const latestEntry = this.changelog[0];
         let daysSince = null;
         if (latestEntry?.date) {
@@ -209,12 +208,10 @@ const AutoUpdater = {
         if (this.updateAvailable) {
             const asset = this.getDownloadAsset();
 
-            // Tentar extrair do body da API do GitHub
             let releaseChanges = this.latestVersion?.body
                 ? this._parseReleaseBody(this.latestVersion.body)
                 : [];
 
-            // Se não veio nada do body (fallback via version.json ou body vazio),
             if (releaseChanges.length === 0) {
                 const latestTag = (this.latestVersion?.tag_name || '').replace('v', '');
                 const localEntry = this.changelog.find(c => c.version === latestTag);
@@ -226,7 +223,6 @@ const AutoUpdater = {
             const hasChanges = releaseChanges.length > 0;
             const isDark = document.body.classList.contains('dark-theme');
 
-            // Cores do card — adaptadas ao tema
             const card = isDark ? {
                 bg:         'linear-gradient(135deg, rgba(16,185,129,0.12), rgba(5,150,105,0.08))',
                 border:     '2px solid rgba(16,185,129,0.35)',
@@ -311,6 +307,26 @@ const AutoUpdater = {
             `;
         }
 
+        const showV310Notes = String(this.currentVersion || '').startsWith('3.10');
+        if (showV310Notes) {
+            return `
+                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center justify-between gap-4"
+                     style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:1rem; padding:1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
+                    <div style="display:flex; align-items:center; gap:1rem;">
+                        <div style="width:3rem; height:3rem; background:rgba(16,185,129,0.15); border-radius:0.75rem; display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0; border:1px solid rgba(16,185,129,0.3);">✅</div>
+                        <div>
+                            <div style="font-weight:900;">Voc&ecirc; est&aacute; atualizado!</div>
+                            <div style="font-size:0.875rem; opacity:0.6;">Vers&atilde;o ${this.currentVersion} &eacute; a mais recente nyan~</div>
+                        </div>
+                    </div>
+                    <button onclick="Router.navigate('v310-notes')"
+                            style="padding:0.625rem 1rem; border-radius:0.75rem; font-weight:800; font-size:0.8rem; color:#fff; border:none; cursor:pointer; background:linear-gradient(135deg,#8b5cf6,#ec4899); box-shadow:0 6px 18px rgba(168,85,247,0.35);">
+                        📘 Ver nota oficial v3.10
+                    </button>
+                </div>
+            `;
+        }
+
         return `
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center gap-4"
                  style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:1rem; padding:1.5rem; display:flex; align-items:center; gap:1rem;">
@@ -324,8 +340,8 @@ const AutoUpdater = {
     },
 
     renderChangelog() {
-        // Histórico de updates instalados
         const installLog = Utils.loadData('update_install_log') || [];
+        const releases = this.changelog;
 
         return `
             <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
@@ -335,9 +351,9 @@ const AutoUpdater = {
                 </div>
 
                 <div class="space-y-6">
-                    ${this.changelog.map((release, i) => `
-                        <div class="relative pl-6 ${i < this.changelog.length - 1 ? 'pb-6' : ''}">
-                            ${i < this.changelog.length - 1 ? `<div class="absolute left-[9px] top-5 bottom-0 w-0.5 bg-gray-100"></div>` : ''}
+                    ${releases.map((release, i) => `
+                        <div class="relative pl-6 ${i < releases.length - 1 ? 'pb-6' : ''}">
+                            ${i < releases.length - 1 ? `<div class="absolute left-[9px] top-5 bottom-0 w-0.5 bg-gray-100"></div>` : ''}
                             <div class="absolute left-0 top-1 w-[18px] h-[18px] rounded-full border-2 border-gray-200 bg-white flex items-center justify-center">
                                 <div class="w-2 h-2 rounded-full ${i === 0 ? 'bg-emerald-500' : 'bg-gray-300'}"></div>
                             </div>
@@ -446,7 +462,6 @@ const AutoUpdater = {
             }
         }
 
-        // Ouvir eventos nativos do electron-updater — registrar só uma vez
         if (window.electronAPI?.onUpdaterStatus && !this._statusListenerRegistered) {
             this._statusListenerRegistered = true;
             window.electronAPI.onUpdaterStatus((status) => {
@@ -454,7 +469,6 @@ const AutoUpdater = {
             });
         }
 
-        // Verificar snooze
         const snooze = Utils.loadData('update_snooze');
         if (snooze && Date.now() < snooze) return;
 
@@ -566,8 +580,6 @@ const AutoUpdater = {
                     throw new Error(result.error || 'Falha na verificação');
                 }
 
-                // main.js agora sempre retorna { success:true, data } via GitHub API
-                // nunca mais retorna usingNativeUpdater:true
                 data = result.data;
             } else {
                 const res = await fetch(this.updateUrl, {
@@ -593,7 +605,6 @@ const AutoUpdater = {
     _processVersionData(data, silent) {
         if (!data) return;
 
-        // Se veio do native updater (check-for-updates retornou usingNativeUpdater),
         if (data.usingNativeUpdater) return;
 
         const latest = (data.tag_name || data.version || '').replace('v', '');
@@ -724,7 +735,6 @@ const AutoUpdater = {
         this.downloadedBytes  = 0;
         this.totalBytes       = 0;
 
-        // Registrar listener de progresso AQUI — garante que existe antes do FAF
         if (window.electronAPI?.onDownloadProgress && !this._progressListenerRegistered) {
             this._progressListenerRegistered = true;
             window.electronAPI.onDownloadProgress((data) => {
@@ -751,12 +761,10 @@ const AutoUpdater = {
         }
 
         Router?.render();
-        // Aguarda DOM pintar antes de disparar o FAF
         await new Promise(r => setTimeout(r, 80));
 
         try {
             if (this._nativeResponded && window.electronAPI?.startUpdateDownload) {
-                console.log('[Updater] Usando electron-updater nativo');
                 const result = await window.electronAPI.startUpdateDownload();
                 if (!result?.success) throw new Error(result?.error || 'Falha ao iniciar download nativo');
                 return;
@@ -765,7 +773,6 @@ const AutoUpdater = {
             const asset = this.getDownloadAsset();
 
             if (asset?.browser_download_url) {
-                console.log('[Updater] Download direto via GitHub API:', asset.name);
                 await this._downloadFileDirect(asset.browser_download_url, asset.name, asset.size);
                 return;
             }
@@ -791,12 +798,10 @@ const AutoUpdater = {
 
     async _downloadFileDirect(url, filename, totalSize) {
         if (window.electronAPI?.startDownloadFireAndForget) {
-            console.log('[Updater] Iniciando download FAF:', filename);
             if (totalSize) this.totalBytes = totalSize;
             window.electronAPI.startDownloadFireAndForget(url, filename);
             return;
         }
-        // Fallback: invoke antigo
         if (window.electronAPI?.downloadAndInstall) {
             if (totalSize) this.totalBytes = totalSize;
             const result = await window.electronAPI.downloadAndInstall(url, filename);
@@ -845,7 +850,6 @@ const AutoUpdater = {
             to:   toVersion,
             date: new Date().toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' })
         });
-        // Manter só os últimos 20
         if (log.length > 20) log.splice(20);
         Utils.saveData('update_install_log', log);
     },

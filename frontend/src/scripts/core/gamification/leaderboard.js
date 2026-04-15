@@ -24,7 +24,6 @@ const Leaderboard = {
         const game = this.GAMES.find(g => g.id === gameId);
         if (!game) return;
 
-        // Verificar se é melhor que o score atual no Firestore
         const existing = await NyanFirebase.getDoc(`leaderboards/${gameId}/scores/${uid}`);
         if (existing) {
             const isBetter = game.higher
@@ -43,10 +42,8 @@ const Leaderboard = {
             updatedAt: NyanFirebase.fn.serverTimestamp(),
         });
 
-        console.log(`[Leaderboard] Score sincronizado: ${gameId} → ${score}`);
     },
 
-    // Chamado pelo Economy.checkRecord() via hook
 
     setupAutoSync() {
         const origCheckRecord = window.Economy?.checkRecord?.bind(window.Economy);
@@ -57,16 +54,13 @@ const Leaderboard = {
             if (wasRecord) {
                 const gameId = Leaderboard.KEY_TO_GAME[storageKey];
                 if (gameId) {
-                    // Sync para leaderboard collection
                     this.syncScore(gameId, newScore);
-                    // Sync imediato para users/{uid} sc_* (usado pelo ranking global)
                     const uid = NyanAuth.getUID();
                     if (uid && NyanFirebase.isReady()) {
                         const scKey = 'sc_' + gameId;
                         const update = { [scKey]: newScore, sc_updatedAt: NyanFirebase.fn.serverTimestamp() };
                         NyanFirebase.updateDoc('users/' + uid, update).catch(() => {});
                     }
-                    // Recarregar placar se estiver aberto
                     if (Router?.currentRoute === 'leaderboard') {
                         setTimeout(() => this.loadScores(), 1000);
                     }
@@ -87,7 +81,6 @@ const Leaderboard = {
         return `
         <div style="max-width:640px;margin:0 auto;font-family:'DM Sans',sans-serif;">
 
-            <!-- Header -->
             <div style="text-align:center;margin-bottom:1.75rem;">
                 <div style="font-size:2.5rem;margin-bottom:0.4rem;">🏆</div>
                 <h1 style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:900;margin:0 0 0.25rem;
@@ -97,7 +90,6 @@ const Leaderboard = {
                 </h1>
             </div>
 
-            <!-- Filtro: global / amigos -->
             <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
                 <button id="lb-filter-global"
                         onclick="Leaderboard.setFilter('global')"
@@ -119,7 +111,6 @@ const Leaderboard = {
                 </button>
             </div>
 
-            <!-- Seletor de jogo -->
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:0.5rem;margin-bottom:1.25rem;">
                 ${this.GAMES.map(g => `
                 <button onclick="Leaderboard.setGame('${g.id}')"
@@ -134,12 +125,10 @@ const Leaderboard = {
                 </button>`).join('')}
             </div>
 
-            <!-- Tabela de scores -->
             <div id="leaderboard-table" style="background:${bg};border:1px solid ${bdr};border-radius:16px;overflow:hidden;">
                 <div style="text-align:center;padding:2rem;color:${muted};font-size:0.8rem;">Carregando...</div>
             </div>
 
-            <!-- Posição do jogador -->
             <div id="my-position" style="margin-top:0.75rem;"></div>
 
         </div>`;
@@ -164,7 +153,6 @@ const Leaderboard = {
             let scores;
 
             if (this._currentFilter === 'friends') {
-                // Buscar amigos via friendships
                 const { query: fq2, collection: fc2, where: fw2, getDocs: fgd2 } = NyanFirebase.fn;
                 const fsSnap2 = await fgd2(fq2(fc2(NyanFirebase.db, 'friendships'), fw2('users', 'array-contains', myUID)));
                 const friendList = fsSnap2.docs.map(d => {
@@ -173,14 +161,12 @@ const Leaderboard = {
                 }).filter(Boolean);
                 const friendUIDs = [myUID, ...friendList];
 
-                // Buscar scores via users/{uid} campos sc_* + fallback leaderboard
                 const scKey = 'sc_' + this._currentGame;
                 const allProfiles = await Promise.all(
                     friendUIDs.map(uid => NyanFirebase.getDoc('users/' + uid).catch(() => null))
                 );
 
                 scores = allProfiles.filter(Boolean).map(p => {
-                    // Tentar sc_* primeiro, depois leaderboard (preenchido pelo syncScore)
                     const val = p[scKey];
                     if (!val || val <= 0) return null;
                     return {
@@ -194,10 +180,8 @@ const Leaderboard = {
                     };
                 }).filter(Boolean);
 
-                // Sempre usar score local para o próprio jogador (mais confiável que Firestore)
                 const myLocal = parseFloat(Utils.loadData(game.key));
                 if (myLocal > 0) {
-                    // Remover entrada do Firestore do próprio usuário (pode estar desatualizada)
                     const filtered = scores.filter(s => s.uid !== myUID);
                     const me = NyanAuth.currentUser || {};
                     filtered.push({
@@ -214,7 +198,6 @@ const Leaderboard = {
                 scores.sort((a, b) => {
                     const diff = game.higher ? b.score - a.score : a.score - b.score;
                     if (diff !== 0) return diff;
-                    // Desempate: quem fez primeiro fica na frente
                     const ta = a.updatedAt?.seconds || 0;
                     const tb = b.updatedAt?.seconds || 0;
                     return ta - tb;
@@ -223,10 +206,8 @@ const Leaderboard = {
             } else {
                 const scKey = 'sc_' + this._currentGame;
 
-                // Buscar TODOS os usuários com sc_{gameId} — fonte universal
                 const { query: gq, collection: gc, where: gw, getDocs: ggd, orderBy: gob, limit: glim } = NyanFirebase.fn;
 
-                // Tentar leaderboard collection primeiro (mais rápido, só top scores)
                 const lbSnap = await ggd(gq(
                     gc(NyanFirebase.db, `leaderboards/${this._currentGame}/scores`),
                     gob('score', game.higher ? 'desc' : 'asc'),
@@ -234,8 +215,6 @@ const Leaderboard = {
                 ));
                 scores = lbSnap.docs.map(d => ({ id: d.id, ...d.data() }));
 
-                // Se leaderboard vazio ou incompleto, buscar de users com sc_* 
-                // (cobre usuários que ainda não foram para o leaderboard)
                 if (scores.length < 10) {
                     try {
                         const usersSnap = await ggd(gq(
@@ -257,7 +236,6 @@ const Leaderboard = {
                     } catch(e) {}
                 }
 
-                // Sempre garantir que o próprio jogador aparece
                 const myLocalScore = parseFloat(Utils.loadData(game.key));
                 if (myLocalScore > 0 && myUID) {
                     const alreadyIn = scores.some(s => s.uid === myUID);
@@ -303,20 +281,17 @@ const Leaderboard = {
                         onmouseover="this.style.background='rgba(168,85,247,0.05)'"
                         onmouseout="this.style.background='${bgRow}'">
 
-                        <!-- Posição -->
                         <div style="width:28px;text-align:center;font-size:${i<3?'1.1rem':'0.8rem'};
                             font-weight:800;color:${i<3?'inherit':muted};flex-shrink:0;">
                             ${medals[i] || `#${i+1}`}
                         </div>
 
-                        <!-- Avatar -->
                         <div style="width:34px;height:34px;border-radius:9px;overflow:hidden;flex-shrink:0;">
                             ${s.avatar
                                 ? `<img src="${s.avatar}" style="width:100%;height:100%;object-fit:cover;"/>`
                                 : (window.AvatarGenerator ? AvatarGenerator.generate(s.username||'nyan', 34) : `<div style="width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#ec4899);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:0.75rem;">${(s.username||'N')[0].toUpperCase()}</div>`)}
                         </div>
 
-                        <!-- Nome -->
                         <div style="flex:1;min-width:0;">
                             <div style="font-size:0.85rem;font-weight:${isMe?'800':'600'};color:${text};
                                 display:flex;align-items:center;gap:0.375rem;">
@@ -326,18 +301,23 @@ const Leaderboard = {
                             <div style="font-size:0.68rem;color:${muted};">${s.nyanTag || ''}</div>
                         </div>
 
-                        <!-- Score -->
                         <div style="text-align:right;flex-shrink:0;">
                             <div style="font-size:1rem;font-weight:900;font-family:'Syne',sans-serif;
                                 color:${i===0?'#f59e0b':i===1?'#9ca3af':i===2?'#cd7c2f':'var(--theme-primary,#a855f7)'};">
                                 ${typeof s.score === 'number' ? s.score.toLocaleString('pt-BR') : s.score}
                             </div>
                             <div style="font-size:0.65rem;color:${muted};">${game.unit}</div>
+                            ${s.uid ? `<button onclick="Leaderboard.viewPlayerProfile('${s.uid}')"
+                                style="margin-top:0.35rem;padding:3px 8px;border-radius:7px;border:none;cursor:pointer;
+                                    font-size:0.62rem;font-weight:700;font-family:'DM Sans',sans-serif;
+                                    background:${isMe ? 'rgba(168,85,247,0.14)' : 'rgba(59,130,246,0.14)'};
+                                    color:${isMe ? 'rgba(168,85,247,0.95)' : 'rgba(59,130,246,0.95)'};">
+                                ${isMe ? 'Meu perfil' : 'Perfil'}
+                            </button>` : ''}
                         </div>
                     </div>`;
                 }).join('');
 
-            // Posição do jogador atual (se não estiver no top 10)
             if (myPos) {
                 const myRank = scores.findIndex(s => s.uid === myUID) + 1;
                 if (myRank === 0) {
@@ -362,7 +342,6 @@ const Leaderboard = {
 
     setGame(gameId) {
         this._currentGame = gameId;
-        // Atualizar visual dos botões
         this.GAMES.forEach(g => {
             const btn = document.getElementById(`lb-game-${g.id}`);
             if (!btn) return;
@@ -408,6 +387,22 @@ const Leaderboard = {
         this.loadScores();
     },
 
+    viewPlayerProfile(uid) {
+        if (!uid) return;
+        const myUID = NyanAuth.getUID();
+        if (uid === myUID) {
+            Router?.navigate('profile');
+            return;
+        }
+        if (window.Friends?.viewProfile) {
+            Friends.viewProfile(uid, 'leaderboard');
+            return;
+        }
+        window._viewingProfile = uid;
+        window._viewingProfileSource = 'leaderboard';
+        Router?.navigate('profile-public');
+    },
+
     KEY_TO_GAME: {
         'typeracer_highscore':   'typeracer',
         'game_2048_highscore':   '2048',
@@ -420,7 +415,6 @@ const Leaderboard = {
     async syncAllLocalScores() {
         if (!NyanAuth.isOnline()) return;
 
-        // Aguardar currentUser estar disponível (pode ainda estar carregando)
         let attempts = 0;
         while (!NyanAuth.currentUser && attempts < 20) {
             await new Promise(r => setTimeout(r, 500));
@@ -437,7 +431,6 @@ const Leaderboard = {
             }
         }
         if (synced > 0) {
-            console.log('[Leaderboard] ' + synced + ' scores locais → Firebase');
             this.loadScores();
         }
     },
@@ -445,10 +438,7 @@ const Leaderboard = {
     init() {
         this.setupAutoSync();
         setTimeout(() => this.loadScores(), 100);
-        // Sincronizar scores locais existentes uma vez por dia
-        // Sincronizar scores locais sempre que abrir (aguarda Firebase conectar)
         setTimeout(() => this.syncAllLocalScores(), 3000);
-        console.log('[Leaderboard] v1.0.0 inicializado');
     },
 };
 

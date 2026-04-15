@@ -20,7 +20,6 @@ const Friends = {
         return `
         <div style="max-width:640px;margin:0 auto;font-family:'DM Sans',sans-serif;">
 
-            <!-- Cabeçalho -->
             <div style="text-align:center;margin-bottom:1.75rem;">
                 <div style="font-size:2.5rem;margin-bottom:0.4rem;">👥</div>
                 <h1 style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:900;margin:0 0 0.25rem;
@@ -33,7 +32,6 @@ const Friends = {
                 </p>
             </div>
 
-            <!-- Adicionar amigo -->
             <div style="background:${bg};border:1px solid ${bdr};border-radius:16px;padding:1.25rem;margin-bottom:1rem;">
                 <div style="font-size:0.68rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:${muted};margin-bottom:0.75rem;">
                     Adicionar amigo
@@ -65,7 +63,6 @@ const Friends = {
                 <div id="friend-add-status" style="font-size:0.72rem;min-height:1.2rem;margin-top:0.5rem;color:${sub};"></div>
             </div>
 
-            <!-- Abas -->
             <div id="friends-tabs" style="display:flex;gap:0.25rem;background:${d?'rgba(255,255,255,0.04)':'#f7f7fb'};
                 border:1px solid ${bdr};border-radius:14px;padding:0.3rem;margin-bottom:1rem;">
                 ${['list','requests','online'].map((tab, i) => {
@@ -83,7 +80,6 @@ const Friends = {
                 }).join('')}
             </div>
 
-            <!-- Conteúdo das abas -->
             <div id="friends-content">
                 <div style="text-align:center;padding:2rem;color:${muted};">
                     <div style="font-size:2rem;margin-bottom:0.5rem;opacity:0.4;">⏳</div>
@@ -103,7 +99,6 @@ const Friends = {
         const sub = d ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.5)';
         const muted=d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
 
-        // Fonte da verdade: coleção friendships (não depende do array no perfil)
         const { query, collection, where, getDocs } = NyanFirebase.fn;
         const fsSnap = await getDocs(
             query(collection(NyanFirebase.db, 'friendships'), where('users', 'array-contains', uid))
@@ -122,13 +117,11 @@ const Friends = {
             </div>`;
         }
 
-        // Buscar perfis dos amigos
         const friends = await Promise.all(
             friendUIDs.map(fuid => NyanFirebase.getDoc(`users/${fuid}`))
         );
 
         const validFriends = friends.filter(Boolean);
-        // Após renderizar, subscrever presença do RTDB (next tick)
         setTimeout(() => this._subscribePresence(validFriends.map(f => f.uid)), 50);
         return validFriends.map(f => this._renderFriendCard(f, bg, bdr, text, sub, muted, d)).join('');
     },
@@ -136,7 +129,6 @@ const Friends = {
     _presenceUnsubs: [],
 
     _subscribePresence(uids) {
-        // Cancelar listeners anteriores
         this._presenceUnsubs.forEach(u => u && u());
         this._presenceUnsubs = [];
 
@@ -151,19 +143,15 @@ const Friends = {
             const unsub = onValue(presRef, (snap) => {
                 const data  = snap.val();
                 const isOn  = data?.online === true;
-                // Usar status detalhado se disponível, senão online/offline
                 const key   = isOn ? (data?.status || 'online') : 'offline';
                 const color = statusColor[key] || statusColor.offline;
 
-                // Texto de status
                 const el = document.getElementById(`fstatus-${uid}`);
                 if (el) { el.textContent = `● ${statusLabel[key] || 'Offline'}`; el.style.color = color; }
 
-                // Dot no avatar
                 const dot = document.getElementById(`fdot-${uid}`);
                 if (dot) dot.style.background = color;
 
-                // Border do avatar
                 const av = document.getElementById(`favatar-${uid}`);
                 if (av) {
                     av.style.border    = `2px solid ${color}22`;
@@ -188,7 +176,6 @@ const Friends = {
             onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'"
             onmouseout="this.style.boxShadow=''">
 
-            <!-- Avatar -->
             <div id="favatar-${f.uid}" style="width:44px;height:44px;border-radius:12px;overflow:hidden;flex-shrink:0;
                 border:2px solid ${color}22;box-shadow:0 0 0 2px ${color}44;position:relative;">
                 ${f.avatar
@@ -197,12 +184,10 @@ const Friends = {
                         ? AvatarGenerator.generate(f.username || 'nyan', 44)
                         : `<div style="width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#ec4899);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;">${(f.username||'N').charAt(0).toUpperCase()}</div>`)
                 }
-                <!-- Status dot -->
                 <div id="fdot-${f.uid}" style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;
                     border-radius:50%;background:${color};border:2px solid ${bg};"></div>
             </div>
 
-            <!-- Info -->
             <div style="flex:1;min-width:0;">
                 <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.2rem;">
                     <span style="font-size:0.875rem;font-weight:700;color:${text};font-family:'Syne',sans-serif;">
@@ -214,7 +199,6 @@ const Friends = {
                 ${f.bio ? `<div style="font-size:0.72rem;color:${sub};font-style:italic;margin-top:2px;">"${f.bio}"</div>` : ''}
             </div>
 
-            <!-- Nível + Ações -->
             <div style="text-align:right;flex-shrink:0;">
                 <div style="font-size:0.65rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:${muted};margin-bottom:0.25rem;">Nível</div>
                 <div style="font-size:1.1rem;font-weight:900;font-family:'Syne',sans-serif;color:var(--theme-primary,#a855f7);">${f.level || 1}</div>
@@ -247,7 +231,6 @@ const Friends = {
         const sub  = d ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.5)';
         const muted= d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
 
-        // Ler da subcoleção requests/{uid}/inbox
         const { getDocs, collection } = NyanFirebase.fn;
         const snap = await getDocs(collection(NyanFirebase.db, `requests/${uid}/inbox`));
         const requests = snap.docs.map(d => ({ id: d.id, ...d.data() }));
@@ -313,10 +296,8 @@ const Friends = {
             </div>`;
         }
 
-        // Buscar presença do RTDB para cada amigo (fonte confiável)
         const onlineUIDs = await Promise.all(friendUIDs.map(async (fuid) => {
             if (!NyanFirebase.rtdb) {
-                // Sem RTDB, fallback para Firestore
                 const p = await NyanFirebase.getDoc(`users/${fuid}`);
                 return p?.status !== 'offline' ? fuid : null;
             }
@@ -376,7 +357,6 @@ const Friends = {
             return;
         }
 
-        // Verificar se já são amigos
         const myProfile = await NyanFirebase.getDoc(`users/${myUID}`);
         if (myProfile?.friends?.includes(targetUser.uid)) {
             status.style.color = '#f59e0b';
@@ -384,8 +364,6 @@ const Friends = {
             return;
         }
 
-        // Usar addDoc na subcoleção requests/{targetUID}/inbox
-        // → qualquer auth pode escrever ali (não precisa ser o dono do doc pai)
         const requestData = {
             from:       myUID,
             fromTag:    NyanAuth.getNyanTag(),
@@ -406,29 +384,104 @@ const Friends = {
         }
     },
 
+    async sendRequestToUser(targetUID, targetTag = '', targetName = '') {
+        const myUID = NyanAuth.getUID();
+        if (!myUID || !targetUID) return;
+        if (targetUID === myUID) {
+            Utils.showNotification?.('Você não pode se adicionar', 'warning');
+            return;
+        }
+
+        const rel = await this._getRelationshipState(targetUID, myUID);
+        if (rel.state === 'friend') {
+            Utils.showNotification?.('Vocês já são amigos', 'info');
+            return;
+        }
+        if (rel.state === 'outgoing') {
+            Utils.showNotification?.('Solicitação já enviada para essa pessoa', 'info');
+            return;
+        }
+        if (rel.state === 'incoming') {
+            Utils.showNotification?.('Essa pessoa já te enviou uma solicitação', 'info');
+            return;
+        }
+
+        const requestData = {
+            from: myUID,
+            fromTag: NyanAuth.getNyanTag(),
+            sentAt: Date.now(),
+        };
+
+        await NyanFirebase.fn.addDoc(
+            NyanFirebase.fn.collection(NyanFirebase.db, `requests/${targetUID}/inbox`),
+            requestData
+        );
+
+        Utils.showNotification?.(`✅ Solicitação enviada para ${targetTag || targetName || 'jogador'}`, 'success');
+        if (Router?.currentRoute === 'profile-public' && window._viewingProfile === targetUID) {
+            setTimeout(() => this._loadPublicProfile(), 120);
+        }
+    },
+
+    async _getRelationshipState(targetUID, myUID = NyanAuth.getUID()) {
+        if (!myUID || !targetUID) return { state: 'none' };
+        if (myUID === targetUID) return { state: 'self' };
+
+        try {
+            const fsSnap = await NyanFirebase.fn.getDocs(
+                NyanFirebase.fn.query(
+                    NyanFirebase.fn.collection(NyanFirebase.db, 'friendships'),
+                    NyanFirebase.fn.where('users', 'array-contains', myUID)
+                )
+            );
+            const isFriend = fsSnap.docs.some(d => (d.data().users || []).includes(targetUID));
+            if (isFriend) return { state: 'friend' };
+        } catch (_) {}
+
+        let incomingDocId = null;
+        try {
+            const incoming = await NyanFirebase.fn.getDocs(
+                NyanFirebase.fn.query(
+                    NyanFirebase.fn.collection(NyanFirebase.db, `requests/${myUID}/inbox`),
+                    NyanFirebase.fn.where('from', '==', targetUID)
+                )
+            );
+            if (!incoming.empty) incomingDocId = incoming.docs[0].id;
+        } catch (_) {}
+        if (incomingDocId) return { state: 'incoming', requestDocId: incomingDocId };
+
+        try {
+            const outgoing = await NyanFirebase.fn.getDocs(
+                NyanFirebase.fn.query(
+                    NyanFirebase.fn.collection(NyanFirebase.db, `requests/${targetUID}/inbox`),
+                    NyanFirebase.fn.where('from', '==', myUID)
+                )
+            );
+            if (!outgoing.empty) return { state: 'outgoing' };
+        } catch (_) {}
+
+        return { state: 'none' };
+    },
+
     async acceptRequest(fromUID, fromTag, requestDocId) {
         const myUID  = NyanAuth.getUID();
         const [a, b] = [myUID, fromUID].sort();
         const fsId   = `${a}_${b}`;
 
-        // 1. Criar o documento de amizade (ambos podem ler)
         await NyanFirebase.setDoc(`friendships/${fsId}`, {
             users:     [a, b],
             createdAt: NyanFirebase.fn.serverTimestamp()
         });
 
-        // 2. Cada um só adiciona a si mesmo — o outro detecta via listener/renderização
         await NyanFirebase.updateDoc(`users/${myUID}`, {
             friends: NyanFirebase.fn.arrayUnion(fromUID)
         });
 
-        // 3. Notificar o remetente via inbox dele (para ele saber e adicionar de volta)
         await NyanFirebase.fn.addDoc(
             NyanFirebase.fn.collection(NyanFirebase.db, `requests/${fromUID}/accepted`),
             { by: myUID, byTag: NyanAuth.getNyanTag(), at: Date.now() }
         );
 
-        // 4. Deletar a solicitação da nossa inbox
         if (requestDocId) {
             await NyanFirebase.fn.deleteDoc(
                 NyanFirebase.fn.doc(NyanFirebase.db, `requests/${myUID}/inbox/${requestDocId}`)
@@ -436,20 +489,21 @@ const Friends = {
         }
 
         Utils.showNotification(`✅ Agora você e ${fromTag} são amigos! にゃん~`, 'success');
-        this.switchTab('list');
+        if (Router?.currentRoute === 'profile-public') {
+            setTimeout(() => this._loadPublicProfile(), 120);
+        } else {
+            this.switchTab('list');
+        }
 
-        // 5. Verificar se há aceitações pendentes da nossa própria inbox de "accepted"
         await this._processPendingAccepted();
     },
 
-    // Processar aceitações que chegaram para nós (o outro lado aceitou nosso pedido)
     async _processPendingAccepted() {
         const myUID = NyanAuth.getUID();
         if (!myUID || !NyanFirebase.isReady()) return;
         const { getDocs, collection, deleteDoc, doc } = NyanFirebase.fn;
 
         try {
-            // Processar aceitações (quem recebeu nosso pedido aceitou)
             const acceptSnap = await getDocs(collection(NyanFirebase.db, `requests/${myUID}/accepted`));
             for (const d of acceptSnap.docs) {
                 const data = d.data();
@@ -459,7 +513,6 @@ const Friends = {
                 await deleteDoc(doc(NyanFirebase.db, `requests/${myUID}/accepted/${d.id}`));
             }
 
-            // Processar remoções (alguém nos removeu)
             const removedSnap = await getDocs(collection(NyanFirebase.db, `requests/${myUID}/removed`));
             for (const d of removedSnap.docs) {
                 const data = d.data();
@@ -469,7 +522,6 @@ const Friends = {
                 await deleteDoc(doc(NyanFirebase.db, `requests/${myUID}/removed/${d.id}`));
             }
         } catch (e) {
-            // Silencioso
         }
     },
 
@@ -480,6 +532,10 @@ const Friends = {
                 NyanFirebase.fn.doc(NyanFirebase.db, `requests/${myUID}/inbox/${requestDocId}`)
             );
         }
+        if (Router?.currentRoute === 'profile-public') {
+            setTimeout(() => this._loadPublicProfile(), 120);
+            return;
+        }
         this.switchTab('requests');
     },
 
@@ -487,13 +543,11 @@ const Friends = {
         const myUID  = NyanAuth.getUID();
         const [a, b] = [myUID, friendUID].sort();
 
-        // Deletar friendship e remover do próprio doc
         await NyanFirebase.fn.deleteDoc(NyanFirebase.docRef(`friendships/${a}_${b}`));
         await NyanFirebase.updateDoc(`users/${myUID}`, {
             friends: NyanFirebase.fn.arrayRemove(friendUID)
         });
 
-        // Notificar o outro via subcoleção para ele remover de volta
         await NyanFirebase.fn.addDoc(
             NyanFirebase.fn.collection(NyanFirebase.db, `requests/${friendUID}/removed`),
             { by: myUID, at: Date.now() }
@@ -504,12 +558,10 @@ const Friends = {
     },
 
     async switchTab(tab) {
-        // Cancelar listeners de presença anteriores ao trocar aba
         if (tab !== 'list') {
             this._presenceUnsubs.forEach(u => u && u());
             this._presenceUnsubs = [];
         }
-        // Atualizar visual das abas
         ['list','requests','online'].forEach(t => {
             const btn = document.getElementById(`ftab-${t}`);
             if (!btn) return;
@@ -566,9 +618,7 @@ const Friends = {
         #nyan-pp-card { background:${cardBg};border:1px solid ${cardBdr};border-top:none;border-radius:0 0 22px 22px;padding:0 1.5rem 1.5rem; }
 
         #nyan-pp-avatar-wrap { position:relative;width:96px;height:96px;margin:-48px auto 0; }
-        #nyan-pp-avatar-wrap .nyan-ring { position:absolute;inset:-6px;border-radius:50%;border:2.5px solid var(--theme-primary,#a855f7);opacity:.45;animation:nyanPulseRing 2.2s ease-out infinite; }
-        #nyan-pp-avatar-wrap .nyan-ring2 { animation-delay:1.1s; }
-        #nyan-pp-avatar-img-shell { width:96px;height:96px;border-radius:50%;overflow:hidden;border:3.5px solid ${avBdr};position:relative;z-index:2; }
+        #nyan-pp-avatar-img-shell { width:96px;height:96px;border-radius:50%;overflow:hidden;position:relative;z-index:2; }
         #nyan-pp-statusdot { position:absolute;bottom:4px;right:4px;width:16px;height:16px;border-radius:50%;border:2.5px solid ${avBdr};z-index:3; }
         .nyan-sparkle { position:absolute;font-size:0.75rem;animation:nyanSparkle var(--dur,2s) ease-in-out infinite var(--delay,0s);pointer-events:none;z-index:4;color:#fff; }
 
@@ -683,6 +733,9 @@ const Friends = {
         const muted = d ? 'rgba(255,255,255,0.28)' : 'rgba(0,0,0,0.32)';
         const sub   = d ? 'rgba(255,255,255,0.5)'  : 'rgba(0,0,0,0.52)';
         const avBdr = d ? '#0e0e18' : '#fff';
+        const banner = window.ProfileV2?.getBannerFromProfile?.(profile) || {
+            css: 'linear-gradient(135deg,var(--theme-gradient-start,#a855f7),var(--theme-gradient-middle,#ec4899),var(--theme-gradient-end,#ef4444),var(--theme-gradient-start,#a855f7))'
+        };
 
         const avatarHTML = profile.avatar
             ? `<img src="${profile.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;"/>`
@@ -737,13 +790,8 @@ const Friends = {
             else                       { vBadgeEmoji='🔵'; vBadgeText='v'+theirVersion; vBadgeTitle='Versão mais nova — eles têm v'+theirVersion+', você tem v'+myVersion; }
         }
 
-        const myUID    = NyanAuth.getUID();
-        const isFriend = await NyanFirebase.fn.getDocs(
-            NyanFirebase.fn.query(
-                NyanFirebase.fn.collection(NyanFirebase.db, 'friendships'),
-                NyanFirebase.fn.where('users', 'array-contains', myUID)
-            )
-        ).then(snap => snap.docs.some(d => d.data().users.includes(uid))).catch(() => false);
+        const myUID = NyanAuth.getUID();
+        const relationship = await this._getRelationshipState(uid, myUID);
 
         const SCORE_MAX = { typeracer_highscore:200, game_2048_highscore:131072,
                             flappy_bird_highscore:100, quiz_highscore:10,
@@ -796,13 +844,22 @@ const Friends = {
             vBadgeEl.addEventListener('mouseleave', () => Friends._hideVersionTooltip());
         }
 
+        const bannerEl = document.getElementById('nyan-pp-banner');
+        if (bannerEl) {
+            bannerEl.style.background = banner.css;
+            bannerEl.style.backgroundSize = '300% 300%';
+        }
+
+        const publicBorder = window.Inventory?.getProfileBorderFromProfile?.(profile) || null;
+        const publicBorderCss = publicBorder?.css || `border:3.5px solid ${avBdr};`;
+        const publicBorderExtraStyle = publicBorder?.extraStyle || '';
+
         const avatarWrapEl = document.getElementById('nyan-pp-card')?.firstElementChild;
         if (avatarWrapEl) {
             avatarWrapEl.innerHTML = `
                 <div id="nyan-pp-avatar-wrap">
-                    <div class="nyan-ring"></div>
-                    <div class="nyan-ring nyan-ring2"></div>
-                    <div id="nyan-pp-avatar-img-shell">${avatarHTML}</div>
+                    ${publicBorderExtraStyle ? `<style>${publicBorderExtraStyle}</style>` : ''}
+                    <div id="nyan-pp-avatar-img-shell" style="${publicBorderCss}">${avatarHTML}</div>
                     <div id="nyan-pp-statusdot" style="background:${statusColor};"></div>
                     <div class="nyan-sparkle" style="top:-6px;right:6px;--dur:2.2s;--delay:0s;">✦</div>
                     <div class="nyan-sparkle" style="top:4px;left:-8px;--dur:2.8s;--delay:.7s;font-size:0.6rem;">★</div>
@@ -810,9 +867,28 @@ const Friends = {
                 </div>`;
         }
 
+        const publicTitle =
+            window.V310Rewards?.resolveProfileTitle?.(profile) ||
+            window.Inventory?.getProfileTitleFromProfile?.(profile) ||
+            null;
+        const publicTitleStyle = window.Inventory?.getTitleBadgeStyle?.(publicTitle) || '';
+
         ppContent.style.textAlign = 'left';
         ppContent.innerHTML = `
             <div id="nyan-pp-name">${profile.username || 'Usuário'}</div>
+
+            ${publicTitle ? `<div style="text-align:center;margin-bottom:0.2rem;animation:nyanSlideUp .4s ease both .08s;">
+                <span style="display:inline-flex;align-items:center;gap:0.32rem;
+                    font-size:0.7rem;font-weight:800;letter-spacing:0.02em;
+                    padding:0.26rem 0.58rem;border-radius:999px;
+                    color:${d ? 'rgba(255,255,255,0.9)' : '#4c1d95'};
+                    background:${d ? 'rgba(168,85,247,0.18)' : 'rgba(168,85,247,0.12)'};
+                    border:1px solid ${d ? 'rgba(168,85,247,0.38)' : 'rgba(168,85,247,0.28)'};
+                    ${publicTitleStyle}">
+                    <span>${publicTitle.icon || '🏅'}</span>
+                    <span>${publicTitle.name || 'Título'}</span>
+                </span>
+            </div>` : ''}
 
             <div id="nyan-pp-tag-row">
                 <span class="nyan-pp-tag">${profile.nyanTag || ''}</span>
@@ -851,14 +927,54 @@ const Friends = {
 
             ${achHTML}
 
-            ${isFriend ? `
-            <div class="nyan-pp-actions">
-                <button class="nyan-pp-btn primary" onclick="Friends.openChat('${uid}','${profile.nyanTag||''}','${profile.username||''}')">💬 Mensagem</button>
-                <button class="nyan-pp-btn golden" onclick="Challenges.showCreateModal('${uid}','${profile.nyanTag||profile.username||'?'}')">⚔️ Desafiar</button>
-                <button class="nyan-pp-btn teal" onclick="Friends.showCompare('${uid}','${profile.username||'?'}')">📊 Comparar</button>
-                <button class="nyan-pp-btn danger" onclick="Friends.confirmRemove('${uid}','${profile.username||'?'}')">Remover</button>
-            </div>` : ''}
+            ${this._renderPublicActions({
+                relationship,
+                uid,
+                username: profile.username || '?',
+                tag: profile.nyanTag || '',
+            })}
         `;
+    },
+
+    _renderPublicActions({ relationship, uid, username, tag }) {
+        const state = relationship?.state || 'none';
+
+        if (state === 'friend') {
+            return `
+            <div class="nyan-pp-actions">
+                <button class="nyan-pp-btn primary" onclick="Friends.openChat('${uid}','${tag}','${username}')">💬 Mensagem</button>
+                <button class="nyan-pp-btn golden" onclick="Challenges.showCreateModal('${uid}','${tag||username||'?'}')">⚔️ Desafiar</button>
+                <button class="nyan-pp-btn teal" onclick="Friends.showCompare('${uid}','${username||'?'}')">📊 Comparar</button>
+                <button class="nyan-pp-btn danger" onclick="Friends.confirmRemove('${uid}','${username||'?'}')">Remover</button>
+            </div>`;
+        }
+
+        if (state === 'self') {
+            return `
+            <div class="nyan-pp-actions">
+                <button class="nyan-pp-btn primary" onclick="Router.navigate('profile')">👤 Meu perfil</button>
+            </div>`;
+        }
+
+        if (state === 'incoming') {
+            return `
+            <div class="nyan-pp-actions">
+                <button class="nyan-pp-btn primary" onclick="Friends.acceptRequest('${uid}','${tag}','${relationship.requestDocId || ''}')">✅ Aceitar</button>
+                <button class="nyan-pp-btn danger" onclick="Friends.declineRequest('${uid}','${relationship.requestDocId || ''}')">Recusar</button>
+            </div>`;
+        }
+
+        if (state === 'outgoing') {
+            return `
+            <div class="nyan-pp-actions">
+                <button class="nyan-pp-btn teal" style="opacity:0.65;cursor:default;" disabled>📨 Solicitação enviada</button>
+            </div>`;
+        }
+
+        return `
+        <div class="nyan-pp-actions">
+            <button class="nyan-pp-btn primary" onclick="Friends.sendRequestToUser('${uid}','${tag}','${username}')">➕ Adicionar</button>
+        </div>`;
     },
 
     confirmRemove(uid, username) {
@@ -887,7 +1003,6 @@ const Friends = {
         modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
         document.body.appendChild(modal);
 
-        // Usar addEventListener em vez de onclick inline — evita problemas com escaping do uid
         document.getElementById('crm-cancel').addEventListener('click', () => modal.remove());
         document.getElementById('crm-confirm').addEventListener('click', () => {
             modal.remove();
@@ -904,7 +1019,6 @@ const Friends = {
         const muted= d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
         const myTag = NyanAuth.getNyanTag() || 'Você';
 
-        // Sincronizar meus scores no leaderboard antes de comparar
         if (window.Leaderboard?.syncScore) {
             Friends.GAME_RECORDS.forEach(g => {
                 const val = parseFloat(Utils.loadData(g.key));
@@ -953,7 +1067,6 @@ const Friends = {
         modal.addEventListener('click', e => { if (e.target === modal) modal.remove(); });
         document.body.appendChild(modal);
 
-        // Buscar scores via users/{uid} sc_* fields (salvo no login)
         NyanFirebase.getDoc('users/' + uid).then(theirProfile => {
             Friends.GAME_RECORDS.forEach(g => {
                 const val = theirProfile?.[g.fsKey];
@@ -963,12 +1076,9 @@ const Friends = {
                 if (val == null || val <= 0) { el.textContent = '—'; el.style.color = muted; return; }
                 const display = parseFloat(val).toLocaleString('pt-BR') + ' ' + g.unit;
                 const mine = parseFloat(Utils.loadData(g.key)) || 0;
-                // Verde = eles estão à frente, rosa = eu estou à frente, muted = igual ou sem dados
-                // Para Termo: menor é melhor (higher=false), inverter comparação
                 const theyWin = mine && val && (g.higher ? val > mine : val < mine);
                 const iWin    = mine && val && (g.higher ? mine > val : mine < val);
                 el.textContent = display;
-                // Verde = eu ganho, rosa = eles ganham, roxo = empate
                 el.style.color = iWin ? '#4ade80' : (theyWin ? '#ec4899' : 'rgba(168,85,247,0.8)');
             });
         });
@@ -984,7 +1094,6 @@ const Friends = {
             "font-family:'DM Sans',sans-serif;line-height:1.4;";
         t.textContent = text;
         document.body.appendChild(t);
-        // Posicionar acima do elemento
         const rect = e.target.getBoundingClientRect();
         const tw = t.offsetWidth, th = t.offsetHeight;
         t.style.left = Math.min(rect.left + rect.width/2 - tw/2, window.innerWidth - tw - 8) + 'px';
@@ -1000,8 +1109,9 @@ const Friends = {
         this.removeFriend(uid);
     },
 
-    viewProfile(uid) {
+    viewProfile(uid, source = 'friends') {
         window._viewingProfile = uid;
+        window._viewingProfileSource = source;
         Router?.navigate('profile-public');
     },
 
@@ -1041,34 +1151,28 @@ const Friends = {
     },
 
     init() {
-        // Se for rota de perfil público, carregar dados + Esc para voltar
         if (Router?.currentRoute === 'profile-public') {
             setTimeout(() => this._loadPublicProfile(), 50);
             this._profileEscHandler = e => { if (e.key === 'Escape') Router.back(); };
             document.addEventListener('keydown', this._profileEscHandler);
             return;
         }
-        // Limpar handler se sair do perfil
         if (this._profileEscHandler) {
             document.removeEventListener('keydown', this._profileEscHandler);
             this._profileEscHandler = null;
         }
-        // Processar pendências acumuladas (aceitações e remoções)
         setTimeout(() => this._processPendingAccepted(), 500);
 
-        // Listener em tempo real na subcoleção accepted — processa assim que chegar
         const uid = NyanAuth.getUID();
         if (uid && NyanFirebase.isReady()) {
             const { collection, onSnapshot } = NyanFirebase.fn;
 
-            // Ouvir novas aceitações em tempo real
             const unsubAccepted = onSnapshot(
                 collection(NyanFirebase.db, `requests/${uid}/accepted`),
                 () => this._processPendingAccepted()
             );
             NyanFirebase._listeners.push(unsubAccepted);
 
-            // Ouvir badge de solicitações recebidas (inbox)
             const inboxRef = collection(NyanFirebase.db, `requests/${uid}/inbox`);
             const unsubInbox = onSnapshot(inboxRef, (snap) => {
                 const count = snap.size || 0;
@@ -1079,11 +1183,456 @@ const Friends = {
             NyanFirebase._listeners.push(unsubInbox);
         }
 
-        // Carregar aba inicial
         setTimeout(() => this.switchTab('list'), 100);
 
-        console.log('[Friends] v1.0.0 inicializado');
     },
 };
 
+Friends._presenceCache = Friends._presenceCache || {};
+
+Friends._routeToToolId = function(route) {
+    if (!route) return null;
+    if (route.startsWith('game:')) return 'offline';
+    return route;
+};
+
+Friends._isKnownRoute = function(route) {
+    if (!route) return false;
+    if (route.startsWith('game:')) return true;
+    const known = new Set([
+        'home','password','weather','translator','ai-assistant','mini-game','temp-email','music',
+        'notes','tasks','missions','shop','offline','settings','friends','chat','leaderboard','feed',
+        'challenges','profile','profile-public'
+    ]);
+    return known.has(route);
+};
+
+Friends._presenceRouteLabel = function(route) {
+    if (!route) return '';
+    if (route.startsWith('game:')) return 'Zona Offline';
+    const labels = {
+        home: 'Home',
+        tasks: 'Tarefas',
+        notes: 'Notas',
+        missions: 'Missoes',
+        friends: 'Amigos',
+        chat: 'Chat',
+        profile: 'Perfil',
+        offline: 'Zona Offline',
+    };
+    return labels[route] || route;
+};
+
+Friends._normalizePresence = function(data = {}) {
+    let route = data?.route || data?.presenceRoute || '';
+    const online = data?.online === true;
+
+    if (!Friends._isKnownRoute(route)) route = '';
+    if (!online) route = '';
+
+    let status = online ? (data?.status || 'online') : 'offline';
+    let label = data?.label || data?.presenceLabel || '';
+
+    if (route.startsWith('game:')) {
+        status = 'playing';
+        const gameId = route.split(':')[1] || '';
+        const gameNames = {
+            typeracer: 'Type Racer',
+            game2048: '2048',
+            flappy: 'Flappy Nyan',
+            quiz: 'Quiz Diario',
+            termo: 'Termo',
+            forca: 'Forca',
+            snake: 'Cobrinha',
+            slot: 'Caca-Niquel',
+            tictactoe: 'Jogo da Velha',
+        };
+        label = `Jogando ${gameNames[gameId] || 'na Zona Offline'}`;
+    } else if (route === 'tasks') {
+        status = 'focused';
+        label = 'Gerenciando tarefas';
+    } else if (route === 'notes') {
+        status = 'focused';
+        label = 'Escrevendo notas';
+    } else if (route === 'missions') {
+        label = 'Nas missoes';
+    } else if (route === 'chat') {
+        label = 'No chat';
+    } else if (route === 'offline') {
+        status = 'playing';
+        label = 'Zona Offline';
+    } else if (route && !label) {
+        label = Friends._presenceRouteLabel(route);
+    }
+
+    if (!label) label = online ? 'Ativo agora' : 'Sem atividade recente';
+    return { ...data, route, online, status, label };
+};
+
+Friends._presenceTs = function(data = {}) {
+    const v = data?.lastSeen;
+    if (typeof v === 'number') return v;
+    if (typeof v === 'string' && /^\d+$/.test(v)) return Number(v);
+    if (v && typeof v === 'object') {
+        if (typeof v.ms === 'number') return v.ms;
+        if (typeof v.seconds === 'number') return v.seconds * 1000;
+    }
+    return 0;
+};
+
+Friends._presenceCoherence = function(p = {}) {
+    const route = p?.route || '';
+    const status = p?.status || 'offline';
+    if (!p?.online) return status === 'offline' ? 2 : 1;
+    if (route.startsWith('game:')) return status === 'playing' ? 5 : 2;
+    if (route === 'tasks') return status === 'focused' ? 5 : 2;
+    if (route === 'notes') return status === 'focused' ? 5 : 2;
+    if (route === 'offline') return status === 'playing' ? 4 : 2;
+    return 3;
+};
+
+Friends.followFriendContext = function(uid) {
+    const pres = Friends._presenceCache?.[uid] || {};
+    const route = pres.route;
+    if (!route) return;
+
+    if (route.startsWith('game:')) {
+        const gameId = route.split(':')[1];
+        Router.navigate('offline');
+        setTimeout(() => {
+            if (window.OfflineZone?._initGame && gameId) {
+                window.OfflineZone._initGame(gameId);
+            }
+        }, 220);
+        return;
+    }
+
+    const toolId = Friends._routeToToolId(route);
+    if (toolId) Router.navigate(toolId);
+};
+
+Friends._subscribePresence = function(uids) {
+    this._presenceUnsubs.forEach((u) => u && u());
+    this._presenceUnsubs = [];
+    if (this._presencePollTimer) {
+        clearInterval(this._presencePollTimer);
+        this._presencePollTimer = null;
+    }
+
+    if (!NyanFirebase.rtdb || !NyanFirebase.fn.onValue) return;
+    const { ref, onValue } = NyanFirebase.fn;
+    uids.forEach((uid) => {
+        if (!uid) return;
+        const presRef = ref(NyanFirebase.rtdb, `presence/${uid}`);
+        const unsub = onValue(presRef, (snap) => {
+            const raw = snap.val() || {};
+            setTimeout(() => Friends._applyPresenceToCard(uid, raw), 150);
+        });
+        this._presenceUnsubs.push(unsub);
+    });
+
+    this._presencePollUIDs = [...uids];
+    this._presencePollTimer = setInterval(() => {
+        Friends._pollPresenceSnapshot(Friends._presencePollUIDs || []);
+    }, 2500);
+    setTimeout(() => Friends._pollPresenceSnapshot(Friends._presencePollUIDs || []), 800);
+};
+
+Friends._applyPresenceToCard = function(uid, data) {
+    const statusColor = { online: '#4ade80', playing: '#a855f7', away: '#fbbf24', offline: '#9ca3af', focused: '#3b82f6' };
+    const statusLabel = { online: 'Online', playing: 'Jogando', away: 'Ausente', offline: 'Offline', focused: 'Focado' };
+
+    const normalized = Friends._normalizePresence(data || {});
+    const newTs = Friends._presenceTs(normalized);
+    const newScore = Friends._presenceCoherence(normalized);
+    const prev = Friends._presenceCache?.[uid] || {};
+    const prevTs = Friends._presenceTs(prev);
+    const prevScore = Number(prev.__coherence || 0);
+
+    if ((newTs > 0 && prevTs > 0 && newTs < prevTs) ||
+        (newTs === prevTs && newScore < prevScore)) {
+        return;
+    }
+    const isOn = normalized?.online === true;
+    const key = isOn ? (normalized?.status || 'online') : 'offline';
+    const color = statusColor[key] || statusColor.offline;
+
+    Friends._presenceCache[uid] = { ...(normalized || {}), __coherence: newScore };
+
+    const st = document.getElementById(`fstatus-${uid}`);
+    if (st) {
+        st.textContent = `● ${statusLabel[key] || 'Offline'}`;
+        st.style.color = color;
+    }
+
+    const ctx = document.getElementById(`fctx-${uid}`);
+    if (ctx) {
+        const context = normalized?.label || (isOn ? 'Ativo agora' : 'Sem atividade recente');
+        ctx.textContent = context;
+
+        const tagRow = ctx.previousElementSibling;
+        if (tagRow) {
+            tagRow.querySelectorAll('span').forEach((chip) => {
+                const t = (chip.textContent || '').trim().toLowerCase();
+                if (t && (t.includes('gerenciando') || t.includes('zona offline') || t.includes('jogando') || t.includes('home') || t.includes('missoes') || t.includes('chat') || t.includes('perfil'))) {
+                    chip.remove();
+                }
+            });
+        }
+
+        const prevEl = ctx.previousElementSibling;
+        if (prevEl && prevEl !== ctx && prevEl.id !== `fstatus-${uid}`) {
+            const txt = (prevEl.textContent || '').trim();
+            const looksLikeLegacyChip =
+                !txt.includes('#') &&
+                /zona offline|tarefas|notas|home|missoes|chat|perfil/i.test(txt);
+            if (looksLikeLegacyChip || prevEl.querySelector?.('[id^="froute-"]')) {
+                prevEl.remove();
+            }
+        }
+    }
+
+    const legacyRouteBadge = document.getElementById(`froute-${uid}`);
+    if (legacyRouteBadge) legacyRouteBadge.remove();
+
+    const dot = document.getElementById(`fdot-${uid}`);
+    if (dot) dot.style.background = color;
+
+    const av = document.getElementById(`favatar-${uid}`);
+    if (av) {
+        av.style.border = `2px solid ${color}22`;
+        av.style.boxShadow = `0 0 0 2px ${color}44`;
+    }
+
+    const followBtn = document.getElementById(`ffollow-${uid}`);
+    if (followBtn) {
+        const route = normalized?.route || null;
+        const canFollow = !!route && isOn;
+        followBtn.style.display = canFollow ? 'inline-flex' : 'none';
+        if (canFollow) {
+            followBtn.title = route.startsWith('game:') ? 'Entrar no mesmo jogo' : 'Ir para o mesmo contexto';
+        }
+    }
+};
+
+Friends._pollPresenceSnapshot = async function(uids) {
+    if (!uids?.length) return;
+    if (!NyanFirebase?.rtdb || !NyanFirebase?.fn?.get || !NyanFirebase?.fn?.ref) return;
+
+    const { get, ref } = NyanFirebase.fn;
+    await Promise.all(uids.map(async (uid) => {
+        try {
+            const snap = await get(ref(NyanFirebase.rtdb, `presence/${uid}`));
+            const data = snap?.val?.() || {};
+            Friends._applyPresenceToCard(uid, data);
+        } catch (_) {}
+    }));
+};
+
+const __nyanOrigFriendsSwitchTab = Friends.switchTab?.bind(Friends);
+Friends.switchTab = async function(tab) {
+    if (tab === 'requests' && this._presencePollTimer) {
+        clearInterval(this._presencePollTimer);
+        this._presencePollTimer = null;
+        this._presencePollUIDs = [];
+    }
+    const res = __nyanOrigFriendsSwitchTab ? await __nyanOrigFriendsSwitchTab(tab) : undefined;
+    if (tab === 'list' || tab === 'online') {
+        document.querySelectorAll('[id^="froute-"]').forEach((el) => el.remove());
+        setTimeout(() => Friends._pollPresenceSnapshot(Friends._presencePollUIDs || []), 120);
+    }
+    return res;
+};
+
+Friends._renderFriendCard = function(f, bg, bdr, text, sub, muted, d) {
+    const statusColor = { online: '#4ade80', playing: '#a855f7', away: '#fbbf24', offline: '#9ca3af', focused: '#3b82f6' };
+    const statusLabel = { online: 'Online', playing: 'Jogando', away: 'Ausente', offline: 'Offline', focused: 'Focado' };
+    const normalized = Friends._normalizePresence({
+        status: f.status,
+        label: f.presenceLabel,
+        route: f.presenceRoute,
+        online: f.status && f.status !== 'offline',
+    });
+    const status = normalized.status || 'offline';
+    const color = statusColor[status] || statusColor.offline;
+    const context = normalized.label || 'Sem atividade recente';
+
+    return `
+    <div style="background:${bg};border:1px solid ${bdr};border-radius:14px;
+        padding:0.875rem 1rem;margin-bottom:0.5rem;
+        display:flex;align-items:center;gap:0.875rem;
+        transition:box-shadow 0.2s;"
+        onmouseover="this.style.boxShadow='0 4px 16px rgba(0,0,0,0.08)'"
+        onmouseout="this.style.boxShadow=''">
+
+        <div id="favatar-${f.uid}" style="width:44px;height:44px;border-radius:12px;overflow:hidden;flex-shrink:0;
+            border:2px solid ${color}22;box-shadow:0 0 0 2px ${color}44;position:relative;">
+            ${f.avatar
+                ? `<img src="${f.avatar}" style="width:100%;height:100%;object-fit:cover;"/>`
+                : (window.AvatarGenerator
+                    ? AvatarGenerator.generate(f.username || 'nyan', 44)
+                    : `<div style="width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#ec4899);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;">${(f.username||'N').charAt(0).toUpperCase()}</div>`)
+            }
+            <div id="fdot-${f.uid}" style="position:absolute;bottom:1px;right:1px;width:10px;height:10px;
+                border-radius:50%;background:${color};border:2px solid ${bg};"></div>
+        </div>
+
+        <div style="flex:1;min-width:0;">
+            <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.2rem;">
+                <span style="font-size:0.875rem;font-weight:700;color:${text};font-family:'Syne',sans-serif;">${f.username || 'Usuario'}</span>
+                <span id="fstatus-${f.uid}" style="font-size:0.62rem;color:${color};font-weight:700;">● ${statusLabel[status]}</span>
+            </div>
+            <div style="font-size:0.72rem;color:${muted};">${f.nyanTag || ''}</div>
+            <div id="fctx-${f.uid}" style="font-size:0.69rem;color:${sub};margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${context}</div>
+        </div>
+
+        <div style="text-align:right;flex-shrink:0;">
+            <div style="font-size:0.65rem;font-weight:800;letter-spacing:0.06em;text-transform:uppercase;color:${muted};margin-bottom:0.25rem;">Nivel</div>
+            <div style="font-size:1.1rem;font-weight:900;font-family:'Syne',sans-serif;color:var(--theme-primary,#a855f7);">${f.level || 1}</div>
+            <div style="display:flex;gap:0.375rem;margin-top:0.375rem;justify-content:flex-end;flex-wrap:wrap;">
+                <button onclick="Friends.viewProfile('${f.uid}')"
+                        style="padding:4px 10px;border-radius:7px;border:none;cursor:pointer;
+                            font-size:0.68rem;font-weight:700;
+                            background:rgba(168,85,247,0.12);color:rgba(168,85,247,0.9);
+                            font-family:'DM Sans',sans-serif;">Perfil</button>
+                <button onclick="Friends.openChat('${f.uid}','${f.nyanTag}')"
+                        style="padding:4px 10px;border-radius:7px;border:none;cursor:pointer;
+                            font-size:0.68rem;font-weight:700;
+                            background:rgba(74,222,128,0.12);color:rgba(74,222,128,0.9);
+                            font-family:'DM Sans',sans-serif;">Chat</button>
+                <button id="ffollow-${f.uid}" onclick="Friends.followFriendContext('${f.uid}')"
+                        style="display:none;padding:4px 10px;border-radius:7px;border:none;cursor:pointer;
+                            font-size:0.68rem;font-weight:700;
+                            background:rgba(59,130,246,0.12);color:rgba(59,130,246,0.95);
+                            font-family:'DM Sans',sans-serif;">Acompanhar</button>
+            </div>
+        </div>
+    </div>`;
+};
+
 window.Friends = Friends;
+
+(function finalizeFriendsPresenceV310() {
+    if (!window.Friends || Friends.__v310PresenceFinalized) return;
+    Friends.__v310PresenceFinalized = true;
+
+    Friends._inferRouteFromLabel = function(label = '') {
+        const text = String(label || '').toLowerCase();
+        if (!text) return '';
+        if (text.includes('gerenciando tarefas')) return 'tasks';
+        if (text.includes('escrevendo notas')) return 'notes';
+        if (text.includes('zona offline')) return 'offline';
+        if (text.includes('no chat')) return 'chat';
+        if (text.includes('na home')) return 'home';
+        if (text.includes('nas missoes')) return 'missions';
+        if (text.includes('no perfil')) return 'profile';
+        if (text.includes('jogando termo')) return 'game:termo';
+        if (text.includes('jogando cobrinha')) return 'game:snake';
+        if (text.includes('jogando 2048')) return 'game:game2048';
+        if (text.includes('jogando type racer')) return 'game:typeracer';
+        if (text.includes('jogando flappy')) return 'game:flappy';
+        if (text.includes('quiz')) return 'game:quiz';
+        if (text.includes('forca')) return 'game:forca';
+        if (text.includes('caca-niquel')) return 'game:slot';
+        return '';
+    };
+
+    const canonicalGameNames = {
+        typeracer: 'Type Racer',
+        game2048: '2048',
+        flappy: 'Flappy Nyan',
+        quiz: 'Quiz Diario',
+        termo: 'Termo',
+        forca: 'Forca',
+        snake: 'Cobrinha',
+        slot: 'Caca-Niquel',
+        tictactoe: 'Jogo da Velha',
+    };
+
+    Friends._normalizePresence = function(data = {}) {
+        const rawStatus = String(data?.status || '').toLowerCase();
+        const hasOnline = typeof data?.online === 'boolean';
+        const online = hasOnline ? data.online : (rawStatus && rawStatus !== 'offline');
+
+        let route = data?.route || data?.presenceRoute || '';
+        let status = rawStatus || (online ? 'online' : 'offline');
+        let label = data?.label || data?.presenceLabel || '';
+
+        if (!route) route = Friends._inferRouteFromLabel(label);
+        if (!Friends._isKnownRoute(route)) route = '';
+        if (!online) {
+            route = '';
+            status = 'offline';
+            label = 'Sem atividade recente';
+        }
+
+        if (route.startsWith('game:')) {
+            status = 'playing';
+            const gameId = route.split(':')[1] || '';
+            label = `Jogando ${canonicalGameNames[gameId] || 'na Zona Offline'}`;
+        } else if (route === 'tasks') {
+            status = 'focused';
+            label = 'Gerenciando tarefas';
+        } else if (route === 'notes') {
+            status = 'focused';
+            label = 'Escrevendo notas';
+        } else if (route === 'missions') {
+            status = status === 'offline' ? 'online' : status;
+            label = 'Nas missoes';
+        } else if (route === 'chat') {
+            status = status === 'offline' ? 'online' : status;
+            label = 'No chat';
+        } else if (route === 'offline') {
+            status = 'playing';
+            label = 'Zona Offline';
+        } else if (route && !label) {
+            label = Friends._presenceRouteLabel(route);
+        } else if (!route && status === 'focused' && !label) {
+            label = 'Focado';
+        } else if (!route && status === 'playing' && !label) {
+            label = 'Jogando agora';
+        } else if (!label) {
+            label = 'Ativo agora';
+        }
+
+        return {
+            ...data,
+            route,
+            online,
+            status,
+            label,
+        };
+    };
+
+    Friends._presenceTs = function(data = {}) {
+        const direct = [
+            data?.updatedAt,
+            data?.presenceUpdated,
+            data?.lastSeen,
+        ];
+        for (const v of direct) {
+            if (typeof v === 'number') return v;
+            if (typeof v === 'string' && /^\d+$/.test(v)) return Number(v);
+            if (v && typeof v === 'object') {
+                if (typeof v.ms === 'number') return v.ms;
+                if (typeof v.seconds === 'number') return v.seconds * 1000;
+            }
+        }
+        return 0;
+    };
+
+    const __origSubscribePresence = Friends._subscribePresence?.bind(Friends);
+    Friends._subscribePresence = function(uids) {
+        __origSubscribePresence?.(uids);
+        if (this._presencePollTimer) {
+            clearInterval(this._presencePollTimer);
+            this._presencePollTimer = null;
+        }
+        this._presencePollUIDs = [...(uids || [])];
+        if (this._presencePollUIDs.length === 0) return;
+        this._presencePollTimer = setInterval(() => {
+            Friends._pollPresenceSnapshot(Friends._presencePollUIDs || []);
+        }, 1200);
+        setTimeout(() => Friends._pollPresenceSnapshot(Friends._presencePollUIDs || []), 220);
+    };
+})();

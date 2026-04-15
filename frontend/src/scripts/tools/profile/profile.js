@@ -21,7 +21,6 @@ const Profile = {
         return `
         <div class="profile-root">
 
-            <!-- HERO -->
             <div class="profile-hero">
                 <div class="profile-avatar-wrap" onclick="${avatar ? 'Profile._openLightbox()' : 'Profile._openAvatarPicker()'}" title="${avatar ? 'Ver foto' : 'Adicionar foto'}">
                     ${avatar
@@ -46,8 +45,9 @@ const Profile = {
                     <div class="profile-hero-role">
                         ${(() => {
                             const titleItem = window.Inventory?.getEquippedItem?.('title');
+                            const badgeStyle = window.Inventory?.getTitleBadgeStyle?.(titleItem) || '';
                             return titleItem
-                                ? `<span style="font-size:0.75rem;font-weight:700;color:var(--p-accent);">${titleItem.icon} ${titleItem.name}</span> · `
+                                ? `<span style="display:inline-flex;align-items:center;gap:0.32rem;font-size:0.72rem;font-weight:700;color:var(--p-accent);padding:0.2rem 0.52rem;border-radius:999px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.24);${badgeStyle}">${titleItem.icon} ${titleItem.name}</span> · `
                                 : '';
                         })()}にゃん~ · <span class="profile-hero-since">desde ${this._formatDate(user.loginDate)}</span>
                     </div>
@@ -55,7 +55,6 @@ const Profile = {
                 </div>
             </div>
 
-            <!-- TABS -->
             <div class="profile-tabs">
                 <button class="profile-tab ${this._tab === 'profile' ? 'active' : ''}"
                         onclick="Profile._setTab('profile')">
@@ -67,7 +66,6 @@ const Profile = {
                 </button>
             </div>
 
-            <!-- CONTEÚDO -->
             <div class="profile-content">
                 ${this._tab === 'profile' ? this._renderProfileTab(username) : this._renderStatsTab()}
             </div>
@@ -215,7 +213,6 @@ const Profile = {
         </div>`;
     },
 
-    // Snippet resumido no hero
     _renderHeroEconomySnippet() {
         const s   = Economy.getState();
         const pct = Economy.getLevelProgress();
@@ -232,7 +229,6 @@ const Profile = {
         </div>`;
     },
 
-    // BUG 4 FIX: Economy block colapsável
     _renderEconomyBlock() {
         const s         = Economy.getState();
         const pct       = Economy.getLevelProgress();
@@ -408,8 +404,13 @@ const Profile = {
         reader.onload = (ev) => {
             const base64 = ev.target.result;
             Utils.saveData(this.KEYS.avatar, base64);
+            const uid = window.NyanAuth?.getUID?.();
+            if (uid && window.NyanFirebase?.isReady?.()) {
+                window.NyanFirebase.updateDoc('users/' + uid, { avatar: base64 }).catch(() => {});
+            }
             this._updateSidebarAvatar(base64);
             Utils.showNotification('✅ Foto atualizada!', 'success');
+            if (e.target) e.target.value = '';
             Router.render();
         };
         reader.readAsDataURL(file);
@@ -417,6 +418,10 @@ const Profile = {
 
     _removeAvatar() {
         Utils.removeData(this.KEYS.avatar);
+        const uid = window.NyanAuth?.getUID?.();
+        if (uid && window.NyanFirebase?.isReady?.()) {
+            window.NyanFirebase.updateDoc('users/' + uid, { avatar: null }).catch(() => {});
+        }
         this._updateSidebarAvatar(null);
         Utils.showNotification('Foto removida', 'info');
         Router.render();

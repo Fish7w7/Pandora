@@ -147,7 +147,6 @@ const LoginEffects = {
         this._setupLogo();
         this._startTyping();
         setTimeout(() => this._setupListeners(), 400);
-        console.log('✨ LoginEffects v2: injetado');
     },
 
     init() {
@@ -167,7 +166,6 @@ const LoginEffects = {
             attributes: true, subtree: true, attributeFilter: ['class'],
         });
 
-        console.log('✨ LoginEffects v2.0 inicializado');
     },
 };
 

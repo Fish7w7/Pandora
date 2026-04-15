@@ -1,12 +1,14 @@
 {
   "version": "3.10.0",
-  "buildDate": "2026-04-13",
+  "buildDate": "2026-04-15",
   "changelog": [
-    "🌍 Nyan Worlds — nova direção em mundos de uso: jogar, conversar, organizar e evoluir perfil",
-    "🏠 Home personalizada com continuar de onde parou, missões do dia, amigos online, notas recentes e atalhos dinâmicos",
-    "🧑 Perfil 2.0 com base para vitrines, histórico e identidade mais pessoal",
-    "🟢 Presença rica com contexto vivo: jogando, focado em tarefas, ausente e mais",
-    "🔗 Integração entre notas, tarefas, IA e camadas sociais para um ecossistema mais conectado",
-    "🐛 Correção da Zona Offline: Forca e Termo não voltam mais para a tela inicial ao abrir"
+    "Nyan Worlds: nova fase conectando jogar, socializar, organizar e evoluir perfil",
+    "Home personalizada e dashboard refinado com menos poluicao visual",
+    "Perfil 2.0 com banner, bio (200), historico, estatisticas e identidade mais forte",
+    "Presenca social em tempo real mais estavel entre status, ferramenta e contexto",
+    "Fluxos conectados entre notas, tarefas, missoes, progresso e perfil",
+    "Regra oficial da v3.10: concluir tarefa nao gera XP/chips (exploit bloqueado)",
+    "Evento Patch Day v3.10 com itens especiais e intro limitada",
+    "Pacote de estabilidade: Zona Offline, render de perfil e sincronizacao visual"
   ]
 }

@@ -169,7 +169,6 @@ const TypeRacer = {
         const isNewRecord = wpm > best;
         // checkRecord ANTES de salvar — economy compara com valor anterior
         window.Economy?.checkRecord?.(key, wpm);
-        // Compartilhar no feed
         const isRec = wpm > best;
         setTimeout(() => window.ShareToFeed?.showToast?.('typeracer', wpm, { isRecord: isRec }), 500);
         if (isNewRecord) Utils.saveData(key, wpm);
@@ -289,7 +288,6 @@ const TypeRacer = {
             #tr-input:focus{outline:2px solid var(--theme-primary,#a855f7);outline-offset:0;}
         </style>
         <div style="max-width:680px;margin:0 auto;font-family:var(--font-body,'DM Sans',sans-serif);">
-            <!-- Top bar -->
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;flex-wrap:wrap;gap:0.5rem;">
                 <div style="display:flex;align-items:center;gap:0.5rem;">${timerBadge}${marathonBadge}</div>
                 <div id="tr-stats" style="display:flex;align-items:center;gap:1rem;">
@@ -306,7 +304,6 @@ const TypeRacer = {
                 </div>
             </div>
 
-            <!-- Frase -->
             <div id="tr-phrase" style="
                 background:${c.bg};border:1px solid ${c.border};
                 border-radius:var(--radius-xl,18px);padding:1.5rem;
@@ -315,14 +312,12 @@ const TypeRacer = {
                 ${phraseHtml}
             </div>
 
-            <!-- Progresso -->
             <div style="height:4px;background:${c.inner};border-radius:99px;overflow:hidden;margin-bottom:0.875rem;">
                 <div id="tr-progress" style="height:100%;width:${progress}%;
                     background:linear-gradient(90deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));
                     border-radius:99px;transition:width 0.1s;"></div>
             </div>
 
-            <!-- Input -->
             <input id="tr-input" type="text" placeholder="Comece a digitar..."
                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
                 oninput="TypeRacer.onInput(this.value)"

@@ -55,17 +55,14 @@ const BetaTesters = {
             </style>
             <div id="bt-card" style="background:linear-gradient(145deg,#0e0e1a,#14102a);border:1px solid rgba(168,85,247,0.25);border-radius:20px;padding:1.75rem;max-width:340px;width:90%;box-shadow:0 32px 80px rgba(0,0,0,0.6);animation:btIn 0.35s cubic-bezier(0.34,1.2,0.64,1);">
 
-                <!-- Header -->
                 <div style="text-align:center;margin-bottom:1.25rem;">
                     <div style="font-size:2rem;animation:btFloat 3s ease-in-out infinite;display:inline-block;margin-bottom:0.5rem;">🐾</div>
                     <div style="font-family:'Syne',sans-serif;font-size:1rem;font-weight:900;color:white;letter-spacing:-0.02em;">Cobaias de Teste</div>
                     <div style="font-size:0.7rem;color:rgba(255,255,255,0.3);margin-top:0.2rem;">As almas corajosas que testam antes de todo mundo にゃん~</div>
                 </div>
 
-                <!-- Tabs -->
                 <div style="display:flex;gap:0.25rem;background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.07);border-radius:10px;padding:0.25rem;margin-bottom:1.25rem;" id="bt-tabs"></div>
 
-                <!-- Conteúdo -->
                 <div id="bt-content"></div>
 
                 <div style="height:1px;background:rgba(255,255,255,0.07);margin:1.25rem 0 1rem;"></div>
@@ -127,7 +124,6 @@ const BetaTesters = {
             pos = e.key === KONAMI[pos] ? pos + 1 : (e.key === KONAMI[0] ? 1 : 0);
             if (pos === KONAMI.length) { pos = 0; this.show(); }
         });
-        console.log('🐾 BetaTesters inicializado — Konami: ↑↑↓↓←→←→BA');
     }
 };
 
