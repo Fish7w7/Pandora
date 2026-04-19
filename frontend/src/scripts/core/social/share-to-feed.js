@@ -60,6 +60,12 @@ const ShareToFeed = {
                 } else {
                     await Feed.publishScore(gameId, game.name, score, game.unit);
                 }
+                window.Missions?.track?.({
+                    event: 'feed_share_score',
+                    gameId,
+                    score,
+                    isRecord: opts.isRecord === true,
+                });
                 btn.textContent = '✅ Publicado!';
                 btn.style.opacity = '1';
                 btn.style.color = '#4ade80';
@@ -149,6 +155,12 @@ const ShareToFeed = {
                 } else {
                     await Feed.publishScore(gameId, game.name, score, game.unit);
                 }
+                window.Missions?.track?.({
+                    event: 'feed_share_score',
+                    gameId,
+                    score,
+                    isRecord: opts.isRecord === true,
+                });
                 toast.style.border = '1px solid rgba(74,222,128,0.4)';
                 btn.textContent = '✅';
                 btn.style.color = '#4ade80';

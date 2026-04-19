@@ -1,7 +1,7 @@
 {
   "name": "nyantools",
-  "version": "3.10.0",
- "description": "NyanTools - Your purr-fect toolkit にゃん~ | Nyan Worlds — home personalizada, perfil 2.0, presença rica e ecossistema conectado",
+  "version": "3.11.0",
+  "description": "NyanTools - Your purr-fect toolkit nyan~ | Season Rush - temporadas, eventos semanais e progressao sazonal",
   "main": "backend/src/main.js",
   "scripts": {
     "start": "electron .",
@@ -162,7 +162,7 @@
       "icon": "frontend/public/assets/icons/icon.png",
       "category": "Utility",
       "artifactName": "${productName}-${version}-${arch}.${ext}",
-      "description": "NyanTools - Your purr-fect toolkit にゃん~",
+      "description": "NyanTools - Your purr-fect toolkit nyan~",
       "vendor": "Fish7w7",
       "maintainer": "Fish7w7 <kik73261@gmail.com>",
       "synopsis": "Utilities toolkit with games, AI, music player and more"
@@ -187,3 +187,4 @@
     "npm": ">=7.0.0"
   }
 }
+

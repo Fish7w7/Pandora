@@ -71,6 +71,15 @@ const Feed = {
         });
 
         this._refreshReactions(postId, authorUID, myUID, emoji, hasReacted ? -1 : 1);
+
+        if (!hasReacted) {
+            window.Missions?.track?.({
+                event: 'feed_reaction',
+                emoji,
+                postId,
+                authorUID,
+            });
+        }
     },
 
     async comment(authorUID, postId, text) {
@@ -336,6 +345,12 @@ const Feed = {
 
         await this.comment(authorUID, postId, text);
         if (input) input.value = '';
+
+        window.Missions?.track?.({
+            event: 'feed_comment',
+            postId,
+            authorUID,
+        });
 
         const myTag = NyanAuth?.getNyanTag?.() || '';
         const d     = document.body.classList.contains('dark-theme');

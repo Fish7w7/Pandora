@@ -1,14 +1,14 @@
 {
-  "version": "3.10.0",
-  "buildDate": "2026-04-15",
-  "changelog": [
-    "Nyan Worlds: nova fase conectando jogar, socializar, organizar e evoluir perfil",
-    "Home personalizada e dashboard refinado com menos poluicao visual",
-    "Perfil 2.0 com banner, bio (200), historico, estatisticas e identidade mais forte",
-    "Presenca social em tempo real mais estavel entre status, ferramenta e contexto",
-    "Fluxos conectados entre notas, tarefas, missoes, progresso e perfil",
-    "Regra oficial da v3.10: concluir tarefa nao gera XP/chips (exploit bloqueado)",
-    "Evento Patch Day v3.10 com itens especiais e intro limitada",
-    "Pacote de estabilidade: Zona Offline, render de perfil e sincronizacao visual"
-  ]
+    "version":  "3.11.0",
+    "buildDate":  "2026-04-18",
+    "changelog":  [
+                      "Temporada 1 - Despertar finalizada com tiers, recompensas, ranking e loja sazonal integrada",
+                      "Sistema de insignias separado de titulos, com showcase publico, destaque e migracoes legadas",
+                      "Perfil 2.0 retrabalhado com customizacao, estatisticas reorganizadas e visual mais premium",
+                      "Perfil publico refeito com badges reais e hierarquia visual mais clara",
+                      "Dev Lab fortalecido para testes internos de economia e temporada em ambiente developer",
+                      "Sincronizacao online reforcada entre Firebase, badges, temporada, economia e perfil",
+                      "Sentinela v3.10 convertido em insignia exclusiva de seguranca",
+                      "Correcoes visuais em cards, historico, numeros grandes e layouts do perfil"
+                  ]
 }

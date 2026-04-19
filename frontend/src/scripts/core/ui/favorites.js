@@ -32,8 +32,10 @@ const Favorites = {
 
     renderSection() {
         const favIds = this.load();
+        const visibleFavIds = favIds.filter(id => (window.App?.isToolVisible ? App.isToolVisible(id) : true));
+        if (visibleFavIds.length !== favIds.length) this.save(visibleFavIds);
 
-        if (favIds.length === 0) {
+        if (visibleFavIds.length === 0) {
             return `
                 <div class="nav-group" id="fav-group">
                     <div class="nav-group-label fav-group-label">
@@ -51,15 +53,16 @@ const Favorites = {
             `;
         }
 
-        const toolMap = Object.fromEntries((App.tools || []).map(t => [t.id, t]));
-        const items = favIds.map(id => toolMap[id]).filter(Boolean)
+        const tools = window.App?.getVisibleTools ? App.getVisibleTools() : (App.tools || []);
+        const toolMap = Object.fromEntries(tools.map(t => [t.id, t]));
+        const items = visibleFavIds.map(id => toolMap[id]).filter(Boolean)
             .map(tool => this._renderFavItem(tool)).join('');
 
         return `
             <div class="nav-group" id="fav-group">
                 <div class="nav-group-label fav-group-label">
                     <span>⭐ Favoritos</span>
-                    <span class="fav-count">${favIds.length}/${this.MAX}</span>
+                    <span class="fav-count">${visibleFavIds.length}/${this.MAX}</span>
                 </div>
                 <div id="fav-list">${items}</div>
             </div>

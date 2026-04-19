@@ -1,24 +1,24 @@
 
 const Shop = {
 
-    DAILY_PER_CAT: 2,      // itens por categoria na rotação diária
-    DAILY_MAX_GAP: 15,     // gap máx de nível para aparecer na rotação
+    DAILY_PER_CAT: 2,      // itens por categoria na rotacao diaria
+    DAILY_MAX_GAP: 15,     // gap max de nivel para aparecer na rotacao
 
     CATEGORIES: [
-        { id:'title',    label:'Títulos',    icon:'👑' },
-        { id:'border',   label:'Bordas',     icon:'🖼️' },
-        { id:'theme',    label:'Temas',      icon:'🎨' },
-        { id:'effect',   label:'Efeitos',    icon:'✨' },
-        { id:'particle', label:'Partículas', icon:'💫' },
+        { id:'title',    label:'Titulos',    icon:'\u{1F451}' },
+        { id:'border',   label:'Bordas',     icon:'\u{1F5BC}\uFE0F' },
+        { id:'theme',    label:'Temas',      icon:'\u{1F3A8}' },
+        { id:'effect',   label:'Efeitos',    icon:'\u2728' },
+        { id:'particle', label:'Particulas', icon:'\u{1F4AB}' },
     ],
 
-    _tab:         'shop',   // 'shop' | 'inventory'
+    _tab:         'shop',   // 'shop' | 'seasonal' | 'inventory'
     _selectedCat: 'title',  // categoria selecionada na loja
     PATCH_EVENT: {
         id: 'v310_patch_day',
         title: 'Patch Day v3.10',
         subtitle: 'Obrigada pela ajuda da comunidade na correcao do exploit',
-        endsAt: '2026-04-22T23:59:59-03:00',
+        endsAt: '2026-04-19T23:59:59-03:00',
         items: ['title_patchday_310', 'border_patchday_310', 'theme_patchpulse_intro'],
     },
 
@@ -108,14 +108,14 @@ const Shop = {
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.75rem;">
                     <div>
                         <div style="font-size:0.66rem;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;color:${c.muted};">Evento especial</div>
-                        <div style="font-size:1.05rem;font-weight:900;font-family:'Syne',sans-serif;color:${c.text};">🎉 ${event.title}</div>
+                        <div style="font-size:1.05rem;font-weight:900;font-family:'Syne',sans-serif;color:${c.text};">\u{1F389} ${event.title}</div>
                         <div style="font-size:0.74rem;color:${c.sub};margin-top:0.2rem;">${event.subtitle}</div>
                     </div>
                     <div style="font-size:0.64rem;font-weight:800;color:${d ? '#fcd34d' : '#92400e'};
                         background:${d ? 'rgba(245,158,11,0.14)' : 'rgba(245,158,11,0.12)'};
                         border:1px solid ${d ? 'rgba(245,158,11,0.28)' : 'rgba(245,158,11,0.3)'};
                         border-radius:999px;padding:0.3rem 0.65rem;white-space:nowrap;">
-                        ⏱ ${countdown}
+                        \u23F1 ${countdown}
                     </div>
                 </div>
 
@@ -124,6 +124,64 @@ const Shop = {
                 </div>
             </div>
         `;
+    },
+
+    _getSeasonalEventData() {
+        const season = window.Seasons?.getCurrentSeason?.();
+        if (!season || !window.Seasons?.isActive?.(season)) return null;
+
+        const now = Date.now();
+        const items = Inventory.CATALOG.filter((item) => {
+            if (!item || item.seasonId !== season.id) return false;
+            if (item.endsAt) {
+                const endsAt = Date.parse(item.endsAt);
+                if (Number.isFinite(endsAt) && now > endsAt) return false;
+            }
+            return true;
+        });
+
+        if (!items.length) return null;
+        return { season, items };
+    },
+
+    _renderSeasonalEvent() {
+        const data = this._getSeasonalEventData();
+        if (!data) return '';
+
+        const c = this._c();
+        const d = this._isDark();
+        const remaining = Math.max(0, Number(data.season.endDate || 0) - Date.now());
+        const days = Math.floor(remaining / 86400000);
+        const hours = Math.floor((remaining % 86400000) / 3600000);
+        const countdown = days > 0 ? `${days}d ${hours}h` : `${hours}h`;
+
+        return `
+            <div style="margin-bottom:1rem;border-radius:16px;padding:1rem;
+                background:linear-gradient(135deg, rgba(251,113,133,0.16), rgba(249,115,22,0.18) 52%, rgba(236,72,153,0.2));
+                border:1px solid ${d ? 'rgba(255,255,255,0.12)' : 'rgba(251,113,133,0.25)'};">
+                <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.75rem;">
+                    <div>
+                        <div style="font-size:0.66rem;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;color:${c.muted};">Loja sazonal</div>
+                        <div style="font-size:1.05rem;font-weight:900;font-family:'Syne',sans-serif;color:${c.text};">${data.season.icon} ${data.season.name}</div>
+                        <div style="font-size:0.74rem;color:${c.sub};margin-top:0.2rem;">Itens exclusivos desta temporada</div>
+                    </div>
+                    <div style="font-size:0.64rem;font-weight:800;color:${d ? '#fdba74' : '#9a3412'};
+                        background:${d ? 'rgba(249,115,22,0.14)' : 'rgba(249,115,22,0.12)'};
+                        border:1px solid ${d ? 'rgba(249,115,22,0.3)' : 'rgba(249,115,22,0.35)'};
+                        border-radius:999px;padding:0.3rem 0.65rem;white-space:nowrap;">
+                        ⏳ ${countdown}
+                    </div>
+                </div>
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;">
+                    ${data.items.map((item, i) => this._renderCard(item, i)).join('')}
+                </div>
+            </div>
+        `;
+    },
+
+    _renderEventPanels() {
+        return this._renderPatchEvent();
     },
 
     _isDark() { return document.body.classList.contains('dark-theme'); },
@@ -170,10 +228,10 @@ const Shop = {
                     <h1 style="font-family:'Syne',sans-serif;font-size:1.75rem;font-weight:900;margin:0 0 0.15rem;
                         background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));
                         -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
-                        🛍️ Loja
+                        \u{1F6CD}\uFE0F Loja
                     </h1>
                     <p style="font-size:0.72rem;color:${c.muted};margin:0;">
-                        Rotação diária · renova em <strong style="color:${c.sub};">${this._getDailyReset()}</strong>
+                        Rotacao diaria - renova em <strong style="color:${c.sub};">${this._getDailyReset()}</strong>
                     </p>
                 </div>
 
@@ -181,7 +239,7 @@ const Shop = {
                     <div style="display:flex;gap:0.5rem;">
                         <div style="display:flex;align-items:center;gap:0.5rem;background:${c.inner};
                             border:1px solid ${c.border};border-radius:12px;padding:0.45rem 0.875rem;">
-                            <span style="font-size:1rem;opacity:0.8;">⬡</span>
+                            <span style="font-size:1rem;opacity:0.8;">\u2B21</span>
                             <div>
                                 <div style="font-size:0.52rem;font-weight:800;text-transform:uppercase;
                                     letter-spacing:0.1em;color:${c.muted};line-height:1;">Chips</div>
@@ -193,10 +251,10 @@ const Shop = {
                         </div>
                         <div style="display:flex;align-items:center;gap:0.5rem;background:${c.inner};
                             border:1px solid ${c.border};border-radius:12px;padding:0.45rem 0.875rem;">
-                            <span style="font-size:1rem;opacity:0.8;">⚡</span>
+                            <span style="font-size:1rem;opacity:0.8;">\u26A1</span>
                             <div>
                                 <div style="font-size:0.52rem;font-weight:800;text-transform:uppercase;
-                                    letter-spacing:0.1em;color:${c.muted};line-height:1;">Nível</div>
+                                    letter-spacing:0.1em;color:${c.muted};line-height:1;">Nivel</div>
                                 <div style="font-size:1rem;font-weight:900;font-family:'Syne',sans-serif;
                                     color:var(--theme-primary,#a855f7);line-height:1.2;">${level}</div>
                             </div>
@@ -218,7 +276,7 @@ const Shop = {
             </div>
 
             <div id="shop-event-content">
-                ${this._tab === 'shop' ? this._renderPatchEvent() : ''}
+                ${this._tab === 'shop' ? this._renderEventPanels() : ''}
             </div>
 
             <div style="display:flex;gap:0.25rem;background:${c.inner};border:1px solid ${c.border};
@@ -229,7 +287,15 @@ const Shop = {
                     background:${this._tab==='shop'?(d?'rgba(255,255,255,0.06)':'#fff'):'transparent'};
                     color:${this._tab==='shop'?'var(--theme-primary,#a855f7)':c.muted};
                     border:1px solid ${this._tab==='shop'?'rgba(168,85,247,0.2)':'transparent'};">
-                    🛍️ Loja do Dia
+                    \u{1F6CD}\uFE0F Loja do Dia
+                </button>
+                <button class="shop-tab-btn" onclick="Shop._setTab('seasonal')" id="shop-tab-seasonal"
+                    style="flex:1;padding:0.5rem;border-radius:10px;cursor:pointer;
+                    font-size:0.78rem;font-weight:700;font-family:'DM Sans',sans-serif;
+                    background:${this._tab==='seasonal'?(d?'rgba(255,255,255,0.06)':'#fff'):'transparent'};
+                    color:${this._tab==='seasonal'?'var(--theme-primary,#a855f7)':c.muted};
+                    border:1px solid ${this._tab==='seasonal'?'rgba(168,85,247,0.2)':'transparent'};">
+                    \u{1F338} Temporada
                 </button>
                 <button class="shop-tab-btn" onclick="Shop._setTab('inventory')" id="shop-tab-inventory"
                     style="flex:1;padding:0.5rem;border-radius:10px;cursor:pointer;
@@ -237,12 +303,16 @@ const Shop = {
                     background:${this._tab==='inventory'?(d?'rgba(255,255,255,0.06)':'#fff'):'transparent'};
                     color:${this._tab==='inventory'?'var(--theme-primary,#a855f7)':c.muted};
                     border:1px solid ${this._tab==='inventory'?'rgba(168,85,247,0.2)':'transparent'};">
-                    🎒 Meu Inventário
+                    \u{1F392} Meu Inventario
                 </button>
             </div>
 
             <div id="shop-main-content">
-                ${this._tab === 'shop' ? this._renderShopTab() : this._renderInventoryTab()}
+                ${this._tab === 'shop'
+                    ? this._renderShopTab()
+                    : this._tab === 'seasonal'
+                        ? this._renderSeasonalTab()
+                        : this._renderInventoryTab()}
             </div>
         </div>`;
     },
@@ -266,6 +336,300 @@ const Shop = {
         </div>`;
     },
 
+    _renderSeasonalTab() {
+        const c = this._c();
+        const d = this._isDark();
+        const data = this._getSeasonalEventData();
+
+        if (!data) {
+            return `<div style="border:1px solid ${c.border};background:${c.bg};border-radius:18px;padding:3rem 1rem;text-align:center;">
+                <div style="font-size:2.4rem;margin-bottom:0.65rem;opacity:0.45;">\u{1F338}</div>
+                <div style="font-size:0.92rem;font-weight:800;color:${c.sub};font-family:'Syne',sans-serif;">Sem loja sazonal ativa</div>
+                <p style="font-size:0.74rem;margin-top:0.35rem;color:${c.muted};">Novidades de temporada vao aparecer aqui.</p>
+            </div>`;
+        }
+
+        const remaining = Math.max(0, Number(data.season.endDate || 0) - Date.now());
+        const days = Math.floor(remaining / 86400000);
+        const hours = Math.floor((remaining % 86400000) / 3600000);
+        const countdown = days > 0 ? `${days}d ${hours}h` : `${hours}h`;
+        const seasonProgress = window.Seasons?.getProgress?.();
+        const totalItems = data.items.length;
+        const activeCategories = this.CATEGORIES.filter(cat => data.items.some(item => item.type === cat.id)).length;
+
+        const sections = this.CATEGORIES.map(cat => {
+            const catItems = data.items.filter(item => item.type === cat.id);
+            if (!catItems.length) return '';
+
+            return `
+                <section class="shop-season-group">
+                    <div class="shop-season-group-head">
+                        <div class="shop-season-group-title">${cat.icon} ${cat.label}</div>
+                        <div class="shop-season-group-count">${catItems.length} item${catItems.length > 1 ? 's' : ''}</div>
+                    </div>
+                    <div class="shop-season-grid">
+                        ${catItems.map((item, i) => this._renderCard(item, i)).join('')}
+                    </div>
+                </section>
+            `;
+        }).join('');
+
+        return `
+            <style>
+                .shop-season-shell {
+                    position: relative;
+                    border-radius: 22px;
+                    border: 1px solid var(--ss-border-strong);
+                    background: var(--ss-bg);
+                    box-shadow: 0 14px 36px rgba(15, 23, 42, 0.18);
+                    padding: 1rem;
+                    overflow: hidden;
+                    color: var(--ss-text);
+                }
+                .shop-season-shell::before,
+                .shop-season-shell::after {
+                    content: '';
+                    position: absolute;
+                    pointer-events: none;
+                    border-radius: 999px;
+                    filter: blur(3px);
+                }
+                .shop-season-shell::before {
+                    width: 220px;
+                    height: 220px;
+                    top: -120px;
+                    right: -72px;
+                    background: radial-gradient(circle at center, var(--ss-glow-a), transparent 70%);
+                }
+                .shop-season-shell::after {
+                    width: 240px;
+                    height: 240px;
+                    bottom: -150px;
+                    left: -80px;
+                    background: radial-gradient(circle at center, var(--ss-glow-b), transparent 70%);
+                }
+                .shop-season-hero {
+                    position: relative;
+                    z-index: 1;
+                    display: grid;
+                    grid-template-columns: auto 1fr auto;
+                    align-items: center;
+                    gap: 0.8rem;
+                    margin-bottom: 0.9rem;
+                }
+                .shop-season-icon {
+                    width: 62px;
+                    height: 62px;
+                    border-radius: 16px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 1.9rem;
+                    border: 1px solid var(--ss-border-strong);
+                    background: linear-gradient(145deg, rgba(251,113,133,0.2), rgba(249,115,22,0.2));
+                    box-shadow: 0 10px 24px rgba(251,113,133,0.2);
+                }
+                .shop-season-badge {
+                    display: inline-flex;
+                    align-items: center;
+                    font-size: 0.61rem;
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    letter-spacing: 0.08em;
+                    color: #fff;
+                    padding: 0.24rem 0.6rem;
+                    border-radius: 999px;
+                    background: linear-gradient(120deg, rgba(251,113,133,0.9), rgba(249,115,22,0.88));
+                    border: 1px solid rgba(255,255,255,0.26);
+                }
+                .shop-season-title {
+                    margin: 0.4rem 0 0.14rem;
+                    font-size: 1.48rem;
+                    line-height: 1.08;
+                    font-weight: 900;
+                    font-family: 'Syne', sans-serif;
+                    background: linear-gradient(132deg, #fb7185 0%, #f97316 55%, #f59e0b 100%);
+                    -webkit-background-clip: text;
+                    background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                }
+                .shop-season-subtitle {
+                    margin: 0;
+                    font-size: 0.74rem;
+                    color: var(--ss-sub);
+                }
+                .shop-season-countdown {
+                    border-radius: 12px;
+                    border: 1px solid var(--ss-border);
+                    padding: 0.46rem 0.62rem;
+                    background: var(--ss-panel);
+                    text-align: right;
+                    min-width: 106px;
+                }
+                .shop-season-countdown small {
+                    display: block;
+                    font-size: 0.58rem;
+                    font-weight: 800;
+                    letter-spacing: 0.07em;
+                    text-transform: uppercase;
+                    color: var(--ss-muted);
+                    margin-bottom: 0.2rem;
+                }
+                .shop-season-countdown strong {
+                    display: block;
+                    font-family: 'Syne', sans-serif;
+                    font-size: 0.94rem;
+                    color: #f97316;
+                }
+                .shop-season-metrics {
+                    position: relative;
+                    z-index: 1;
+                    display: grid;
+                    grid-template-columns: repeat(3, minmax(0, 1fr));
+                    gap: 0.58rem;
+                    margin-bottom: 0.9rem;
+                }
+                .shop-season-metric {
+                    border-radius: 13px;
+                    border: 1px solid var(--ss-border);
+                    background: var(--ss-panel);
+                    padding: 0.65rem;
+                }
+                .shop-season-metric-label {
+                    font-size: 0.6rem;
+                    font-weight: 800;
+                    text-transform: uppercase;
+                    letter-spacing: 0.07em;
+                    color: var(--ss-muted);
+                }
+                .shop-season-metric-value {
+                    margin-top: 0.22rem;
+                    font-size: 0.98rem;
+                    font-weight: 900;
+                    font-family: 'Syne', sans-serif;
+                    color: var(--ss-text);
+                }
+                .shop-season-groups {
+                    position: relative;
+                    z-index: 1;
+                    display: grid;
+                    gap: 0.85rem;
+                }
+                .shop-season-group {
+                    border-radius: 16px;
+                    border: 1px solid var(--ss-border);
+                    background: var(--ss-panel);
+                    padding: 0.78rem;
+                }
+                .shop-season-group-head {
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 0.5rem;
+                    margin-bottom: 0.65rem;
+                }
+                .shop-season-group-title {
+                    font-size: 0.78rem;
+                    font-weight: 800;
+                    letter-spacing: 0.04em;
+                    text-transform: uppercase;
+                    color: var(--ss-text);
+                }
+                .shop-season-group-count {
+                    font-size: 0.61rem;
+                    font-weight: 800;
+                    color: var(--ss-sub);
+                    background: rgba(168,85,247,0.12);
+                    border: 1px solid rgba(168,85,247,0.26);
+                    border-radius: 999px;
+                    padding: 0.18rem 0.52rem;
+                    white-space: nowrap;
+                }
+                .shop-season-grid {
+                    display: grid;
+                    grid-template-columns: repeat(auto-fill, minmax(205px, 1fr));
+                    gap: 0.68rem;
+                }
+                .shop-season-empty {
+                    text-align: center;
+                    padding: 2.2rem 1rem;
+                    border-radius: 16px;
+                    border: 1px dashed var(--ss-border);
+                    color: var(--ss-muted);
+                    font-size: 0.76rem;
+                    background: var(--ss-panel);
+                }
+                @media (max-width: 760px) {
+                    .shop-season-shell {
+                        padding: 0.85rem;
+                        border-radius: 18px;
+                    }
+                    .shop-season-hero {
+                        grid-template-columns: 1fr;
+                        gap: 0.62rem;
+                    }
+                    .shop-season-countdown {
+                        text-align: left;
+                        min-width: 0;
+                        width: 100%;
+                    }
+                    .shop-season-title {
+                        font-size: 1.28rem;
+                    }
+                    .shop-season-metrics {
+                        grid-template-columns: 1fr;
+                    }
+                    .shop-season-grid {
+                        grid-template-columns: 1fr;
+                    }
+                }
+            </style>
+            <div class="shop-season-shell" style="
+                --ss-bg:${d ? 'rgba(10,14,23,0.86)' : '#ffffff'};
+                --ss-panel:${d ? 'rgba(255,255,255,0.035)' : 'rgba(248,250,252,0.9)'};
+                --ss-border:${d ? 'rgba(255,255,255,0.09)' : 'rgba(15,23,42,0.08)'};
+                --ss-border-strong:${d ? 'rgba(255,255,255,0.18)' : 'rgba(15,23,42,0.14)'};
+                --ss-text:${c.text};
+                --ss-sub:${c.sub};
+                --ss-muted:${c.muted};
+                --ss-glow-a:${d ? 'rgba(251,113,133,0.24)' : 'rgba(251,113,133,0.2)'};
+                --ss-glow-b:${d ? 'rgba(249,115,22,0.22)' : 'rgba(249,115,22,0.18)'};
+            ">
+                <header class="shop-season-hero">
+                    <div class="shop-season-icon">${data.season.icon || '\u{1F338}'}</div>
+                    <div>
+                        <div class="shop-season-badge">Temporada ativa</div>
+                        <h2 class="shop-season-title">${data.season.name}</h2>
+                        <p class="shop-season-subtitle">Itens exclusivos disponiveis ate o fim da temporada.</p>
+                    </div>
+                    <div class="shop-season-countdown">
+                        <small>Tempo restante</small>
+                        <strong>\u23F3 ${countdown}</strong>
+                    </div>
+                </header>
+
+                <div class="shop-season-metrics">
+                    <div class="shop-season-metric">
+                        <div class="shop-season-metric-label">Itens sazonais</div>
+                        <div class="shop-season-metric-value">${totalItems}</div>
+                    </div>
+                    <div class="shop-season-metric">
+                        <div class="shop-season-metric-label">Categorias ativas</div>
+                        <div class="shop-season-metric-value">${activeCategories}</div>
+                    </div>
+                    <div class="shop-season-metric">
+                        <div class="shop-season-metric-label">Seu tier</div>
+                        <div class="shop-season-metric-value">${seasonProgress?.currentTier?.label || 'Bronze'}</div>
+                    </div>
+                </div>
+
+                <div class="shop-season-groups">
+                    ${sections || `<div class="shop-season-empty">Nenhum item sazonal cadastrado para esta temporada.</div>`}
+                </div>
+            </div>
+        `;
+    },
+
     _renderCatItems(items, cat) {
         const c = this._c();
         const d = this._isDark();
@@ -274,7 +638,7 @@ const Shop = {
             return `<div style="text-align:center;padding:3rem 1rem;color:${c.muted};">
                 <div style="font-size:2.5rem;margin-bottom:0.5rem;opacity:0.35;">${cat.icon}</div>
                 <div style="font-size:0.88rem;font-weight:700;color:${c.sub};">Nenhum item hoje</div>
-                <p style="font-size:0.72rem;margin-top:0.25rem;">Volte amanhã にゃん~</p>
+                <p style="font-size:0.72rem;margin-top:0.25rem;">Volte amanha nyan~</p>
             </div>`;
         }
 
@@ -290,7 +654,7 @@ const Shop = {
                 color:${d?'#fcd34d':'#b45309'};
                 background:${d?'rgba(245,158,11,0.1)':'#fffbeb'};
                 border:1px solid ${d?'rgba(245,158,11,0.2)':'#fde68a'};">
-                ⏱ ${this._getDailyReset()}
+                \u23F1 ${this._getDailyReset()}
             </div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;">
@@ -305,8 +669,8 @@ const Shop = {
 
         if (owned.length === 0) {
             return `<div style="text-align:center;padding:3rem 1rem;color:${c.muted};">
-                <div style="font-size:2.5rem;margin-bottom:0.75rem;opacity:0.35;">🎒</div>
-                <div style="font-size:0.88rem;font-weight:700;color:${c.sub};margin-bottom:0.3rem;">Inventário vazio</div>
+                <div style="font-size:2.5rem;margin-bottom:0.75rem;opacity:0.35;">\u{1F392}</div>
+                <div style="font-size:0.88rem;font-weight:700;color:${c.sub};margin-bottom:0.3rem;">Inventario vazio</div>
                 <p style="font-size:0.72rem;margin:0;">Compre itens na loja do dia!</p>
             </div>`;
         }
@@ -340,12 +704,17 @@ const Shop = {
         const canLevel = level >= item.minLevel;
         const canAfford= chips >= item.price;
         const rarity   = Inventory.RARITY[item.rarity] || Inventory.RARITY.common;
+        const currentSeason = window.Seasons?.getCurrentSeason?.();
+        const seasonMismatch = !!item.seasonId && (!currentSeason || currentSeason.id !== item.seasonId || !window.Seasons?.isActive?.(currentSeason));
+        const expiresAt = item.endsAt ? Date.parse(item.endsAt) : NaN;
+        const expired = Number.isFinite(expiresAt) && Date.now() > expiresAt;
+        const rewardOnlyLocked = !owned && item.rewardOnly === true;
 
         let btnText, btnStyle, btnClick, btnDisabled = false;
 
         if (owned) {
             if (equipped) {
-                btnText  = '✓ Equipado';
+                btnText  = '\u2713 Equipado';
                 btnStyle = `background:rgba(74,222,128,0.12);color:#4ade80;border:1px solid rgba(74,222,128,0.25);`;
                 btnClick = `Shop._unequip('${item.type}')`;
             } else {
@@ -354,11 +723,23 @@ const Shop = {
                 btnClick = `Shop._equip('${item.id}')`;
             }
         } else if (item.milestone) {
-            btnText     = `🔒 Marco nível ${item.minLevel}`;
+            btnText     = `\u{1F512} Marco nivel ${item.minLevel}`;
             btnStyle    = `background:rgba(245,158,11,0.1);color:${d?'#fcd34d':'#b45309'};border:1px solid rgba(245,158,11,0.2);`;
             btnDisabled = true;
+        } else if (expired) {
+            btnText     = `Encerrado`;
+            btnStyle    = `background:${c.inner};color:${c.muted};border:1px solid ${c.border};`;
+            btnDisabled = true;
+        } else if (rewardOnlyLocked) {
+            btnText     = item.seasonFinalReward ? 'Disponivel no fim da temporada' : 'Somente recompensa';
+            btnStyle    = `background:${c.inner};color:${c.muted};border:1px solid ${c.border};`;
+            btnDisabled = true;
+        } else if (seasonMismatch) {
+            btnText     = `\u{1F512} Temporada ativa`;
+            btnStyle    = `background:${c.inner};color:${c.muted};border:1px solid ${c.border};`;
+            btnDisabled = true;
         } else if (!canLevel) {
-            btnText     = `🔒 Nível ${item.minLevel}`;
+            btnText     = `\u{1F512} Nivel ${item.minLevel}`;
             btnStyle    = `background:${c.inner};color:${c.muted};border:1px solid ${c.border};`;
             btnDisabled = true;
         } else if (!canAfford) {
@@ -366,11 +747,11 @@ const Shop = {
             btnStyle    = `background:rgba(239,68,68,0.1);color:${d?'#f87171':'#be123c'};border:1px solid rgba(239,68,68,0.2);`;
             btnDisabled = true;
         } else if ((item.price || 0) <= 0) {
-            btnText  = `Resgatar grátis`;
+            btnText  = `Resgatar gratis`;
             btnStyle = `background:linear-gradient(135deg,#10b981,#14b8a6);color:white;border:none;`;
             btnClick = `Shop._buy('${item.id}')`;
         } else {
-            btnText  = `Comprar · ${item.price.toLocaleString('pt-BR')} chips`;
+            btnText  = `Comprar - ${item.price.toLocaleString('pt-BR')} chips`;
             btnStyle = `background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));color:white;border:none;`;
             btnClick = `Shop._buy('${item.id}')`;
         }
@@ -399,15 +780,23 @@ const Shop = {
                     ${item.isDailyExclusive ? `<span style="font-size:0.55rem;font-weight:800;text-transform:uppercase;
                         color:${d?'#fcd34d':'#b45309'};background:rgba(245,158,11,0.12);
                         border:1px solid rgba(245,158,11,0.3);border-radius:99px;padding:2px 7px;white-space:nowrap;">
-                        ⭐ Excl.</span>` : ''}
+                        \u2B50 Excl.</span>` : ''}
                     ${equipped ? `<span style="font-size:0.55rem;font-weight:800;text-transform:uppercase;
                         color:#4ade80;background:rgba(74,222,128,0.1);
                         border:1px solid rgba(74,222,128,0.25);border-radius:99px;padding:2px 7px;white-space:nowrap;">
-                        ✓ Ativo</span>` : ''}
-                    ${item.eventOnly ? `<span style="font-size:0.55rem;font-weight:800;text-transform:uppercase;
+                        \u2713 Ativo</span>` : ''}
+                    ${item.seasonId ? `<span style="font-size:0.55rem;font-weight:800;text-transform:uppercase;
+                        color:${d?'#fda4af':'#be185d'};background:${d?'rgba(244,114,182,0.16)':'rgba(244,114,182,0.12)'};
+                        border:1px solid ${d?'rgba(244,114,182,0.35)':'rgba(244,114,182,0.28)'};border-radius:99px;padding:2px 7px;white-space:nowrap;">
+                        Temporada</span>` : ''}
+                    ${item.eventOnly && !item.seasonId ? `<span style="font-size:0.55rem;font-weight:800;text-transform:uppercase;
                         color:${d?'#6ee7b7':'#047857'};background:${d?'rgba(16,185,129,0.16)':'rgba(16,185,129,0.12)'};
                         border:1px solid ${d?'rgba(16,185,129,0.35)':'rgba(16,185,129,0.3)'};border-radius:99px;padding:2px 7px;white-space:nowrap;">
                         Evento</span>` : ''}
+                    ${item.rewardOnly ? `<span style="font-size:0.55rem;font-weight:800;text-transform:uppercase;
+                        color:${d?'#fbcfe8':'#9d174d'};background:${d?'rgba(244,114,182,0.16)':'rgba(244,114,182,0.12)'};
+                        border:1px solid ${d?'rgba(244,114,182,0.35)':'rgba(244,114,182,0.28)'};border-radius:99px;padding:2px 7px;white-space:nowrap;">
+                        Recompensa</span>` : ''}
                 </div>
             </div>
 
@@ -434,13 +823,19 @@ const Shop = {
     _setTab(tab) {
         this._tab = tab;
         const content = document.getElementById('shop-main-content');
-        if (content) content.innerHTML = tab === 'shop' ? this._renderShopTab() : this._renderInventoryTab();
+        if (content) {
+            content.innerHTML = tab === 'shop'
+                ? this._renderShopTab()
+                : tab === 'seasonal'
+                    ? this._renderSeasonalTab()
+                    : this._renderInventoryTab();
+        }
         const eventContent = document.getElementById('shop-event-content');
-        if (eventContent) eventContent.innerHTML = tab === 'shop' ? this._renderPatchEvent() : '';
+        if (eventContent) eventContent.innerHTML = tab === 'shop' ? this._renderEventPanels() : '';
 
         const d = this._isDark();
         const c = this._c();
-        ['shop','inventory'].forEach(t => {
+        ['shop', 'seasonal', 'inventory'].forEach(t => {
             const btn = document.getElementById('shop-tab-' + t);
             if (!btn) return;
             const active = t === tab;
@@ -500,6 +895,10 @@ const Shop = {
     _buy(itemId) {
         const item  = Inventory.getItem(itemId);
         if (!item) return;
+        if (item.rewardOnly && !Inventory.owns(item.id)) {
+            Utils.showNotification?.('Este item so e obtido por recompensa da temporada.', 'warning');
+            return;
+        }
         const chips = window.Economy?.getChips?.() || 0;
         const d     = this._isDark();
         const prev  = Inventory.getEquippedItem(item.type);
@@ -520,7 +919,7 @@ const Shop = {
                     <strong style="color:${d?'#fcd34d':'#b45309'};">${item.price.toLocaleString('pt-BR')} chips</strong>
                 </div>
                 <div style="display:flex;justify-content:space-between;">
-                    <span style="color:${d?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)'};">Saldo após</span>
+                    <span style="color:${d?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)'};">Saldo apos</span>
                     <span style="color:${chips-item.price<0?'#f87171':(d?'rgba(255,255,255,0.7)':'rgba(0,0,0,0.7)')}">${(chips - item.price).toLocaleString('pt-BR')} chips</span>
                 </div>
             </div>
@@ -537,12 +936,12 @@ const Shop = {
             onConfirm: () => {
                 const result = Inventory.buy(itemId);
                 if (result.ok) { Inventory.equip(itemId); this._afterAction(); }
-                else Utils.showNotification?.(`❌ ${result.reason}`, 'error');
+                else Utils.showNotification?.(`\u274C ${result.reason}`, 'error');
             },
             onSecondary: () => {
                 const result = Inventory.buy(itemId);
                 if (result.ok) this._afterAction();
-                else Utils.showNotification?.(`❌ ${result.reason}`, 'error');
+                else Utils.showNotification?.(`\u274C ${result.reason}`, 'error');
             },
         });
     },
@@ -584,9 +983,15 @@ const Shop = {
         const chipsEl = document.getElementById('shop-chips-display');
         if (chipsEl) chipsEl.textContent = (window.Economy?.getChips?.() || 0).toLocaleString('pt-BR');
         const eventContent = document.getElementById('shop-event-content');
-        if (eventContent) eventContent.innerHTML = this._tab === 'shop' ? this._renderPatchEvent() : '';
+        if (eventContent) eventContent.innerHTML = this._tab === 'shop' ? this._renderEventPanels() : '';
         const content = document.getElementById('shop-main-content');
-        if (content) content.innerHTML = this._tab === 'shop' ? this._renderShopTab() : this._renderInventoryTab();
+        if (content) {
+            content.innerHTML = this._tab === 'shop'
+                ? this._renderShopTab()
+                : this._tab === 'seasonal'
+                    ? this._renderSeasonalTab()
+                    : this._renderInventoryTab();
+        }
     },
 
     _showModal({ title, body, confirmText, confirmColor, secondaryText, onConfirm, onSecondary }) {

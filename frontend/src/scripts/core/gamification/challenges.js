@@ -65,6 +65,20 @@ const Challenges = {
         );
 
         Utils.showNotification(`⚔️ Desafio enviado para ${target.nyanTag}!`, 'success');
+
+        const stats = Utils.loadData('dashboard_stats') || {};
+        const opponents = Array.isArray(stats.challengeOpponents) ? stats.challengeOpponents : [];
+        if (!opponents.includes(targetUID)) opponents.push(targetUID);
+        stats.challengeOpponents = opponents.slice(-120);
+        Utils.saveData('dashboard_stats', stats);
+
+        window.Missions?.track?.({
+            event: 'challenge_created',
+            challengeId: ref.id,
+            targetUID,
+            gameId,
+        });
+
         return ref.id;
     },
 
@@ -118,6 +132,13 @@ const Challenges = {
         });
 
         const myUID = NyanAuth.getUID();
+        window.Missions?.track?.({
+            event: winnerId === myUID ? 'challenge_completed_win' : 'challenge_completed_any',
+            challengeId,
+            gameId: ch.gameId,
+            winnerId,
+        });
+
         if (winnerId === myUID) {
             window.Economy?.grant?.('mission_medium');
             Utils.showNotification(`🏆 Você venceu o desafio! +${ch.rewardXP} XP · +${ch.rewardChips} chips`, 'success');

@@ -162,6 +162,12 @@ const Chat = {
                 _localKey: localKey,
             };
 
+            window.Missions?.track?.({
+                event: 'chat_message_sent',
+                chatId,
+                to: this._target?.uid || null,
+            });
+
             NyanFirebase.fn.addDoc(
                 NyanFirebase.fn.collection(NyanFirebase.db, `chats/${chatId}/messages`),
                 msgData

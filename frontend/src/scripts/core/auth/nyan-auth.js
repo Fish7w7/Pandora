@@ -10,6 +10,171 @@ const NyanAuth = {
     currentUser: null,
     _unsubAuth:  null,
 
+    _safeInt(value, fallback = 0, min = 0, max = 999999999) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return fallback;
+        const parsed = Math.floor(n);
+        return Math.max(min, Math.min(max, parsed));
+    },
+
+    _seasonScorePath(seasonId, uid = '') {
+        const base = window.Seasons?._collectionPath?.(seasonId) || `leaderboards/season_${seasonId}/scores`;
+        return uid ? `${base}/${uid}` : base;
+    },
+
+    _applyRemoteEconomyToLocal(profile = null) {
+        if (!profile || !window.Economy?.load || !window.Economy?.save || !window.Economy?.calcLevel) return false;
+
+        const remoteChips = this._safeInt(profile.chips, 0, 0);
+        const remoteTotalXP = this._safeInt(profile.totalXP, 0, 0);
+        const local = window.Economy.load();
+        const localChips = this._safeInt(local.chips, 0, 0);
+        const localTotalXP = this._safeInt(local.totalXP, 0, 0);
+
+        if (remoteChips === localChips && remoteTotalXP === localTotalXP) return false;
+
+        const levelData = window.Economy.calcLevel(remoteTotalXP);
+        local.chips = remoteChips;
+        local.totalXP = remoteTotalXP;
+        local.level = Number(levelData.level || 1);
+        local.xp = Number(levelData.xp || 0);
+        local.xpToNext = Math.max(1, Number(levelData.xpToNext || 100));
+        window.Economy.save(local);
+        window.Economy._refreshUI?.();
+        return true;
+    },
+
+    async _applyRemoteSeasonToLocal(uid = '') {
+        const safeUID = String(uid || '').trim();
+        if (!safeUID || !window.NyanFirebase?.isReady?.() || !window.Seasons?.getCurrentSeason?.()) return false;
+
+        const season = window.Seasons.getCurrentSeason();
+        if (!season?.id || !window.Seasons?.save) return false;
+
+        const entry = await window.NyanFirebase.getDoc(this._seasonScorePath(season.id, safeUID));
+        if (!entry) return false;
+
+        const remoteXP = this._safeInt(entry.seasonXP, 0, 0);
+        const remoteTier = this._safeInt(entry.tier, 1, 1);
+        const localXP = this._safeInt(season.seasonXP, 0, 0);
+        const localTier = this._safeInt(season.tier, 1, 1);
+
+        if (remoteXP === localXP && remoteTier === localTier) return false;
+
+        season.seasonXP = remoteXP;
+        season.tier = Math.max(1, window.Seasons.getTierByXP?.(remoteXP) || remoteTier);
+        window.Seasons.save(season);
+        window.Seasons._refreshSidebarWidget?.();
+        if (window.Router?.currentRoute === 'season') {
+            window.Router.render();
+        }
+        return true;
+    },
+
+    async _hydrateLocalStateFromCloud(uid = '') {
+        const safeUID = String(uid || this.getUID() || '').trim();
+        if (!safeUID || !NyanFirebase.isReady()) return { success: false, code: 'offline-or-no-uid' };
+
+        const profile = await NyanFirebase.getDoc(`users/${safeUID}`);
+        if (!profile) return { success: false, code: 'profile-not-found' };
+
+        const legacyTitleBadgeMap = {
+            title_season1_badge: 'badge_season1',
+            title_security_sentinel_v310: 'badge_security_sentinel_v310',
+            title_bug_hunter_v310: 'badge_security_sentinel_v310',
+        };
+        const legacyFixPayload = {};
+        const legacyTitleCandidates = [
+            String(profile.profileTitleId || '').trim(),
+            String(profile.profileTitle?.id || '').trim(),
+            String(profile.specialTitle?.id || '').trim(),
+        ].filter(Boolean);
+        const mappedLegacyBadgeId = legacyTitleCandidates
+            .map((titleId) => legacyTitleBadgeMap[titleId] || '')
+            .find(Boolean);
+
+        const legacyFromProfileTitleId = !!legacyTitleBadgeMap[String(profile.profileTitleId || '').trim()];
+        const legacyFromProfileTitle = !!legacyTitleBadgeMap[String(profile.profileTitle?.id || '').trim()];
+        const legacyFromSpecialTitle = !!legacyTitleBadgeMap[String(profile.specialTitle?.id || '').trim()];
+        const hadLegacyBadgeTitle = legacyFromProfileTitleId || legacyFromProfileTitle || legacyFromSpecialTitle;
+
+        if (legacyFromProfileTitleId) {
+            profile.profileTitleId = null;
+            legacyFixPayload.profileTitleId = null;
+        }
+        if (legacyFromProfileTitle) {
+            profile.profileTitle = null;
+            legacyFixPayload.profileTitle = null;
+        }
+        if (legacyFromSpecialTitle) {
+            profile.specialTitle = null;
+            legacyFixPayload.specialTitle = null;
+        }
+
+        if (mappedLegacyBadgeId) {
+            const badge = window.Badges?.getBadge?.(mappedLegacyBadgeId) || {
+                id: mappedLegacyBadgeId,
+                name: mappedLegacyBadgeId === 'badge_security_sentinel_v310' ? 'Sentinela v3.10' : 'Badge da Temporada',
+                icon: mappedLegacyBadgeId === 'badge_security_sentinel_v310' ? '\u{1F6E1}\uFE0F' : '\u{1F396}\uFE0F',
+                rarity: mappedLegacyBadgeId === 'badge_security_sentinel_v310' ? 'exclusive' : 'seasonal',
+            };
+            const currentProfileBadgeId = String(profile.profileBadgeId || profile.profileBadge?.id || '').trim();
+            const currentProfileBadges = Array.isArray(profile.profileBadges) ? [...profile.profileBadges] : [];
+            const currentShowcase = Array.isArray(profile.profileBadgeShowcase) ? [...profile.profileBadgeShowcase] : [];
+
+            if (!currentProfileBadgeId) {
+                profile.profileBadgeId = badge.id;
+                profile.profileBadge = {
+                    id: badge.id,
+                    name: badge.name,
+                    icon: badge.icon,
+                    rarity: badge.rarity,
+                };
+                legacyFixPayload.profileBadgeId = badge.id;
+                legacyFixPayload.profileBadge = profile.profileBadge;
+            }
+
+            if (!currentProfileBadges.some((entry) => String(entry?.id || '').trim() === badge.id)) {
+                profile.profileBadges = [
+                    {
+                        id: badge.id,
+                        name: badge.name,
+                        icon: badge.icon,
+                        rarity: badge.rarity,
+                    },
+                    ...currentProfileBadges,
+                ];
+                legacyFixPayload.profileBadges = profile.profileBadges;
+            }
+
+            if (!currentShowcase.length) {
+                profile.profileBadgeShowcase = [badge.id];
+                legacyFixPayload.profileBadgeShowcase = profile.profileBadgeShowcase;
+            }
+        }
+
+        if (Object.keys(legacyFixPayload).length > 0) {
+            NyanFirebase.updateDoc(`users/${safeUID}`, legacyFixPayload).catch(() => {});
+        }
+        if (hadLegacyBadgeTitle && mappedLegacyBadgeId && window.Badges?.unlock) {
+            window.Badges.unlock(mappedLegacyBadgeId, { silent: true, skipSync: true, autoEquip: false });
+            window.Badges.equip?.(mappedLegacyBadgeId, { silent: true, skipSync: true });
+        }
+
+        this.currentUser = profile;
+        Utils.saveData(this.KEY_UID, safeUID);
+        Utils.saveData(this.KEY_TAG, profile.nyanTag || '');
+        Utils.saveData(this.KEY_LINKED, true);
+        if (profile.email) Utils.saveData(this.KEY_EMAIL, profile.email);
+
+        this._applyRemoteEconomyToLocal(profile);
+        await this._applyRemoteSeasonToLocal(safeUID).catch(() => false);
+        window.Badges?.hydrateFromProfile?.(profile, { skipSync: true });
+
+        this._dispatchOnlineReady(safeUID, profile.nyanTag || '');
+        return { success: true, uid: safeUID, profile };
+    },
+
     async init() {
         const fbReady = await NyanFirebase.init();
         if (!fbReady) {
@@ -18,6 +183,10 @@ const NyanAuth = {
 
         await this._tryAutoLogin();
 
+        if (this._unsubAuth) {
+            try { this._unsubAuth(); } catch (_) {}
+            this._unsubAuth = null;
+        }
         this._unsubAuth = NyanFirebase.fn.onAuthStateChanged(
             NyanFirebase.auth,
             (user) => this._onAuthChanged(user)
@@ -27,8 +196,28 @@ const NyanAuth = {
     },
 
     async _tryAutoLogin() {
+        const preferredUID = String(Utils.loadData(this.KEY_UID) || '').trim();
+        const preferredEmail = String(Utils.loadData(this.KEY_EMAIL) || '').trim();
+        const preferredPwd = String(Utils.loadData('nyan_online_pwd') || '').trim();
+
         const currentUser = NyanFirebase.auth.currentUser;
         if (currentUser) {
+            const currentUID = String(currentUser.uid || '').trim();
+            if (
+                preferredUID &&
+                preferredUID !== currentUID &&
+                preferredEmail &&
+                preferredPwd
+            ) {
+                try {
+                    const { signInWithEmailAndPassword } = NyanFirebase.fn;
+                    const cred = await signInWithEmailAndPassword(NyanFirebase.auth, preferredEmail, preferredPwd);
+                    await this._loadProfile(cred.user.uid);
+                    return true;
+                } catch (_) {
+                    // Fallback para a sessao autenticada atual.
+                }
+            }
             await this._loadProfile(currentUser.uid);
             return true;
         }
@@ -51,23 +240,14 @@ const NyanAuth = {
 
         const uid = Utils.loadData(this.KEY_UID);
         if (uid) {
-            this.currentUser = await NyanFirebase.getDoc(`users/${uid}`);
-            if (this.currentUser) {
-                this._dispatchOnlineReady(uid, this.currentUser.nyanTag);
-            }
+            const hydrated = await this._hydrateLocalStateFromCloud(uid);
+            if (hydrated.success) return true;
         }
         return false;
     },
 
     async _loadProfile(uid) {
-        this.currentUser = await NyanFirebase.getDoc(`users/${uid}`);
-        if (this.currentUser) {
-            const tag = this.currentUser.nyanTag;
-            Utils.saveData(this.KEY_UID,    uid);
-            Utils.saveData(this.KEY_TAG,    tag);
-            Utils.saveData(this.KEY_LINKED, true);
-            this._dispatchOnlineReady(uid, tag);
-        }
+        await this._hydrateLocalStateFromCloud(uid);
     },
 
     _dispatchOnlineReady(uid, tag) {
@@ -184,7 +364,8 @@ const NyanAuth = {
         if (!NyanFirebase.isReady()) return;
 
         if (Utils.loadData(this.KEY_LINKED)) {
-            await this._syncLocalProfile();
+            await this._hydrateLocalStateFromCloud().catch(() => {});
+            await this._syncLocalProfile({ includeEconomy: false });
             const tag = Utils.loadData(this.KEY_TAG);
             const uid = Utils.loadData(this.KEY_UID);
             if (tag) this._dispatchOnlineReady(uid, tag);
@@ -407,6 +588,9 @@ const NyanAuth = {
 
             const localUser = Auth.getStoredUser() || {};
             const economy   = window.Economy?.getState?.() || {};
+            const equippedBadge = window.Badges?.getEquippedBadge?.() || null;
+            const ownedBadges = window.Badges?.getOwnedBadges?.() || [];
+            const showcaseBadgeIds = window.Badges?.getShowcaseIds?.() || [];
             const now       = NyanFirebase.fn.serverTimestamp();
 
             const profile = {
@@ -418,6 +602,22 @@ const NyanAuth = {
                 level:    economy.level   || 1,
                 chips:    economy.chips   || 0,
                 totalXP:  economy.totalXP || 0,
+                profileBadgeId: equippedBadge?.id || null,
+                profileBadge: equippedBadge
+                    ? {
+                        id: equippedBadge.id,
+                        name: equippedBadge.name,
+                        icon: equippedBadge.icon,
+                        rarity: equippedBadge.rarity || 'achievement',
+                    }
+                    : null,
+                profileBadgeShowcase: showcaseBadgeIds,
+                profileBadges: ownedBadges.map((badge) => ({
+                    id: badge.id,
+                    name: badge.name,
+                    icon: badge.icon,
+                    rarity: badge.rarity || 'achievement',
+                })),
                 joinedAt: now, lastSeen: now,
                 friends: [], friendRequests: [],
             };
@@ -457,6 +657,9 @@ const NyanAuth = {
             Utils.saveData(this.KEY_LINKED, true);
             Utils.saveData('nyan_online_pwd', password);
             this.currentUser = profile;
+            this._applyRemoteEconomyToLocal(profile);
+            await this._applyRemoteSeasonToLocal(uid).catch(() => false);
+            window.Badges?.hydrateFromProfile?.(profile, { skipSync: true });
 
             this._dispatchOnlineReady(uid, profile.nyanTag);
             Utils.showNotification(`✅ Bem-vindo de volta, ${profile.nyanTag}!`, 'success');
@@ -489,10 +692,14 @@ const NyanAuth = {
         return await NyanFirebase.getDoc(`users/${tagDoc.uid}`);
     },
 
-    async _syncLocalProfile() {
-        const uid = Utils.loadData(this.KEY_UID);
-        if (!uid || !NyanFirebase.isReady()) return;
+    async _syncLocalProfile(options = {}) {
+        const includeEconomy = options.includeEconomy !== false;
+        const uid = this.getUID();
+        if (!uid || !NyanFirebase.isReady()) return { success: false, code: 'offline-or-no-uid' };
         const economy   = window.Economy?.getState?.() || {};
+        const equippedBadge = window.Badges?.getEquippedBadge?.() || null;
+        const ownedBadges = window.Badges?.getOwnedBadges?.() || [];
+        const showcaseBadgeIds = window.Badges?.getShowcaseIds?.() || [];
         const localUser = Auth.getStoredUser() || {};
         const scoreKeys = {
             'typeracer_highscore': 'sc_typeracer',
@@ -513,23 +720,49 @@ const NyanAuth = {
             scores['sc_achievements'] = achUnlocked;
         }
 
-        await NyanFirebase.updateDoc(`users/${uid}`, {
+        const payload = {
             username: localUser.username || this.currentUser?.username,
             avatar:   Utils.loadData('nyan_profile_avatar') || null,
             version:  window.App?.version || '3.10.0',
-            level:    economy.level   || 1,
-            chips:    economy.chips   || 0,
-            totalXP:  economy.totalXP || 0,
             lastSeen: NyanFirebase.fn.serverTimestamp(),
             sc_updatedAt: NyanFirebase.fn.serverTimestamp(),
+            profileBadgeId: equippedBadge?.id || null,
+            profileBadge: equippedBadge
+                ? {
+                    id: equippedBadge.id,
+                    name: equippedBadge.name,
+                    icon: equippedBadge.icon,
+                    rarity: equippedBadge.rarity || 'achievement',
+                }
+                : null,
+            profileBadgeShowcase: showcaseBadgeIds,
+            profileBadges: ownedBadges.map((badge) => ({
+                id: badge.id,
+                name: badge.name,
+                icon: badge.icon,
+                rarity: badge.rarity || 'achievement',
+            })),
             ...scores,
-        });
+        };
+        if (includeEconomy) {
+            payload.level = economy.level || 1;
+            payload.chips = economy.chips || 0;
+            payload.totalXP = economy.totalXP || 0;
+        }
+
+        const updated = await NyanFirebase.updateDoc(`users/${uid}`, payload);
+        if (!updated) return { success: false, code: 'update-failed' };
+
         if (window.Leaderboard?.syncAllLocalScores) {
             setTimeout(() => Leaderboard.syncAllLocalScores(), 500);
         }
+        return { success: true };
     },
 
     _onAuthChanged(user) {
+        const uid = String(user?.uid || '').trim();
+        if (!uid) return;
+        this._loadProfile(uid).catch(() => {});
     },
 
     async logout() {
@@ -545,10 +778,10 @@ const NyanAuth = {
         if (this._unsubAuth) { this._unsubAuth(); this._unsubAuth = null; }
     },
 
-    getNyanTag()  { return Utils.loadData(this.KEY_TAG); },
-    getUID()      { return Utils.loadData(this.KEY_UID); },
+    getNyanTag()  { return this.currentUser?.nyanTag || Utils.loadData(this.KEY_TAG); },
+    getUID()      { return NyanFirebase?.auth?.currentUser?.uid || Utils.loadData(this.KEY_UID); },
     isLinked()    { return !!Utils.loadData(this.KEY_LINKED); },
-    isOnline()    { return NyanFirebase.isReady() && !!this.getUID(); },
+    isOnline()    { return NyanFirebase.isReady() && !!NyanFirebase?.auth?.currentUser?.uid; },
 
     _friendlyError(code) {
         const map = {

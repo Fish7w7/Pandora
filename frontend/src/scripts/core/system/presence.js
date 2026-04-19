@@ -26,6 +26,7 @@ const Presence = {
         'notes':         { status: 'focused',  label: 'Escrevendo notas',  icon: '📝' },
         'tasks':         { status: 'focused',  label: 'Gerenciando tarefas', icon: '✅' },
         'missions':      { status: 'online',   label: 'Nas missões',       icon: '📋' },
+        'season':        { status: 'online',   label: 'Na temporada',      icon: '🌸' },
         'shop':          { status: 'online',   label: 'Na loja',           icon: '🛍️' },
         'offline':       { status: 'playing',  label: 'Zona Offline',      icon: '📶' },
         'settings':      { status: 'online',   label: 'Nas configurações', icon: '⚙️' },

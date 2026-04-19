@@ -12,12 +12,13 @@ const Router = {
         'music':         'MusicPlayer',
         'offline':       'OfflineZone',
         'settings':      'Settings',
-        'v310-notes':    'V310Notes',
         'updates':       'AutoUpdater',
         'notes':         'Notes',
         'tasks':         'Tasks',
         'missions':      'Missions',
+        'season':        'Seasons',
         'shop':          'Shop',
+        'dev-lab':       'DevLab',
         'profile':       'Profile',
         'friends':       'Friends',
         'profile-public':'Friends',
@@ -31,6 +32,14 @@ const Router = {
     _historyIdx: 0,
 
     navigate(toolId) {
+        if (toolId === 'dev-lab' && !window.DevSecurity?.canShowTool?.()) {
+            const snap = window.DevSecurity?.snapshot?.() || {};
+            const msg = snap.isDevEnv
+                ? 'Acesso dev indisponivel para esta conta.'
+                : 'Dev Lab disponivel apenas em ambiente developer.';
+            Utils.showNotification?.(msg, 'error');
+            return;
+        }
         if (toolId === this.currentRoute) return;
         this.currentRoute = toolId;
         if (toolId !== 'home') {
@@ -41,6 +50,7 @@ const Router = {
 
         if (window.Dashboard && toolId !== 'home') Dashboard.trackToolAccess(toolId);
         if (window.Missions) Missions.track({ event: 'open_tool', tool: toolId });
+        if (window.Achievements?.checkNightOwl) Achievements.checkNightOwl();
 
         if (this._historyIdx < this._history.length - 1) {
             this._history = this._history.slice(0, this._historyIdx + 1);
@@ -111,7 +121,7 @@ const Router = {
     },
 
     renderHome() {
-        const tools = App.tools.filter(t => t.id !== 'home');
+        const tools = (App.getVisibleTools ? App.getVisibleTools() : App.tools).filter(t => t.id !== 'home');
         const username = App.user?.username || 'Usuário';
         return `
             <div class="max-w-6xl mx-auto">

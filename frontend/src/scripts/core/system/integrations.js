@@ -246,7 +246,8 @@ const Integrations = {
         }
 
         if (lastRoute && lastRoute !== 'home') {
-            const tool = window.App?.tools?.find(t => t.id === lastRoute);
+            const visibleTools = window.App?.getVisibleTools ? App.getVisibleTools() : (window.App?.tools || []);
+            const tool = visibleTools.find(t => t.id === lastRoute);
             if (tool) {
                 suggestions.push({
                     type:   'continue',
@@ -629,7 +630,8 @@ Integrations.getSmartSuggestions = function() {
     }
 
     if (lastRoute && lastRoute !== 'home') {
-        const tool = window.App?.tools?.find((t) => t.id === lastRoute);
+        const visibleTools = window.App?.getVisibleTools ? App.getVisibleTools() : (window.App?.tools || []);
+        const tool = visibleTools.find((t) => t.id === lastRoute);
         if (tool) {
             scorePush({
                 id: 'continue_last',
@@ -647,7 +649,8 @@ Integrations.getSmartSuggestions = function() {
         .filter(([id]) => !['home', 'profile', 'settings', 'friends', 'chat'].includes(id))
         .sort((a, b) => (b[1]?.count || 0) - (a[1]?.count || 0))[0];
     if (topTool && (topTool[1]?.count || 0) >= 3) {
-        const tool = window.App?.tools?.find((t) => t.id === topTool[0]);
+        const visibleTools = window.App?.getVisibleTools ? App.getVisibleTools() : (window.App?.tools || []);
+        const tool = visibleTools.find((t) => t.id === topTool[0]);
         if (tool) {
             scorePush({
                 id: 'habit_tool',

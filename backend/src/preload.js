@@ -50,9 +50,12 @@ try {
         
         openDownloadsFolder: () => invoke('open-downloads-folder'),
         openExternal: (url) => invoke('open-external', url),
-        readV310Notes: () => invoke('read-local-v310-notes'),
         resetUpdateCooldown: () => invoke('reset-update-cooldown'),
         isDevEnvironment: () => invoke('is-dev-environment'),
+        getDevSecurityStatus: (uid) => invoke('dev-security-status', { uid }),
+        unlockDevSecurity: (uid, passphrase) => invoke('dev-security-unlock', { uid, passphrase }),
+        validateDevSecurity: (uid) => invoke('dev-security-validate', { uid }),
+        lockDevSecurity: () => invoke('dev-security-lock'),
         onDownloadProgress: (callback) => {
             const handler = (_event, data) => callback(data);
             ipcRenderer.on('download-progress', handler);

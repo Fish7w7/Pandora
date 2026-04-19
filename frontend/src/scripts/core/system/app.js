@@ -1,31 +1,43 @@
 const App = {
-    version: '3.10.0',
+    version: '3.11.0',
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
     
     tools: [
-        { id: 'home', name: 'Dashboard', icon: '📊', description: 'Visão geral' },
-        { id: 'password', name: 'Gerador de Senhas', icon: '🔑', description: 'Crie senhas seguras' },
-        { id: 'weather', name: 'Clima', icon: '🌤️', description: 'Veja a temperatura local' },
-        { id: 'translator', name: 'Tradutor', icon: '🌍', description: 'Traduza textos rapidamente' },
-        { id: 'ai-assistant', name: 'Assistente IA', icon: '🤖', description: 'Perguntas e respostas' },
-        { id: 'mini-game', name: 'Mini Game', icon: '🎮', description: 'Jogue e se divirta' },
-        { id: 'temp-email', name: 'Email Temporário', icon: '📧', description: 'Emails descartáveis' },
-        { id: 'music', name: 'Player de Música', icon: '🎵', description: 'Ouça suas músicas' },
-        { id: 'notes', name: 'Notas Rápidas', icon: '📝', description: 'Organize suas ideias' },
-        { id: 'tasks', name: 'Lista de Tarefas', icon: '✅', description: 'Gerencie tarefas' },
-        { id: 'missions',   name: 'Missões',    icon: '📋', description: 'Missões diárias e desafios' },
-        { id: 'shop',       name: 'Loja',       icon: '🛍️', description: 'Compre itens com chips' },
-        { id: 'offline', name: 'Zona Offline', icon: '📶', description: 'Jogos sem internet' },
-        { id: 'settings', name: 'Configurações', icon: '⚙️', description: 'Personalize o app' },
-        { id: 'friends',     name: 'Amigos',       icon: '👥', description: 'Lista de amigos e solicitações' },
-        { id: 'chat',        name: 'Mensagens',     icon: '💬', description: 'Chat privado com amigos' },
-        { id: 'leaderboard', name: 'Placar Global', icon: '🏆', description: 'Top 10 por jogo' },
-        { id: 'feed',        name: 'Feed',          icon: '📰', description: 'Atividades dos amigos' },
-        { id: 'challenges',  name: 'Desafios',      icon: '⚔️', description: 'Duelos de 24h com amigos' },
+        { id: 'home', name: 'Dashboard', icon: '\u{1F4CA}', description: 'Visão geral' },
+        { id: 'password', name: 'Gerador de Senhas', icon: '\u{1F511}', description: 'Crie senhas seguras' },
+        { id: 'weather', name: 'Clima', icon: '\u{1F324}\uFE0F', description: 'Veja a temperatura local' },
+        { id: 'translator', name: 'Tradutor', icon: '\u{1F30D}', description: 'Traduza textos rapidamente' },
+        { id: 'ai-assistant', name: 'Assistente IA', icon: '\u{1F916}', description: 'Perguntas e respostas' },
+        { id: 'mini-game', name: 'Mini Game', icon: '\u{1F3AE}', description: 'Jogue e se divirta' },
+        { id: 'temp-email', name: 'Email Temporário', icon: '\u{1F4E7}', description: 'Emails descartáveis' },
+        { id: 'music', name: 'Player de Música', icon: '\u{1F3B5}', description: 'Ouça suas músicas' },
+        { id: 'notes', name: 'Notas Rápidas', icon: '\u{1F4DD}', description: 'Organize suas ideias' },
+        { id: 'tasks', name: 'Lista de Tarefas', icon: '\u2705', description: 'Gerencie tarefas' },
+        { id: 'missions',   name: 'Missões',    icon: '\u{1F4CB}', description: 'Missões diárias e desafios' },
+        { id: 'season',     name: 'Temporada',  icon: '\u{1F338}', description: 'Progresso e recompensas sazonais' },
+        { id: 'shop',       name: 'Loja',       icon: '\u{1F6CD}\uFE0F', description: 'Compre itens com chips' },
+        { id: 'offline', name: 'Zona Offline', icon: '\u{1F4F6}', description: 'Jogos sem internet' },
+        { id: 'settings', name: 'Configurações', icon: '\u2699\uFE0F', description: 'Personalize o app' },
+        { id: 'dev-lab', name: 'Dev Lab', icon: '\u{1F6E0}\uFE0F', description: 'Ajustes internos de desenvolvimento' },
+        { id: 'friends', name: 'Amigos', icon: '\u{1F465}', description: 'Lista de amigos e solicitações' },
+        { id: 'chat', name: 'Mensagens', icon: '\u{1F4AC}', description: 'Chat privado com amigos' },
+        { id: 'leaderboard', name: 'Placar Global', icon: '\u{1F3C6}', description: 'Top 10 por jogo' },
+        { id: 'feed', name: 'Feed', icon: '\u{1F4F0}', description: 'Atividades dos amigos' },
+        { id: 'challenges', name: 'Desafios', icon: '\u2694\uFE0F', description: 'Duelos de 24h com amigos' },
     ],
-    
+
+    isToolVisible(toolId) {
+        if (toolId === 'dev-lab') {
+            return !!window.DevSecurity?.canShowTool?.();
+        }
+        return true;
+    },
+
+    getVisibleTools() {
+        return this.tools.filter((tool) => this.isToolVisible(tool.id));
+    },
     init() {
         
         this.applyThemeOnStart();
@@ -163,6 +175,9 @@ const App = {
         }
 
         this.renderNavMenu();
+        if (window.DevSecurity?.init) {
+            DevSecurity.init().catch(() => {}).finally(() => this.renderNavMenu());
+        }
         this.initNewSystems();
         Router.currentRoute = 'home';
         Router.render();
@@ -229,17 +244,30 @@ const App = {
         if (window.Economy) {
             Economy.init();
         }
+        if (window.Seasons) {
+            Seasons.init();
+        }
         if (window.Missions) {
             Missions.init();
         }
         if (window.Inventory) {
             Inventory.init();
         }
+        if (window.Badges) {
+            Badges.init();
+        }
         this.startActivityTracking();
 
-        setTimeout(() => {
+        setTimeout(async () => {
             if (window.NyanAuth && window.NyanFirebase?.isReady?.()) {
-                NyanAuth._syncLocalProfile?.();
+                await NyanAuth.init?.().catch(() => false);
+                const activeUID = String(window.NyanFirebase?.auth?.currentUser?.uid || NyanAuth.getUID?.() || '').trim();
+                let hydrated = null;
+                if (activeUID) {
+                    hydrated = await NyanAuth._hydrateLocalStateFromCloud?.(activeUID).catch(() => null);
+                }
+                const canSyncEconomy = !!(hydrated && hydrated.success);
+                await NyanAuth._syncLocalProfile?.({ includeEconomy: canSyncEconomy }).catch(() => {});
                 if (window.Leaderboard) Leaderboard.setupAutoSync();
                 setTimeout(() => this._initSocialBadges(), 1000);
                 setTimeout(() => this._updateFavGame(), 500);
@@ -251,12 +279,12 @@ const App = {
         const el = document.getElementById('sidebar-fav-game');
         if (!el) return;
         const GAMES = [
-            { key: 'typeracer_highscore',   max: 200,    higher: true,  icon: '⌨️', label: 'Type Racer'  },
-            { key: 'game_2048_highscore',   max: 131072, higher: true,  icon: '🔢', label: '2048'         },
-            { key: 'flappy_bird_highscore', max: 100,    higher: true,  icon: '🐱', label: 'Flappy Nyan'  },
-            { key: 'quiz_highscore',        max: 10,     higher: true,  icon: '🧠', label: 'Quiz Diário'  },
-            { key: 'termo_best',            max: 6,      higher: false, icon: '🔤', label: 'Termo'         },
-            { key: 'snake_highscore',       max: 500,    higher: true,  icon: '🐍', label: 'Cobrinha'      },
+            { key: 'typeracer_highscore',   max: 200,    higher: true,  icon: '\u2328\uFE0F', label: 'Type Racer'  },
+            { key: 'game_2048_highscore',   max: 131072, higher: true,  icon: '\u{1F522}', label: '2048'         },
+            { key: 'flappy_bird_highscore', max: 100,    higher: true,  icon: '\u{1F431}', label: 'Flappy Nyan'  },
+            { key: 'quiz_highscore',        max: 10,     higher: true,  icon: '\u{1F9E0}', label: 'Quiz Diário'  },
+            { key: 'termo_best',            max: 6,      higher: false, icon: '\u{1F524}', label: 'Termo'         },
+            { key: 'snake_highscore',       max: 500,    higher: true,  icon: '\u{1F40D}', label: 'Cobrinha'      },
         ];
         let best = null, bestRatio = -1;
         GAMES.forEach(g => {
@@ -278,7 +306,7 @@ const App = {
         const btn     = document.getElementById('sidebar-toggle-btn');
         if (!sidebar) return;
         const isCollapsed = sidebar.classList.toggle('collapsed');
-        if (btn) btn.textContent = isCollapsed ? '▶' : '◀';
+        if (btn) btn.textContent = isCollapsed ? '\u25B6' : '\u25C0';
         Utils.saveData('sidebar_collapsed', isCollapsed);
     },
 
@@ -288,7 +316,7 @@ const App = {
             const sidebar = document.getElementById('sidebar');
             const btn     = document.getElementById('sidebar-toggle-btn');
             if (sidebar) sidebar.classList.add('collapsed');
-            if (btn) btn.textContent = '▶';
+            if (btn) btn.textContent = '\u25B6';
         }
     },
 
@@ -315,9 +343,9 @@ const App = {
                 }
             }
             if (totalUnread > 0) {
-                document.title = `(${totalUnread}) NyanTools にゃん~ v3.10.0`;
+                document.title = `(${totalUnread}) NyanTools \u306B\u3083\u3093~ v3.11.0`;
             } else if (!document.title.startsWith('(')) {
-                document.title = 'NyanTools にゃん~ v3.10.0';
+                document.title = 'NyanTools \u306B\u3083\u3093~ v3.11.0';
             }
         }, () => {});
         NyanFirebase._listeners.push(unsubChats);
@@ -387,7 +415,7 @@ const App = {
                                 Utils.saveData(notifKey, String(theirScore));
                                 const username = data.username || 'Um amigo';
                                 Utils.showNotification(
-                                    `🏆 ${username} bateu seu recorde em ${name}! (${theirScore.toLocaleString('pt-BR')})`,
+                                    `\u{1F3C6} ${username} bateu seu recorde em ${name}! (${theirScore.toLocaleString('pt-BR')})`,
                                     'info'
                                 );
                             }
@@ -427,16 +455,17 @@ const App = {
             { label: null,             items: ['home'] },
             { label: 'Ferramentas',    items: ['password','weather','translator','ai-assistant','temp-email'] },
             { label: 'Entretenimento', items: ['mini-game','music','offline'] },
-            { label: 'Organização',    items: ['notes','tasks','missions','shop'] },
+            { label: 'Organização',    items: ['notes','tasks','missions','season','shop'] },
             { label: 'Social',         items: ['friends','chat','leaderboard','feed','challenges'] },
-            { label: 'Sistema',        items: ['settings'] }
+            { label: 'Sistema',        items: ['settings','dev-lab'] }
         ];
 
-        const toolMap    = Object.fromEntries(this.tools.map(t => [t.id, t]));
+        const toolMap    = Object.fromEntries(this.getVisibleTools().map(t => [t.id, t]));
         const favSection = window.Favorites ? Favorites.renderSection() : '';
         const missionsWidget = window.Missions ? Missions.renderSidebarWidget() : '';
+        const seasonWidget = window.Seasons ? Seasons.renderSidebarWidget() : '';
 
-        navMenu.innerHTML = favSection + missionsWidget + groups.map(group => {
+        navMenu.innerHTML = favSection + missionsWidget + seasonWidget + groups.map(group => {
             const items = group.items.map(id => {
                 const tool = toolMap[id];
                 if (!tool) return '';
@@ -498,6 +527,13 @@ const App = {
         }
         window.addEventListener('online',  () => this.handleConnectionChange(true));
         window.addEventListener('offline', () => this.handleConnectionChange(false));
+        window.addEventListener('nyan:dev-security-updated', () => {
+            if (!this.user) return;
+            this.renderNavMenu();
+            if (window.Router?.currentRoute === 'dev-lab') {
+                Router.render();
+            }
+        });
 
         this._eggClicks  = 0;
         this._eggTimeout = null;
@@ -549,9 +585,9 @@ const App = {
                 box-shadow:0 32px 80px rgba(0,0,0,0.7), inset 0 1px 0 rgba(255,255,255,0.05);
                 font-family:'DM Sans',sans-serif;
             ">
-                <div style="width:48px;height:48px;border-radius:14px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1rem;">🚪</div>
+                <div style="width:48px;height:48px;border-radius:14px;background:rgba(239,68,68,0.12);border:1px solid rgba(239,68,68,0.2);display:flex;align-items:center;justify-content:center;font-size:1.4rem;margin-bottom:1rem;">\u{1F6AA}</div>
                 <div style="font-size:1rem;font-weight:800;color:white;margin-bottom:0.375rem;font-family:'Syne',sans-serif;">Sair da conta?</div>
-                <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);line-height:1.5;margin-bottom:1.5rem;">Você será redirecionado para a tela de login. にゃん~</div>
+                <div style="font-size:0.8rem;color:rgba(255,255,255,0.4);line-height:1.5;margin-bottom:1.5rem;">Você será redirecionado para a tela de login. \u306B\u3083\u3093~</div>
                 <div style="display:flex;gap:0.625rem;">
                     <button id="lc-cancel" style="flex:1;padding:0.6rem;border-radius:10px;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.6);font-size:0.875rem;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;">Cancelar</button>
                     <button id="lc-confirm" style="flex:1;padding:0.6rem;border-radius:10px;background:rgba(239,68,68,0.85);border:1px solid rgba(239,68,68,0.4);color:white;font-size:0.875rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 16px rgba(239,68,68,0.3);">Sair</button>
@@ -567,6 +603,7 @@ const App = {
     _doLogout() {
         if (this._activityInterval) { clearInterval(this._activityInterval); this._activityInterval = null; }
         if (window.FocusMode?.active) FocusMode.disable();
+        if (window.DevSecurity?.lock) DevSecurity.lock().catch(() => {});
         if (window.NyanAuth) NyanAuth.logout().catch(() => {});
         this.user        = null;
         this.currentTool = 'home';
@@ -580,7 +617,7 @@ const App = {
         this.isOnline = isOnline;
         if (window.Utils?.showNotification) {
             Utils.showNotification(
-                isOnline ? '✅ Conexão restaurada! にゃん~' : '⚠️ Você está offline にゃん~',
+                isOnline ? '\u2705 Conexão restaurada! \u306B\u3083\u3093~' : '\u26A0\uFE0F Você está offline \u306B\u3083\u3093~',
                 isOnline ? 'success' : 'warning'
             );
         }
@@ -610,23 +647,23 @@ function showEasterEgg() {
             #egg-cat  { animation: eggBounce 1.2s ease-in-out infinite; display:inline-block; }
         </style>
         <div id="egg-card" style="background:#0d0d12;border:1px solid rgba(168,85,247,0.3);border-radius:20px;padding:2rem 2.25rem;max-width:420px;width:90%;box-shadow:0 32px 80px rgba(0,0,0,0.8),0 0 0 1px rgba(168,85,247,0.1),0 0 60px rgba(168,85,247,0.1);font-family:'DM Sans',sans-serif;color:#e5e7eb;position:relative;">
-            <button onclick="document.getElementById('easter-egg-modal').remove()" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" onmouseover="this.style.color='white';this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.color='rgba(255,255,255,0.4)';this.style.background='rgba(255,255,255,0.06)'">✕</button>
+            <button onclick="document.getElementById('easter-egg-modal').remove()" style="position:absolute;top:1rem;right:1rem;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.1);color:rgba(255,255,255,0.4);border-radius:8px;width:28px;height:28px;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all 0.2s;" onmouseover="this.style.color='white';this.style.background='rgba(255,255,255,0.12)'" onmouseout="this.style.color='rgba(255,255,255,0.4)';this.style.background='rgba(255,255,255,0.06)'">\u2715</button>
             <div style="text-align:center;margin-bottom:1.5rem;">
-                <div id="egg-cat" style="font-size:3.5rem;margin-bottom:0.75rem;">🐱</div>
+                <div id="egg-cat" style="font-size:3.5rem;margin-bottom:0.75rem;">\u{1F431}</div>
                 <div style="font-family:'Syne',sans-serif;font-size:1.4rem;font-weight:900;background:linear-gradient(135deg,#a855f7,#ec4899);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:0.25rem;">NYAN NYAN!</div>
-                <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);letter-spacing:0.1em;">にゃん~ · Easter Egg Desbloqueado</div>
+                <div style="font-size:0.75rem;color:rgba(255,255,255,0.3);letter-spacing:0.1em;">\u306B\u3083\u3093~ \u00B7 Easter Egg Desbloqueado</div>
             </div>
             <div style="height:1px;background:rgba(255,255,255,0.07);margin-bottom:1.25rem;"></div>
             <div style="text-align:center;margin-bottom:1.25rem;">
-                <p style="font-size:0.875rem;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:0.5rem;">Bem-vindo ao <strong style="color:white;">NyanTools</strong>!<br>Sua caixa de ferramentas kawaii 🎌</p>
+                <p style="font-size:0.875rem;color:rgba(255,255,255,0.7);line-height:1.6;margin-bottom:0.5rem;">Bem-vindo ao <strong style="color:white;">NyanTools</strong>!<br>Sua caixa de ferramentas kawaii \u{1F38C}</p>
             </div>
             <div style="background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-left:3px solid #ef4444;border-radius:10px;padding:0.875rem 1rem;margin-bottom:1.25rem;">
-                <div style="font-size:0.7rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#ef4444;margin-bottom:0.5rem;">⚠️ Aviso Importante</div>
-                <p style="font-size:0.75rem;color:rgba(255,255,255,0.55);line-height:1.6;margin:0;">Em caso de investigação policial, eu declaro que não tenho envolvimento com este grupo e não sei como estou no mesmo, provavelmente fui inserido por terceiros. Declaro estar disposto a colaborar com as investigações e a me apresentar a depoimento se necessário.</p>
+                <div style="font-size:0.7rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:#ef4444;">\u26A0\uFE0F Aviso Importante</div>
+                <p style="font-size:0.75rem;color:rgba(255,255,255,0.55);line-height:1.6;margin:0.5rem 0 0;">Em caso de investigação policial, eu declaro que não tenho envolvimento com este grupo e não sei como estou no mesmo, provavelmente fui inserido por terceiros. Declaro estar disposto a colaborar com as investigações e a me apresentar a depoimento se necessário.</p>
             </div>
             <div style="text-align:center;">
-                <p style="font-size:0.7rem;color:rgba(255,255,255,0.25);margin-bottom:1rem;">Use o NyanTools com responsabilidade! にゃん~ 🐱✨</p>
-                <button onclick="document.getElementById('easter-egg-modal').remove()" style="background:linear-gradient(135deg,#a855f7,#ec4899);border:none;border-radius:10px;color:white;padding:0.6rem 1.75rem;font-size:0.875rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 20px rgba(168,85,247,0.4);transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(168,85,247,0.55)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(168,85,247,0.4)'">Entendido にゃん~</button>
+                <p style="font-size:0.7rem;color:rgba(255,255,255,0.25);margin-bottom:1rem;">Use o NyanTools com responsabilidade! \u306B\u3083\u3093~ \u{1F431}\u2728</p>
+                <button onclick="document.getElementById('easter-egg-modal').remove()" style="background:linear-gradient(135deg,#a855f7,#ec4899);border:none;border-radius:10px;color:white;padding:0.6rem 1.75rem;font-size:0.875rem;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif;box-shadow:0 4px 20px rgba(168,85,247,0.4);transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)';this.style.boxShadow='0 8px 28px rgba(168,85,247,0.55)'" onmouseout="this.style.transform='';this.style.boxShadow='0 4px 20px rgba(168,85,247,0.4)'">Entendido \u306B\u3083\u3093~</button>
             </div>
         </div>
     `;

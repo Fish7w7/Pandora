@@ -1,7 +1,7 @@
-
+﻿
 
 const AutoUpdater = {
-    currentVersion: '3.10.0',
+    currentVersion: '3.11.0',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -25,9 +25,26 @@ const AutoUpdater = {
 
       changelog: [
     {
+        version: '3.11.0',
+        date: '2026-04-17T12:00:00',
+        label: 'Atual',
+        labelColor: 'bg-green-500',
+        author: 'Clara',
+        changes: [
+            { type: '🌸', text: 'Temporada 1 - Despertar finalizada com tiers, recompensas, ranking e loja sazonal integrada' },
+            { type: '🏅', text: 'Sistema de insignias separado de titulos, com showcase publico, destaque e migracoes legadas' },
+            { type: '🧑', text: 'Perfil 2.0 retrabalhado com hub de customizacao, estatisticas reorganizadas e visual mais premium' },
+            { type: '🫂', text: 'Perfil publico refeito com badges reais, hierarquia melhor e leitura mais clara de identidade' },
+            { type: '🧪', text: 'Dev Lab fortalecido para testes internos de economia e temporada em ambiente developer' },
+            { type: '🔄', text: 'Sincronizacao online reforcada entre Firebase, badges, temporada, economia e perfil' },
+            { type: '🛡️', text: 'Sentinela v3.10 virou insignia exclusiva de seguranca, em vez de continuar como titulo' },
+            { type: '🐛', text: 'Correcao de layouts vazios, numeros cortados, historico recente e inconsistencias visuais do perfil' },
+        ]
+    },
+     {
         version: '3.10.0',
         date: '2026-04-15T12:00:00',
-        label: 'Atual',
+        label: '',
         labelColor: 'bg-green-500',
         author: 'Gabriel',
         changes: [
@@ -39,25 +56,6 @@ const AutoUpdater = {
             { type: '🛡️', text: 'Regra oficial da v3.10: concluir tarefa nao gera XP/chips (exploit bloqueado)' },
             { type: '🎉', text: 'Evento Patch Day v3.10 com recompensas especiais e intro limitada' },
             { type: '🐛', text: 'Pacote de estabilidade: Zona Offline, render de perfil, textos e sincronizacao visual' },
-        ]
-    },
-    {
-        version: '3.9.0',
-        date: '2026-04-12T12:00:00',
-        label: '',
-        labelColor: 'bg-green-500',
-        author: 'Gabriel & Clara',
-        changes: [
-            { type: '🌐', text: 'Nyan Network — duas semanas de muito trabalho, eu e a Clara não paramos até entregar o maior update social da história do NyanTools にゃん~' },
-            { type: '👥', text: 'Sistema de Amigos — adicione por NyanTag, aceite/recuse convites, veja lista com status e versão em tempo real' },
-            { type: '💬', text: 'Chat privado 1:1 com cada amigo — histórico persistente no Firebase e notificação de mensagem nova na sidebar' },
-            { type: '🖼️', text: 'Murais por Jogo — feed de resultados dos amigos com reações 🐱⭐💎🔥, comentários e botão "Compartilhar" ao fim de qualquer partida' },
-            { type: '⚔️', text: 'Desafios de 24h — desafie amigos diretamente em qualquer jogo, duelo side-by-side com notificação de desafio recebido' },
-            { type: '📊', text: 'Perfil Público — bio, frase personalizada, recordes, conquistas com data e botão "Me comparar" side-by-side' },
-            { type: '🏷️', text: 'NyanTag — identidade única online; badge de versão 🟢🟡🔵, "Membro desde", última vez online e jogo favorito automático' },
-            { type: '🟢', text: 'Status em tempo real — Online, Jogando, Ausente, Offline; notificação quando amigo bate seu recorde' },
-            { type: '🏆', text: 'Placar Global — Top 10 por jogo, filtro global vs só amigos, sua posição sempre visível mesmo fora do Top 10' },
-            { type: '🛒', text: 'Sistema da Loja revisado e corrigido' },
         ]
     },
 ],
@@ -303,26 +301,6 @@ const AutoUpdater = {
                             </div>
                         </div>
                     </div>
-                </div>
-            `;
-        }
-
-        const showV310Notes = String(this.currentVersion || '').startsWith('3.10');
-        if (showV310Notes) {
-            return `
-                <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 flex items-center justify-between gap-4"
-                     style="background:rgba(255,255,255,0.07); border:1px solid rgba(255,255,255,0.1); border-radius:1rem; padding:1.5rem; display:flex; align-items:center; justify-content:space-between; gap:1rem; flex-wrap:wrap;">
-                    <div style="display:flex; align-items:center; gap:1rem;">
-                        <div style="width:3rem; height:3rem; background:rgba(16,185,129,0.15); border-radius:0.75rem; display:flex; align-items:center; justify-content:center; font-size:1.5rem; flex-shrink:0; border:1px solid rgba(16,185,129,0.3);">✅</div>
-                        <div>
-                            <div style="font-weight:900;">Voc&ecirc; est&aacute; atualizado!</div>
-                            <div style="font-size:0.875rem; opacity:0.6;">Vers&atilde;o ${this.currentVersion} &eacute; a mais recente nyan~</div>
-                        </div>
-                    </div>
-                    <button onclick="Router.navigate('v310-notes')"
-                            style="padding:0.625rem 1rem; border-radius:0.75rem; font-weight:800; font-size:0.8rem; color:#fff; border:none; cursor:pointer; background:linear-gradient(135deg,#8b5cf6,#ec4899); box-shadow:0 6px 18px rgba(168,85,247,0.35);">
-                        📘 Ver nota oficial v3.10
-                    </button>
                 </div>
             `;
         }

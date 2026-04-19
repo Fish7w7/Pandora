@@ -3,23 +3,23 @@ const Inventory = {
     KEY: 'nyan_inventory',
 
     CATALOG: [
-        { id:'title_gamer',    type:'title',  name:'Gamer にゃん~',     icon:'🎮', rarity:'common',    price:200,  minLevel:3,  preview:'Aparece no seu perfil abaixo do nome' },
-        { id:'title_speedster',type:'title',  name:'Velocista',         icon:'⚡', rarity:'common',    price:200,  minLevel:3,  preview:'Para quem manda no Type Racer' },
-        { id:'title_lucky',    type:'title',  name:'Sortudo',           icon:'🍀', rarity:'common',    price:200,  minLevel:3,  preview:'Sorte é um estilo de vida' },
-        { id:'title_genius',   type:'title',  name:'Gênio do Quiz',     icon:'🧠', rarity:'rare',      price:500,  minLevel:8,  preview:'Para quem tira 10/10 no Quiz' },
-        { id:'title_legend',   type:'title',  name:'Lendário',          icon:'👑', rarity:'epic',      price:1000, minLevel:25, preview:'Reservado para os veteranos' },
-        { id:'title_nyan',     type:'title',  name:'にゃん~ Master',    icon:'🐱', rarity:'epic',      price:800,  minLevel:15, preview:'O título mais kawaii de todos' },
-        { id:'title_patchday_310', type:'title', name:'Patch Day v3.10', icon:'🎁', rarity:'weekly', price:0, minLevel:1, preview:'Recompensa exclusiva de lançamento da v3.10', eventOnly:true },
-        { id:'title_security_sentinel_v310', type:'title', name:'Sentinela v3.10', icon:'🛡️', rarity:'milestone', price:0, minLevel:1, preview:'Concedido individualmente por salvar a integridade da v3.10', exclusive:true },
-
-        { id:'border_simple',  type:'border', name:'Borda Simples',     icon:'⬜', rarity:'common',    price:400,  minLevel:5,  preview:'Borda branca discreta',
+        { id:'title_gamer',    type:'title',  name:'Gamer nyan~',     icon:'\u{1F3AE}', rarity:'common',    price:200,  minLevel:3,  preview:'Aparece no seu perfil abaixo do nome' },
+        { id:'title_speedster',type:'title',  name:'Velocista',         icon:'\u26A1', rarity:'common',    price:200,  minLevel:3,  preview:'Para quem manda no Type Racer' },
+        { id:'title_lucky',    type:'title',  name:'Sortudo',           icon:'\u{1F340}', rarity:'common',    price:200,  minLevel:3,  preview:'Sorte e um estilo de vida' },
+        { id:'title_genius',   type:'title',  name:'Genio do Quiz',     icon:'\u{1F9E0}', rarity:'rare',      price:500,  minLevel:8,  preview:'Para quem tira 10/10 no Quiz' },
+        { id:'title_legend',   type:'title',  name:'Lendario',          icon:'\u{1F451}', rarity:'epic',      price:1000, minLevel:25, preview:'Reservado para os veteranos' },
+        { id:'title_nyan',     type:'title',  name:'nyan~ Master',      icon:'\u{1F431}', rarity:'epic',      price:800,  minLevel:15, preview:'O titulo mais kawaii de todos' },
+        { id:'title_patchday_310', type:'title', name:'Patch Day v3.10', icon:'\u{1F381}', rarity:'weekly', price:0, minLevel:1, preview:'Recompensa exclusiva de lancamento da v3.10', eventOnly:true },
+        { id:'title_season1_silver', type:'title', name:'Aurora da Temporada', icon:'\u{1F338}', rarity:'seasonal', price:450, minLevel:1, preview:'Titulo sazonal da Temporada 1', seasonId:'season_1', endsAt:'2026-05-15T23:59:59-03:00', eventOnly:true },
+        { id:'title_season1_champion', type:'title', name:'Despertar Supremo', icon:'\u{1F451}', rarity:'seasonal', price:0, minLevel:1, preview:'Titulo final da Temporada 1', seasonId:'season_1', endsAt:'2026-05-15T23:59:59-03:00', eventOnly:true, rewardOnly:true, seasonFinalReward:true },
+        { id:'border_simple',  type:'border', name:'Borda Simples',     icon:'\u2B1C', rarity:'common',    price:400,  minLevel:5,  preview:'Borda branca discreta',
           css:'border: 2px solid rgba(255,255,255,0.6);' },
-        { id:'border_purple',  type:'border', name:'Borda Roxa',        icon:'💜', rarity:'common',    price:400,  minLevel:5,  preview:'Borda na cor do tema',
+        { id:'border_purple',  type:'border', name:'Borda Roxa',        icon:'\u{1F49C}', rarity:'common',    price:400,  minLevel:5,  preview:'Borda na cor do tema',
           css:'border: 2px solid #a855f7; box-shadow: 0 0 10px rgba(168,85,247,0.6), inset 0 0 6px rgba(168,85,247,0.15);' },
-        { id:'border_gold',    type:'border', name:'Borda Dourada',     icon:'🥇', rarity:'rare',      price:700,  minLevel:10, preview:'Para quem chegou longe',
+        { id:'border_gold',    type:'border', name:'Borda Dourada',     icon:'\u{1F947}', rarity:'rare',      price:700,  minLevel:10, preview:'Para quem chegou longe',
           css:'border: 2px solid #f59e0b; box-shadow: 0 0 12px rgba(245,158,11,0.7), 0 0 24px rgba(245,158,11,0.3);' },
         {
-            id:'border_neon', type:'border', name:'Borda Neon RGB', icon:'🌈', rarity:'rare', price:900, minLevel:12, preview:'RGB animado — cicla todas as cores',
+            id:'border_neon', type:'border', name:'Borda Neon RGB', icon:'\u{1F308}', rarity:'rare', price:900, minLevel:12, preview:'RGB animado - cicla todas as cores',
             css:'border: 2.5px solid #ff0000; animation: rgbBorderCycle 2s linear infinite;',
             extraStyle:`@keyframes rgbBorderCycle {
                 0%   { border-color:#ff0000; box-shadow:0 0 6px 2px #ff0000; }
@@ -33,8 +33,8 @@ const Inventory = {
             }`
         },
         {
-            id:'border_paw', type:'border', name:'Patinhas ✨', icon:'🐾', rarity:'milestone', price:0, minLevel:10,
-            preview:'Borda animada · desbloqueada ao atingir nível 10', milestone:true,
+            id:'border_paw', type:'border', name:'Patinhas', icon:'\u{1F43E}', rarity:'milestone', price:0, minLevel:10,
+            preview:'Borda animada - desbloqueada ao atingir nivel 10', milestone:true,
             css:'border: 2.5px solid #4ade80; animation: pawBorderAnim 3s ease-in-out infinite;',
             extraStyle:`@keyframes pawBorderAnim {
                 0%,100% { border-color:#4ade80; box-shadow:0 0 6px 1px rgba(74,222,128,0.7); }
@@ -44,8 +44,8 @@ const Inventory = {
             }`
         },
         {
-            id:'border_crown', type:'border', name:'Realeza 👑', icon:'👑', rarity:'milestone', price:0, minLevel:25,
-            preview:'Borda dourada animada · desbloqueada ao atingir nível 25', milestone:true,
+            id:'border_crown', type:'border', name:'Realeza', icon:'\u{1F451}', rarity:'milestone', price:0, minLevel:25,
+            preview:'Borda dourada animada - desbloqueada ao atingir nivel 25', milestone:true,
             css:'border: 2.5px solid #f59e0b; animation: crownBorderAnim 2.5s ease-in-out infinite;',
             extraStyle:`@keyframes crownBorderAnim {
                 0%,100% { border-color:#f59e0b; box-shadow:0 0 6px 1px rgba(245,158,11,0.8); }
@@ -54,8 +54,8 @@ const Inventory = {
             }`
         },
         {
-            id:'border_star', type:'border', name:'Galáxia ⭐', icon:'🌌', rarity:'milestone', price:0, minLevel:50,
-            preview:'Borda galáxia animada · desbloqueada ao atingir nível 50', milestone:true,
+            id:'border_star', type:'border', name:'Galaxia', icon:'\u{1F30C}', rarity:'milestone', price:0, minLevel:50,
+            preview:'Borda galaxia animada - desbloqueada ao atingir nivel 50', milestone:true,
             css:'border: 3px solid #818cf8; animation: galaxyBorderAnim 4s linear infinite;',
             extraStyle:`@keyframes galaxyBorderAnim {
                 0%   { border-color:#818cf8; box-shadow:0 0 6px 2px rgba(129,140,248,0.8); }
@@ -66,54 +66,77 @@ const Inventory = {
                 100% { border-color:#818cf8; box-shadow:0 0 6px 2px rgba(129,140,248,0.8); }
             }`
         },
-        { id:'border_patchday_310', type:'border', name:'Patch Neon', icon:'🛠️', rarity:'epic', price:1250, minLevel:1, preview:'Borda limitada do evento de patch v3.10', eventOnly:true,
+        { id:'border_patchday_310', type:'border', name:'Patch Neon', icon:'\u{1F6E0}\uFE0F', rarity:'epic', price:1250, minLevel:1, preview:'Borda limitada do evento de patch v3.10', eventOnly:true,
           css:'border: 2.5px solid #22d3ee; box-shadow: 0 0 8px rgba(34,211,238,0.6), 0 0 18px rgba(236,72,153,0.35); animation: patchPulse 2.4s ease-in-out infinite;',
           extraStyle:`@keyframes patchPulse {
               0%,100% { border-color:#22d3ee; box-shadow:0 0 8px rgba(34,211,238,0.6),0 0 18px rgba(236,72,153,0.35); }
               50% { border-color:#ec4899; box-shadow:0 0 10px rgba(236,72,153,0.7),0 0 20px rgba(34,211,238,0.4); }
           }`
         },
+        { id:'border_season1', type:'border', name:'Fronteira S1', icon:'\u{1F338}', rarity:'seasonal', price:800, minLevel:1, preview:'Borda exclusiva da Temporada 1', seasonId:'season_1', endsAt:'2026-05-15T23:59:59-03:00', eventOnly:true,
+          css:'border:2.5px solid #fb7185; box-shadow:0 0 10px rgba(251,113,133,0.45), 0 0 18px rgba(249,115,22,0.28); animation: seasonBloom 2.8s ease-in-out infinite;',
+          extraStyle:`@keyframes seasonBloom {
+              0%,100% { border-color:#fb7185; box-shadow:0 0 10px rgba(251,113,133,0.45),0 0 18px rgba(249,115,22,0.28); }
+              50% { border-color:#f97316; box-shadow:0 0 12px rgba(249,115,22,0.5),0 0 20px rgba(251,113,133,0.32); }
+          }`
+        },
 
-        { id:'theme_sakura',   type:'theme', name:'Sakura',            icon:'🌸', rarity:'rare',   price:1200, minLevel:10, preview:'Rosa · pétalas caindo no login',  themeId:'pink',   effect:'sakura' },
-        { id:'theme_midnight', type:'theme', name:'Midnight',          icon:'🌙', rarity:'rare',   price:1200, minLevel:10, preview:'Índigo · partículas de estrelas',  themeId:'indigo', effect:'stars' },
-        { id:'theme_neon',     type:'theme', name:'Neon',              icon:'⚡', rarity:'epic',   price:1800, minLevel:15, preview:'Teal · efeito glitch no login',   themeId:'teal',   effect:'glitch' },
-        { id:'theme_fire',     type:'theme', name:'Chamas',            icon:'🔥', rarity:'epic',   price:1800, minLevel:15, preview:'Vermelho · partículas de fogo',  themeId:'red',    effect:'fire' },
-        { id:'theme_patchpulse_intro', type:'theme', name:'Patch Pulse Intro', icon:'🌀', rarity:'weekly', price:1250, minLevel:1, preview:'Intro limitada do evento v3.10 com pulso neon', themeId:'teal', effect:'patchpulse', eventOnly:true, preserveTheme:true },
+        { id:'theme_sakura',   type:'theme', name:'Sakura',            icon:'\u{1F338}', rarity:'rare',   price:1200, minLevel:10, preview:'Rosa - petalas caindo no login',  themeId:'pink',   effect:'sakura' },
+        { id:'theme_midnight', type:'theme', name:'Midnight',          icon:'\u{1F319}', rarity:'rare',   price:1200, minLevel:10, preview:'Indigo - particulas de estrelas',  themeId:'indigo', effect:'stars' },
+        { id:'theme_neon',     type:'theme', name:'Neon',              icon:'\u26A1', rarity:'epic',   price:1800, minLevel:15, preview:'Teal - efeito glitch no login',   themeId:'teal',   effect:'glitch' },
+        { id:'theme_fire',     type:'theme', name:'Chamas',            icon:'\u{1F525}', rarity:'epic',   price:1800, minLevel:15, preview:'Vermelho - particulas de fogo',  themeId:'red',    effect:'fire' },
+        { id:'theme_patchpulse_intro', type:'theme', name:'Patch Pulse Intro', icon:'\u{1F300}', rarity:'weekly', price:1250, minLevel:1, preview:'Intro limitada do evento v3.10 com pulso neon', themeId:'teal', effect:'patchpulse', eventOnly:true, preserveTheme:true },
 
-        { id:'effect_slide', type:'effect', name:'Slide',  icon:'↔️', rarity:'common', price:600,  minLevel:7,  preview:'Troca de ferramenta com deslize lateral' },
-        { id:'effect_zoom',  type:'effect', name:'Zoom',   icon:'🔍', rarity:'common', price:600,  minLevel:7,  preview:'Zoom suave ao trocar de página' },
-        { id:'effect_flip',  type:'effect', name:'Flip',   icon:'🔄', rarity:'rare',   price:1000, minLevel:12, preview:'Rotação lateral ao navegar' },
+        { id:'effect_slide', type:'effect', name:'Slide',  icon:'\u2194\uFE0F', rarity:'common', price:600,  minLevel:7,  preview:'Troca de ferramenta com deslize lateral' },
+        { id:'effect_zoom',  type:'effect', name:'Zoom',   icon:'\u{1F50D}', rarity:'common', price:600,  minLevel:7,  preview:'Zoom suave ao trocar de pagina' },
+        { id:'effect_flip',  type:'effect', name:'Flip',   icon:'\u{1F504}', rarity:'rare',   price:1000, minLevel:12, preview:'Rotacao lateral ao navegar' },
 
-        { id:'particle_stars',  type:'particle', name:'Estrelas',         icon:'✨', rarity:'common', price:500, minLevel:6,  preview:'Estrelinhas ao redor do avatar' },
-        { id:'particle_hearts', type:'particle', name:'Corações',         icon:'💕', rarity:'common', price:500, minLevel:6,  preview:'Coraçõezinhos flutuando' },
-        { id:'particle_nyan',   type:'particle', name:'Patinhas にゃん~', icon:'🐾', rarity:'rare',   price:900, minLevel:10, preview:'Patinhas de gato girando' },
+        { id:'particle_stars',  type:'particle', name:'Estrelas',         icon:'\u2728', rarity:'common', price:500, minLevel:6,  preview:'Estrelinhas ao redor do avatar' },
+        { id:'particle_hearts', type:'particle', name:'Coracoes',         icon:'\u{1F495}', rarity:'common', price:500, minLevel:6,  preview:'Coracoes flutuando' },
+        { id:'particle_nyan',   type:'particle', name:'Patinhas nyan~', icon:'\u{1F43E}', rarity:'rare',   price:900, minLevel:10, preview:'Patinhas de gato girando' },
+        { id:'particle_season1_petals', type:'particle', name:'Petalas S1', icon:'\u{1F33A}', rarity:'seasonal', price:0, minLevel:1, preview:'Efeito raro de petalas da Temporada 1', seasonId:'season_1', endsAt:'2026-05-15T23:59:59-03:00', eventOnly:true, rewardOnly:true },
     ],
 
     RARITY: {
         common:    { label:'Comum',   color:'#9ca3af', bg:'rgba(156,163,175,0.12)' },
         rare:      { label:'Raro',    color:'#3b82f6', bg:'rgba(59,130,246,0.12)'  },
-        epic:      { label:'Épico',   color:'#a855f7', bg:'rgba(168,85,247,0.12)'  },
+        epic:      { label:'Epico',   color:'#a855f7', bg:'rgba(168,85,247,0.12)'  },
         milestone: { label:'Marco',   color:'#f59e0b', bg:'rgba(245,158,11,0.12)'  },
         weekly:    { label:'Semanal', color:'#10b981', bg:'rgba(16,185,129,0.12)'  },
+        seasonal:  { label:'Sazonal', color:'#fb7185', bg:'rgba(251,113,133,0.12)' },
     },
 
     load() {
-        const legacyTitleId = 'title_bug_hunter_v310';
-        const currentTitleId = 'title_security_sentinel_v310';
+        const legacySeasonBadgeTitleId = 'title_season1_badge';
+        const legacySentinelTitleIds = ['title_security_sentinel_v310', 'title_bug_hunter_v310'];
         const data = Utils.loadData(this.KEY) || { owned:[], equipped:{} };
         let changed = false;
 
         data.owned = Array.isArray(data.owned) ? data.owned : [];
         data.equipped = data.equipped && typeof data.equipped === 'object' ? data.equipped : {};
 
-        if (data.owned.includes(legacyTitleId)) {
-            data.owned = data.owned.map((id) => (id === legacyTitleId ? currentTitleId : id));
-            data.owned = Array.from(new Set(data.owned));
+        const canMigrateSentinelBadge = typeof window.Badges?.unlock === 'function';
+        const hasLegacySentinelTitle = data.owned.some((id) => legacySentinelTitleIds.includes(id))
+            || legacySentinelTitleIds.includes(String(data.equipped.title || '').trim());
+        if (canMigrateSentinelBadge && hasLegacySentinelTitle) {
+            const legacySentinelWasEquipped = legacySentinelTitleIds.includes(String(data.equipped.title || '').trim());
+            window.Badges.unlock('badge_security_sentinel_v310', { silent: true, skipSync: true, autoEquip: false });
+            if (legacySentinelWasEquipped) {
+                window.Badges.equip?.('badge_security_sentinel_v310', { silent: true, skipSync: true });
+                delete data.equipped.title;
+            }
+            data.owned = data.owned.filter((id) => !legacySentinelTitleIds.includes(id));
             changed = true;
         }
 
-        if (data.equipped.title === legacyTitleId) {
-            data.equipped.title = currentTitleId;
+        const hasSeasonBadgeMigrated = window.Badges?.owns?.('badge_season1') === true;
+        if (hasSeasonBadgeMigrated && data.owned.includes(legacySeasonBadgeTitleId)) {
+            data.owned = data.owned.filter((id) => id !== legacySeasonBadgeTitleId);
+            changed = true;
+        }
+
+        if (hasSeasonBadgeMigrated && data.equipped.title === legacySeasonBadgeTitleId) {
+            delete data.equipped.title;
             changed = true;
         }
 
@@ -137,25 +160,68 @@ const Inventory = {
         return true;
     },
 
+    revokeItem(itemId, options = {}) {
+        const data = this.load();
+        if (!Array.isArray(data.owned) || !data.owned.includes(itemId)) return false;
+
+        data.owned = data.owned.filter((id) => id !== itemId);
+
+        const item = this.getItem(itemId);
+        const type = item?.type || null;
+        const wasEquipped = !!(type && data.equipped?.[type] === itemId);
+        if (wasEquipped && data.equipped) {
+            delete data.equipped[type];
+        }
+
+        this.save(data);
+
+        if (wasEquipped && type) {
+            this._removeEquipped(type);
+            this._syncEquippedToCloud(type, null);
+        }
+
+        if (!options.silent) {
+            Utils.showNotification?.(`Item removido: ${item?.name || itemId}`, 'info');
+        }
+        return true;
+    },
+
     buy(itemId, weeklyPrice = 0) {
         const item = this.getItem(itemId);
-        if (!item) return { ok:false, reason:'Item não encontrado' };
-        if (item.milestone) return { ok:false, reason:'Este item é desbloqueado por marco de nível' };
-        if (this.owns(itemId)) return { ok:false, reason:'Você já possui este item' };
+        if (!item) return { ok:false, reason:'Item nÃ£o encontrado' };
+        if (item.milestone) return { ok:false, reason:'Este item Ã© desbloqueado por marco de nÃ­vel' };
+        if (item.rewardOnly) return { ok:false, reason:'Este item so e obtido por recompensa da temporada' };
+        if (this.owns(itemId)) return { ok:false, reason:'VocÃª jÃ¡ possui este item' };
+
+        if (item.endsAt) {
+            const endsAt = Date.parse(item.endsAt);
+            if (Number.isFinite(endsAt) && Date.now() > endsAt) {
+                return { ok:false, reason:'Este item sazonal expirou' };
+            }
+        }
+
+        if (item.seasonId) {
+            const season = window.Seasons?.getCurrentSeason?.();
+            const active = window.Seasons?.isActive?.(season);
+            if (!season || season.id !== item.seasonId || !active) {
+                return { ok:false, reason:'Disponivel apenas durante a temporada ativa' };
+            }
+        }
+
         const currentLevel = window.Economy?.getLevel?.() || 1;
-        if (!weeklyPrice && currentLevel < item.minLevel) return { ok:false, reason:`Nível ${item.minLevel} necessário (você está no ${currentLevel})` };
+        if (!weeklyPrice && currentLevel < item.minLevel) return { ok:false, reason:`Nivel ${item.minLevel} necessario (voce esta no ${currentLevel})` };
         const finalPrice = weeklyPrice > 0 ? weeklyPrice : item.price;
         const chips = window.Economy?.getChips?.() || 0;
-        if (chips < finalPrice) return { ok:false, reason:`Chips insuficientes (${finalPrice} necessários, você tem ${chips})` };
+        if (chips < finalPrice) return { ok:false, reason:`Chips insuficientes (${finalPrice} necessarios, voce tem ${chips})` };
         const spent = window.Economy?.spendChips?.(finalPrice);
         if (!spent) return { ok:false, reason:'Falha ao debitar chips' };
         this.unlockItem(itemId);
-        Utils.showNotification?.(`🛍️ "${item.name}" adquirido! にゃん~`, 'success');
+        Utils.showNotification?.(`\u{1F6CD}\uFE0F "${item.name}" adquirido! nyan~`, 'success');
         return { ok:true };
     },
 
     equip(itemId) {
-        if (!this.owns(itemId)) { Utils.showNotification?.('Você não possui este item', 'warning'); return false; }
+        if (!this.owns(itemId)) { Utils.showNotification?.('Voce nao possui este item', 'warning'); return false; }
         const item = this.getItem(itemId);
         if (!item) return false;
         const data = this.load();
@@ -164,7 +230,7 @@ const Inventory = {
         this.save(data);
         this._applyEquipped(item);
         this._syncEquippedToCloud(item.type, item);
-        Utils.showNotification?.(`✅ "${item.name}" equipado!`, 'success');
+        Utils.showNotification?.(`\u2705 "${item.name}" equipado!`, 'success');
         return true;
     },
 
@@ -179,10 +245,7 @@ const Inventory = {
 
     getEquipped(type) { return this.load().equipped?.[type] || null; },
     getEquippedItem(type) { const id = this.getEquipped(type); return id ? this.getItem(id) : null; },
-    getItem(itemId) {
-        const normalizedId = itemId === 'title_bug_hunter_v310' ? 'title_security_sentinel_v310' : itemId;
-        return this.CATALOG.find(i => i.id === normalizedId) || null;
-    },
+    getItem(itemId) { return this.CATALOG.find(i => i.id === itemId) || null; },
     getByType(type) { return this.CATALOG.filter(i => i.type === type); },
     getOwned() { return (this.load().owned || []).map(id => this.getItem(id)).filter(Boolean); },
 
@@ -214,7 +277,7 @@ const Inventory = {
         if (item.extraStyle) styleContent += item.extraStyle + '\n';
 
         styleContent += `
-            /* Reset SEM !important — especificidade menor que ID, não bloqueia keyframes */
+            /* Reset SEM !important - especificidade menor que ID, nao bloqueia keyframes */
             .sidebar-user-avatar    { box-shadow: none; }
             .profile-avatar-preview { border: none; box-shadow: none; overflow: visible; }
             .profile-avatar-wrap    { overflow: visible; }
@@ -224,7 +287,7 @@ const Inventory = {
             .profile-avatar-wrap > *:not(.profile-avatar-overlay),
             #avatar-preview-wrap > * { border-radius: inherit; overflow: hidden; display: block; }
 
-            /* Borda equipada: ${item.id} — ID tem especificidade alta, ganha do reset de classe */
+            /* Borda equipada: ${item.id} - ID tem especificidade alta, ganha do reset de classe */
             #user-avatar,
             #avatar-preview-wrap,
             .profile-avatar-wrap {
@@ -271,35 +334,35 @@ const Inventory = {
     },
 
     getProfileTitleFromProfile(profile = null) {
-        if (profile?.specialTitle?.id) {
-            const forcedIcon = (
-                profile.specialTitle.id === 'title_security_sentinel_v310' ||
-                profile.specialTitle.id === 'title_bug_hunter_v310'
-            ) ? '🛡️' : null;
+        const hiddenTitleIds = new Set([
+            'title_season1_badge',
+            'title_security_sentinel_v310',
+            'title_bug_hunter_v310',
+        ]);
+
+        if (profile?.specialTitle?.id && !hiddenTitleIds.has(profile.specialTitle.id)) {
             return {
                 id: profile.specialTitle.id,
                 name: profile.specialTitle.name || 'Titulo especial',
-                icon: forcedIcon || profile.specialTitle.icon || '🏅',
+                icon: profile.specialTitle.icon || '\u{1F3C5}',
                 rarity: profile.specialTitle.rarity || 'weekly',
             };
         }
-        if (profile?.profileTitle?.id) {
-            const forcedIcon = (
-                profile.profileTitle.id === 'title_security_sentinel_v310' ||
-                profile.profileTitle.id === 'title_bug_hunter_v310'
-            ) ? '🛡️' : null;
+        if (profile?.profileTitle?.id && !hiddenTitleIds.has(profile.profileTitle.id)) {
             return {
                 id: profile.profileTitle.id,
                 name: profile.profileTitle.name || 'Titulo',
-                icon: forcedIcon || profile.profileTitle.icon || '🏅',
+                icon: profile.profileTitle.icon || '\u{1F3C5}',
                 rarity: profile.profileTitle.rarity || 'common',
             };
         }
-        if (profile?.profileTitleId) {
+        if (profile?.profileTitleId && !hiddenTitleIds.has(profile.profileTitleId)) {
             const byId = this.getItem(profile.profileTitleId);
             if (byId) return byId;
         }
-        return this.getEquippedItem('title');
+        const equipped = this.getEquippedItem('title');
+        if (equipped?.id && hiddenTitleIds.has(equipped.id)) return null;
+        return equipped;
     },
 
     getTitleBadgeStyle(title = null) {
@@ -385,8 +448,8 @@ const Inventory = {
     },
 
     // _applyTheme: ao equipar um tema de intro, aplica o tema de cor correspondente.
-    // O efeito da intro é lido diretamente pelo LoginIntro via getEquippedItem('theme').
-    // Não salva mais shop_login_effect — não é necessário.
+    // O efeito da intro Ã© lido diretamente pelo LoginIntro via getEquippedItem('theme').
+    // Nao salva mais shop_login_effect - nao e necessario.
     _applyTheme(item) {
         if (item.preserveTheme) return;
         if (item.themeId && window.ThemeManager) {
@@ -410,16 +473,20 @@ const Inventory = {
 
         const configs = {
             particle_stars: {
-                chars: ['✨','⭐','✦','✨','⭐','✦','✨','⭐'],
+                chars: ['\u2728','\u2B50','\u2726','\u2728','\u2B50','\u2726','\u2728','\u2B50'],
                 color: '#fbbf24', glow: 'rgba(251,191,36,0.55)', anim: 'particlePulse',
             },
             particle_hearts: {
-                chars: ['💕','💖','💗','💕','💖','💗','💕','💖'],
+                chars: ['\u{1F495}','\u{1F496}','\u{1F497}','\u{1F495}','\u{1F496}','\u{1F497}','\u{1F495}','\u{1F496}'],
                 color: '#ec4899', glow: 'rgba(236,72,153,0.55)', anim: 'particleFloat',
             },
             particle_nyan: {
-                chars: ['🐾','🐱','🐾','🐱','🐾','🐱','🐾','🐱'],
+                chars: ['\u{1F43E}','\u{1F431}','\u{1F43E}','\u{1F431}','\u{1F43E}','\u{1F431}','\u{1F43E}','\u{1F431}'],
                 color: '#a855f7', glow: 'rgba(168,85,247,0.55)', anim: 'particleBounce',
+            },
+            particle_season1_petals: {
+                chars: ['\u{1F338}','\u{1F33A}','\u{1F339}','\u{1F338}','\u{1F33A}','\u{1F339}','\u{1F338}','\u{1F33A}'],
+                color: '#fb7185', glow: 'rgba(249,115,22,0.45)', anim: 'particleFloat',
             },
         };
         const cfg = configs[item.id] || configs.particle_stars;
@@ -505,9 +572,9 @@ const Inventory = {
         const data = this.load();
         if (!data.equipped) return;
         Object.entries(data.equipped).forEach(([type, itemId]) => {
-            // FIX: nunca reaplicar 'theme' no boot — o tema de cor é gerenciado pelo
-            // ThemeManager.init() que lê app_color_theme salvo pelo usuário.
-            // Reaplicar aqui sobrescreveria a escolha manual do usuário.
+            // FIX: nunca reaplicar 'theme' no boot - o tema de cor e gerenciado pelo
+            // ThemeManager.init() que le app_color_theme salvo pelo usuario.
+            // Reaplicar aqui sobrescreveria a escolha manual do usuÃ¡rio.
             if (type === 'theme') return;
             const item = this.getItem(itemId);
             if (item && this.owns(itemId)) this._applyEquipped(item);
@@ -534,8 +601,8 @@ const Inventory = {
         const d    = document.body.classList.contains('dark-theme');
         const muted= d ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.35)';
         return `<div style="text-align:center;padding:3rem;color:${muted};font-family:'DM Sans',sans-serif;">
-            <div style="font-size:2.5rem;margin-bottom:0.75rem;">🎒</div>
-            <div style="font-size:0.9rem;">Loja não disponível</div>
+            <div style="font-size:2.5rem;margin-bottom:0.75rem;">\u{1F392}</div>
+            <div style="font-size:0.9rem;">Loja nao disponivel</div>
         </div>`;
     },
 
@@ -545,3 +612,4 @@ const Inventory = {
 };
 
 window.Inventory = Inventory;
+

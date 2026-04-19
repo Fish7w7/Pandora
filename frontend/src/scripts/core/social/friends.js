@@ -3,6 +3,8 @@ const Friends = {
     _listeners: {},
     _cache: {},
     _requestsBadge: 0,
+    _lastPublicEconomySyncAt: 0,
+    PUBLIC_ECON_SYNC_COOLDOWN: 15000,
 
     render() {
         if (Router?.currentRoute === 'profile-public' && window._viewingProfile) {
@@ -627,6 +629,220 @@ const Friends = {
         .nyan-pp-tag { font-size:0.72rem;color:var(--theme-primary,#a855f7);font-weight:700; }
         #nyan-pp-status-pill { display:inline-flex;align-items:center;gap:0.28rem;border-radius:999px;padding:0.2rem 0.65rem;font-size:0.63rem;font-weight:700;letter-spacing:0.04em;animation:nyanSlideUp .4s ease both .14s; }
         .nyan-pp-bio { font-size:0.78rem;font-style:italic;text-align:center;line-height:1.55;padding:0 1rem;margin-bottom:0.6rem;opacity:.62;animation:nyanSlideUp .4s ease both .18s; }
+        .nyan-pp-title-wrap {
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            gap:0.22rem;
+            margin:0 auto 0.48rem;
+            animation:nyanSlideUp .4s ease both .08s;
+        }
+        .nyan-pp-title-label {
+            display:inline-flex;
+            align-items:center;
+            padding:0.14rem 0.46rem;
+            border-radius:999px;
+            font-size:0.53rem;
+            font-weight:900;
+            letter-spacing:0.08em;
+            text-transform:uppercase;
+            color:${d ? 'rgba(255,255,255,0.54)' : 'rgba(15,23,42,0.52)'};
+            background:${d ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.04)'};
+            border:1px solid ${d ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.08)'};
+        }
+        .nyan-pp-title-chip {
+            display:inline-flex;
+            align-items:center;
+            gap:0.34rem;
+            padding:0.28rem 0.72rem;
+            border-radius:999px;
+            font-size:0.72rem;
+            font-weight:800;
+            line-height:1.1;
+            color:${d ? 'rgba(255,255,255,0.9)' : '#4c1d95'};
+            background:${d ? 'rgba(168,85,247,0.16)' : 'rgba(168,85,247,0.1)'};
+            border:1px solid ${d ? 'rgba(168,85,247,0.3)' : 'rgba(168,85,247,0.24)'};
+            box-shadow:${d ? '0 10px 22px rgba(88,28,135,0.18)' : '0 8px 18px rgba(168,85,247,0.12)'};
+        }
+        .nyan-pp-badges-shell {
+            width:min(100%, 456px);
+            margin:0 auto 1rem;
+            padding:0.8rem 0.84rem 0.88rem;
+            border-radius:18px;
+            border:1px solid ${d ? 'rgba(255,255,255,0.09)' : 'rgba(0,0,0,0.08)'};
+            background:${d ? 'linear-gradient(180deg,rgba(15,23,42,0.82),rgba(17,24,39,0.56))' : 'linear-gradient(180deg,rgba(255,255,255,0.98),rgba(247,244,255,0.94))'};
+            box-shadow:${d ? '0 18px 42px rgba(2,6,23,0.34)' : '0 16px 32px rgba(100,116,139,0.16)'};
+            animation:nyanSlideUp .45s ease both .16s;
+            position:relative;
+            overflow:hidden;
+        }
+        .nyan-pp-badges-shell::before {
+            content:'';
+            position:absolute;
+            inset:auto -12% 62% auto;
+            width:140px;
+            height:140px;
+            background:${d ? 'radial-gradient(circle, rgba(168,85,247,0.2), transparent 68%)' : 'radial-gradient(circle, rgba(236,72,153,0.15), transparent 68%)'};
+            pointer-events:none;
+        }
+        .nyan-pp-badges-head {
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            gap:0.6rem;
+            margin-bottom:0.7rem;
+            position:relative;
+            z-index:1;
+        }
+        .nyan-pp-badges-title {
+            font-size:0.64rem;
+            font-weight:900;
+            letter-spacing:0.08em;
+            text-transform:uppercase;
+            color:${d ? 'rgba(255,255,255,0.82)' : 'rgba(15,23,42,0.74)'};
+        }
+        .nyan-pp-badges-count {
+            font-size:0.62rem;
+            font-weight:700;
+            color:${d ? 'rgba(255,255,255,0.46)' : 'rgba(15,23,42,0.5)'};
+        }
+        .nyan-pp-badges-rail {
+            display:flex;
+            gap:0.56rem;
+            overflow-x:auto;
+            padding:0.12rem 0.04rem 0.38rem;
+            position:relative;
+            z-index:1;
+            scrollbar-width:thin;
+            scrollbar-color:${d ? 'rgba(168,85,247,0.4) rgba(255,255,255,0.06)' : 'rgba(168,85,247,0.35) rgba(15,23,42,0.06)'};
+        }
+        .nyan-pp-badges-rail::-webkit-scrollbar {
+            height:6px;
+        }
+        .nyan-pp-badges-rail::-webkit-scrollbar-track {
+            background:${d ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.06)'};
+            border-radius:999px;
+        }
+        .nyan-pp-badges-rail::-webkit-scrollbar-thumb {
+            background:${d ? 'rgba(168,85,247,0.42)' : 'rgba(168,85,247,0.32)'};
+            border-radius:999px;
+        }
+        .nyan-pp-badge-medal {
+            position:relative;
+            flex:0 0 auto;
+            width:58px;
+            height:58px;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:17px;
+            color:var(--badge-color, ${d ? '#f1f5f9' : '#0f172a'});
+            background:var(--badge-bg, ${d ? 'rgba(255,255,255,0.08)' : 'rgba(255,255,255,0.9)'});
+            border:1px solid var(--badge-border, ${d ? 'rgba(255,255,255,0.14)' : 'rgba(0,0,0,0.1)'});
+            transition:transform .16s ease, box-shadow .18s ease, border-color .18s ease;
+            transform:translateY(0);
+        }
+        .nyan-pp-badge-medal::after {
+            content:'';
+            position:absolute;
+            inset:4px;
+            border-radius:13px;
+            border:1px solid ${d ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.7)'};
+            pointer-events:none;
+        }
+        .nyan-pp-badge-medal:hover {
+            transform:translateY(-3px) scale(1.04);
+            box-shadow:0 16px 28px ${d ? 'rgba(2,6,23,0.38)' : 'rgba(15,23,42,0.12)'};
+        }
+        .nyan-pp-badge-medal.active {
+            border-color:var(--badge-border, ${d ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.14)'});
+            box-shadow:0 0 0 1px var(--badge-border, transparent), 0 0 0 4px ${d ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.7)'}, 0 16px 30px ${d ? 'rgba(2,6,23,0.42)' : 'rgba(15,23,42,0.12)'}, 0 0 22px var(--badge-glow, transparent);
+        }
+        .nyan-pp-badge-icon {
+            font-size:1.45rem;
+            line-height:1;
+            filter:drop-shadow(0 4px 8px ${d ? 'rgba(0,0,0,0.22)' : 'rgba(255,255,255,0.36)'});
+        }
+        .nyan-pp-badge-focus {
+            display:flex;
+            align-items:center;
+            gap:0.72rem;
+            margin-top:0.26rem;
+            padding:0.6rem 0.68rem;
+            border-radius:15px;
+            border:1px solid var(--focus-border, ${d ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'});
+            background:var(--focus-bg, ${d ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.9)'});
+            position:relative;
+            z-index:1;
+        }
+        .nyan-pp-badge-focus-icon {
+            width:40px;
+            height:40px;
+            flex:0 0 auto;
+            display:inline-flex;
+            align-items:center;
+            justify-content:center;
+            border-radius:13px;
+            font-size:1.12rem;
+            color:var(--focus-text, ${d ? '#f1f5f9' : '#0f172a'});
+            background:${d ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.82)'};
+            box-shadow:inset 0 1px 0 ${d ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.85)'};
+        }
+        .nyan-pp-badge-focus-copy {
+            min-width:0;
+            text-align:left;
+        }
+        .nyan-pp-badge-focus-label {
+            font-size:0.54rem;
+            font-weight:900;
+            letter-spacing:0.08em;
+            text-transform:uppercase;
+            color:${d ? 'rgba(255,255,255,0.46)' : 'rgba(15,23,42,0.48)'};
+            margin-bottom:0.14rem;
+        }
+        .nyan-pp-badge-focus-name {
+            font-size:0.83rem;
+            font-weight:800;
+            color:${d ? '#f8fafc' : '#111827'};
+            margin-bottom:0.18rem;
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+        }
+        .nyan-pp-badge-focus-meta {
+            display:flex;
+            align-items:center;
+            gap:0.36rem;
+            flex-wrap:wrap;
+            font-size:0.62rem;
+            color:${d ? 'rgba(255,255,255,0.58)' : 'rgba(15,23,42,0.56)'};
+        }
+        .nyan-pp-badge-focus-pill {
+            display:inline-flex;
+            align-items:center;
+            padding:0.14rem 0.42rem;
+            border-radius:999px;
+            font-weight:800;
+            color:var(--focus-text, ${d ? '#f1f5f9' : '#0f172a'});
+            background:${d ? 'rgba(255,255,255,0.07)' : 'rgba(255,255,255,0.72)'};
+            border:1px solid var(--focus-border, ${d ? 'rgba(255,255,255,0.12)' : 'rgba(0,0,0,0.1)'});
+        }
+        .nyan-pp-chip-icon {
+            font-size:0.72rem;
+            line-height:1;
+        }
+        .nyan-pp-chip-name {
+            white-space:nowrap;
+            overflow:hidden;
+            text-overflow:ellipsis;
+            max-width:220px;
+        }
+        @media (max-width:560px) {
+            .nyan-pp-badges-shell { width:100%; }
+            .nyan-pp-badges-head { align-items:flex-start; flex-direction:column; gap:0.22rem; }
+            .nyan-pp-badge-focus { align-items:flex-start; }
+            .nyan-pp-chip-name { max-width:170px; }
+        }
 
         .nyan-pp-stats-row { display:flex;gap:0.5rem;justify-content:center;flex-wrap:wrap;margin:0.9rem 0 1.2rem;animation:nyanSlideUp .4s ease both .22s; }
         .nyan-pp-stat-pill { background:${d?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)'};border:1px solid ${cardBdr};border-radius:14px;padding:0.5rem 0.9rem;text-align:center;min-width:68px;transition:transform .18s;cursor:default; }
@@ -791,6 +1007,28 @@ const Friends = {
         }
 
         const myUID = NyanAuth.getUID();
+        const isSelfProfile = !!myUID && uid === myUID;
+        const remoteLevel = Math.max(1, Number(profile.level || 1));
+        const remoteTotalXP = Math.max(0, Number(profile.totalXP || 0));
+        const remoteLevelByXP = (remoteTotalXP > 0 && window.Economy?.calcLevel)
+            ? Math.max(1, Number(window.Economy.calcLevel(remoteTotalXP).level || 1))
+            : remoteLevel;
+        const localEconomy = isSelfProfile ? (window.Economy?.getState?.() || null) : null;
+        const localLevel = isSelfProfile ? Math.max(1, Number(localEconomy?.level || 1)) : 1;
+        const displayLevel = isSelfProfile
+            ? Math.max(remoteLevel, remoteLevelByXP, localLevel)
+            : Math.max(remoteLevel, remoteLevelByXP);
+
+        if (isSelfProfile && window.NyanAuth?._syncLocalProfile) {
+            const localTotalXP = Math.max(0, Number(localEconomy?.totalXP || 0));
+            const economyMismatch = localLevel !== remoteLevel || localTotalXP !== remoteTotalXP;
+            const nowSync = Date.now();
+            if (economyMismatch && (nowSync - Number(this._lastPublicEconomySyncAt || 0)) > this.PUBLIC_ECON_SYNC_COOLDOWN) {
+                this._lastPublicEconomySyncAt = nowSync;
+                window.NyanAuth._syncLocalProfile({ includeEconomy: true }).catch(() => {});
+            }
+        }
+
         const relationship = await this._getRelationshipState(uid, myUID);
 
         const SCORE_MAX = { typeracer_highscore:200, game_2048_highscore:131072,
@@ -872,23 +1110,74 @@ const Friends = {
             window.Inventory?.getProfileTitleFromProfile?.(profile) ||
             null;
         const publicTitleStyle = window.Inventory?.getTitleBadgeStyle?.(publicTitle) || '';
+        const publicBadges = window.Badges?.getProfileBadgesFromProfile?.(profile) || [];
+        const publicEquippedBadge = window.Badges?.getProfileBadgeFromProfile?.(profile) || publicBadges[0] || null;
+        const publicTitleHtml = publicTitle ? `<div class="nyan-pp-title-wrap">
+            <span class="nyan-pp-title-label">Titulo</span>
+            <span class="nyan-pp-title-chip" style="${publicTitleStyle}">
+                <span class="nyan-pp-chip-icon">${publicTitle.icon || '\u{1F451}'}</span>
+                <span class="nyan-pp-chip-name">${publicTitle.name || 'Titulo'}</span>
+            </span>
+        </div>` : '';
+        const publicBadgesHtml = publicBadges.map((badge) => {
+            if (!badge) return '';
+            const isActive = badge.id === publicEquippedBadge?.id;
+            const rarityMeta = window.Badges?.getRarityMeta?.(badge.rarity) || {
+                label: 'Insignia',
+                dark: { text: '#f1f5f9', bg: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.16)' },
+                light: { text: '#0f172a', bg: 'rgba(15,23,42,0.06)', border: 'rgba(15,23,42,0.12)' },
+            };
+            const tone = d ? rarityMeta.dark : rarityMeta.light;
+            const badgeBg = d
+                ? `linear-gradient(135deg, rgba(15,23,42,0.98), ${tone.bg})`
+                : `linear-gradient(135deg, rgba(255,255,255,0.98), ${tone.bg})`;
+            const badgeShadow = isActive
+                ? `0 16px 30px ${d ? 'rgba(2,6,23,0.42)' : 'rgba(15,23,42,0.12)'}, 0 0 24px ${tone.border}`
+                : `0 10px 18px ${d ? 'rgba(2,6,23,0.26)' : 'rgba(15,23,42,0.08)'}`;
+            return `<span class="nyan-pp-badge-medal ${isActive ? 'active' : ''}"
+                title="${badge.name || 'Insignia'} • ${rarityMeta.label || 'Insignia'}"
+                style="--badge-color:${tone.text};--badge-border:${tone.border};--badge-bg:${badgeBg};--badge-glow:${tone.border};box-shadow:${badgeShadow};">
+                <span class="nyan-pp-badge-icon">${badge.icon || '\u{1F3C5}'}</span>
+            </span>`;
+        }).filter(Boolean).join('');
+        const featuredBadge = publicEquippedBadge || publicBadges[0] || null;
+        let publicBadgesPanelHtml = '';
+        if (publicBadges.length) {
+            const featuredCatalogBadge = window.Badges?.getBadge?.(featuredBadge?.id) || null;
+            const rarityMeta = window.Badges?.getRarityMeta?.(featuredBadge?.rarity) || {
+                label: 'Insignia',
+                dark: { text: '#f1f5f9', bg: 'rgba(255,255,255,0.08)', border: 'rgba(255,255,255,0.16)' },
+                light: { text: '#0f172a', bg: 'rgba(15,23,42,0.06)', border: 'rgba(15,23,42,0.12)' },
+            };
+            const tone = d ? rarityMeta.dark : rarityMeta.light;
+            const focusBg = d
+                ? `linear-gradient(135deg, rgba(15,23,42,0.88), ${tone.bg})`
+                : `linear-gradient(135deg, rgba(255,255,255,0.96), ${tone.bg})`;
+            publicBadgesPanelHtml = `<div class="nyan-pp-badges-shell">
+                <div class="nyan-pp-badges-head">
+                    <div class="nyan-pp-badges-title">Insignias</div>
+                    <div class="nyan-pp-badges-count">${publicBadges.length} em exibicao</div>
+                </div>
+                <div class="nyan-pp-badges-rail">${publicBadgesHtml}</div>
+                ${featuredBadge ? `<div class="nyan-pp-badge-focus" style="--focus-text:${tone.text};--focus-border:${tone.border};--focus-bg:${focusBg};">
+                    <div class="nyan-pp-badge-focus-icon">${featuredBadge.icon || '\u{1F3C5}'}</div>
+                    <div class="nyan-pp-badge-focus-copy">
+                        <div class="nyan-pp-badge-focus-label">Em destaque no perfil</div>
+                        <div class="nyan-pp-badge-focus-name">${featuredBadge.name || 'Insignia'}</div>
+                        <div class="nyan-pp-badge-focus-meta">
+                            <span class="nyan-pp-badge-focus-pill">${rarityMeta.label || 'Insignia'}</span>
+                            <span>${featuredBadge.description || featuredCatalogBadge?.description || 'Colecao publica de recompensas do perfil.'}</span>
+                        </div>
+                    </div>
+                </div>` : ''}
+            </div>`;
+        }
 
         ppContent.style.textAlign = 'left';
         ppContent.innerHTML = `
             <div id="nyan-pp-name">${profile.username || 'Usuário'}</div>
 
-            ${publicTitle ? `<div style="text-align:center;margin-bottom:0.2rem;animation:nyanSlideUp .4s ease both .08s;">
-                <span style="display:inline-flex;align-items:center;gap:0.32rem;
-                    font-size:0.7rem;font-weight:800;letter-spacing:0.02em;
-                    padding:0.26rem 0.58rem;border-radius:999px;
-                    color:${d ? 'rgba(255,255,255,0.9)' : '#4c1d95'};
-                    background:${d ? 'rgba(168,85,247,0.18)' : 'rgba(168,85,247,0.12)'};
-                    border:1px solid ${d ? 'rgba(168,85,247,0.38)' : 'rgba(168,85,247,0.28)'};
-                    ${publicTitleStyle}">
-                    <span>${publicTitle.icon || '🏅'}</span>
-                    <span>${publicTitle.name || 'Título'}</span>
-                </span>
-            </div>` : ''}
+            ${publicTitleHtml}
 
             <div id="nyan-pp-tag-row">
                 <span class="nyan-pp-tag">${profile.nyanTag || ''}</span>
@@ -904,10 +1193,12 @@ const Friends = {
 
             ${profile.bio ? `<div class="nyan-pp-bio" style="color:${sub};">"${profile.bio}"</div>` : ''}
 
+            ${publicBadgesPanelHtml}
+
             <div class="nyan-pp-stats-row">
                 <div class="nyan-pp-stat-pill accent">
                     <div class="nyan-pp-stat-label">Nível</div>
-                    <div class="nyan-pp-stat-val">${profile.level || 1}</div>
+                    <div class="nyan-pp-stat-val">${displayLevel}</div>
                 </div>
                 ${memberSince ? `<div class="nyan-pp-stat-pill">
                     <div class="nyan-pp-stat-label">Desde</div>
@@ -1201,7 +1492,7 @@ Friends._isKnownRoute = function(route) {
     if (route.startsWith('game:')) return true;
     const known = new Set([
         'home','password','weather','translator','ai-assistant','mini-game','temp-email','music',
-        'notes','tasks','missions','shop','offline','settings','friends','chat','leaderboard','feed',
+        'notes','tasks','missions','season','shop','offline','settings','friends','chat','leaderboard','feed',
         'challenges','profile','profile-public'
     ]);
     return known.has(route);
@@ -1215,6 +1506,7 @@ Friends._presenceRouteLabel = function(route) {
         tasks: 'Tarefas',
         notes: 'Notas',
         missions: 'Missoes',
+        season: 'Temporada',
         friends: 'Amigos',
         chat: 'Chat',
         profile: 'Perfil',
@@ -1256,6 +1548,8 @@ Friends._normalizePresence = function(data = {}) {
         label = 'Escrevendo notas';
     } else if (route === 'missions') {
         label = 'Nas missoes';
+    } else if (route === 'season') {
+        label = 'Na temporada';
     } else if (route === 'chat') {
         label = 'No chat';
     } else if (route === 'offline') {
@@ -1579,6 +1873,9 @@ window.Friends = Friends;
         } else if (route === 'missions') {
             status = status === 'offline' ? 'online' : status;
             label = 'Nas missoes';
+        } else if (route === 'season') {
+            status = status === 'offline' ? 'online' : status;
+            label = 'Na temporada';
         } else if (route === 'chat') {
             status = status === 'offline' ? 'online' : status;
             label = 'No chat';

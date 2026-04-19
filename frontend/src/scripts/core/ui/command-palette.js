@@ -144,7 +144,7 @@ const CommandPalette = {
     },
 
     _getTools() {
-        const tools = window.App?.tools || [];
+        const tools = window.App?.getVisibleTools ? App.getVisibleTools() : (window.App?.tools || []);
         const shortcuts = {
             'home':         'Ctrl+1', 'password':     'Ctrl+2',
             'weather':      'Ctrl+3', 'translator':   'Ctrl+4',

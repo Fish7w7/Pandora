@@ -5,8 +5,133 @@ if (process.platform === 'win32') {
 const { app, BrowserWindow, ipcMain, shell, Menu } = require('electron');
 const path = require('path');
 const fsSync = require('fs');
-const fs = require('fs').promises;
 const os = require('os');
+const crypto = require('crypto');
+
+function _safeEnvNumber(value, fallback, min = 0) {
+    const n = Number(value);
+    if (!Number.isFinite(n) || n < min) return fallback;
+    return n;
+}
+
+// Dev security config (renderer never receives secrets):
+// - NYAN_DEV_UIDS: comma-separated authorized Firebase UIDs
+// - NYAN_DEV_SECRET: plaintext dev passphrase (simple setup)
+// - NYAN_DEV_SECRET_SHA256: sha256(passphrase) hex (preferred)
+// Optional:
+// - NYAN_DEV_SESSION_TTL_MS, NYAN_DEV_MAX_ATTEMPTS, NYAN_DEV_LOCKOUT_MS
+const DEV_SECURITY = {
+    secretPlain: String(process.env.NYAN_DEV_SECRET || ''),
+    secretSha256: String(process.env.NYAN_DEV_SECRET_SHA256 || '').trim().toLowerCase(),
+    allowedUIDs: new Set(
+        String(process.env.NYAN_DEV_UIDS || '')
+            .split(',')
+            .map((s) => s.trim())
+            .filter(Boolean)
+    ),
+    sessionTtlMs: _safeEnvNumber(process.env.NYAN_DEV_SESSION_TTL_MS, 30 * 60 * 1000, 60 * 1000),
+    maxAttempts: _safeEnvNumber(process.env.NYAN_DEV_MAX_ATTEMPTS, 5, 1),
+    lockoutMs: _safeEnvNumber(process.env.NYAN_DEV_LOCKOUT_MS, 10 * 60 * 1000, 60 * 1000),
+    sessions: new Map(), // key: wc:<id> -> { uid, expiresAt }
+    failures: new Map(), // key: uid -> { count, lockedUntil }
+};
+
+function _normalizeUID(uid) {
+    return String(uid || '').trim();
+}
+
+function _isDevSecurityEnabled() {
+    const hasSecret = DEV_SECURITY.secretPlain.length > 0 || DEV_SECURITY.secretSha256.length === 64;
+    return DEV_SECURITY.allowedUIDs.size > 0 && hasSecret;
+}
+
+function _isAllowedDevUID(uid) {
+    const safeUID = _normalizeUID(uid);
+    return !!safeUID && DEV_SECURITY.allowedUIDs.has(safeUID);
+}
+
+function _sha256(input) {
+    return crypto.createHash('sha256').update(String(input || ''), 'utf8').digest('hex');
+}
+
+function _timingSafeEqualStrings(a, b) {
+    const left = Buffer.from(String(a || ''), 'utf8');
+    const right = Buffer.from(String(b || ''), 'utf8');
+    if (left.length !== right.length) return false;
+    return crypto.timingSafeEqual(left, right);
+}
+
+function _verifyDevSecret(passphrase) {
+    const incoming = String(passphrase || '');
+    if (DEV_SECURITY.secretSha256.length === 64) {
+        return _timingSafeEqualStrings(_sha256(incoming), DEV_SECURITY.secretSha256);
+    }
+    if (!DEV_SECURITY.secretPlain) return false;
+    return _timingSafeEqualStrings(incoming, DEV_SECURITY.secretPlain);
+}
+
+function _senderKey(event) {
+    const senderId = event?.sender?.id;
+    return Number.isFinite(senderId) ? `wc:${senderId}` : '';
+}
+
+function _cleanupDevSecurityState() {
+    const now = Date.now();
+    for (const [key, session] of DEV_SECURITY.sessions.entries()) {
+        if (!session || now >= Number(session.expiresAt || 0)) {
+            DEV_SECURITY.sessions.delete(key);
+        }
+    }
+    for (const [uid, state] of DEV_SECURITY.failures.entries()) {
+        if (!state) {
+            DEV_SECURITY.failures.delete(uid);
+            continue;
+        }
+        const lockedUntil = Number(state.lockedUntil || 0);
+        if (!lockedUntil || now >= lockedUntil) {
+            DEV_SECURITY.failures.delete(uid);
+        }
+    }
+}
+
+function _getLockoutRemainingMs(uid) {
+    const state = DEV_SECURITY.failures.get(uid);
+    if (!state || !state.lockedUntil) return 0;
+    return Math.max(0, Number(state.lockedUntil) - Date.now());
+}
+
+function _registerFailedDevAttempt(uid) {
+    const now = Date.now();
+    const prev = DEV_SECURITY.failures.get(uid) || { count: 0, lockedUntil: 0 };
+    const next = {
+        count: Number(prev.count || 0) + 1,
+        lockedUntil: 0,
+    };
+    if (next.count >= DEV_SECURITY.maxAttempts) {
+        next.lockedUntil = now + DEV_SECURITY.lockoutMs;
+        next.count = 0;
+    }
+    DEV_SECURITY.failures.set(uid, next);
+    return next;
+}
+
+function _clearFailedDevAttempts(uid) {
+    DEV_SECURITY.failures.delete(uid);
+}
+
+function _getValidDevSession(event, uid = '') {
+    const key = _senderKey(event);
+    if (!key) return null;
+    const session = DEV_SECURITY.sessions.get(key);
+    if (!session) return null;
+    if (Date.now() >= Number(session.expiresAt || 0)) {
+        DEV_SECURITY.sessions.delete(key);
+        return null;
+    }
+    const safeUID = _normalizeUID(uid);
+    if (safeUID && session.uid !== safeUID) return null;
+    return session;
+}
 
 console.log('[*] Aplicando otimizacoes de performance...');
 
@@ -63,15 +188,16 @@ function createWindow() {
         icon: iconPath,
         title: 'NyanTools nyan~'
     });
+    const wcId = mainWindow.webContents.id;
 
     const indexPath = path.join(__dirname, '../../frontend/public/index.html');
 
-    console.log('[~] NyanTools v3.10.0');
+    console.log('[~] NyanTools v3.11.0');
     console.log('[>] Diretório:', __dirname);
     console.log('[>] Carregando:', indexPath);
 
     // Remove menubar padrão do Electron (nao apagar esse comentário)
-    Menu.setApplicationMenu(null);
+    //Menu.setApplicationMenu(null);
 
     mainWindow.loadFile(indexPath);
 
@@ -88,7 +214,14 @@ function createWindow() {
         mainWindow.webContents.openDevTools({ mode: 'detach' });
     }
 
-    mainWindow.on('closed', () => { mainWindow = null; });
+    mainWindow.on('closed', () => {
+        DEV_SECURITY.sessions.delete(`wc:${wcId}`);
+        mainWindow = null;
+    });
+
+    mainWindow.webContents.on('destroyed', () => {
+        DEV_SECURITY.sessions.delete(`wc:${wcId}`);
+    });
 
     mainWindow.webContents.on('console-message', (event, level, message) => {
         if (message.includes('GPU') ||
@@ -203,6 +336,76 @@ ipcMain.handle('reset-update-cooldown', () => {
 
 ipcMain.handle('is-dev-environment', () => {
     return { isDev: process.env.NODE_ENV === 'development' };
+});
+
+ipcMain.handle('dev-security-status', (event, payload = {}) => {
+    _cleanupDevSecurityState();
+    const uid = _normalizeUID(payload.uid);
+    const enabled = _isDevSecurityEnabled();
+    const uidAllowed = enabled && _isAllowedDevUID(uid);
+    const session = uidAllowed ? _getValidDevSession(event, uid) : null;
+
+    return {
+        success: true,
+        enabled,
+        uidAllowed,
+        unlocked: !!session,
+        expiresAt: Number(session?.expiresAt || 0),
+        lockoutRemainingMs: uidAllowed ? _getLockoutRemainingMs(uid) : 0,
+    };
+});
+
+ipcMain.handle('dev-security-unlock', (event, payload = {}) => {
+    _cleanupDevSecurityState();
+    const uid = _normalizeUID(payload.uid);
+    const passphrase = String(payload.passphrase || '');
+
+    if (!_isDevSecurityEnabled()) {
+        return { success: false, error: 'Seguranca dev nao configurada neste host.' };
+    }
+    if (!uid || !_isAllowedDevUID(uid)) {
+        return { success: false, error: 'Usuario nao autorizado para acesso dev.' };
+    }
+
+    const lockoutRemainingMs = _getLockoutRemainingMs(uid);
+    if (lockoutRemainingMs > 0) {
+        return {
+            success: false,
+            error: 'Muitas tentativas invalidas. Aguarde para tentar novamente.',
+            lockoutRemainingMs,
+        };
+    }
+
+    if (!_verifyDevSecret(passphrase)) {
+        const fail = _registerFailedDevAttempt(uid);
+        return {
+            success: false,
+            error: 'Credencial dev invalida.',
+            lockoutRemainingMs: fail.lockedUntil ? Math.max(0, fail.lockedUntil - Date.now()) : 0,
+        };
+    }
+
+    _clearFailedDevAttempts(uid);
+    const key = _senderKey(event);
+    if (!key) return { success: false, error: 'Sessao de renderer invalida.' };
+
+    const expiresAt = Date.now() + DEV_SECURITY.sessionTtlMs;
+    DEV_SECURITY.sessions.set(key, { uid, expiresAt });
+    return { success: true, expiresAt };
+});
+
+ipcMain.handle('dev-security-validate', (event, payload = {}) => {
+    _cleanupDevSecurityState();
+    const uid = _normalizeUID(payload.uid);
+    const session = _getValidDevSession(event, uid);
+    if (!session) return { success: false, authorized: false, error: 'Sessao dev expirada ou ausente.' };
+    return { success: true, authorized: true, expiresAt: Number(session.expiresAt || 0) };
+});
+
+ipcMain.handle('dev-security-lock', (event) => {
+    const key = _senderKey(event);
+    if (key) DEV_SECURITY.sessions.delete(key);
+    return { success: true };
 });
 
 ipcMain.handle('start-update-download', async () => {
@@ -501,21 +704,11 @@ ipcMain.handle('open-external', async (_event, url) => {
     }
 });
 
-ipcMain.handle('read-local-v310-notes', async () => {
-    try {
-        const notesPath = path.join(__dirname, '../../frontend/docs/v3.10-notes.md');
-        if (!fsSync.existsSync(notesPath)) {
-            return { success: false, error: 'Arquivo de notas não encontrado' };
-        }
-        const content = await fs.readFile(notesPath, 'utf8');
-        return { success: true, content, path: notesPath };
-    } catch (error) {
-        return { success: false, error: error.message };
-    }
-});
+
+
 
 app.whenReady().then(() => {
-    console.log('[~] NyanTools v3.10.0');
+    console.log('[~] NyanTools v3.11.0');
     console.log('[>] App path:', app.getAppPath());
     console.log('[>] Plataforma:', process.platform);
 
@@ -546,3 +739,4 @@ process.on('uncaughtException', (error) => {
 process.on('unhandledRejection', (reason) => {
     console.error('[X] Promise rejeitada:', reason);
 });
+

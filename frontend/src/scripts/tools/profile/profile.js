@@ -229,11 +229,57 @@ const Profile = {
         </div>`;
     },
 
+    _formatCompactMetric(value, options = {}) {
+        const numeric = Number(value || 0);
+        const full = numeric.toLocaleString('pt-BR');
+        const compactAt = Number(options.compactAt || 1000000);
+        const maximumFractionDigits = Number(options.maximumFractionDigits ?? 1);
+
+        if (!Number.isFinite(numeric) || Math.abs(numeric) < compactAt) {
+            return { display: full, full, compact: false };
+        }
+
+        const display = new Intl.NumberFormat('pt-BR', {
+            notation: 'compact',
+            maximumFractionDigits,
+        }).format(numeric);
+
+        return { display, full, compact: true };
+    },
+
+    _getEconomyMetricStyle(display, kind = 'chips') {
+        const text = String(display || '');
+        const length = text.length;
+        let fontSize = kind === 'xp' ? '1.18rem' : '1.34rem';
+
+        if (length >= 10) {
+            fontSize = kind === 'xp' ? '0.9rem' : '0.96rem';
+        } else if (length >= 8) {
+            fontSize = kind === 'xp' ? '0.98rem' : '1.05rem';
+        } else if (length >= 6) {
+            fontSize = kind === 'xp' ? '1.06rem' : '1.16rem';
+        }
+
+        return [
+            `font-size:${fontSize}`,
+            'font-weight:900',
+            "font-family:'Syne',sans-serif",
+            'line-height:1',
+            'letter-spacing:-0.045em',
+            'white-space:nowrap',
+            'display:block',
+            'max-width:100%',
+            'font-variant-numeric:tabular-nums',
+        ].join(';');
+    },
+
     _renderEconomyBlock() {
         const s         = Economy.getState();
         const pct       = Economy.getLevelProgress();
-        const totalXP   = (s.totalXP || 0).toLocaleString('pt-BR');
-        const chips     = s.chips.toLocaleString('pt-BR');
+        const totalXPMetric = this._formatCompactMetric(s.totalXP || 0, { compactAt: 1000000 });
+        const chipsMetric = this._formatCompactMetric(s.chips || 0, { compactAt: 1000000 });
+        const chipsMetricStyle = `${this._getEconomyMetricStyle(chipsMetric.display, 'chips')};color:#b45309;`;
+        const totalXPMetricStyle = `${this._getEconomyMetricStyle(totalXPMetric.display, 'xp')};color:var(--p-text);`;
         const isCollapsed = Utils.loadData(this.COLLAPSE_ECO) === true;
         const chevron   = isCollapsed ? '▸' : '▾';
 
@@ -275,11 +321,11 @@ const Profile = {
                     </div>
                     <div style="background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:12px;padding:1rem;text-align:center;">
                         <div style="font-size:0.6rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--p-text-muted);margin-bottom:0.4rem;">Chips</div>
-                        <div id="economy-chips-display" style="font-size:1.5rem;font-weight:900;font-family:'Syne',sans-serif;color:#b45309;line-height:1;">${chips}</div>
+                        <div id="economy-chips-display" title="${chipsMetric.full} chips" style="${chipsMetricStyle}">${chipsMetric.display}</div>
                     </div>
                     <div style="background:var(--p-bg-subtle);border:1px solid var(--p-border);border-radius:12px;padding:1rem;text-align:center;">
                         <div style="font-size:0.6rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:var(--p-text-muted);margin-bottom:0.4rem;">XP total</div>
-                        <div style="font-size:1.2rem;font-weight:900;font-family:'Syne',sans-serif;color:var(--p-text);line-height:1;">${totalXP}</div>
+                        <div id="economy-totalxp-display" title="${totalXPMetric.full} XP" style="${totalXPMetricStyle}">${totalXPMetric.display}</div>
                     </div>
                 </div>
 
@@ -516,3 +562,5 @@ const Profile = {
 };
 
 window.Profile = Profile;
+
+

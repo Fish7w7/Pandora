@@ -1,8 +1,13 @@
 const Economy = {
     KEY: 'nyan_economy',
 
-    XP_BASE: 100,
-    XP_MULTIPLIER: 1.4,
+    XP_BASE: 120,
+    XP_LINEAR: 40,
+    XP_QUADRATIC: 2,
+    MAX_TOTAL_XP: 2147483647,
+    MAX_LEVEL_SOFT_CAP: 5000,
+    REMOTE_SYNC_DEBOUNCE: 1400,
+    _remoteSyncTimer: null,
 
     MILESTONES: {
         10: { title: 'Veterano にゃん~',  reward: 'border_paw'   },
@@ -22,22 +27,84 @@ const Economy = {
     },
 
     _defaults() {
-        return { chips: 0, xp: 0, level: 1, xpToNext: this.XP_BASE, totalXP: 0 };
+        return { chips: 0, xp: 0, level: 1, xpToNext: this.xpForLevel(1), totalXP: 0 };
+    },
+
+    _sanitizeInt(value, fallback = 0, min = 0, max = this.MAX_TOTAL_XP) {
+        const n = Number(value);
+        if (!Number.isFinite(n)) return fallback;
+        const parsed = Math.round(n);
+        return Math.max(min, Math.min(max, parsed));
+    },
+
+    _totalXPFromLegacyLevel(level = 1, xp = 0) {
+        const safeLevel = this._sanitizeInt(level, 1, 1, this.MAX_LEVEL_SOFT_CAP);
+        let total = this._sanitizeInt(xp, 0, 0, this.MAX_TOTAL_XP);
+        for (let lvl = 1; lvl < safeLevel; lvl++) {
+            total += this.xpForLevel(lvl);
+            if (total >= this.MAX_TOTAL_XP) return this.MAX_TOTAL_XP;
+        }
+        return this._sanitizeInt(total, 0, 0, this.MAX_TOTAL_XP);
+    },
+
+    _normalizeState(state = {}) {
+        const normalized = { ...this._defaults() };
+        normalized.chips = this._sanitizeInt(state.chips, 0, 0, this.MAX_TOTAL_XP);
+
+        let totalXP = Number(state.totalXP);
+        const hasLegacyLevelData = Number(state.level) > 1 || Number(state.xp) > 0;
+        if (!Number.isFinite(totalXP) || (totalXP <= 0 && hasLegacyLevelData)) {
+            totalXP = this._totalXPFromLegacyLevel(state.level, state.xp);
+        }
+        normalized.totalXP = this._sanitizeInt(totalXP, 0, 0, this.MAX_TOTAL_XP);
+
+        const levelData = this.calcLevel(normalized.totalXP);
+        normalized.level = levelData.level;
+        normalized.xp = levelData.xp;
+        normalized.xpToNext = levelData.xpToNext;
+        return normalized;
     },
 
     load() {
         try {
             const raw = localStorage.getItem(this.KEY);
             if (!raw) return { ...this._defaults() };
-            return { ...this._defaults(), ...JSON.parse(raw) };
+
+            const parsed = JSON.parse(raw) || {};
+            const source = { ...this._defaults(), ...parsed };
+            const normalized = this._normalizeState(source);
+
+            const shouldSave =
+                source.chips !== normalized.chips ||
+                source.totalXP !== normalized.totalXP ||
+                source.level !== normalized.level ||
+                source.xp !== normalized.xp ||
+                source.xpToNext !== normalized.xpToNext;
+
+            if (shouldSave) this.save(normalized, { skipSync: true });
+            return normalized;
         } catch (e) {
             return { ...this._defaults() };
         }
     },
 
-    save(state) {
+    save(state, options = {}) {
         try { localStorage.setItem(this.KEY, JSON.stringify(state)); }
         catch (e) { console.error('[Economy] Erro ao salvar:', e); }
+        if (!options.skipSync) this._scheduleRemoteSync();
+    },
+
+    _scheduleRemoteSync() {
+        if (!window.NyanAuth?._syncLocalProfile || !window.NyanAuth?.isOnline?.() || !window.NyanFirebase?.isReady?.()) {
+            return;
+        }
+        if (this._remoteSyncTimer) {
+            clearTimeout(this._remoteSyncTimer);
+        }
+        this._remoteSyncTimer = setTimeout(() => {
+            this._remoteSyncTimer = null;
+            window.NyanAuth._syncLocalProfile({ includeEconomy: true }).catch(() => {});
+        }, this.REMOTE_SYNC_DEBOUNCE);
     },
 
     _migrate() {
@@ -56,12 +123,16 @@ const Economy = {
     },
 
     xpForLevel(level) {
-        return Math.round(this.XP_BASE * Math.pow(this.XP_MULTIPLIER, level - 1));
+        const lvl = Math.max(1, this._sanitizeInt(level, 1, 1, this.MAX_LEVEL_SOFT_CAP));
+        const step = lvl - 1;
+        return this.XP_BASE + (step * this.XP_LINEAR) + Math.floor((step * step) * this.XP_QUADRATIC);
     },
 
     calcLevel(totalXP) {
-        let level = 1, remaining = totalXP;
-        while (true) {
+        const safeXP = this._sanitizeInt(totalXP, 0, 0, this.MAX_TOTAL_XP);
+        let level = 1;
+        let remaining = safeXP;
+        while (level < this.MAX_LEVEL_SOFT_CAP) {
             const needed = this.xpForLevel(level);
             if (remaining < needed) break;
             remaining -= needed;
@@ -70,19 +141,28 @@ const Economy = {
         return { level, xp: remaining, xpToNext: this.xpForLevel(level) };
     },
 
-    grant(action, multiplier = 1) {
+    grant(action, multiplier = 1, meta = {}) {
         const reward = this.REWARDS[action];
         if (!reward) return { leveledUp: false, newLevel: 1, milestonesReached: [] };
 
-        const state    = this.load();
+        const state = this.load();
         const oldLevel = state.level;
 
-        state.totalXP = (state.totalXP || 0) + Math.round(reward.xp * multiplier);
-        state.chips  += Math.round(reward.chips * multiplier);
+        const seasonMods = window.Seasons?.getGrantModifiers?.(action, meta) || {
+            xpMultiplier: 1,
+            chipsMultiplier: 1,
+            event: null,
+        };
+
+        const xpAward = Math.round((reward.xp || 0) * multiplier * (seasonMods.xpMultiplier || 1));
+        const chipsAward = Math.round((reward.chips || 0) * multiplier * (seasonMods.chipsMultiplier || 1));
+
+        state.totalXP = (state.totalXP || 0) + xpAward;
+        state.chips += chipsAward;
 
         const { level, xp, xpToNext } = this.calcLevel(state.totalXP);
-        state.level   = level;
-        state.xp      = xp;
+        state.level = level;
+        state.xp = xp;
         state.xpToNext = xpToNext;
         this.save(state);
 
@@ -95,11 +175,19 @@ const Economy = {
         }
 
         const leveledUp = level > oldLevel;
-        if (leveledUp) this._onLevelUp(level, Math.round(reward.xp * multiplier), Math.round(reward.chips * multiplier));
-        else if (reward.xp > 0 || reward.chips > 0) this._onGrant(Math.round(reward.xp * multiplier), Math.round(reward.chips * multiplier), action);
+        if (leveledUp) this._onLevelUp(level, xpAward, chipsAward);
+        else if (xpAward > 0 || chipsAward > 0) this._onGrant(xpAward, chipsAward, action);
+
+        if (xpAward > 0 && window.Seasons?.addXP) {
+            window.Seasons.addXP(xpAward, {
+                fromGrant: true,
+                action,
+                event: seasonMods.event?.id || null,
+            });
+        }
 
         this._refreshUI();
-        return { leveledUp, newLevel: level, milestonesReached };
+        return { leveledUp, newLevel: level, milestonesReached, xpAward, chipsAward, weekendEvent: seasonMods.event || null };
     },
 
     grantChips(amount) {
@@ -132,7 +220,7 @@ const Economy = {
 
         if (isRecord) {
             const mult = this.getStreakMultiplier();
-            this.grant('beat_record', mult);
+            this.grant('beat_record', mult, { storageKey, newScore });
             window.Missions?.track?.({ event: 'beat_record', storageKey, newScore });
         }
         return isRecord;
