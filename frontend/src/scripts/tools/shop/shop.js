@@ -14,12 +14,111 @@ const Shop = {
 
     _tab:         'shop',   // 'shop' | 'seasonal' | 'inventory'
     _selectedCat: 'title',  // categoria selecionada na loja
+    STORAGE_KEY: 'nyan_shop_state_v3111',
+    _stateLoaded: false,
+    _stateCache: null,
     PATCH_EVENT: {
         id: 'v310_patch_day',
         title: 'Patch Day v3.10',
         subtitle: 'Obrigada pela ajuda da comunidade na correcao do exploit',
         endsAt: '2026-04-19T23:59:59-03:00',
         items: ['title_patchday_310', 'border_patchday_310', 'theme_patchpulse_intro'],
+    },
+
+    _getDefaultState() {
+        return {
+            tab: 'shop',
+            selectedCat: 'title',
+            dailyCycle: { key: '', categories: {} },
+        };
+    },
+
+    _getCycleKey(date = new Date()) {
+        const d = new Date(date);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    },
+
+    _loadState() {
+        if (this._stateLoaded && this._stateCache) return this._stateCache;
+
+        const raw = Utils.loadData(this.STORAGE_KEY);
+        const state = raw && typeof raw === 'object'
+            ? { ...this._getDefaultState(), ...raw }
+            : this._getDefaultState();
+
+        state.tab = ['shop', 'seasonal', 'inventory'].includes(state.tab) ? state.tab : 'shop';
+        state.selectedCat = this.CATEGORIES.some((cat) => cat.id === state.selectedCat) ? state.selectedCat : 'title';
+        state.dailyCycle = state.dailyCycle && typeof state.dailyCycle === 'object'
+            ? { key: String(state.dailyCycle.key || ''), categories: state.dailyCycle.categories || {} }
+            : { key: '', categories: {} };
+
+        this._stateLoaded = true;
+        this._stateCache = state;
+        return state;
+    },
+
+    _saveState() {
+        const state = this._stateCache || this._getDefaultState();
+        Utils.saveData(this.STORAGE_KEY, state);
+    },
+
+    _ensureState() {
+        const state = this._loadState();
+        let changed = false;
+        const cycleKey = this._getCycleKey();
+
+        if (state.dailyCycle.key !== cycleKey) {
+            state.dailyCycle = { key: cycleKey, categories: {} };
+            changed = true;
+        }
+
+        this.CATEGORIES.forEach((cat) => {
+            const currentIds = Array.isArray(state.dailyCycle.categories?.[cat.id])
+                ? state.dailyCycle.categories[cat.id]
+                : [];
+            const validIds = currentIds.filter((id) => !!Inventory.getItem(id));
+
+            if (validIds.length >= this.DAILY_PER_CAT) {
+                state.dailyCycle.categories[cat.id] = validIds.slice(0, this.DAILY_PER_CAT);
+                return;
+            }
+
+            state.dailyCycle.categories[cat.id] = this._buildDailyRotationIds(cat.id);
+            changed = true;
+        });
+
+        if (changed) this._saveState();
+
+        this._tab = state.tab;
+        this._selectedCat = state.selectedCat;
+        return state;
+    },
+
+    _buildDailyRotationIds(catId) {
+        const seed = this._getDaySeed();
+        const catSeed = seed ^ catId.split('').reduce((a, c) => a ^ c.charCodeAt(0), 0);
+        const playerLevel = window.Economy?.getLevel?.() || 1;
+
+        let pool = Inventory.getByType(catId).filter((i) =>
+            !i.milestone &&
+            !i.exclusive &&
+            !i.eventOnly &&
+            (i.minLevel - playerLevel) <= this.DAILY_MAX_GAP
+        );
+
+        if (pool.length < this.DAILY_PER_CAT) {
+            pool = Inventory.getByType(catId).filter((i) => !i.milestone && !i.exclusive && !i.eventOnly);
+        }
+        if (pool.length < this.DAILY_PER_CAT) {
+            pool = Inventory.getByType(catId).filter((i) => !i.exclusive && !i.eventOnly);
+        }
+
+        return this._seededShuffle(pool, catSeed)
+            .slice(0, this.DAILY_PER_CAT)
+            .map((item) => item.id);
     },
 
     _getDaySeed() {
@@ -52,27 +151,15 @@ const Shop = {
     },
 
     getDailyForCat(catId) {
-        const seed        = this._getDaySeed();
-        const catSeed     = seed ^ catId.split('').reduce((a, c) => a ^ c.charCodeAt(0), 0);
-        const playerLevel = window.Economy?.getLevel?.() || 1;
+        const state = this._ensureState();
+        const ids = Array.isArray(state.dailyCycle?.categories?.[catId])
+            ? state.dailyCycle.categories[catId]
+            : [];
+        const items = ids
+            .map((id) => Inventory.getItem(id))
+            .filter(Boolean)
+            .slice(0, this.DAILY_PER_CAT);
 
-        let pool = Inventory.getByType(catId).filter(i =>
-            !i.milestone &&
-            !i.exclusive &&
-            !i.eventOnly &&
-            !Inventory.owns(i.id) &&
-            (i.minLevel - playerLevel) <= this.DAILY_MAX_GAP
-        );
-
-        if (pool.length < this.DAILY_PER_CAT) {
-            pool = Inventory.getByType(catId).filter(i => !i.milestone && !i.exclusive && !i.eventOnly);
-        }
-        if (pool.length === 0) {
-            pool = Inventory.getByType(catId).filter(i => !i.exclusive && !i.eventOnly);
-        }
-
-        const shuffled = this._seededShuffle(pool, catSeed);
-        const items    = shuffled.slice(0, this.DAILY_PER_CAT);
         if (items[0]) items[0] = { ...items[0], isDailyExclusive: true };
         return items;
     },
@@ -201,6 +288,7 @@ const Shop = {
     },
 
     render() {
+        this._ensureState();
         const c     = this._c();
         const d     = this._isDark();
         const chips = window.Economy?.getChips?.() || 0;
@@ -821,7 +909,12 @@ const Shop = {
     },
 
     _setTab(tab) {
+        this._ensureState();
         this._tab = tab;
+        if (this._stateCache) {
+            this._stateCache.tab = tab;
+            this._saveState();
+        }
         const content = document.getElementById('shop-main-content');
         if (content) {
             content.innerHTML = tab === 'shop'
@@ -883,7 +976,12 @@ const Shop = {
     },
 
     _selectCat(catId) {
+        this._ensureState();
         this._selectedCat = catId;
+        if (this._stateCache) {
+            this._stateCache.selectedCat = catId;
+            this._saveState();
+        }
         const sidebar = document.getElementById('shop-cat-sidebar');
         if (sidebar) sidebar.innerHTML = this._renderCatSidebar();
         const panel = document.getElementById('shop-items-panel');
@@ -1046,7 +1144,7 @@ const Shop = {
     },
 
     init() {
-        this._tab = 'shop';
+        this._ensureState();
         const chipsEl = document.getElementById('shop-chips-display');
         if (chipsEl) chipsEl.textContent = (window.Economy?.getChips?.() || 0).toLocaleString('pt-BR');
     },

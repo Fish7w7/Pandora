@@ -1,7 +1,7 @@
 ﻿
 
 const AutoUpdater = {
-    currentVersion: '3.11.0',
+    currentVersion: '3.11.1',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -21,13 +21,31 @@ const AutoUpdater = {
     _statusListenerRegistered: false,
     _progressListenerRegistered: false,
     _nativeResponded: false,
+    _initialized: false,
+    launchNoticeCooldownMs: 12 * 60 * 60 * 1000,
 
 
       changelog: [
     {
+        version: '3.11.1',
+        date: '2026-04-21T12:00:00',
+        label: 'Atual',
+        labelColor: 'bg-green-500',
+        author: 'Gabriel',
+        changes: [
+            { type: '🧠', text: 'Quiz diario agora persiste progresso, bloqueia repeticao no mesmo dia e impede reset por navegacao' },
+            { type: '🔁', text: 'Rotacao recente de perguntas reduz repeticoes em curto prazo sem travar a variedade' },
+            { type: '🛍️', text: 'Loja do dia e loja sazonal ficaram estaveis por ciclo, sem trocar contexto apos compras' },
+            { type: '🎁', text: 'Marcos de nivel ficaram mais variados: nivel 10 da particulas, nivel 25 da titulo e nivel 50 mantem a borda final' },
+            { type: '🪪', text: 'Titulo atual no perfil ganhou hierarquia visual mais limpa e integrada ao hero' },
+            { type: '🔄', text: 'Inventario e estado do quiz entram na sincronizacao com Firebase para reduzir inconsistencias' },
+            { type: '⬆️', text: 'Aviso leve de atualizacao passa a aparecer no boot mesmo com a opcao automatica desligada' },
+        ]
+    },
+    {
         version: '3.11.0',
         date: '2026-04-17T12:00:00',
-        label: 'Atual',
+        label: '',
         labelColor: 'bg-green-500',
         author: 'Clara',
         changes: [
@@ -39,23 +57,6 @@ const AutoUpdater = {
             { type: '🔄', text: 'Sincronizacao online reforcada entre Firebase, badges, temporada, economia e perfil' },
             { type: '🛡️', text: 'Sentinela v3.10 virou insignia exclusiva de seguranca, em vez de continuar como titulo' },
             { type: '🐛', text: 'Correcao de layouts vazios, numeros cortados, historico recente e inconsistencias visuais do perfil' },
-        ]
-    },
-     {
-        version: '3.10.0',
-        date: '2026-04-15T12:00:00',
-        label: '',
-        labelColor: 'bg-green-500',
-        author: 'Gabriel',
-        changes: [
-            { type: '🌍', text: 'Nyan Worlds: integracao entre jogar, socializar, organizar e evoluir perfil' },
-            { type: '🏠', text: 'Home personalizada e dashboard refinado com foco em continuidade e menos poluicao visual' },
-            { type: '🧑', text: 'Perfil 2.0 com banner, bio (200), historico, estatisticas e identidade mais forte' },
-            { type: '🟢', text: 'Presenca social em tempo real mais estavel entre status, ferramenta e contexto' },
-            { type: '🔗', text: 'Fluxos conectados entre notas, tarefas, missoes, progresso e perfil' },
-            { type: '🛡️', text: 'Regra oficial da v3.10: concluir tarefa nao gera XP/chips (exploit bloqueado)' },
-            { type: '🎉', text: 'Evento Patch Day v3.10 com recompensas especiais e intro limitada' },
-            { type: '🐛', text: 'Pacote de estabilidade: Zona Offline, render de perfil, textos e sincronizacao visual' },
         ]
     },
 ],
@@ -376,7 +377,7 @@ const AutoUpdater = {
                         <span class="text-2xl">⚙️</span>
                         <div>
                             <div class="font-semibold text-gray-800 text-sm">Verificar automaticamente ao iniciar</div>
-                            <div class="text-xs text-gray-500">O app verifica atualizações ao abrir</div>
+                            <div class="text-xs text-gray-500">Avisos leves de nova versao continuam no boot; esta opcao controla checagens extras</div>
                         </div>
                     </div>
                     <label class="relative inline-flex items-center cursor-pointer">
@@ -425,7 +426,74 @@ const AutoUpdater = {
         `;
     },
 
+    _normalizeCheckOptions(input = false) {
+        if (typeof input === 'object' && input !== null) {
+            return {
+                silentNoUpdate: input.silentNoUpdate === true,
+                notifyOnAvailable: input.notifyOnAvailable !== false,
+                force: input.force === true,
+                source: String(input.source || 'manual'),
+            };
+        }
+
+        const silent = input === true;
+        return {
+            silentNoUpdate: silent,
+            notifyOnAvailable: !silent,
+            force: false,
+            source: silent ? 'background' : 'manual',
+        };
+    },
+
+    _loadVersionCache() {
+        const cache = Utils.loadData('version_cache');
+        if (!cache?.data) return null;
+
+        const timestamp = Number(cache.timestamp || 0);
+        const expiresIn = Number(cache.expiresIn || 0);
+        if (timestamp > 0 && expiresIn > 0 && Date.now() - timestamp <= expiresIn) {
+            return cache.data;
+        }
+
+        return cache.data || null;
+    },
+
+    _getSnoozeUntil() {
+        return Math.max(0, Number(Utils.loadData('update_snooze') || 0));
+    },
+
+    _isSnoozed() {
+        const snoozeUntil = this._getSnoozeUntil();
+        if (!snoozeUntil) return false;
+        if (Date.now() < snoozeUntil) return true;
+        Utils.removeData('update_snooze');
+        return false;
+    },
+
+    _shouldNotifyUpdate(version = '', source = 'manual') {
+        if (!version) return false;
+        if (this._isSnoozed()) return false;
+        if (source === 'manual') return true;
+
+        const notice = Utils.loadData('update_notice_state');
+        if (!notice || notice.version !== version) return true;
+        return Date.now() - Number(notice.at || 0) >= this.launchNoticeCooldownMs;
+    },
+
+    _markUpdateNotified(version = '') {
+        if (!version) return;
+        Utils.saveData('update_notice_state', { version, at: Date.now() });
+    },
+
+    _syncUpdateUI() {
+        App?.renderNavMenu?.();
+        Router?.render?.();
+    },
+
     async init() {
+        if (this._initialized) return;
+        this._initialized = true;
+
         if (window.App?.version) {
             this.currentVersion = window.App.version;
         } else {
@@ -441,17 +509,18 @@ const AutoUpdater = {
         }
 
         if (window.electronAPI?.onUpdaterStatus && !this._statusListenerRegistered) {
-            this._statusListenerRegistered = true;
+                this._statusListenerRegistered = true;
             window.electronAPI.onUpdaterStatus((status) => {
                 this._handleNativeStatus(status);
             });
         }
 
-        const snooze = Utils.loadData('update_snooze');
-        if (snooze && Date.now() < snooze) return;
-
-        if (this.getAutoCheckSetting() && this.canCheckNow()) {
-            setTimeout(() => this.checkForUpdates(true), 3000);
+        if (this.canCheckNow()) {
+            setTimeout(() => this.checkForUpdates({
+                silentNoUpdate: true,
+                notifyOnAvailable: true,
+                source: 'launch',
+            }), 3000);
         }
     },
 
@@ -476,18 +545,19 @@ const AutoUpdater = {
                     _fromNativeUpdater: true
                 };
                 Utils.saveData('last_update_check', { date: Date.now(), version: this.currentVersion });
-                if (!this._snoozed) {
+                if (this._shouldNotifyUpdate(status.version, 'native')) {
+                    this._markUpdateNotified(status.version);
                     Utils.showNotification(`🎉 Nova versão disponível: v${status.version}`, 'success');
                 }
-                Router?.render();
+                this._syncUpdateUI();
                 break;
 
             case 'up-to-date':
                 this.checking = false;
                 this._nativeResponded = true; // cancela o fallback timer
                 clearTimeout(this._nativeFallbackTimer);
-                Utils.showNotification('✅ Você está na versão mais recente!', 'success');
-                Router?.render();
+                this.updateAvailable = false;
+                this._syncUpdateUI();
                 break;
 
             case 'update-downloaded':
@@ -495,19 +565,20 @@ const AutoUpdater = {
                 this.downloadProgress = 100;
                 this._logInstall(this.currentVersion, status.version || '');
                 Utils.showNotification(`🎉 v${status.version} baixada! Reiniciando em 5s...`, 'success');
-                Router?.render();
+                this._syncUpdateUI();
                 break;
 
             case 'error':
                 this.checking  = false;
                 this.downloading = false;
                 console.warn('[Updater] Erro nativo:', status.message);
-                Router?.render();
+                this._syncUpdateUI();
                 break;
         }
     },
 
-    canCheckNow() {
+    canCheckNow(force = false) {
+        if (force) return true;
         const lastCheck = Utils.loadData('last_update_check');
         if (!lastCheck) return true;
         return Date.now() - lastCheck.date >= this.minCheckInterval;
@@ -525,14 +596,16 @@ const AutoUpdater = {
         return `Verificado há ${d} dia${d > 1 ? 's' : ''}`;
     },
 
-    async checkForUpdates(silent = false) {
+    async checkForUpdates(input = false) {
+        const options = this._normalizeCheckOptions(input);
+
         if (this.checking) {
-            if (!silent) Utils.showNotification('⏱️ Verificação em andamento...', 'info');
+            if (!options.silentNoUpdate) Utils.showNotification('⏱️ Verificação em andamento...', 'info');
             return;
         }
 
-        if (!this.canCheckNow() && !this._devMode) {
-            if (!silent) {
+        if (!this.canCheckNow(options.force) && !this._devMode) {
+            if (!options.silentNoUpdate) {
                 const lastCheck   = Utils.loadData('last_update_check');
                 const minutesLeft = Math.ceil((this.minCheckInterval - (Date.now() - lastCheck.date)) / 60000);
                 Utils.showNotification(`⏱️ Aguarde ${minutesLeft} min para verificar novamente`, 'warning');
@@ -542,7 +615,7 @@ const AutoUpdater = {
 
         this.checking = true;
         this._nativeResponded = false;
-        if (!silent) Router?.render();
+        if (!options.silentNoUpdate) Router?.render();
 
         try {
             let data;
@@ -552,7 +625,7 @@ const AutoUpdater = {
 
                 if (!result.success) {
                     if (result.rateLimited) {
-                        if (!silent) Utils.showNotification('⏱️ Aguarde alguns minutos para verificar novamente', 'warning');
+                        if (!options.silentNoUpdate) Utils.showNotification('⏱️ Aguarde alguns minutos para verificar novamente', 'warning');
                         return;
                     }
                     throw new Error(result.error || 'Falha na verificação');
@@ -569,18 +642,23 @@ const AutoUpdater = {
 
             this._cacheVersion(data);
             Utils.saveData('last_update_check', { date: Date.now(), version: this.currentVersion });
-            this._processVersionData(data, silent);
+            this._processVersionData(data, options);
 
         } catch (error) {
             console.error('❌ Erro ao verificar atualizações:', error);
-            if (!silent) Utils.showNotification('❌ Erro ao verificar atualizações', 'error');
+            const cached = this._loadVersionCache();
+            if (cached) {
+                this._processVersionData(cached, { ...options, source: `${options.source}:cache` });
+                return;
+            }
+            if (!options.silentNoUpdate) Utils.showNotification('❌ Erro ao verificar atualizações', 'error');
         } finally {
             this.checking = false;
-            if (!silent) Router?.render();
+            if (!options.silentNoUpdate) Router?.render();
         }
     },
 
-    _processVersionData(data, silent) {
+    _processVersionData(data, options = {}) {
         if (!data) return;
 
         if (data.usingNativeUpdater) return;
@@ -591,15 +669,20 @@ const AutoUpdater = {
         if (this.compareVersions(latest, this.currentVersion) > 0 || this._devMode) {
             this.updateAvailable = true;
             this.latestVersion   = data;
-            if (!silent) {
+            if (options.notifyOnAvailable && this._shouldNotifyUpdate(latest, options.source || 'manual')) {
+                this._markUpdateNotified(latest);
                 const changes = this._parseReleaseBody(data.body || '').slice(0, 3);
                 const preview = changes.length > 0 ? '\n' + changes.map(c => `• ${c}`).join('\n') : '';
                 Utils.showNotification(`🎉 Nova versão disponível: v${latest}${preview}`, 'success');
             }
-        } else if (!silent) {
+        } else {
+            this.updateAvailable = false;
+            this.latestVersion = null;
+            if (!options.silentNoUpdate) {
             Utils.showNotification('✅ Você está na versão mais recente!', 'success');
+            }
         }
-        if (!silent) Router?.render();
+        this._syncUpdateUI();
     },
 
     _cacheVersion(data) {
@@ -818,7 +901,7 @@ const AutoUpdater = {
         Utils.saveData('update_snooze', tomorrow);
         this.updateAvailable = false;
         Utils.showNotification('🔕 Lembrete agendado para amanhã', 'info');
-        Router?.render();
+        this._syncUpdateUI();
     },
 
     _logInstall(fromVersion, toVersion) {

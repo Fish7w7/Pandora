@@ -1,6 +1,8 @@
 const Inventory = {
 
     KEY: 'nyan_inventory',
+    REMOTE_SYNC_DEBOUNCE: 1000,
+    _remoteSyncTimer: null,
 
     CATALOG: [
         { id:'title_gamer',    type:'title',  name:'Gamer nyan~',     icon:'\u{1F3AE}', rarity:'common',    price:200,  minLevel:3,  preview:'Aparece no seu perfil abaixo do nome' },
@@ -9,6 +11,7 @@ const Inventory = {
         { id:'title_genius',   type:'title',  name:'Genio do Quiz',     icon:'\u{1F9E0}', rarity:'rare',      price:500,  minLevel:8,  preview:'Para quem tira 10/10 no Quiz' },
         { id:'title_legend',   type:'title',  name:'Lendario',          icon:'\u{1F451}', rarity:'epic',      price:1000, minLevel:25, preview:'Reservado para os veteranos' },
         { id:'title_nyan',     type:'title',  name:'nyan~ Master',      icon:'\u{1F431}', rarity:'epic',      price:800,  minLevel:15, preview:'O titulo mais kawaii de todos' },
+        { id:'title_master_nyan', type:'title', name:'Mestre Nyan~',    icon:'\u{1F451}', rarity:'milestone', price:0,    minLevel:25, preview:'Titulo de marco - desbloqueado ao atingir nivel 25', milestone:true },
         { id:'title_patchday_310', type:'title', name:'Patch Day v3.10', icon:'\u{1F381}', rarity:'weekly', price:0, minLevel:1, preview:'Recompensa exclusiva de lancamento da v3.10', eventOnly:true },
         { id:'title_season1_silver', type:'title', name:'Aurora da Temporada', icon:'\u{1F338}', rarity:'seasonal', price:450, minLevel:1, preview:'Titulo sazonal da Temporada 1', seasonId:'season_1', endsAt:'2026-05-15T23:59:59-03:00', eventOnly:true },
         { id:'title_season1_champion', type:'title', name:'Despertar Supremo', icon:'\u{1F451}', rarity:'seasonal', price:0, minLevel:1, preview:'Titulo final da Temporada 1', seasonId:'season_1', endsAt:'2026-05-15T23:59:59-03:00', eventOnly:true, rewardOnly:true, seasonFinalReward:true },
@@ -34,7 +37,7 @@ const Inventory = {
         },
         {
             id:'border_paw', type:'border', name:'Patinhas', icon:'\u{1F43E}', rarity:'milestone', price:0, minLevel:10,
-            preview:'Borda animada - desbloqueada ao atingir nivel 10', milestone:true,
+            preview:'Borda animada legado da trilha antiga de marcos', eventOnly:true,
             css:'border: 2.5px solid #4ade80; animation: pawBorderAnim 3s ease-in-out infinite;',
             extraStyle:`@keyframes pawBorderAnim {
                 0%,100% { border-color:#4ade80; box-shadow:0 0 6px 1px rgba(74,222,128,0.7); }
@@ -45,7 +48,7 @@ const Inventory = {
         },
         {
             id:'border_crown', type:'border', name:'Realeza', icon:'\u{1F451}', rarity:'milestone', price:0, minLevel:25,
-            preview:'Borda dourada animada - desbloqueada ao atingir nivel 25', milestone:true,
+            preview:'Borda dourada legado da trilha antiga de marcos', eventOnly:true,
             css:'border: 2.5px solid #f59e0b; animation: crownBorderAnim 2.5s ease-in-out infinite;',
             extraStyle:`@keyframes crownBorderAnim {
                 0%,100% { border-color:#f59e0b; box-shadow:0 0 6px 1px rgba(245,158,11,0.8); }
@@ -94,6 +97,7 @@ const Inventory = {
         { id:'particle_stars',  type:'particle', name:'Estrelas',         icon:'\u2728', rarity:'common', price:500, minLevel:6,  preview:'Estrelinhas ao redor do avatar' },
         { id:'particle_hearts', type:'particle', name:'Coracoes',         icon:'\u{1F495}', rarity:'common', price:500, minLevel:6,  preview:'Coracoes flutuando' },
         { id:'particle_nyan',   type:'particle', name:'Patinhas nyan~', icon:'\u{1F43E}', rarity:'rare',   price:900, minLevel:10, preview:'Patinhas de gato girando' },
+        { id:'particle_veteran_spark', type:'particle', name:'Sigilos Veteranos', icon:'\u25C8', rarity:'milestone', price:0, minLevel:10, preview:'Particulas de marco - sigilos dourados ao atingir nivel 10', milestone:true },
         { id:'particle_season1_petals', type:'particle', name:'Petalas S1', icon:'\u{1F33A}', rarity:'seasonal', price:0, minLevel:1, preview:'Efeito raro de petalas da Temporada 1', seasonId:'season_1', endsAt:'2026-05-15T23:59:59-03:00', eventOnly:true, rewardOnly:true },
     ],
 
@@ -106,14 +110,23 @@ const Inventory = {
         seasonal:  { label:'Sazonal', color:'#fb7185', bg:'rgba(251,113,133,0.12)' },
     },
 
+    _defaultData() {
+        return { owned: [], equipped: {}, updatedAt: 0 };
+    },
+
+    _normalizeData(raw = {}) {
+        const data = raw && typeof raw === 'object' ? { ...raw } : {};
+        data.owned = Array.isArray(data.owned) ? [...new Set(data.owned.filter(Boolean))] : [];
+        data.equipped = data.equipped && typeof data.equipped === 'object' ? { ...data.equipped } : {};
+        data.updatedAt = Number.isFinite(Number(data.updatedAt)) ? Number(data.updatedAt) : 0;
+        return data;
+    },
+
     load() {
         const legacySeasonBadgeTitleId = 'title_season1_badge';
         const legacySentinelTitleIds = ['title_security_sentinel_v310', 'title_bug_hunter_v310'];
-        const data = Utils.loadData(this.KEY) || { owned:[], equipped:{} };
+        const data = this._normalizeData(Utils.loadData(this.KEY) || this._defaultData());
         let changed = false;
-
-        data.owned = Array.isArray(data.owned) ? data.owned : [];
-        data.equipped = data.equipped && typeof data.equipped === 'object' ? data.equipped : {};
 
         const canMigrateSentinelBadge = typeof window.Badges?.unlock === 'function';
         const hasLegacySentinelTitle = data.owned.some((id) => legacySentinelTitleIds.includes(id))
@@ -140,23 +153,75 @@ const Inventory = {
             changed = true;
         }
 
-        if (changed) this.save(data);
+        if (changed) this.save(data, { skipSync: true, preserveUpdatedAt: true });
         return data;
     },
 
-    save(data) {
-        Utils.saveData(this.KEY, data);
+    save(data, options = {}) {
+        const normalized = this._normalizeData(data);
+        if (!options.preserveUpdatedAt) {
+            normalized.updatedAt = Date.now();
+        }
+        Utils.saveData(this.KEY, normalized);
+        if (!options.skipSync) this._scheduleRemoteSync();
+        return normalized;
+    },
+
+    _scheduleRemoteSync() {
+        if (!window.NyanAuth?._syncLocalProfile || !window.NyanAuth?.isOnline?.() || !window.NyanFirebase?.isReady?.()) {
+            return;
+        }
+        if (this._remoteSyncTimer) clearTimeout(this._remoteSyncTimer);
+        this._remoteSyncTimer = setTimeout(() => {
+            this._remoteSyncTimer = null;
+            window.NyanAuth._syncLocalProfile({ includeEconomy: false }).catch(() => {});
+        }, this.REMOTE_SYNC_DEBOUNCE);
+    },
+
+    getCloudPayload() {
+        return this.load();
+    },
+
+    applyRemoteSync(remoteData, options = {}) {
+        if (!remoteData || typeof remoteData !== 'object') return false;
+
+        const local = this.load();
+        const remote = this._normalizeData(remoteData);
+        const localHasData = local.owned.length > 0 || Object.keys(local.equipped || {}).length > 0;
+        const remoteHasData = remote.owned.length > 0 || Object.keys(remote.equipped || {}).length > 0;
+        if (!remoteHasData) return false;
+
+        const shouldApply = options.force === true
+            || !localHasData
+            || Number(remote.updatedAt || 0) > Number(local.updatedAt || 0);
+
+        if (!shouldApply) return false;
+
+        const sameOwned = JSON.stringify(local.owned) === JSON.stringify(remote.owned);
+        const sameEquipped = JSON.stringify(local.equipped) === JSON.stringify(remote.equipped);
+        if (sameOwned && sameEquipped) return false;
+
+        this.save(remote, { skipSync: true, preserveUpdatedAt: true });
+        ['border', 'title', 'particle'].forEach((type) => {
+            if (!remote.equipped?.[type]) this._removeEquipped(type);
+        });
+        if (!remote.equipped?.effect) {
+            Utils.removeData('shop_nav_effect');
+            window._navEffect = null;
+        }
+        this.applyAll();
+        return true;
     },
 
     owns(itemId) {
         return this.load().owned.includes(itemId);
     },
 
-    unlockItem(itemId) {
+    unlockItem(itemId, options = {}) {
         const data = this.load();
         if (data.owned.includes(itemId)) return false;
         data.owned.push(itemId);
-        this.save(data);
+        this.save(data, options);
         return true;
     },
 
@@ -173,7 +238,7 @@ const Inventory = {
             delete data.equipped[type];
         }
 
-        this.save(data);
+        this.save(data, options);
 
         if (wasEquipped && type) {
             this._removeEquipped(type);
@@ -484,6 +549,17 @@ const Inventory = {
                 chars: ['\u{1F43E}','\u{1F431}','\u{1F43E}','\u{1F431}','\u{1F43E}','\u{1F431}','\u{1F43E}','\u{1F431}'],
                 color: '#a855f7', glow: 'rgba(168,85,247,0.55)', anim: 'particleBounce',
             },
+            particle_veteran_spark: {
+                chars: ['\u25C6','\u25C7','\u25C6','\u25C8','\u25C6','\u25C7','\u25C6','\u25C8'],
+                color: '#f59e0b',
+                glow: 'rgba(245,158,11,0.55)',
+                anim: 'particleOrbit',
+                fontSize: '9px',
+                fontWeight: '900',
+                textColor: '#fcd34d',
+                textShadow: '0 0 8px rgba(245,158,11,0.45)',
+                duration: '2.2s',
+            },
             particle_season1_petals: {
                 chars: ['\u{1F338}','\u{1F33A}','\u{1F339}','\u{1F338}','\u{1F33A}','\u{1F339}','\u{1F338}','\u{1F33A}'],
                 color: '#fb7185', glow: 'rgba(249,115,22,0.45)', anim: 'particleFloat',
@@ -507,6 +583,16 @@ const Inventory = {
                 0%,100% { opacity:0.55; transform:translate(-50%,-50%) scale(1); }
                 33%      { opacity:1;   transform:translate(-50%,-50%) scale(1.3) rotate(15deg); }
                 66%      { opacity:0.8; transform:translate(-50%,-50%) scale(0.9) rotate(-10deg); }
+            }
+            @keyframes particleTwinkle {
+                0%,100% { opacity:0.45; transform:translate(-50%,-50%) scale(0.9) rotate(0deg); }
+                50%      { opacity:1;   transform:translate(-50%,-50%) scale(1.35) rotate(18deg); }
+            }
+            @keyframes particleOrbit {
+                0%,100% { opacity:0.48; transform:translate(-50%,-50%) translateX(0) translateY(0) scale(0.9) rotate(0deg); }
+                25%     { opacity:0.8;  transform:translate(-50%,-50%) translateX(2px) translateY(-2px) scale(1.05) rotate(10deg); }
+                50%     { opacity:1;    transform:translate(-50%,-50%) translateX(0) translateY(-4px) scale(1.18) rotate(18deg); }
+                75%     { opacity:0.76; transform:translate(-50%,-50%) translateX(-2px) translateY(-2px) scale(1.02) rotate(8deg); }
             }
             @keyframes particleGlow {
                 0%,100% { opacity:0.5; }
@@ -556,6 +642,11 @@ const Inventory = {
             p.textContent = cfg.chars[i % cfg.chars.length];
             p.style.animationName  = cfg.anim;
             p.style.animationDelay = `${i * 0.225}s`;
+            if (cfg.fontSize) p.style.fontSize = cfg.fontSize;
+            if (cfg.fontWeight) p.style.fontWeight = cfg.fontWeight;
+            if (cfg.textColor) p.style.color = cfg.textColor;
+            if (cfg.textShadow) p.style.textShadow = cfg.textShadow;
+            if (cfg.duration) p.style.animationDuration = cfg.duration;
             Object.entries(pos).forEach(([k, v]) => { p.style[k] = v; });
             container.appendChild(p);
         });

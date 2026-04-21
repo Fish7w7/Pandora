@@ -1,4 +1,4 @@
-if (process.platform === 'win32') {
+﻿if (process.platform === 'win32') {
     try { require('child_process').execSync('chcp 65001', {stdio:'ignore'}); } catch(_) {}
 }
 
@@ -192,12 +192,12 @@ function createWindow() {
 
     const indexPath = path.join(__dirname, '../../frontend/public/index.html');
 
-    console.log('[~] NyanTools v3.11.0');
+    console.log('[~] NyanTools v3.11.1');
     console.log('[>] Diretório:', __dirname);
     console.log('[>] Carregando:', indexPath);
 
     // Remove menubar padrão do Electron (nao apagar esse comentário)
-    //Menu.setApplicationMenu(null);
+    Menu.setApplicationMenu(null);
 
     mainWindow.loadFile(indexPath);
 
@@ -708,7 +708,7 @@ ipcMain.handle('open-external', async (_event, url) => {
 
 
 app.whenReady().then(() => {
-    console.log('[~] NyanTools v3.11.0');
+    console.log('[~] NyanTools v3.11.1');
     console.log('[>] App path:', app.getAppPath());
     console.log('[>] Plataforma:', process.platform);
 

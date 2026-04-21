@@ -1,14 +1,13 @@
 {
-    "version":  "3.11.0",
-    "buildDate":  "2026-04-18",
-    "changelog":  [
-                      "Temporada 1 - Despertar finalizada com tiers, recompensas, ranking e loja sazonal integrada",
-                      "Sistema de insignias separado de titulos, com showcase publico, destaque e migracoes legadas",
-                      "Perfil 2.0 retrabalhado com customizacao, estatisticas reorganizadas e visual mais premium",
-                      "Perfil publico refeito com badges reais e hierarquia visual mais clara",
-                      "Dev Lab fortalecido para testes internos de economia e temporada em ambiente developer",
-                      "Sincronizacao online reforcada entre Firebase, badges, temporada, economia e perfil",
-                      "Sentinela v3.10 convertido em insignia exclusiva de seguranca",
-                      "Correcoes visuais em cards, historico, numeros grandes e layouts do perfil"
-                  ]
+    "version": "3.11.1",
+    "buildDate": "2026-04-21",
+    "changelog": [
+        "Quiz diario agora persiste progresso, bloqueia repeticoes no mesmo dia e impede reset por navegacao",
+        "Rotacao recente de perguntas reduz repeticoes em curto prazo",
+        "Loja diaria e sazonal permanecem estaveis apos compra e durante o ciclo",
+        "Marcos de nivel agora misturam particula, titulo e borda em vez de repetir tres bordas",
+        "Titulo atual no perfil recebeu hierarquia visual mais limpa e coerente com o hero",
+        "Inventario e estado do quiz entram na sincronizacao com Firebase",
+        "Aviso leve de atualizacao aparece no boot mesmo com a checagem automatica desligada"
+    ]
 }

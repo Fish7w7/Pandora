@@ -10,9 +10,9 @@ const Economy = {
     _remoteSyncTimer: null,
 
     MILESTONES: {
-        10: { title: 'Veterano にゃん~',  reward: 'border_paw'   },
-        25: { title: 'Mestre にゃん~',    reward: 'border_crown' },
-        50: { title: 'Lendário にゃん~',  reward: 'border_star'  },
+        10: { title: 'Veterano にゃん~',  reward: 'particle_veteran_spark' },
+        25: { title: 'Mestre にゃん~',    reward: 'title_master_nyan'      },
+        50: { title: 'Lendário にゃん~',  reward: 'border_star'            },
     },
 
     REWARDS: {
@@ -63,6 +63,30 @@ const Economy = {
         normalized.xp = levelData.xp;
         normalized.xpToNext = levelData.xpToNext;
         return normalized;
+    },
+
+    ensureLevelRewards(level = null, options = {}) {
+        const safeLevel = this._sanitizeInt(level ?? this.getLevel(), 1, 1, this.MAX_LEVEL_SOFT_CAP);
+        const granted = [];
+
+        Object.entries(this.MILESTONES).forEach(([lvl, milestone]) => {
+            const milestoneLevel = Number(lvl);
+            if (milestoneLevel > safeLevel) return;
+
+            const rewardId = String(milestone?.reward || '').trim();
+            if (!rewardId || !window.Inventory?.unlockItem || window.Inventory.owns?.(rewardId)) return;
+
+            const unlocked = window.Inventory.unlockItem(rewardId, { skipSync: options.skipSync === true });
+            if (unlocked) {
+                granted.push({ level: milestoneLevel, rewardId, milestone });
+            }
+        });
+
+        if (granted.length > 0) {
+            window.Inventory?.applyAll?.();
+        }
+
+        return granted;
     },
 
     load() {
@@ -251,10 +275,16 @@ const Economy = {
     },
 
     _onMilestone(level, milestone) {
-        if (window.Utils?.showNotification) {
-            Utils.showNotification(`🏆 Título desbloqueado: "${milestone.title}"`, 'success');
+        const rewardId = String(milestone?.reward || '').trim();
+        const rewardItem = rewardId ? window.Inventory?.getItem?.(rewardId) : null;
+        const unlocked = rewardId && window.Inventory?.unlockItem
+            ? window.Inventory.unlockItem(rewardId)
+            : false;
+
+        if (unlocked && window.Utils?.showNotification) {
+            const rewardLabel = rewardItem?.name || milestone?.title || 'Recompensa de nivel';
+            Utils.showNotification(`🏆 Recompensa de nivel recebida: "${rewardLabel}"`, 'success');
         }
-        if (window.Inventory?.unlockItem) Inventory.unlockItem(milestone.reward);
     },
 
     _updateSidebarBadge(level) {
@@ -339,6 +369,7 @@ const Economy = {
     init() {
         this._migrate();
         const s = this.load();
+        this.ensureLevelRewards(s.level, { skipSync: true });
         this._updateSidebarBadge(s.level);
     },
 
@@ -349,6 +380,7 @@ const Economy = {
             const { level, xp, xpToNext } = Economy.calcLevel(state.totalXP);
             Object.assign(state, { level, xp, xpToNext });
             Economy.save(state);
+            Economy.ensureLevelRewards(level);
             Economy._refreshUI();
         },
         addChips(amount) { Economy.grantChips(amount); },

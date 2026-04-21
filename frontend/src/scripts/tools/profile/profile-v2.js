@@ -232,6 +232,45 @@ const ProfileV2 = {
         </span>`;
     },
 
+    getTitleTone(title = null) {
+        const { dark, text, sub } = this.getThemeTokens();
+        const rarityMeta = window.Inventory?.RARITY?.[title?.rarity] || {
+            label: 'Titulo',
+            color: dark ? '#f1f5f9' : '#0f172a',
+            bg: dark ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.06)',
+        };
+
+        return {
+            label: rarityMeta.label || 'Titulo',
+            accent: rarityMeta.color || (dark ? '#f1f5f9' : '#0f172a'),
+            text,
+            sub,
+            border: dark ? 'rgba(255,255,255,0.09)' : 'rgba(15,23,42,0.09)',
+            bg: dark
+                ? 'linear-gradient(135deg, rgba(255,255,255,0.045), rgba(255,255,255,0.02))'
+                : 'linear-gradient(135deg, rgba(255,255,255,0.96), rgba(15,23,42,0.03))',
+            iconBg: dark
+                ? `linear-gradient(135deg, rgba(255,255,255,0.08), ${rarityMeta.bg})`
+                : `linear-gradient(135deg, rgba(255,255,255,0.96), ${rarityMeta.bg})`,
+            metaBg: dark ? rarityMeta.bg : rarityMeta.bg,
+            glow: 'none',
+        };
+    },
+
+    renderTitleBadge(title, options = {}) {
+        if (!title) return '';
+        const tone = this.getTitleTone(title);
+        const variant = options.variant === 'compact' ? 'compact' : 'hero';
+        const showMeta = options.showMeta !== false && variant !== 'compact';
+
+        return `<span class="profile-title-chip ${variant}"
+            style="--title-accent:${tone.accent};--title-text:${tone.text};--title-sub:${tone.sub};--title-border:${tone.border};--title-bg:${tone.bg};--title-icon-bg:${tone.iconBg};--title-meta-bg:${tone.metaBg};--title-glow:${tone.glow};">
+            <span class="profile-title-chip-icon">${title.icon || '\u{1F451}'}</span>
+            <span class="profile-title-chip-name">${title.name || 'Titulo'}</span>
+            ${showMeta ? `<span class="profile-title-chip-meta">${tone.label}</span>` : ''}
+        </span>`;
+    },
+
     renderHeroBadgeGroup() {
         const equippedBadge = window.Badges?.getEquippedBadge?.() || null;
         const showcaseBadges = window.Badges?.getShowcaseBadges?.() || [];
@@ -506,7 +545,6 @@ const ProfileV2 = {
             window.Inventory?.getEquippedItem?.('title') ||
             window.Inventory?.getProfileTitleFromProfile?.(profileDoc) ||
             null;
-        const titleBadgeStyle = window.Inventory?.getTitleBadgeStyle?.(equippedTitle) || '';
         const avatarBorderBase = dark ? '#0e0e18' : '#ffffff';
         const equippedBorder =
             window.Inventory?.getEquippedItem?.('border') ||
@@ -524,10 +562,7 @@ const ProfileV2 = {
         const titleHtml = equippedTitle
             ? `<div class="profile-hero-title-wrap">
                 <div class="profile-hero-mini-label">Titulo atual</div>
-                <span class="profile-title-chip" style="${titleBadgeStyle}">
-                    <span>${equippedTitle.icon || '\u{1F451}'}</span>
-                    <span>${equippedTitle.name || 'Titulo'}</span>
-                </span>
+                ${this.renderTitleBadge(equippedTitle, { variant: 'hero' })}
             </div>`
             : '';
 
@@ -692,16 +727,85 @@ const ProfileV2 = {
             }
             .profile-hero-title-wrap {
                 margin-bottom: 0.55rem;
+                max-width: min(100%, 340px);
             }
             .profile-title-chip {
+                position: relative;
                 display: inline-flex;
                 align-items: center;
-                gap: 0.34rem;
-                padding: 0.26rem 0.7rem;
+                gap: 0.45rem;
+                max-width: 100%;
+                padding: 0.34rem 0.58rem 0.34rem 0.42rem;
+                border-radius: 14px;
+                border: 1px solid var(--title-border);
+                background: var(--title-bg);
+                box-shadow: var(--title-glow);
+                color: var(--title-text);
+                vertical-align: top;
+                overflow: hidden;
+            }
+            .profile-title-chip::before {
+                content: '';
+                position: absolute;
+                left: 0;
+                top: 7px;
+                bottom: 7px;
+                width: 3px;
                 border-radius: 999px;
-                font-size: 0.68rem;
-                font-weight: 800;
+                background: var(--title-accent);
+                opacity: 0.9;
+            }
+            .profile-title-chip.hero {
+                font-size: 0.72rem;
+                padding-left: 0.58rem;
+            }
+            .profile-title-chip.compact {
+                padding: 0.28rem 0.5rem 0.28rem 0.36rem;
+                gap: 0.4rem;
+                padding-left: 0.52rem;
+                border-radius: 12px;
+            }
+            .profile-title-chip-icon {
+                width: 22px;
+                height: 22px;
+                border-radius: 8px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex-shrink: 0;
+                background: var(--title-icon-bg);
+                color: var(--title-accent);
+                font-size: 0.72rem;
+                box-shadow: inset 0 0 0 1px ${dark ? 'rgba(255,255,255,0.04)' : 'rgba(255,255,255,0.5)'};
+            }
+            .profile-title-chip.compact .profile-title-chip-icon {
+                width: 20px;
+                height: 20px;
+                font-size: 0.66rem;
+            }
+            .profile-title-chip-name {
+                min-width: 0;
+                font-size: 0.72rem;
                 line-height: 1.1;
+                font-weight: 800;
+                color: var(--title-text);
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+            .profile-title-chip-meta {
+                flex-shrink: 0;
+                padding: 0.14rem 0.34rem;
+                border-radius: 999px;
+                font-size: 0.56rem;
+                font-weight: 800;
+                letter-spacing: 0.06em;
+                text-transform: uppercase;
+                color: var(--title-accent);
+                background: var(--title-meta-bg);
+            }
+            .profile-title-chip.compact .profile-title-chip-name {
+                font-size: 0.68rem;
             }
             .profile-edit-hero-meta {
                 display: flex;
@@ -972,8 +1076,6 @@ const ProfileV2 = {
             window.Inventory?.getEquippedItem?.('title') ||
             window.Inventory?.getProfileTitleFromProfile?.(window.NyanAuth?.currentUser || null) ||
             null;
-        const titleBadgeStyle = window.Inventory?.getTitleBadgeStyle?.(equippedTitle) || '';
-
         return `<div class="profile-subcard profile-subcard-soft ${wide ? 'profile-preview-summary-wide' : ''}" id="profile-preview-summary-panel">
             <div class="profile-subcard-head">
                 <div class="profile-subcard-copy">
@@ -997,10 +1099,7 @@ const ProfileV2 = {
                     <span class="profile-preview-label">Titulo</span>
                     <span class="profile-preview-value">
                         ${equippedTitle
-                            ? `<span class="profile-title-chip" style="${titleBadgeStyle}">
-                                <span>${equippedTitle.icon || '\u{1F451}'}</span>
-                                <span>${equippedTitle.name || 'Titulo'}</span>
-                            </span>`
+                            ? this.renderTitleBadge(equippedTitle, { variant: 'compact', showMeta: false })
                             : 'Nenhum'}
                     </span>
                 </div>

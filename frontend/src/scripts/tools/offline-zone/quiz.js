@@ -108,11 +108,53 @@ const QuizDiario = {
     { q: "Qual doce brasileiro é feito com leite condensado e chocolate?", o: ["Quindim", "Brigadeiro", "Pé de moleque", "Beijinho"], a: 1, e: "O brigadeiro é um dos doces mais populares do Brasil." },
     { q: "Qual instrumento musical tem teclas pretas e brancas?", o: ["Violino", "Flauta", "Piano", "Tambor"], a: 2, e: "O piano é conhecido por seu teclado de teclas brancas e pretas." },
     { q: "Qual gênero musical nasceu na Jamaica?", o: ["Samba", "Reggae", "Jazz", "Tango"], a: 1, e: "O reggae surgiu na Jamaica e se popularizou mundialmente." }
-],
+].map((entry, index) => ({
+    id: entry.id || `quiz_q_${String(index + 1).padStart(3, '0')}`,
+    ...entry,
+})),
+
+    STORAGE_KEY: 'nyan_daily_quiz_v3111',
+    LEGACY_RESULT_KEY: 'quiz_today',
+    ANSWER_REVEAL_MS: 1800,
+    REPEAT_WINDOW_DAYS: 7,
+    HISTORY_WINDOW_DAYS: 30,
+    REMOTE_SYNC_DEBOUNCE: 900,
+    _advanceTimer: null,
+    _remoteSyncTimer: null,
+    _selectedIndex: null,
+    _lastCorrect: false,
+
+    _formatDateKey(date = new Date()) {
+        const d = new Date(date);
+        const y = d.getFullYear();
+        const m = String(d.getMonth() + 1).padStart(2, '0');
+        const day = String(d.getDate()).padStart(2, '0');
+        return `${y}-${m}-${day}`;
+    },
 
     _getToday() {
+        return this._formatDateKey(new Date());
+    },
+
+    _getLegacyTodayKey() {
         const d = new Date();
         return `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
+    },
+
+    _parseDateKey(dateKey = '') {
+        const match = String(dateKey || '').match(/^(\d{4})-(\d{2})-(\d{2})$/);
+        if (!match) return null;
+        const [, y, m, d] = match.map(Number);
+        const parsed = new Date(y, m - 1, d);
+        parsed.setHours(0, 0, 0, 0);
+        return parsed;
+    },
+
+    _daysBetween(fromKey = '', toKey = '') {
+        const from = this._parseDateKey(fromKey);
+        const to = this._parseDateKey(toKey);
+        if (!from || !to) return Number.POSITIVE_INFINITY;
+        return Math.round((to.getTime() - from.getTime()) / 86400000);
     },
 
     _seededRandom(seed) {
@@ -147,6 +189,339 @@ const QuizDiario = {
         window.Missions?.track?.({ event: 'quiz_finish', score });
     },
 
+    _persistedDefaults() {
+        return { state: null, history: {}, updatedAt: 0 };
+    },
+
+    _normalizeHistory(history = {}) {
+        const today = this._getToday();
+        const normalized = {};
+
+        if (!history || typeof history !== 'object') return normalized;
+
+        Object.entries(history).forEach(([dateKey, ids]) => {
+            if (!Array.isArray(ids)) return;
+            const diff = this._daysBetween(dateKey, today);
+            if (!Number.isFinite(diff) || diff < 0 || diff > this.HISTORY_WINDOW_DAYS) return;
+
+            const uniqueIds = [...new Set(ids
+                .map((id) => String(id || '').trim())
+                .filter((id) => !!this._getQuestionById(id)))];
+
+            if (uniqueIds.length > 0) normalized[dateKey] = uniqueIds;
+        });
+
+        return normalized;
+    },
+
+    _normalizeState(state = null) {
+        if (!state || typeof state !== 'object') return null;
+
+        const questionIds = [...new Set((Array.isArray(state.questionIds) ? state.questionIds : [])
+            .map((id) => String(id || '').trim())
+            .filter((id) => !!this._getQuestionById(id)))].slice(0, this.QUESTIONS_PER_DAY);
+
+        if (questionIds.length === 0) return null;
+
+        const answeredIds = [...new Set((Array.isArray(state.answeredIds) ? state.answeredIds : [])
+            .map((id) => String(id || '').trim())
+            .filter((id) => !!this._getQuestionById(id)))];
+
+        const status = String(state.status || '') === 'completed' ? 'completed' : 'playing';
+        const maxCurrent = status === 'completed'
+            ? this.QUESTIONS_PER_DAY
+            : Math.max(0, questionIds.length - 1);
+
+        return {
+            date: String(state.date || '').trim(),
+            status,
+            questionIds,
+            answeredIds,
+            current: Math.min(maxCurrent, Math.max(0, Math.floor(Number(state.current || 0)))),
+            score: Math.max(0, Math.min(this.QUESTIONS_PER_DAY, Math.floor(Number(state.score || 0)))),
+            answered: status !== 'completed' && state.answered === true,
+            selectedIndex: Number.isInteger(state.selectedIndex) ? state.selectedIndex : null,
+            lastCorrect: state.lastCorrect === true,
+            revealedAt: Math.max(0, Number(state.revealedAt || 0)),
+            completedAt: Math.max(0, Number(state.completedAt || 0)),
+            updatedAt: Math.max(0, Number(state.updatedAt || 0)),
+        };
+    },
+
+    _normalizePersisted(raw = null) {
+        const base = this._persistedDefaults();
+        const data = raw && typeof raw === 'object' ? { ...base, ...raw } : base;
+        data.history = this._normalizeHistory(data.history);
+        data.state = this._normalizeState(data.state);
+        data.updatedAt = Math.max(0, Number(data.updatedAt || 0), Number(data.state?.updatedAt || 0));
+        return data;
+    },
+
+    _getQuestionById(id = '') {
+        const questionId = String(id || '').trim();
+        return this._bank.find((question) => question.id === questionId) || null;
+    },
+
+    _selectQuestionsForToday(history = {}) {
+        const today = this._getToday();
+        const recentIds = new Set();
+
+        Object.entries(this._normalizeHistory(history)).forEach(([dateKey, ids]) => {
+            const diff = this._daysBetween(dateKey, today);
+            if (diff <= 0 || diff > this.REPEAT_WINDOW_DAYS) return;
+            ids.forEach((id) => recentIds.add(id));
+        });
+
+        const rng = this._seededRandom(`${today}:quiz_rotation`);
+        const ordered = [...this._bank].sort((a, b) => {
+            const diff = rng() - 0.5;
+            if (diff !== 0) return diff;
+            return a.id.localeCompare(b.id);
+        });
+
+        const filtered = ordered.filter((question) => !recentIds.has(question.id));
+        const pool = filtered.length >= this.QUESTIONS_PER_DAY
+            ? filtered
+            : [...filtered, ...ordered.filter((question) => !filtered.some((entry) => entry.id === question.id))];
+
+        return pool.slice(0, this.QUESTIONS_PER_DAY);
+    },
+
+    _loadPersisted() {
+        const persisted = this._normalizePersisted(Utils.loadData(this.STORAGE_KEY));
+        const today = this._getToday();
+        let changed = false;
+
+        const legacy = Utils.loadData(this.LEGACY_RESULT_KEY);
+        if ((legacy?.date === today || legacy?.date === this._getLegacyTodayKey()) && !persisted.state) {
+            const questionIds = this._selectQuestionsForToday(persisted.history).map((question) => question.id);
+            persisted.state = {
+                date: today,
+                status: 'completed',
+                questionIds,
+                answeredIds: [...questionIds],
+                current: this.QUESTIONS_PER_DAY,
+                score: Math.max(0, Math.min(this.QUESTIONS_PER_DAY, Math.floor(Number(legacy.score || 0)))),
+                answered: false,
+                selectedIndex: null,
+                lastCorrect: false,
+                revealedAt: 0,
+                completedAt: Date.now(),
+                updatedAt: Date.now(),
+            };
+            persisted.history[today] = [...questionIds];
+            changed = true;
+        }
+
+        if (persisted.state?.date && persisted.state.date !== today) {
+            const historyIds = persisted.state.answeredIds?.length > 0
+                ? persisted.state.answeredIds
+                : persisted.state.status === 'completed'
+                    ? persisted.state.questionIds
+                    : [];
+
+            if (historyIds.length > 0) {
+                persisted.history[persisted.state.date] = [...new Set(historyIds)];
+            }
+            persisted.state = null;
+            changed = true;
+        }
+
+        const normalizedHistory = this._normalizeHistory(persisted.history);
+        if (JSON.stringify(normalizedHistory) !== JSON.stringify(persisted.history)) {
+            persisted.history = normalizedHistory;
+            changed = true;
+        }
+
+        if (changed) {
+            this._savePersistedState(persisted, { skipSync: true });
+        }
+
+        return this._normalizePersisted(persisted);
+    },
+
+    _savePersistedState(persisted, options = {}) {
+        const normalized = this._normalizePersisted(persisted);
+        if (!options.preserveUpdatedAt) {
+            normalized.updatedAt = Date.now();
+            if (normalized.state) normalized.state.updatedAt = normalized.updatedAt;
+        }
+        Utils.saveData(this.STORAGE_KEY, normalized);
+        if (!options.skipSync) this._scheduleRemoteSync();
+        return normalized;
+    },
+
+    _scheduleRemoteSync() {
+        if (!window.NyanAuth?._syncLocalProfile || !window.NyanAuth?.isOnline?.() || !window.NyanFirebase?.isReady?.()) {
+            return;
+        }
+        if (this._remoteSyncTimer) clearTimeout(this._remoteSyncTimer);
+        this._remoteSyncTimer = setTimeout(() => {
+            this._remoteSyncTimer = null;
+            window.NyanAuth._syncLocalProfile({ includeEconomy: false }).catch(() => {});
+        }, this.REMOTE_SYNC_DEBOUNCE);
+    },
+
+    getCloudPayload() {
+        return this._loadPersisted();
+    },
+
+    applyRemoteSync(remoteData, options = {}) {
+        if (!remoteData || typeof remoteData !== 'object') return false;
+
+        const local = this._loadPersisted();
+        const remote = this._normalizePersisted(remoteData);
+        const localStamp = Number(local.updatedAt || 0);
+        const remoteStamp = Number(remote.updatedAt || 0);
+        const shouldAdoptRemote = options.force === true
+            || (!local.state && Object.keys(local.history).length === 0)
+            || remoteStamp > localStamp
+            || (remote.state?.status === 'completed' && local.state?.status !== 'completed' && remote.state?.date === this._getToday());
+
+        const mergedHistory = { ...local.history };
+        Object.entries(remote.history || {}).forEach(([dateKey, ids]) => {
+            mergedHistory[dateKey] = [...new Set([...(mergedHistory[dateKey] || []), ...(ids || [])])];
+        });
+
+        const next = shouldAdoptRemote
+            ? { state: remote.state, history: mergedHistory, updatedAt: Math.max(remoteStamp, localStamp) }
+            : { state: local.state, history: mergedHistory, updatedAt: Math.max(remoteStamp, localStamp) };
+
+        const changed = JSON.stringify(this._normalizePersisted(local)) !== JSON.stringify(this._normalizePersisted(next));
+        if (!changed) return false;
+
+        this._savePersistedState(next, { skipSync: true, preserveUpdatedAt: true });
+        this._syncRuntimeFromStorage();
+        return true;
+    },
+
+    _getQuestionState() {
+        return this._loadPersisted().state;
+    },
+
+    _setQuestionState(nextState, options = {}) {
+        const persisted = this._loadPersisted();
+        persisted.state = nextState ? {
+            ...nextState,
+            updatedAt: Date.now(),
+        } : null;
+
+        if (persisted.state?.status === 'completed' && persisted.state.questionIds?.length) {
+            persisted.history[persisted.state.date] = [...new Set(persisted.state.questionIds)];
+        }
+
+        const saved = this._savePersistedState(persisted, options);
+        this._syncRuntimeFromStorage(saved);
+        return saved.state;
+    },
+
+    _syncRuntimeFromStorage(persisted = null) {
+        const data = persisted ? this._normalizePersisted(persisted) : this._loadPersisted();
+        const state = data.state?.date === this._getToday() ? data.state : null;
+
+        if (!state) {
+            this._questions = [];
+            this._current = 0;
+            this._score = 0;
+            this._answered = false;
+            this._selectedIndex = null;
+            this._lastCorrect = false;
+            this._phase = 'intro';
+            return null;
+        }
+
+        this._questions = state.questionIds.map((id) => this._getQuestionById(id)).filter(Boolean);
+        this._current = Math.max(0, Math.min(Number(state.current || 0), Math.max(this._questions.length - 1, 0)));
+        this._score = Math.max(0, Math.min(this.QUESTIONS_PER_DAY, Number(state.score || 0)));
+        this._answered = state.answered === true;
+        this._selectedIndex = Number.isInteger(state.selectedIndex) ? state.selectedIndex : null;
+        this._lastCorrect = state.lastCorrect === true;
+        this._phase = state.status === 'completed' ? 'completed' : 'playing';
+        return state;
+    },
+
+    _queueAdvance(delayMs = this.ANSWER_REVEAL_MS) {
+        if (this._advanceTimer) clearTimeout(this._advanceTimer);
+        this._advanceTimer = setTimeout(() => {
+            this._advanceTimer = null;
+            this._advanceAfterReveal();
+        }, Math.max(0, delayMs));
+    },
+
+    _advanceAfterReveal(force = false) {
+        const state = this._getQuestionState();
+        if (!state || state.status !== 'playing' || state.answered !== true) return;
+
+        const elapsed = Date.now() - Number(state.revealedAt || 0);
+        if (!force && elapsed < this.ANSWER_REVEAL_MS) {
+            this._queueAdvance(this.ANSWER_REVEAL_MS - elapsed);
+            return;
+        }
+
+        const nextCurrent = Number(state.current || 0) + 1;
+        if (nextCurrent >= this.QUESTIONS_PER_DAY) {
+            this._completeToday(state);
+            return;
+        }
+
+        this._setQuestionState({
+            ...state,
+            current: nextCurrent,
+            answered: false,
+            selectedIndex: null,
+            lastCorrect: false,
+            revealedAt: 0,
+        });
+
+        this._updateQuestion();
+    },
+
+    _saveTodayProgress(score, completedState = null) {
+        Utils.saveData(this.LEGACY_RESULT_KEY, { date: this._getToday(), score });
+        const best = Utils.loadData('quiz_highscore') || 0;
+        const isNewRecord = score > best;
+        const previousBest = Utils.loadData('quiz_highscore') || 0;
+
+        if (completedState?.questionIds?.length) {
+            const persisted = this._loadPersisted();
+            persisted.history[this._getToday()] = [...new Set(completedState.questionIds)];
+            this._savePersistedState(persisted, { preserveUpdatedAt: false });
+        }
+
+        window.Economy?.checkRecord?.('quiz_highscore', score);
+        setTimeout(() => window.ShareToFeed?.showToast?.('quiz', score, { isRecord: score > previousBest }), 500);
+        if (isNewRecord) Utils.saveData('quiz_highscore', score);
+        if (score === 10) window.Economy?.grant?.('quiz_perfect');
+        window.Economy?.grant?.('play_game');
+        window.Missions?.track?.({ event: 'quiz_finish', score });
+    },
+
+    _completeToday(state = null) {
+        const currentState = state || this._getQuestionState();
+        if (!currentState) return;
+
+        const completedState = {
+            ...currentState,
+            status: 'completed',
+            answeredIds: [...new Set(currentState.questionIds || currentState.answeredIds || [])],
+            current: this.QUESTIONS_PER_DAY,
+            answered: false,
+            selectedIndex: null,
+            lastCorrect: false,
+            revealedAt: 0,
+            completedAt: Date.now(),
+        };
+
+        this._saveTodayProgress(completedState.score, completedState);
+        this._setQuestionState(completedState);
+        this._phase = 'result';
+
+        const container = document.getElementById('tool-container');
+        if (container && window.OfflineZone?.currentGame === 'quiz') {
+            container.innerHTML = this._renderResult();
+        }
+    },
+
     _isDark() { return document.body.classList.contains('dark-theme'); },
     _colors() {
         const d = this._isDark();
@@ -161,11 +536,11 @@ const QuizDiario = {
     },
 
     render() {
-        const todayResult = this._getTodayResult();
-        if (todayResult) return this._renderAlreadyPlayed(todayResult.score);
-        if (this._phase === 'intro')   return this._renderIntro();
-        if (this._phase === 'playing') return this._renderQuestion();
-        if (this._phase === 'result')  return this._renderResult();
+        const state = this._syncRuntimeFromStorage();
+        if (state?.status === 'completed') {
+            return this._phase === 'result' ? this._renderResult() : this._renderAlreadyPlayed(state.score);
+        }
+        if (state?.status === 'playing') return this._renderQuestion();
         return this._renderIntro();
     },
 
@@ -240,6 +615,7 @@ const QuizDiario = {
     _renderQuestion() {
         const c = this._colors();
         const q = this._questions[this._current];
+        if (!q) return this._renderIntro();
         const progress = ((this._current) / this.QUESTIONS_PER_DAY) * 100;
 
         return `
@@ -271,19 +647,51 @@ const QuizDiario = {
             </div>
 
             <div style="display:flex;flex-direction:column;gap:0.5rem;" id="qz-options">
-                ${q.o.map((opt, i) => `
-                <div class="qz-opt" id="qz-opt-${i}" onclick="QuizDiario.answer(${i})"
-                    style="background:${c.bg};border:1px solid ${c.border};
+                ${q.o.map((opt, i) => {
+                    let bg = c.bg;
+                    let border = c.border;
+                    let badgeBg = c.inner;
+                    let badgeBorder = c.border;
+                    let badgeColor = c.muted;
+
+                    if (this._answered) {
+                        if (i === q.a) {
+                            bg = 'rgba(74,222,128,0.15)';
+                            border = 'rgba(74,222,128,0.5)';
+                            badgeBg = 'rgba(74,222,128,0.3)';
+                            badgeBorder = '#4ade80';
+                            badgeColor = '#4ade80';
+                        } else if (i === this._selectedIndex && !this._lastCorrect) {
+                            bg = 'rgba(239,68,68,0.1)';
+                            border = 'rgba(239,68,68,0.4)';
+                            badgeBg = 'rgba(239,68,68,0.2)';
+                            badgeBorder = '#ef4444';
+                            badgeColor = '#ef4444';
+                        }
+                    }
+
+                    return `
+                <div class="qz-opt" id="qz-opt-${i}" ${this._answered ? '' : `onclick="QuizDiario.answer(${i})"`}
+                    style="background:${bg};border:1px solid ${border};
                         border-radius:var(--radius-lg,14px);padding:0.875rem 1rem;
-                        display:flex;align-items:center;gap:0.875rem;">
-                    <div style="width:28px;height:28px;border-radius:8px;background:${c.inner};
-                        border:1px solid ${c.border};flex-shrink:0;display:flex;align-items:center;
-                        justify-content:center;font-size:var(--text-xs,0.68rem);font-weight:800;color:${c.muted};">
+                        display:flex;align-items:center;gap:0.875rem;cursor:${this._answered ? 'default' : 'pointer'};">
+                    <div style="width:28px;height:28px;border-radius:8px;background:${badgeBg};
+                        border:1px solid ${badgeBorder};flex-shrink:0;display:flex;align-items:center;
+                        justify-content:center;font-size:var(--text-xs,0.68rem);font-weight:800;color:${badgeColor};">
                         ${['A','B','C','D'][i]}
                     </div>
                     <span style="font-size:var(--text-base,0.875rem);color:${c.text};font-weight:500;">${opt}</span>
-                </div>`).join('')}
+                </div>`;
+                }).join('')}
             </div>
+
+            ${this._answered ? `
+            <div style="margin-top:0.875rem;padding:0.75rem;border-radius:var(--radius-md,10px);
+                background:${this._lastCorrect ? 'rgba(74,222,128,0.1)' : 'rgba(239,68,68,0.08)'};
+                border:1px solid ${this._lastCorrect ? 'rgba(74,222,128,0.3)' : 'rgba(239,68,68,0.25)'};">
+                <span style="font-size:0.8rem;">${this._lastCorrect ? '✅' : '❌'}</span>
+                <span style="font-size:var(--text-xs,0.7rem);color:${c.sub};margin-left:0.375rem;">${q.e}</span>
+            </div>` : ''}
 
             <div style="text-align:center;margin-top:0.75rem;">
                 <button onclick="OfflineZone.backToMenu()"
@@ -298,10 +706,27 @@ const QuizDiario = {
 
     answer(idx) {
         if (this._answered) return;
-        this._answered = true;
         const q = this._questions[this._current];
+        if (!q) return;
+        this._answered = true;
         const correct = idx === q.a;
         if (correct) this._score++;
+        this._selectedIndex = idx;
+        this._lastCorrect = correct;
+
+        const state = this._getQuestionState();
+        if (state) {
+            const answeredIds = [...new Set([...(state.answeredIds || []), q.id])];
+            this._setQuestionState({
+                ...state,
+                score: this._score,
+                answered: true,
+                selectedIndex: idx,
+                lastCorrect: correct,
+                answeredIds,
+                revealedAt: Date.now(),
+            });
+        }
 
         q.o.forEach((_, i) => {
             const el = document.getElementById(`qz-opt-${i}`);
@@ -337,16 +762,7 @@ const QuizDiario = {
         if (scoreEl) scoreEl.textContent = `✅ ${this._score} pontos`;
 
         setTimeout(() => {
-            this._current++;
-            this._answered = false;
-            if (this._current >= this.QUESTIONS_PER_DAY) {
-                this._saveTodayResult(this._score);
-                this._phase = 'result';
-                const container = document.getElementById('tool-container');
-                if (container) container.innerHTML = this._renderResult();
-            } else {
-                this._updateQuestion();
-            }
+            this._advanceAfterReveal(true);
         }, 1800);
     },
 
@@ -429,20 +845,56 @@ const QuizDiario = {
     },
 
     start() {
-        this._questions = this._getTodayQuestions();
-        this._current = 0;
-        this._score = 0;
-        this._answered = false;
+        const existing = this._getQuestionState();
+        if (existing?.date === this._getToday()) {
+            if (existing.status === 'completed') {
+                this._syncRuntimeFromStorage();
+                const container = document.getElementById('tool-container');
+                if (container && window.OfflineZone?.currentGame === 'quiz') {
+                    container.innerHTML = this._renderAlreadyPlayed(existing.score);
+                }
+                return;
+            }
+
+            this._syncRuntimeFromStorage();
+            const currentContainer = document.getElementById('tool-container');
+            if (currentContainer && window.OfflineZone?.currentGame === 'quiz') {
+                currentContainer.innerHTML = this._renderQuestion();
+            }
+            return;
+        }
+
+        const questionIds = this._selectQuestionsForToday(this._loadPersisted().history).map((question) => question.id);
+        this._setQuestionState({
+            date: this._getToday(),
+            status: 'playing',
+            questionIds,
+            answeredIds: [],
+            current: 0,
+            score: 0,
+            answered: false,
+            selectedIndex: null,
+            lastCorrect: false,
+            revealedAt: 0,
+            completedAt: 0,
+        });
         this._phase = 'playing';
         const container = document.getElementById('tool-container');
-        if (container) {
+        if (container && window.OfflineZone?.currentGame === 'quiz') {
             container.innerHTML = this._renderQuestion();
         }
     },
 
     init() {
-        this._phase = 'intro';
-        this._answered = false;
+        const state = this._syncRuntimeFromStorage();
+        if (this._advanceTimer) {
+            clearTimeout(this._advanceTimer);
+            this._advanceTimer = null;
+        }
+
+        if (state?.status === 'playing' && state.answered === true) {
+            this._advanceAfterReveal(true);
+        }
     },
 };
 

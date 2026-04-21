@@ -40,6 +40,7 @@ const NyanAuth = {
         local.xp = Number(levelData.xp || 0);
         local.xpToNext = Math.max(1, Number(levelData.xpToNext || 100));
         window.Economy.save(local);
+        window.Economy.ensureLevelRewards?.(local.level, { skipSync: true });
         window.Economy._refreshUI?.();
         return true;
     },
@@ -169,6 +170,8 @@ const NyanAuth = {
 
         this._applyRemoteEconomyToLocal(profile);
         await this._applyRemoteSeasonToLocal(safeUID).catch(() => false);
+        window.Inventory?.applyRemoteSync?.(profile.inventoryData, { force: false });
+        window.QuizDiario?.applyRemoteSync?.(profile.dailyQuiz, { force: false });
         window.Badges?.hydrateFromProfile?.(profile, { skipSync: true });
 
         this._dispatchOnlineReady(safeUID, profile.nyanTag || '');
@@ -598,10 +601,12 @@ const NyanAuth = {
                 username:  localUser.username || tagName,
                 avatar:    Utils.loadData('nyan_profile_avatar') || null,
                 bio: '', status: 'online',
-                version:  window.App?.version || '3.10.0',
+                version:  window.App?.version || '3.11.1',
                 level:    economy.level   || 1,
                 chips:    economy.chips   || 0,
                 totalXP:  economy.totalXP || 0,
+                inventoryData: window.Inventory?.getCloudPayload?.() || null,
+                dailyQuiz: window.QuizDiario?.getCloudPayload?.() || null,
                 profileBadgeId: equippedBadge?.id || null,
                 profileBadge: equippedBadge
                     ? {
@@ -659,6 +664,8 @@ const NyanAuth = {
             this.currentUser = profile;
             this._applyRemoteEconomyToLocal(profile);
             await this._applyRemoteSeasonToLocal(uid).catch(() => false);
+            window.Inventory?.applyRemoteSync?.(profile.inventoryData, { force: false });
+            window.QuizDiario?.applyRemoteSync?.(profile.dailyQuiz, { force: false });
             window.Badges?.hydrateFromProfile?.(profile, { skipSync: true });
 
             this._dispatchOnlineReady(uid, profile.nyanTag);
@@ -723,9 +730,11 @@ const NyanAuth = {
         const payload = {
             username: localUser.username || this.currentUser?.username,
             avatar:   Utils.loadData('nyan_profile_avatar') || null,
-            version:  window.App?.version || '3.10.0',
+            version:  window.App?.version || '3.11.1',
             lastSeen: NyanFirebase.fn.serverTimestamp(),
             sc_updatedAt: NyanFirebase.fn.serverTimestamp(),
+            inventoryData: window.Inventory?.getCloudPayload?.() || null,
+            dailyQuiz: window.QuizDiario?.getCloudPayload?.() || null,
             profileBadgeId: equippedBadge?.id || null,
             profileBadge: equippedBadge
                 ? {

@@ -1,5 +1,5 @@
 const App = {
-    version: '3.11.0',
+    version: '3.11.1',
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
@@ -48,15 +48,11 @@ const App = {
             if (window.LoginIntro) {
                 LoginIntro.run(() => {
                     this.checkAuth();
-                    if (window.AutoUpdater?.getAutoCheckSetting?.()) {
-                        setTimeout(() => AutoUpdater.checkForUpdates(true), 3000);
-                    }
+                    window.AutoUpdater?.init?.();
                 });
             } else {
                 this.checkAuth();
-                if (window.AutoUpdater?.getAutoCheckSetting?.()) {
-                    setTimeout(() => AutoUpdater.checkForUpdates(true), 3000);
-                }
+                window.AutoUpdater?.init?.();
             }
         }, 2500);
         
@@ -343,9 +339,9 @@ const App = {
                 }
             }
             if (totalUnread > 0) {
-                document.title = `(${totalUnread}) NyanTools \u306B\u3083\u3093~ v3.11.0`;
+                document.title = `(${totalUnread}) NyanTools \u306B\u3083\u3093~ v3.11.1`;
             } else if (!document.title.startsWith('(')) {
-                document.title = 'NyanTools \u306B\u3083\u3093~ v3.11.0';
+                document.title = 'NyanTools \u306B\u3083\u3093~ v3.11.1';
             }
         }, () => {});
         NyanFirebase._listeners.push(unsubChats);
