@@ -1,7 +1,7 @@
 ﻿
 
 const AutoUpdater = {
-    currentVersion: '3.11.1',
+    currentVersion: '3.12.0',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -22,14 +22,32 @@ const AutoUpdater = {
     _progressListenerRegistered: false,
     _nativeResponded: false,
     _initialized: false,
+    _uiRenderScheduled: false,
+    _uiRenderNeedsNav: false,
     launchNoticeCooldownMs: 12 * 60 * 60 * 1000,
 
 
       changelog: [
     {
+        version: '3.12.0',
+        date: '2026-04-22T12:00:00',
+        label: 'Atual',
+        labelColor: 'bg-green-500',
+        author: 'Clara & Gabriel',
+        changes: [
+            { type: '🧪', text: 'Painel de bundles do DevLab foi separado e reorganizado para uso interno' },
+            { type: '🧱', text: 'Editor de bundles ficou mais claro, com melhor hierarquia visual e campos em portugues' },
+            { type: '🛠️', text: 'Refatoracao do DevLab em modulos para reduzir acoplamento e facilitar manutencao' },
+            { type: '✅', text: 'Correcao de acentuacao e encoding no painel de bundles' },
+            { type: '⚡', text: 'Render do DevLab foi otimizado para evitar recargas em cascata durante acoes internas' },
+            { type: '🔎', text: 'Busca de bundles recebeu debounce para reduzir custo de filtro por tecla' },
+            { type: '🧭', text: 'Updater agora coalesce updates de UI para reduzir renders redundantes' },
+        ]
+    },
+    {
         version: '3.11.1',
         date: '2026-04-21T12:00:00',
-        label: 'Atual',
+        label: '',
         labelColor: 'bg-green-500',
         author: 'Gabriel',
         changes: [
@@ -42,23 +60,6 @@ const AutoUpdater = {
             { type: '⬆️', text: 'Aviso leve de atualizacao passa a aparecer no boot mesmo com a opcao automatica desligada' },
         ]
     },
-    {
-        version: '3.11.0',
-        date: '2026-04-17T12:00:00',
-        label: '',
-        labelColor: 'bg-green-500',
-        author: 'Clara',
-        changes: [
-            { type: '🌸', text: 'Temporada 1 - Despertar finalizada com tiers, recompensas, ranking e loja sazonal integrada' },
-            { type: '🏅', text: 'Sistema de insignias separado de titulos, com showcase publico, destaque e migracoes legadas' },
-            { type: '🧑', text: 'Perfil 2.0 retrabalhado com hub de customizacao, estatisticas reorganizadas e visual mais premium' },
-            { type: '🫂', text: 'Perfil publico refeito com badges reais, hierarquia melhor e leitura mais clara de identidade' },
-            { type: '🧪', text: 'Dev Lab fortalecido para testes internos de economia e temporada em ambiente developer' },
-            { type: '🔄', text: 'Sincronizacao online reforcada entre Firebase, badges, temporada, economia e perfil' },
-            { type: '🛡️', text: 'Sentinela v3.10 virou insignia exclusiva de seguranca, em vez de continuar como titulo' },
-            { type: '🐛', text: 'Correcao de layouts vazios, numeros cortados, historico recente e inconsistencias visuais do perfil' },
-        ]
-    },
 ],
 
     render() {
@@ -68,7 +69,7 @@ const AutoUpdater = {
                 window.electronAPI.isDevEnvironment().then(({ isDev }) => {
                     this._isDevEnv = !!isDev;
                     if (isDev) {
-                        Router?.render();
+                        this._queueUIRender();
                     }
                 }).catch(() => { this._isDevEnv = false; });
             }
@@ -426,6 +427,25 @@ const AutoUpdater = {
         `;
     },
 
+    _queueUIRender({ withNav = false } = {}) {
+        this._uiRenderNeedsNav = this._uiRenderNeedsNav || !!withNav;
+        if (this._uiRenderScheduled) return;
+        this._uiRenderScheduled = true;
+        const flush = () => {
+            this._uiRenderScheduled = false;
+            if (this._uiRenderNeedsNav) {
+                this._uiRenderNeedsNav = false;
+                App?.renderNavMenu?.();
+            }
+            Router?.render?.();
+        };
+        if (typeof window.requestAnimationFrame === 'function') {
+            window.requestAnimationFrame(flush);
+        } else {
+            window.setTimeout(flush, 0);
+        }
+    },
+
     _normalizeCheckOptions(input = false) {
         if (typeof input === 'object' && input !== null) {
             return {
@@ -486,8 +506,7 @@ const AutoUpdater = {
     },
 
     _syncUpdateUI() {
-        App?.renderNavMenu?.();
-        Router?.render?.();
+        this._queueUIRender({ withNav: true });
     },
 
     async init() {
@@ -528,7 +547,7 @@ const AutoUpdater = {
         switch (status.event) {
             case 'checking':
                 this.checking = true;
-                Router?.render();
+                this._queueUIRender();
                 break;
 
             case 'update-available':
@@ -615,7 +634,7 @@ const AutoUpdater = {
 
         this.checking = true;
         this._nativeResponded = false;
-        if (!options.silentNoUpdate) Router?.render();
+        if (!options.silentNoUpdate) this._queueUIRender();
 
         try {
             let data;
@@ -654,7 +673,7 @@ const AutoUpdater = {
             if (!options.silentNoUpdate) Utils.showNotification('❌ Erro ao verificar atualizações', 'error');
         } finally {
             this.checking = false;
-            if (!options.silentNoUpdate) Router?.render();
+            if (!options.silentNoUpdate) this._queueUIRender();
         }
     },
 
@@ -821,7 +840,7 @@ const AutoUpdater = {
             });
         }
 
-        Router?.render();
+        this._queueUIRender();
         await new Promise(r => setTimeout(r, 80));
 
         try {
@@ -847,13 +866,13 @@ const AutoUpdater = {
             }
             Utils.showNotification('🌐 Abrindo página de download...', 'info');
             this.downloading = false;
-            Router?.render();
+            this._queueUIRender();
 
         } catch (error) {
             console.error('❌ Erro ao iniciar download:', error);
             Utils.showNotification('❌ Erro ao iniciar download: ' + error.message, 'error');
             this.downloading = false;
-            Router?.render();
+            this._queueUIRender();
         }
     },
 
@@ -872,7 +891,7 @@ const AutoUpdater = {
         const fallbackUrl = this.latestVersion?.html_url || this.githubReleasesUrl;
         window.open(fallbackUrl, '_blank');
         this.downloading = false;
-        Router?.render();
+        this._queueUIRender();
     },
 
     viewReleaseNotes() {
@@ -979,7 +998,7 @@ const AutoUpdater = {
             this.downloadSpeed   = 0;
             this.downloadRemaining = 0;
             clearInterval(this._simInterval);
-            Router?.render();
+            this._queueUIRender();
             return;
         }
 
@@ -988,7 +1007,7 @@ const AutoUpdater = {
         this.downloadProgress = 0;
         this.downloadedBytes  = 0;
         this.totalBytes       = 80 * 1024 * 1024;
-        Router?.render();
+        this._queueUIRender();
 
         let pct = 0;
         this._simInterval = setInterval(() => {
@@ -1001,7 +1020,7 @@ const AutoUpdater = {
             const bar    = document.getElementById('download-progress-bar');
             const status = document.getElementById('download-status');
             const pctEl  = document.getElementById('download-pct');
-            if (!bar) { Router?.render(); return; }
+            if (!bar) { this._queueUIRender(); return; }
             bar.style.width = Math.round(pct) + '%';
             if (pctEl)  pctEl.textContent  = Math.round(pct) + '%';
             if (status) {
@@ -1016,7 +1035,7 @@ const AutoUpdater = {
                 this.downloading     = false;
                 this.downloadProgress = 100;
                 Utils.showNotification('✅ Simulação concluída!', 'success');
-                Router?.render();
+                this._queueUIRender();
             }
         }, 200);
     }

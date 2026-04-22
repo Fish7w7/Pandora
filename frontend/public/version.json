@@ -1,13 +1,12 @@
 {
-    "version": "3.11.1",
-    "buildDate": "2026-04-21",
+    "version": "3.12.0",
+    "buildDate": "2026-04-22",
     "changelog": [
-        "Quiz diario agora persiste progresso, bloqueia repeticoes no mesmo dia e impede reset por navegacao",
-        "Rotacao recente de perguntas reduz repeticoes em curto prazo",
-        "Loja diaria e sazonal permanecem estaveis apos compra e durante o ciclo",
-        "Marcos de nivel agora misturam particula, titulo e borda em vez de repetir tres bordas",
-        "Titulo atual no perfil recebeu hierarquia visual mais limpa e coerente com o hero",
-        "Inventario e estado do quiz entram na sincronizacao com Firebase",
-        "Aviso leve de atualizacao aparece no boot mesmo com a checagem automatica desligada"
+        "DevLab recebeu um painel de bundles separado, mais organizado e com melhor hierarquia visual",
+        "Editor de bundles ganhou validacao em tempo real e campos mais claros para uso interno",
+        "Refatoracao do DevLab em modulos (view, logica e acoes) para facilitar manutencao",
+        "Correcao de acentuacao e encoding no painel de bundles",
+        "Otimizacao de performance no DevLab para evitar re-render em cascata",
+        "Updater otimizado com atualizacao de UI em lote para reduzir renders redundantes"
     ]
 }

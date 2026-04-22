@@ -63,7 +63,7 @@
                                 <label style="display:block;font-size:0.61rem;color:${c.sub};margin-bottom:0.12rem;">Busca rápida (ID ou nome)</label>
                                 <input id="devlab-bundle-filter" type="text" value="${this._escapeHtml(bundleFilterQuery)}" oninput="DevLab.bundleEditorSetFilter(this.value)" placeholder="ex: nebula, patch, v310..."
                                     style="width:100%;padding:0.4rem 0.5rem;border-radius:8px;border:1px solid ${c.border};background:${c.panel};color:${c.text};font-size:0.67rem;"/>
-                                <div style="font-size:0.57rem;color:${c.muted};margin-top:0.15rem;">${filteredBundleCount} de ${totalBundleCount} resultados</div>
+                                <div id="devlab-bundle-filter-results" style="font-size:0.57rem;color:${c.muted};margin-top:0.15rem;">${filteredBundleCount} de ${totalBundleCount} resultados</div>
                             </div>
                             <div>
                                 <label style="display:block;font-size:0.61rem;color:${c.sub};margin-bottom:0.12rem;">

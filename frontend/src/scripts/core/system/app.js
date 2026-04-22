@@ -1,5 +1,5 @@
 const App = {
-    version: '3.11.1',
+    version: '3.12.0',
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
@@ -338,10 +338,11 @@ const App = {
                     badge.style.display = 'none';
                 }
             }
+            const versionLabel = `NyanTools \u306B\u3083\u3093~ v${this.version}`;
             if (totalUnread > 0) {
-                document.title = `(${totalUnread}) NyanTools \u306B\u3083\u3093~ v3.11.1`;
+                document.title = `(${totalUnread}) ${versionLabel}`;
             } else if (!document.title.startsWith('(')) {
-                document.title = 'NyanTools \u306B\u3083\u3093~ v3.11.1';
+                document.title = versionLabel;
             }
         }, () => {});
         NyanFirebase._listeners.push(unsubChats);

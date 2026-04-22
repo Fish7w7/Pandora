@@ -216,11 +216,70 @@
         if (!selection.id || selection.id === '__draft__') return '__draft__';
         return `${selection.kind || 'official'}::${selection.id}`;
     },
+    _bundleEditorFilterStats(raw = '') {
+        const state = this._bundleEditorState || this._ensureBundleEditorState();
+        const allBundles = [
+            ...(Array.isArray(state?.bundles) ? state.bundles : []),
+            ...(Array.isArray(state?.customBundles) ? state.customBundles : []),
+        ];
+        const query = String(raw || '').trim().toLowerCase();
+        const filtered = allBundles.filter((entry) => {
+            if (!query) return true;
+            const id = String(entry?.id || '').toLowerCase();
+            const title = String(entry?.title || '').toLowerCase();
+            return id.includes(query) || title.includes(query);
+        }).length;
+        return { filtered, total: allBundles.length };
+    },
+    _bundleEditorApplyFilterToSelect(raw = '') {
+        const selectEl = document.getElementById('devlab-bundle-select');
+        const counterEl = document.getElementById('devlab-bundle-filter-results');
+        const query = String(raw || '').trim().toLowerCase();
+        const currentValue = this._bundleEditorDropdownValue();
+        if (selectEl) {
+            let filtered = 0;
+            let total = 0;
+            Array.from(selectEl.options || []).forEach((optionEl) => {
+                const value = String(optionEl.value || '');
+                if (value === '__draft__') {
+                    optionEl.hidden = false;
+                    return;
+                }
+                total += 1;
+                const haystack = `${value} ${String(optionEl.textContent || '')}`.toLowerCase();
+                const matches = !query || haystack.includes(query);
+                const keepVisible = matches || value === currentValue;
+                optionEl.hidden = !keepVisible;
+                if (matches) filtered += 1;
+            });
+            if (counterEl) {
+                counterEl.textContent = `${filtered} de ${total} resultados`;
+            }
+            return;
+        }
+        if (counterEl) {
+            const stats = this._bundleEditorFilterStats(query);
+            counterEl.textContent = `${stats.filtered} de ${stats.total} resultados`;
+        }
+    },
+    _bundleEditorSyncFilterUI() {
+        const query = String(this._bundleEditorFilterQuery || '');
+        const inputEl = document.getElementById('devlab-bundle-filter');
+        if (inputEl && inputEl.value !== query) {
+            inputEl.value = query;
+        }
+        this._bundleEditorApplyFilterToSelect(query);
+    },
     bundleEditorSetFilter(raw = '') {
         const nextValue = String(raw || '');
-        if (nextValue === String(this._bundleEditorFilterQuery || '')) return;
         this._bundleEditorFilterQuery = nextValue;
-        this._rerender();
+        if (this._bundleEditorFilterDebounceTimer) {
+            window.clearTimeout(this._bundleEditorFilterDebounceTimer);
+        }
+        this._bundleEditorFilterDebounceTimer = window.setTimeout(() => {
+            this._bundleEditorFilterDebounceTimer = null;
+            this._bundleEditorApplyFilterToSelect(this._bundleEditorFilterQuery || '');
+        }, 90);
     },
     _bundleEditorSelectFromDropdown(rawValue = '') {
         const value = String(rawValue || '').trim();
@@ -308,7 +367,6 @@
         this._bundleEditorDraftValue = null;
         this._bundleEditorDirty = false;
         this._bundleEditorSyncToShop({ silent: true });
-        this._saveBundleEditorState();
         this._rerender();
         Utils.showNotification?.(`Bundle salvo: ${normalizedEntry.id}`, 'success');
     },
@@ -333,7 +391,6 @@
         this._bundleEditorDraftValue = next ? null : this._bundleEditorDraft('official');
         this._bundleEditorDirty = false;
         this._bundleEditorSyncToShop({ silent: true });
-        this._saveBundleEditorState();
         this._rerender();
         Utils.showNotification?.('Bundle removido do catalogo local.', 'success');
     },

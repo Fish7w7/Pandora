@@ -7,6 +7,14 @@ const path = require('path');
 const fsSync = require('fs');
 const os = require('os');
 const crypto = require('crypto');
+const APP_VERSION = app?.getVersion?.()
+    || (() => {
+        try {
+            return require('../../package.json')?.version || '0.0.0';
+        } catch (_) {
+            return '0.0.0';
+        }
+    })();
 
 function _safeEnvNumber(value, fallback, min = 0) {
     const n = Number(value);
@@ -140,7 +148,6 @@ app.disableHardwareAcceleration();
 const performanceFlags = [
     'disable-gpu',
     'disable-gpu-compositing',
-    'disable-software-rasterizer',
     'no-sandbox',
     'disable-dev-shm-usage',
     'disable-setuid-sandbox',
@@ -157,6 +164,7 @@ performanceFlags.forEach(flag => app.commandLine.appendSwitch(flag));
 let mainWindow    = null;
 let isQuitting    = false;
 const iconCache = new Map();
+let cacheClearInterval = null;
 
 function createWindow() {
     const iconPath    = getIconPath();
@@ -164,7 +172,7 @@ function createWindow() {
     const hasPreload  = fsSync.existsSync(preloadPath);
 
     if (!hasPreload) {
-        console.warn('[!] preload.js não encontrado - API nativa desabilitada');
+        console.warn('[!] preload.js nao encontrado - API nativa desabilitada');
     }
 
     mainWindow = new BrowserWindow({
@@ -192,12 +200,12 @@ function createWindow() {
 
     const indexPath = path.join(__dirname, '../../frontend/public/index.html');
 
-    console.log('[~] NyanTools v3.11.1');
-    console.log('[>] Diretório:', __dirname);
+    console.log(`[~] NyanTools v${APP_VERSION}`);
+    console.log('[>] Diretorio:', __dirname);
     console.log('[>] Carregando:', indexPath);
 
     // Remove menubar padrão do Electron (nao apagar esse comentário)
-    //Menu.setApplicationMenu(null);
+    Menu.setApplicationMenu(null);
 
     mainWindow.loadFile(indexPath);
 
@@ -216,6 +224,10 @@ function createWindow() {
 
     mainWindow.on('closed', () => {
         DEV_SECURITY.sessions.delete(`wc:${wcId}`);
+        if (cacheClearInterval) {
+            clearInterval(cacheClearInterval);
+            cacheClearInterval = null;
+        }
         mainWindow = null;
     });
 
@@ -229,7 +241,11 @@ function createWindow() {
             message.includes('DevTools')) return;
     });
 
-    setInterval(async () => {
+    if (cacheClearInterval) {
+        clearInterval(cacheClearInterval);
+        cacheClearInterval = null;
+    }
+    cacheClearInterval = setInterval(async () => {
         if (mainWindow && !mainWindow.isDestroyed()) {
             try {
                 await mainWindow.webContents.session.clearCache();
@@ -258,6 +274,7 @@ autoUpdater.allowPrerelease = false;
 autoUpdater.logger          = null;
 
 let lastUpdateCheck    = 0;
+let lastDetectedReleaseTag = '';
 const UPDATE_CHECK_COOLDOWN = 300000;
 const BUNDLE_CATALOG_DEFAULT_URLS = [
     'https://raw.githubusercontent.com/Fish7w7/Pandora/main/frontend/public/bundle-catalog.json',
@@ -322,7 +339,7 @@ function setupAutoUpdater() {
     });
 
     autoUpdater.on('update-available', (info) => {
-        console.log('[!] Update disponível:', info.version);
+        console.log('[!] Update disponivel:', info.version);
         if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('updater-status', {
                 event: 'update-available',
@@ -354,7 +371,7 @@ function setupAutoUpdater() {
     });
 
     autoUpdater.on('update-downloaded', (info) => {
-        console.log('[OK] Download concluído:', info.version);
+        console.log('[OK] Download concluido:', info.version);
         if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('updater-status', {
                 event: 'update-downloaded',
@@ -383,7 +400,7 @@ function setupAutoUpdater() {
 
 ipcMain.handle('reset-update-cooldown', () => {
     lastUpdateCheck = 0;
-    console.log('[~] Cooldown de atualização resetado');
+    console.log('[~] Cooldown de atualizacao resetado');
     return { success: true };
 });
 
@@ -499,7 +516,11 @@ ipcMain.handle('check-for-updates', async () => {
                 data.tag_name = `v${data.version}`;
                 data._fromFallback = true;
             }
-            console.log('[OK] GitHub API versão detectada:', data.tag_name);
+            const safeTagName = String(data.tag_name || '').trim();
+            if (safeTagName && safeTagName !== lastDetectedReleaseTag) {
+                lastDetectedReleaseTag = safeTagName;
+                console.log('[OK] GitHub API versao detectada:', safeTagName);
+            }
             return { success: true, data, fromFallback: !!data._fromFallback };
         } catch (_) {}
     }
@@ -637,7 +658,7 @@ ipcMain.handle('download-and-install', async (_event, { url, filename }) => {
 
                     res.on('end', () => {
                         writeStream.end(() => {
-                            console.log('[OK] Download concluído:', destPath);
+                            console.log('[OK] Download concluido:', destPath);
                             if (mainWindow && !mainWindow.isDestroyed()) {
                                 mainWindow.webContents.send('download-progress', {
                                     progress: 100, downloadedBytes: received, totalBytes: received,
@@ -748,7 +769,7 @@ ipcMain.on('start-download-faf', (_event, { url, filename }) => {
 
                 res.on('end', () => {
                     writeStream.end(() => {
-                        console.log('[OK] [FAF] Download concluído:', destPath);
+                        console.log('[OK] [FAF] Download concluido:', destPath);
                         if (mainWindow && !mainWindow.isDestroyed()) {
                             mainWindow.webContents.send('download-progress', {
                                 progress: 100, downloadedBytes: received, totalBytes: received,
@@ -811,7 +832,7 @@ ipcMain.handle('open-external', async (_event, url) => {
 
 
 app.whenReady().then(() => {
-    console.log('[~] NyanTools v3.11.1');
+    console.log(`[~] NyanTools v${APP_VERSION}`);
     console.log('[>] App path:', app.getAppPath());
     console.log('[>] Plataforma:', process.platform);
 
@@ -836,7 +857,7 @@ process.on('uncaughtException', (error) => {
     if (error.message.includes('GPU') ||
         error.message.includes('gpu_process_host') ||
         error.message.includes('ECONNRESET')) return;
-    console.error('[X] Erro não capturado:', error.message);
+    console.error('[X] Erro nao capturado:', error.message);
 });
 
 process.on('unhandledRejection', (reason) => {

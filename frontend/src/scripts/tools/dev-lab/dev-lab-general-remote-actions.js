@@ -297,7 +297,20 @@
         }
     },
     _rerender() {
-        if (window.Router?.currentRoute === 'dev-lab') window.Router.render();
+        if (window.Router?.currentRoute !== 'dev-lab') return;
+        if (this._rerenderScheduled) return;
+        this._rerenderScheduled = true;
+        const flush = () => {
+            this._rerenderScheduled = false;
+            if (window.Router?.currentRoute === 'dev-lab') {
+                window.Router.render();
+            }
+        };
+        if (typeof window.requestAnimationFrame === 'function') {
+            window.requestAnimationFrame(flush);
+        } else {
+            window.setTimeout(flush, 0);
+        }
     },
     async unlock() {
         const ok = await window.DevSecurity?.ensureUnlocked?.(true);

@@ -601,7 +601,7 @@ const NyanAuth = {
                 username:  localUser.username || tagName,
                 avatar:    Utils.loadData('nyan_profile_avatar') || null,
                 bio: '', status: 'online',
-                version:  window.App?.version || '3.11.1',
+                version:  window.App?.version || '3.12.0',
                 level:    economy.level   || 1,
                 chips:    economy.chips   || 0,
                 totalXP:  economy.totalXP || 0,
@@ -730,7 +730,7 @@ const NyanAuth = {
         const payload = {
             username: localUser.username || this.currentUser?.username,
             avatar:   Utils.loadData('nyan_profile_avatar') || null,
-            version:  window.App?.version || '3.11.1',
+            version:  window.App?.version || '3.12.0',
             lastSeen: NyanFirebase.fn.serverTimestamp(),
             sc_updatedAt: NyanFirebase.fn.serverTimestamp(),
             inventoryData: window.Inventory?.getCloudPayload?.() || null,

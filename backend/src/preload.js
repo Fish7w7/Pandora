@@ -1,4 +1,4 @@
-const { contextBridge, ipcRenderer } = require('electron');
+﻿const { contextBridge, ipcRenderer } = require('electron');
 
 function isValidFilePath(filePath) {
     if (typeof filePath !== 'string' || filePath.length === 0) return false;
@@ -20,8 +20,8 @@ async function invoke(channel, ...args) {
     try {
         return await ipcRenderer.invoke(channel, ...args);
     } catch (error) {
-        console.error(`❌ IPC "${channel}" falhou:`, error.message);
-        return { success: false, error: 'Falha na comunicação com o processo principal' };
+        console.error(`[X] IPC "${channel}" falhou:`, error.message);
+        return { success: false, error: 'Falha na comunicacao com o processo principal' };
     }
 }
 
@@ -68,10 +68,10 @@ try {
         }
     });
 
-    console.log('✅ [Preload v3.2.1] API exposta com sucesso');
+    console.log('[OK] [Preload v3.2.1] API exposta com sucesso');
 
 } catch (error) {
-    console.error('❌ [Preload] ERRO CRÍTICO:', error);
+    console.error('[X] [Preload] ERRO CRITICO:', error);
     try {
         contextBridge.exposeInMainWorld('electronAPI', {
             isReady: false,
@@ -79,7 +79,7 @@ try {
             error: error.message
         });
     } catch (fallbackError) {
-        console.error('❌ [Preload] Falha ao expor API de fallback:', fallbackError);
+        console.error('[X] [Preload] Falha ao expor API de fallback:', fallbackError);
     }
 }
 

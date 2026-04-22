@@ -81,28 +81,7 @@
         ];
         const bundleFilterQuery = String(this._bundleEditorFilterQuery || '').trim();
         const bundleFilterNeedle = bundleFilterQuery.toLowerCase();
-        const selectedDropdownValue = this._bundleEditorDropdownValue();
-        let filteredBundles = bundlesJoined.filter((entry) => {
-            if (!bundleFilterNeedle) return true;
-            const id = String(entry?.id || '').toLowerCase();
-            const title = String(entry?.title || '').toLowerCase();
-            return id.includes(bundleFilterNeedle) || title.includes(bundleFilterNeedle);
-        });
-        if (selectedDropdownValue && selectedDropdownValue !== '__draft__') {
-            const [selectedKind, selectedId] = String(selectedDropdownValue).split('::');
-            const selectedExists = filteredBundles.some((entry) => {
-                const kind = entry?.kind === 'custom' ? 'custom' : 'official';
-                return kind === selectedKind && String(entry?.id || '') === String(selectedId || '');
-            });
-            if (!selectedExists) {
-                const selectedEntry = bundlesJoined.find((entry) => {
-                    const kind = entry?.kind === 'custom' ? 'custom' : 'official';
-                    return kind === selectedKind && String(entry?.id || '') === String(selectedId || '');
-                });
-                if (selectedEntry) filteredBundles = [selectedEntry, ...filteredBundles];
-            }
-        }
-        const bundleOptions = filteredBundles
+        const bundleOptions = bundlesJoined
             .map((entry) => {
                 const kind = entry.kind === 'custom' ? 'custom' : 'official';
                 const marker = kind === 'custom' ? '[Personalizado]' : '[Oficial]';
@@ -112,7 +91,12 @@
                 return `<option value="${kind}::${id}" ${selected}>${marker} ${label} (${id})</option>`;
             })
             .join('');
-        const filteredBundleCount = filteredBundles.length;
+        const filteredBundleCount = bundlesJoined.filter((entry) => {
+            if (!bundleFilterNeedle) return true;
+            const id = String(entry?.id || '').toLowerCase();
+            const title = String(entry?.title || '').toLowerCase();
+            return id.includes(bundleFilterNeedle) || title.includes(bundleFilterNeedle);
+        }).length;
         const activeBundleKind = String(activeBundle.kind || bundleSelection.kind || 'official') === 'custom' ? 'custom' : 'official';
         const activeBundleItems = Array.isArray(activeBundle.items) ? activeBundle.items.join('\n') : '';
         const activeBundleSources = Array.isArray(activeBundle.sourceBundleIds) ? activeBundle.sourceBundleIds.join('\n') : '';
@@ -363,6 +347,7 @@
         this.initRemoteGrantProcessor();
         window.setTimeout(() => {
             this.bundleEditorPreviewUpdate();
+            this._bundleEditorSyncFilterUI?.();
         }, 0);
         if (this._initRefreshRunning) return;
         this._initRefreshRunning = true;
