@@ -1,0 +1,49 @@
+{
+  "version": 1,
+  "updatedAt": "2026-04-21T12:00:00-03:00",
+  "settings": {
+    "customBundleMinAgeDays": 90
+  },
+  "bundles": [
+    {
+      "id": "v310_patch_day",
+      "kind": "official",
+      "status": "archived",
+      "title": "Patch Day v3.10",
+      "subtitle": "Obrigada pela ajuda da comunidade na correcao do exploit",
+      "launchedAt": "2026-04-17T00:00:00-03:00",
+      "startsAt": "2026-04-17T00:00:00-03:00",
+      "endsAt": "2026-04-19T23:59:59-03:00",
+      "items": [
+        "title_patchday_310",
+        "border_patchday_310",
+        "theme_patchpulse_intro"
+      ],
+      "bundleDiscountPct": 0,
+      "historical": true,
+      "legacy": true,
+      "rerunAllowed": false,
+      "allowInCustomPool": false
+    },
+    {
+      "id": "v311_nebula_bundle",
+      "kind": "official",
+      "status": "active",
+      "title": "Bundle Nebula",
+      "subtitle": "Primeiro bundle oficial da loja com itens limitados",
+      "launchedAt": "2026-04-21T00:00:00-03:00",
+      "startsAt": "2026-04-21T00:00:00-03:00",
+      "endsAt": "2026-04-30T23:59:59-03:00",
+      "items": [
+        "effect_bundle_nebula_311",
+        "border_bundle_nebula_311",
+        "particle_bundle_nebula_311"
+      ],
+      "bundleDiscountPct": 20,
+      "rerunAllowed": false,
+      "allowInCustomPool": true,
+      "priority": 10
+    }
+  ],
+  "customBundles": []
+}

@@ -371,7 +371,8 @@ Integrations._isSuggestionsHidden = function() {
 Integrations._setSuggestionsHidden = function(hidden) {
     window.Utils?.saveData?.('home_suggestions_hidden', !!hidden);
     if (window.Router?.currentRoute === 'home' && typeof window.Router.render === 'function') {
-        window.Router.render();
+        const refreshed = window.Dashboard?.refreshRealtime?.({ hydrate: false });
+        if (!refreshed) window.Router.render();
     }
 };
 

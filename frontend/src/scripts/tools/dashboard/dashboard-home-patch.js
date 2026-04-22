@@ -266,7 +266,8 @@ Dashboard._toggleHomePref = function(key) {
     this._saveHomePrefs(prefs);
     this._refreshHomeCustomizeModal();
     if (window.Router?.currentRoute === 'home') {
-        window.Router.render();
+        const refreshed = this.refreshRealtime?.({ keepCustomizeModal: true });
+        if (!refreshed) window.Router.render();
         setTimeout(() => this._refreshHomeCustomizeModal(), 0);
     }
 };
@@ -436,6 +437,89 @@ Dashboard.renderPersonalizedHome = function() {
     `);
 };
 
+Dashboard.render = function() {
+    this.loadStats();
+    this.updateStats();
+
+    return `
+        <div id="dash-root" class="max-w-6xl mx-auto" style="padding-bottom:0.75rem;">
+            <div id="dash-header-slot">${this.renderHeader()}</div>
+            <div id="dash-quick-stats-slot">${this.renderQuickStats()}</div>
+            <div id="dash-home-personalized-slot">${this.renderPersonalizedHome()}</div>
+            <div id="dash-activity-slot">${this.renderActivitySection()}</div>
+            <div id="dash-productivity-slot">${this.renderProductivitySection()}</div>
+            <div id="dash-tools-slot">${this.renderToolsUsage()}</div>
+            <div id="dash-games-slot">${this.renderGamesSection()}</div>
+        </div>
+    `;
+};
+
+Dashboard._refreshSuggestionsWidget = function() {
+    if (window.Router?.currentRoute !== 'home') return;
+    const toolContainer = document.getElementById('tool-container');
+    if (!toolContainer || typeof window.Integrations?.renderSuggestionsWidget !== 'function') return;
+
+    const html = window.Integrations.renderSuggestionsWidget();
+    const existing = document.getElementById('nyan-smart-suggestions');
+
+    if (!html) {
+        existing?.remove();
+        return;
+    }
+
+    if (existing) {
+        existing.innerHTML = html;
+        return;
+    }
+
+    const wrapper = document.createElement('div');
+    wrapper.id = 'nyan-smart-suggestions';
+    wrapper.innerHTML = html;
+
+    const dashRoot = toolContainer.querySelector('#dash-root');
+    if (dashRoot) {
+        toolContainer.insertBefore(wrapper, dashRoot);
+    } else {
+        toolContainer.insertBefore(wrapper, toolContainer.firstChild);
+    }
+};
+
+Dashboard.refreshRealtime = function(options = {}) {
+    if (window.Router?.currentRoute !== 'home') return false;
+
+    const toolContainer = document.getElementById('tool-container');
+    if (!toolContainer) return false;
+    const dashRoot = toolContainer.querySelector('#dash-root');
+    if (!dashRoot) return false;
+
+    this.loadStats();
+    this.updateStats();
+
+    const patchSlot = (id, html) => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.innerHTML = html;
+    };
+
+    patchSlot('dash-header-slot', this.renderHeader());
+    patchSlot('dash-quick-stats-slot', this.renderQuickStats());
+    patchSlot('dash-home-personalized-slot', this.renderPersonalizedHome());
+    patchSlot('dash-activity-slot', this.renderActivitySection());
+    patchSlot('dash-productivity-slot', this.renderProductivitySection());
+    patchSlot('dash-tools-slot', this.renderToolsUsage());
+    patchSlot('dash-games-slot', this.renderGamesSection());
+
+    this._refreshSuggestionsWidget?.();
+
+    if (options.hydrate !== false) {
+        setTimeout(() => this.hydratePersonalizedHome?.(), 60);
+    }
+    if (options.keepCustomizeModal) {
+        setTimeout(() => this._refreshHomeCustomizeModal?.(), 0);
+    }
+    return true;
+};
+
 window.Dashboard = Dashboard;
 
 (function finalizeDashboardV310() {
@@ -454,8 +538,11 @@ window.Dashboard = Dashboard;
         this._homeRefreshTimer = setTimeout(() => {
             this._homeRefreshTimer = null;
             if (window.Router?.currentRoute !== 'home') return;
-            window.Router.render();
-            setTimeout(() => this.hydratePersonalizedHome?.(), 60);
+            const refreshed = this.refreshRealtime?.();
+            if (!refreshed) {
+                window.Router.render();
+                setTimeout(() => this.hydratePersonalizedHome?.(), 60);
+            }
         }, 180);
     };
 

@@ -209,6 +209,19 @@ const Router = {
                     container.style.opacity    = '1';
                 });
             },
+            effect_bundle_nebula_311: () => {
+                container.style.transition      = 'none';
+                container.style.transformOrigin = 'center center';
+                container.style.transform       = 'perspective(1000px) translateY(12px) scale(0.96) rotateX(10deg)';
+                container.style.opacity         = '0';
+                container.style.filter          = 'blur(5px) saturate(1.2)';
+                requestAnimationFrame(() => {
+                    container.style.transition = 'transform 0.42s cubic-bezier(0.34,1.2,0.64,1), opacity 0.26s ease, filter 0.42s ease';
+                    container.style.transform  = 'perspective(1000px) translateY(0) scale(1) rotateX(0deg)';
+                    container.style.opacity    = '1';
+                    container.style.filter     = 'blur(0) saturate(1)';
+                });
+            },
         };
         const applyDefault = () => {
             container.style.transition = 'none';

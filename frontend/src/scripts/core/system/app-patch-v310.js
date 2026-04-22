@@ -32,12 +32,6 @@
         safeInit('V310Rewards', 340);
 
         fixProfileTabs();
-
-        setTimeout(() => {
-            if (window.Router?.currentRoute === 'home') {
-                _injectSuggestionsInHome();
-            }
-        }, 1000);
     }
 
     function safeInit(name, delay) {
@@ -135,12 +129,12 @@
             }
 
             if (Router.currentRoute === 'home') {
-                setTimeout(_injectSuggestionsInHome, 150);
+                _injectSuggestionsInHome();
             }
         };
     };
 
-    setTimeout(patchRouterForHome, 500);
+    patchRouterForHome();
     setTimeout(tryInit, 100);
 
 })();

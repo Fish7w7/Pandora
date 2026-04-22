@@ -17,13 +17,46 @@ const Shop = {
     STORAGE_KEY: 'nyan_shop_state_v3111',
     _stateLoaded: false,
     _stateCache: null,
-    PATCH_EVENT: {
-        id: 'v310_patch_day',
-        title: 'Patch Day v3.10',
-        subtitle: 'Obrigada pela ajuda da comunidade na correcao do exploit',
-        endsAt: '2026-04-19T23:59:59-03:00',
-        items: ['title_patchday_310', 'border_patchday_310', 'theme_patchpulse_intro'],
-    },
+    BUNDLE_CATALOG_CACHE_KEY: 'nyan_bundle_catalog_cache_v1',
+    BUNDLE_CATALOG_CACHE_TTL_MS: 5 * 60 * 1000,
+    BUNDLE_CATALOG_TIMEOUT_MS: 8000,
+    BUNDLE_CATALOG_URLS: [
+        'https://raw.githubusercontent.com/Fish7w7/Pandora/main/frontend/public/bundle-catalog.json',
+        'https://raw.githubusercontent.com/Fish7w7/Pandora/main/bundle-catalog.json',
+    ],
+    _bundleCatalogLoaded: false,
+    _bundleCatalogLoadPromise: null,
+    _bundleCatalogLastRefreshMs: 0,
+    _bundleCatalogMeta: { source: 'embedded', fetchedAt: 0, updatedAt: '' },
+    // Fallback local: usado quando o catalogo remoto nao responde.
+    BUNDLES: [
+        {
+            id: 'v310_patch_day',
+            title: 'Patch Day v3.10',
+            subtitle: 'Obrigada pela ajuda da comunidade na correcao do exploit',
+            launchedAt: '2026-04-17T00:00:00-03:00',
+            endsAt: '2026-04-19T23:59:59-03:00',
+            items: ['title_patchday_310', 'border_patchday_310', 'theme_patchpulse_intro'],
+            historical: true,
+            rerunAllowed: false,
+            allowInCustomPool: false,
+        },
+        {
+            id: 'v311_nebula_bundle',
+            title: 'Bundle Nebula',
+            subtitle: 'Primeiro bundle oficial da loja com itens limitados',
+            launchedAt: '2026-04-21T00:00:00-03:00',
+            startsAt: '2026-04-21T00:00:00-03:00',
+            endsAt: '2026-04-30T23:59:59-03:00',
+            items: ['effect_bundle_nebula_311', 'border_bundle_nebula_311', 'particle_bundle_nebula_311'],
+            bundleDiscountPct: 20,
+            rerunAllowed: false,
+            allowInCustomPool: true,
+        },
+    ],
+    // Bundles custom podem puxar itens de bundles com idade minima configurada.
+    CUSTOM_BUNDLE_MIN_AGE_DAYS: 90,
+    CUSTOM_BUNDLES: [],
 
     _getDefaultState() {
         return {
@@ -31,6 +64,270 @@ const Shop = {
             selectedCat: 'title',
             dailyCycle: { key: '', categories: {} },
         };
+    },
+
+    _normalizeBundle(rawBundle = {}, fallbackKind = 'official') {
+        if (!rawBundle || typeof rawBundle !== 'object') return null;
+
+        const id = String(rawBundle.id || '').trim();
+        if (!id) return null;
+
+        const items = Array.isArray(rawBundle.items)
+            ? [...new Set(rawBundle.items.map((itemId) => String(itemId || '').trim()).filter(Boolean))]
+            : [];
+        const kindRaw = String(rawBundle.kind || fallbackKind || 'official').trim().toLowerCase();
+        const kind = kindRaw === 'custom' ? 'custom' : 'official';
+        const minSourceAgeDays = Number(rawBundle.minSourceAgeDays);
+        const discount = Number(rawBundle.bundleDiscountPct);
+        const sourceBundleIds = Array.isArray(rawBundle.sourceBundleIds)
+            ? [...new Set(rawBundle.sourceBundleIds.map((entry) => String(entry || '').trim()).filter(Boolean))]
+            : [];
+
+        const normalized = {
+            ...rawBundle,
+            id,
+            kind,
+            title: String(rawBundle.title || 'Bundle'),
+            subtitle: String(rawBundle.subtitle || ''),
+            launchedAt: String(rawBundle.launchedAt || ''),
+            startsAt: String(rawBundle.startsAt || ''),
+            endsAt: String(rawBundle.endsAt || ''),
+            items,
+            bundleDiscountPct: Number.isFinite(discount)
+                ? Math.max(0, Math.min(95, Math.round(discount)))
+                : 0,
+            historical: rawBundle.historical === true || rawBundle.legacy === true,
+            rerunAllowed: rawBundle.rerunAllowed !== false,
+            allowInCustomPool: rawBundle.allowInCustomPool !== false,
+            sourceBundleIds,
+        };
+
+        if (kind === 'custom') {
+            normalized.kind = 'custom';
+        }
+
+        if (Number.isFinite(minSourceAgeDays) && minSourceAgeDays > 0) {
+            normalized.minSourceAgeDays = Math.floor(minSourceAgeDays);
+        } else {
+            delete normalized.minSourceAgeDays;
+        }
+
+        if (normalized.historical || rawBundle.legacy === true) {
+            normalized.rerunAllowed = false;
+            normalized.allowInCustomPool = false;
+        }
+
+        return normalized;
+    },
+
+    _normalizeBundleCatalog(rawCatalog = {}) {
+        const source = rawCatalog && typeof rawCatalog === 'object' ? rawCatalog : {};
+        const settings = source.settings && typeof source.settings === 'object' ? source.settings : {};
+
+        const rawBundles = Array.isArray(source.bundles) ? source.bundles : [];
+        const rawCustom = Array.isArray(source.customBundles)
+            ? source.customBundles
+            : Array.isArray(source.custom_bundles)
+                ? source.custom_bundles
+                : [];
+
+        const minAgeRaw = Number(
+            settings.customBundleMinAgeDays
+            ?? source.customBundleMinAgeDays
+            ?? this.CUSTOM_BUNDLE_MIN_AGE_DAYS
+        );
+        const customBundleMinAgeDays = Number.isFinite(minAgeRaw) && minAgeRaw > 0
+            ? Math.floor(minAgeRaw)
+            : this.CUSTOM_BUNDLE_MIN_AGE_DAYS;
+
+        return {
+            version: Number(source.version || 1),
+            updatedAt: String(source.updatedAt || ''),
+            settings: {
+                ...settings,
+                customBundleMinAgeDays,
+            },
+            bundles: rawBundles
+                .map((bundle) => this._normalizeBundle(bundle, 'official'))
+                .filter(Boolean),
+            customBundles: rawCustom
+                .map((bundle) => this._normalizeBundle(bundle, 'custom'))
+                .filter(Boolean)
+                .map((bundle) => ({ ...bundle, kind: 'custom' })),
+        };
+    },
+
+    _applyBundleCatalog(rawCatalog = {}, meta = {}) {
+        const catalog = this._normalizeBundleCatalog(rawCatalog);
+
+        this.BUNDLES = Array.isArray(catalog.bundles) ? catalog.bundles : [];
+        this.CUSTOM_BUNDLES = Array.isArray(catalog.customBundles) ? catalog.customBundles : [];
+        this.CUSTOM_BUNDLE_MIN_AGE_DAYS = Number(catalog.settings?.customBundleMinAgeDays || this.CUSTOM_BUNDLE_MIN_AGE_DAYS);
+
+        const fetchedAt = Number(meta.fetchedAt);
+        const safeFetchedAt = Number.isFinite(fetchedAt) && fetchedAt > 0 ? fetchedAt : Date.now();
+        this._bundleCatalogLoaded = true;
+        this._bundleCatalogLastRefreshMs = safeFetchedAt;
+        this._bundleCatalogMeta = {
+            source: String(meta.source || this._bundleCatalogMeta?.source || 'embedded'),
+            fetchedAt: safeFetchedAt,
+            updatedAt: String(meta.updatedAt || catalog.updatedAt || ''),
+        };
+
+        return catalog;
+    },
+
+    _loadBundleCatalogCache() {
+        const cached = Utils.loadData(this.BUNDLE_CATALOG_CACHE_KEY);
+        if (!cached || typeof cached !== 'object') return false;
+
+        const data = cached.data && typeof cached.data === 'object' ? cached.data : null;
+        if (!data) return false;
+
+        this._applyBundleCatalog(data, {
+            source: cached.source || 'cache',
+            fetchedAt: Number(cached.fetchedAt || 0),
+            updatedAt: cached.updatedAt || data.updatedAt || '',
+        });
+        return true;
+    },
+
+    _saveBundleCatalogCache(rawCatalog = {}, meta = {}) {
+        Utils.saveData(this.BUNDLE_CATALOG_CACHE_KEY, {
+            source: String(meta.source || 'unknown'),
+            fetchedAt: Number(meta.fetchedAt || Date.now()),
+            updatedAt: String(meta.updatedAt || rawCatalog.updatedAt || ''),
+            data: rawCatalog,
+        });
+    },
+
+    _isBundleCatalogStale(now = Date.now()) {
+        if (!this._bundleCatalogLoaded) return true;
+        const age = now - Number(this._bundleCatalogLastRefreshMs || 0);
+        return !Number.isFinite(age) || age >= this.BUNDLE_CATALOG_CACHE_TTL_MS;
+    },
+
+    _refreshShopIfVisible() {
+        if (window.Router?.currentRoute !== 'shop') return;
+        if (document.getElementById('shop-main-content')) {
+            this._afterAction();
+            return;
+        }
+        window.Router?.render?.();
+    },
+
+    async refreshBundleCatalog({ force = false, silent = true } = {}) {
+        if (this._bundleCatalogLoadPromise) {
+            return this._bundleCatalogLoadPromise;
+        }
+
+        if (!this._bundleCatalogLoaded) {
+            this._loadBundleCatalogCache();
+        }
+
+        if (!force && !this._isBundleCatalogStale()) {
+            return {
+                success: true,
+                source: this._bundleCatalogMeta?.source || 'memory',
+                skipped: true,
+            };
+        }
+
+        const run = async () => {
+            const errors = [];
+            const timeoutMs = Math.max(2000, Number(this.BUNDLE_CATALOG_TIMEOUT_MS || 8000));
+
+            const applyResult = (data, source, fetchedAt = Date.now()) => {
+                const normalized = this._applyBundleCatalog(data, {
+                    source,
+                    fetchedAt,
+                    updatedAt: data?.updatedAt || '',
+                });
+                this._saveBundleCatalogCache(data, {
+                    source,
+                    fetchedAt,
+                    updatedAt: normalized.updatedAt || data?.updatedAt || '',
+                });
+                this._refreshShopIfVisible();
+                return { success: true, source, fetchedAt, data: normalized };
+            };
+
+            if (window.electronAPI?.getBundleCatalog) {
+                try {
+                    const response = await window.electronAPI.getBundleCatalog({
+                        urls: this.BUNDLE_CATALOG_URLS,
+                        timeoutMs,
+                    });
+                    if (response?.success && response.data) {
+                        return applyResult(response.data, response.source || 'ipc', Number(response.fetchedAt || 0) || Date.now());
+                    }
+                    if (response?.success === false) {
+                        errors.push(String(response.error || 'Falha ao carregar catalogo via IPC'));
+                    }
+                } catch (error) {
+                    errors.push(String(error?.message || error));
+                }
+            }
+
+            for (const source of this.BUNDLE_CATALOG_URLS) {
+                try {
+                    const response = await Utils.fetchWithTimeout(
+                        source,
+                        {
+                            cache: 'no-store',
+                            headers: { Accept: 'application/json' },
+                        },
+                        timeoutMs
+                    );
+                    if (!response?.ok) {
+                        errors.push(`${source}: HTTP ${response?.status || 0}`);
+                        continue;
+                    }
+                    const data = await response.json();
+                    return applyResult(data, source, Date.now());
+                } catch (error) {
+                    errors.push(`${source}: ${String(error?.message || error)}`);
+                }
+            }
+
+            for (const localPath of ['./bundle-catalog.json', 'bundle-catalog.json']) {
+                try {
+                    const response = await fetch(localPath, { cache: 'no-store' });
+                    if (!response.ok) continue;
+                    const data = await response.json();
+                    return applyResult(data, `local:${localPath}`, Date.now());
+                } catch (_) {}
+            }
+
+            if (!this._bundleCatalogLoaded) {
+                this._bundleCatalogLoaded = true;
+                this._bundleCatalogLastRefreshMs = Date.now();
+                this._bundleCatalogMeta = { source: 'embedded', fetchedAt: Date.now(), updatedAt: '' };
+            }
+
+            if (!silent) {
+                Utils.showNotification?.('Nao foi possivel atualizar os bundles agora.', 'warning');
+            }
+
+            return {
+                success: false,
+                source: this._bundleCatalogMeta?.source || 'embedded',
+                errors,
+            };
+        };
+
+        this._bundleCatalogLoadPromise = run().finally(() => {
+            this._bundleCatalogLoadPromise = null;
+        });
+        return this._bundleCatalogLoadPromise;
+    },
+
+    _ensureBundleCatalogRuntime({ force = false, silent = true } = {}) {
+        if (!this._bundleCatalogLoaded) {
+            this._loadBundleCatalogCache();
+        }
+        if (!force && !this._isBundleCatalogStale()) return;
+        this.refreshBundleCatalog({ force, silent }).catch(() => {});
     },
 
     _getCycleKey(date = new Date()) {
@@ -164,53 +461,380 @@ const Shop = {
         return items;
     },
 
-    _getPatchEventData() {
-        const endsAt = Date.parse(this.PATCH_EVENT.endsAt || '');
-        if (!Number.isFinite(endsAt)) return null;
-        if (Date.now() > endsAt) return null;
-
-        const items = (this.PATCH_EVENT.items || [])
-            .map(id => Inventory.getItem(id))
-            .filter(Boolean);
-
-        if (!items.length) return null;
-        return { ...this.PATCH_EVENT, endsAt, items };
+    _parseDateMs(value) {
+        const ms = Date.parse(String(value || '').trim());
+        return Number.isFinite(ms) ? ms : NaN;
     },
 
-    _renderPatchEvent() {
-        const event = this._getPatchEventData();
-        if (!event) return '';
+    _getBundleLaunchMs(bundle = {}) {
+        const launchedAt = this._parseDateMs(bundle.launchedAt);
+        if (Number.isFinite(launchedAt)) return launchedAt;
+        const startsAt = this._parseDateMs(bundle.startsAt);
+        if (Number.isFinite(startsAt)) return startsAt;
+        return NaN;
+    },
 
+    _isBundleActive(bundle = {}, now = Date.now()) {
+        const status = String(bundle.status || '').trim().toLowerCase();
+        if (bundle.enabled === false || bundle.active === false) return false;
+        if (status && !['active', 'published', 'live'].includes(status)) return false;
+
+        const startsAt = this._parseDateMs(bundle.startsAt);
+        if (Number.isFinite(startsAt) && now < startsAt) return false;
+
+        const endsAt = this._parseDateMs(bundle.endsAt);
+        if (Number.isFinite(endsAt) && now > endsAt) return false;
+
+        if (bundle.rerunAllowed === false) {
+            const launchMs = this._getBundleLaunchMs(bundle);
+            if (Number.isFinite(launchMs) && Number.isFinite(startsAt) && startsAt > launchMs + 60000) {
+                return false;
+            }
+        }
+
+        return true;
+    },
+
+    _resolveCustomBundleItemIds(bundle = {}, now = Date.now()) {
+        const itemIds = Array.isArray(bundle.items) ? [...bundle.items] : [];
+        if (bundle.kind !== 'custom') return [...new Set(itemIds)];
+
+        const minAgeDays = Number(bundle.minSourceAgeDays);
+        const sourceAgeDays = Number.isFinite(minAgeDays) && minAgeDays > 0
+            ? minAgeDays
+            : this.CUSTOM_BUNDLE_MIN_AGE_DAYS;
+        const cutoffMs = now - (sourceAgeDays * 86400000);
+
+        const sourceIds = Array.isArray(bundle.sourceBundleIds)
+            ? new Set(bundle.sourceBundleIds.map((id) => String(id || '').trim()).filter(Boolean))
+            : null;
+
+        const includePool = Array.isArray(this.BUNDLES) ? this.BUNDLES : [];
+        includePool.forEach((sourceBundle) => {
+            if (!sourceBundle || sourceBundle.id === bundle.id) return;
+            if (sourceBundle.allowInCustomPool === false) return;
+            if (sourceIds && sourceIds.size && !sourceIds.has(sourceBundle.id)) return;
+
+            const launchedAt = this._getBundleLaunchMs(sourceBundle);
+            if (!Number.isFinite(launchedAt) || launchedAt > cutoffMs) return;
+
+            const sourceItems = Array.isArray(sourceBundle.items) ? sourceBundle.items : [];
+            sourceItems.forEach((itemId) => itemIds.push(itemId));
+        });
+
+        return [...new Set(itemIds)];
+    },
+
+    _getBundleData(bundle = {}, now = Date.now()) {
+        if (!bundle || typeof bundle !== 'object') return null;
+        if (!this._isBundleActive(bundle, now)) return null;
+
+        const itemIds = this._resolveCustomBundleItemIds(bundle, now);
+        const items = itemIds
+            .map((id) => Inventory.getItem(id))
+            .filter(Boolean);
+        if (!items.length) return null;
+
+        const endsAt = this._parseDateMs(bundle.endsAt);
+        return {
+            ...bundle,
+            endsAtMs: Number.isFinite(endsAt) ? endsAt : NaN,
+            items,
+        };
+    },
+
+    _getVisibleBundles() {
+        const now = Date.now();
+        const bundles = [
+            ...(Array.isArray(this.BUNDLES) ? this.BUNDLES : []),
+            ...(Array.isArray(this.CUSTOM_BUNDLES) ? this.CUSTOM_BUNDLES : []),
+        ];
+
+        return bundles
+            .map((bundle) => this._getBundleData(bundle, now))
+            .filter(Boolean)
+            .sort((left, right) => {
+                const leftPriority = Number(left?.priority || 0);
+                const rightPriority = Number(right?.priority || 0);
+                if (leftPriority !== rightPriority) return rightPriority - leftPriority;
+
+                const leftStart = this._parseDateMs(left?.startsAt || left?.launchedAt);
+                const rightStart = this._parseDateMs(right?.startsAt || right?.launchedAt);
+                const safeLeft = Number.isFinite(leftStart) ? leftStart : 0;
+                const safeRight = Number.isFinite(rightStart) ? rightStart : 0;
+                return safeRight - safeLeft;
+            });
+    },
+
+    _getBundleById(bundleId) {
+        const safeId = String(bundleId || '').trim();
+        if (!safeId) return null;
+        const allBundles = [
+            ...(Array.isArray(this.BUNDLES) ? this.BUNDLES : []),
+            ...(Array.isArray(this.CUSTOM_BUNDLES) ? this.CUSTOM_BUNDLES : []),
+        ];
+        return allBundles.find((bundle) => bundle?.id === safeId) || null;
+    },
+
+    _getBundleItemLockReason(item) {
+        if (!item) return 'Item indisponivel.';
+        if (item.milestone) return 'O bundle possui item de marco de nivel.';
+        if (item.rewardOnly) return 'O bundle possui item exclusivo de recompensa.';
+
+        if (item.endsAt) {
+            const endsAt = Date.parse(item.endsAt);
+            if (Number.isFinite(endsAt) && Date.now() > endsAt) {
+                return 'Um item do bundle expirou.';
+            }
+        }
+
+        if (item.seasonId) {
+            const season = window.Seasons?.getCurrentSeason?.();
+            const active = window.Seasons?.isActive?.(season);
+            if (!season || season.id !== item.seasonId || !active) {
+                return 'Um item do bundle depende de temporada ativa.';
+            }
+        }
+
+        const currentLevel = window.Economy?.getLevel?.() || 1;
+        if (currentLevel < Number(item.minLevel || 1)) {
+            return `Nivel ${item.minLevel} necessario para concluir o bundle.`;
+        }
+
+        return '';
+    },
+
+    _getBundlePurchaseState(bundle) {
+        const items = Array.isArray(bundle?.items) ? bundle.items.filter(Boolean) : [];
+        const pendingItems = items.filter((item) => !Inventory.owns(item.id));
+        const lockReason = pendingItems
+            .map((item) => this._getBundleItemLockReason(item))
+            .find((reason) => !!reason) || '';
+
+        const rawTotal = pendingItems.reduce((sum, item) => sum + Math.max(0, Number(item.price || 0)), 0);
+        const discountPct = Math.min(95, Math.max(0, Number(bundle?.bundleDiscountPct || 0)));
+        const finalPrice = Math.max(0, Math.round(rawTotal * (1 - discountPct / 100)));
+        const chips = window.Economy?.getChips?.() || 0;
+        const canAfford = chips >= finalPrice;
+
+        return {
+            totalItems: items.length,
+            ownedItems: items.length - pendingItems.length,
+            pendingItems,
+            pendingCount: pendingItems.length,
+            lockReason,
+            rawTotal,
+            discountPct,
+            finalPrice,
+            chips,
+            canAfford,
+        };
+    },
+
+    _renderBundlePanel(bundle) {
         const c = this._c();
         const d = this._isDark();
-        const remaining = Math.max(0, event.endsAt - Date.now());
-        const h = Math.floor(remaining / 3600000);
-        const m = Math.floor((remaining % 3600000) / 60000);
+        const purchase = this._getBundlePurchaseState(bundle);
+        const remaining = Number.isFinite(bundle.endsAtMs)
+            ? Math.max(0, bundle.endsAtMs - Date.now())
+            : NaN;
+        const h = Number.isFinite(remaining) ? Math.floor(remaining / 3600000) : 0;
+        const m = Number.isFinite(remaining) ? Math.floor((remaining % 3600000) / 60000) : 0;
         const countdown = h > 0 ? `${h}h ${m}min` : `${m}min`;
+        const topLabel = bundle.historical
+            ? 'Bundle historico'
+            : bundle.kind === 'custom'
+                ? 'Bundle personalizado'
+                : 'Bundle exclusivo';
+        const marker = bundle.kind === 'custom' ? '\u{1F9E9}' : '\u{1F389}';
+
+        const panelBg = bundle.kind === 'custom'
+            ? 'linear-gradient(135deg, rgba(14,165,233,0.14), rgba(59,130,246,0.18) 48%, rgba(16,185,129,0.18))'
+            : 'linear-gradient(135deg, rgba(16,185,129,0.14), rgba(168,85,247,0.18) 48%, rgba(236,72,153,0.2))';
+        const panelBorder = bundle.kind === 'custom'
+            ? (d ? 'rgba(125,211,252,0.25)' : 'rgba(56,189,248,0.35)')
+            : (d ? 'rgba(255,255,255,0.12)' : 'rgba(168,85,247,0.22)');
+
+        let actionText = `Comprar bundle - ${purchase.finalPrice.toLocaleString('pt-BR')} chips`;
+        let actionStyle = 'background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));color:white;border:none;';
+        let actionDisabled = false;
+        let actionClick = `Shop._buyBundle('${bundle.id}')`;
+
+        if (purchase.pendingCount === 0) {
+            actionText = 'Bundle completo';
+            actionStyle = `background:${c.inner};color:${c.muted};border:1px solid ${c.border};`;
+            actionDisabled = true;
+            actionClick = '';
+        } else if (purchase.lockReason) {
+            actionText = 'Bundle indisponivel';
+            actionStyle = `background:${c.inner};color:${c.muted};border:1px solid ${c.border};`;
+            actionDisabled = true;
+            actionClick = '';
+        } else if (!purchase.canAfford) {
+            actionText = `Faltam ${(purchase.finalPrice - purchase.chips).toLocaleString('pt-BR')} chips`;
+            actionStyle = `background:rgba(239,68,68,0.12);color:${d ? '#f87171' : '#be123c'};border:1px solid rgba(239,68,68,0.25);`;
+            actionDisabled = true;
+            actionClick = '';
+        }
 
         return `
             <div style="margin-bottom:1rem;border-radius:16px;padding:1rem;
-                background:linear-gradient(135deg, rgba(16,185,129,0.14), rgba(168,85,247,0.18) 48%, rgba(236,72,153,0.2));
-                border:1px solid ${d ? 'rgba(255,255,255,0.12)' : 'rgba(168,85,247,0.22)'};">
+                background:${panelBg};
+                border:1px solid ${panelBorder};">
                 <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;margin-bottom:0.75rem;">
                     <div>
-                        <div style="font-size:0.66rem;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;color:${c.muted};">Evento especial</div>
-                        <div style="font-size:1.05rem;font-weight:900;font-family:'Syne',sans-serif;color:${c.text};">\u{1F389} ${event.title}</div>
-                        <div style="font-size:0.74rem;color:${c.sub};margin-top:0.2rem;">${event.subtitle}</div>
+                        <div style="font-size:0.66rem;font-weight:800;letter-spacing:0.09em;text-transform:uppercase;color:${c.muted};">${topLabel}</div>
+                        <div style="font-size:1.05rem;font-weight:900;font-family:'Syne',sans-serif;color:${c.text};">${marker} ${bundle.title || 'Bundle'}</div>
+                        <div style="font-size:0.74rem;color:${c.sub};margin-top:0.2rem;">${bundle.subtitle || 'Itens exclusivos por tempo limitado'}</div>
                     </div>
-                    <div style="font-size:0.64rem;font-weight:800;color:${d ? '#fcd34d' : '#92400e'};
-                        background:${d ? 'rgba(245,158,11,0.14)' : 'rgba(245,158,11,0.12)'};
-                        border:1px solid ${d ? 'rgba(245,158,11,0.28)' : 'rgba(245,158,11,0.3)'};
-                        border-radius:999px;padding:0.3rem 0.65rem;white-space:nowrap;">
-                        \u23F1 ${countdown}
+                    ${Number.isFinite(bundle.endsAtMs) ? `
+                        <div style="font-size:0.64rem;font-weight:800;color:${d ? '#fcd34d' : '#92400e'};
+                            background:${d ? 'rgba(245,158,11,0.14)' : 'rgba(245,158,11,0.12)'};
+                            border:1px solid ${d ? 'rgba(245,158,11,0.28)' : 'rgba(245,158,11,0.3)'};
+                            border-radius:999px;padding:0.3rem 0.65rem;white-space:nowrap;">
+                            \u23F1 ${countdown}
+                        </div>
+                    ` : `
+                        <div style="font-size:0.64rem;font-weight:800;color:${d ? '#86efac' : '#047857'};
+                            background:${d ? 'rgba(16,185,129,0.12)' : 'rgba(16,185,129,0.1)'};
+                            border:1px solid ${d ? 'rgba(16,185,129,0.3)' : 'rgba(16,185,129,0.28)'};
+                            border-radius:999px;padding:0.3rem 0.65rem;white-space:nowrap;">
+                            Colecao fixa
+                        </div>
+                    `}
+                </div>
+
+                <div style="margin-bottom:0.85rem;border-radius:12px;padding:0.75rem;
+                    background:${d ? 'rgba(255,255,255,0.06)' : 'rgba(255,255,255,0.72)'};
+                    border:1px solid ${d ? 'rgba(255,255,255,0.12)' : 'rgba(15,23,42,0.08)'};">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;flex-wrap:wrap;">
+                        <div style="font-size:0.68rem;color:${c.sub};">
+                            ${purchase.ownedItems}/${purchase.totalItems} itens no inventario
+                        </div>
+                        <div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;">
+                            ${purchase.discountPct > 0 ? `<span style="font-size:0.58rem;font-weight:800;text-transform:uppercase;letter-spacing:0.06em;border-radius:999px;padding:0.2rem 0.5rem;color:${d ? '#6ee7b7' : '#065f46'};background:${d ? 'rgba(16,185,129,0.18)' : 'rgba(16,185,129,0.12)'};border:1px solid ${d ? 'rgba(16,185,129,0.35)' : 'rgba(16,185,129,0.28)'};">-${purchase.discountPct}%</span>` : ''}
+                            <span style="font-size:0.72rem;font-weight:900;font-family:'Syne',sans-serif;color:${d ? '#fcd34d' : '#92400e'};">
+                                ${purchase.finalPrice.toLocaleString('pt-BR')} chips
+                            </span>
+                        </div>
                     </div>
+                    ${purchase.lockReason ? `<div style="margin-top:0.45rem;font-size:0.62rem;color:${d ? '#fca5a5' : '#991b1b'};">${purchase.lockReason}</div>` : ''}
+                    <button ${actionDisabled ? 'disabled' : ''} onclick="${actionClick}"
+                        style="margin-top:0.6rem;width:100%;padding:0.48rem 0.6rem;border-radius:10px;
+                        font-size:0.72rem;font-weight:800;font-family:'DM Sans',sans-serif;
+                        cursor:${actionDisabled ? 'not-allowed' : 'pointer'};opacity:${actionDisabled ? '0.62' : '1'};
+                        transition:filter .12s,transform .08s;${actionStyle}"
+                        onmouseover="if(!this.disabled)this.style.filter='brightness(1.08)'"
+                        onmouseout="this.style.filter=''"
+                        onmousedown="if(!this.disabled)this.style.transform='scale(0.98)'"
+                        onmouseup="this.style.transform=''">
+                        ${actionText}
+                    </button>
                 </div>
 
                 <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;">
-                    ${event.items.map((item, i) => this._renderCard(item, i)).join('')}
+                    ${bundle.items.map((item, i) => this._renderCard(item, i)).join('')}
                 </div>
             </div>
         `;
+    },
+
+    _buyBundle(bundleId) {
+        const source = this._getBundleById(bundleId);
+        if (!source) {
+            Utils.showNotification?.('Bundle nao encontrado.', 'warning');
+            return;
+        }
+
+        const bundle = this._getBundleData(source, Date.now());
+        if (!bundle) {
+            Utils.showNotification?.('Este bundle nao esta ativo.', 'warning');
+            return;
+        }
+
+        const state = this._getBundlePurchaseState(bundle);
+        if (state.pendingCount === 0) {
+            Utils.showNotification?.('Voce ja concluiu este bundle.', 'info');
+            return;
+        }
+        if (state.lockReason) {
+            Utils.showNotification?.(state.lockReason, 'warning');
+            return;
+        }
+        if (!state.canAfford) {
+            Utils.showNotification?.(`Chips insuficientes (${state.finalPrice.toLocaleString('pt-BR')} necessarios).`, 'warning');
+            return;
+        }
+
+        const d = this._isDark();
+        const itemList = state.pendingItems
+            .map((item) => `<li style="margin-bottom:0.2rem;">${item.icon} ${item.name}</li>`)
+            .join('');
+        const body = `
+            <div style="font-size:0.74rem;color:${d ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.65)'};margin-bottom:0.7rem;text-align:center;">
+                Voce vai desbloquear <strong>${state.pendingCount}</strong> item${state.pendingCount > 1 ? 's' : ''} do bundle.
+            </div>
+            <ul style="margin:0 0 0.8rem 1rem;padding:0;font-size:0.72rem;color:${d ? 'rgba(255,255,255,0.82)' : '#0f172a'};">
+                ${itemList}
+            </ul>
+            <div style="background:${d ? 'rgba(255,255,255,0.05)' : '#f8fafc'};
+                border:1px solid ${d ? 'rgba(255,255,255,0.1)' : 'rgba(0,0,0,0.08)'};
+                border-radius:10px;padding:0.6rem 0.75rem;font-size:0.74rem;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+                    <span style="opacity:0.7;">Total itens</span>
+                    <strong>${state.rawTotal.toLocaleString('pt-BR')} chips</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;margin-bottom:0.25rem;">
+                    <span style="opacity:0.7;">Desconto bundle</span>
+                    <strong>${state.discountPct}%</strong>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                    <span style="opacity:0.7;">Final</span>
+                    <strong style="color:${d ? '#fcd34d' : '#92400e'};">${state.finalPrice.toLocaleString('pt-BR')} chips</strong>
+                </div>
+            </div>
+        `;
+
+        this._showModal({
+            title: 'Confirmar bundle',
+            body,
+            confirmText: 'Comprar bundle',
+            confirmColor: 'linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899))',
+            onConfirm: () => {
+                const liveSource = this._getBundleById(source.id) || source;
+                const liveBundle = this._getBundleData(liveSource, Date.now());
+                if (!liveBundle) {
+                    Utils.showNotification?.('Bundle indisponivel no momento da compra.', 'warning');
+                    return;
+                }
+                const liveState = this._getBundlePurchaseState(liveBundle);
+                if (liveState.pendingCount === 0) {
+                    Utils.showNotification?.('Voce ja concluiu este bundle.', 'info');
+                    return;
+                }
+                if (liveState.lockReason) {
+                    Utils.showNotification?.(liveState.lockReason, 'warning');
+                    return;
+                }
+                if (!liveState.canAfford) {
+                    Utils.showNotification?.(`Chips insuficientes (${liveState.finalPrice.toLocaleString('pt-BR')} necessarios).`, 'warning');
+                    return;
+                }
+
+                const spent = window.Economy?.spendChips?.(liveState.finalPrice);
+                if (!spent) {
+                    Utils.showNotification?.('Falha ao debitar chips.', 'error');
+                    return;
+                }
+
+                liveState.pendingItems.forEach((item) => {
+                    Inventory.unlockItem(item.id);
+                });
+
+                Utils.showNotification?.(`\u{1F6CD}\uFE0F Bundle adquirido: ${liveBundle.title}`, 'success');
+                this._afterAction();
+            },
+        });
     },
 
     _getSeasonalEventData() {
@@ -268,7 +892,9 @@ const Shop = {
     },
 
     _renderEventPanels() {
-        return this._renderPatchEvent();
+        const bundles = this._getVisibleBundles();
+        if (!bundles.length) return '';
+        return bundles.map((bundle) => this._renderBundlePanel(bundle)).join('');
     },
 
     _isDark() { return document.body.classList.contains('dark-theme'); },
@@ -289,6 +915,7 @@ const Shop = {
 
     render() {
         this._ensureState();
+        this._ensureBundleCatalogRuntime({ silent: true });
         const c     = this._c();
         const d     = this._isDark();
         const chips = window.Economy?.getChips?.() || 0;
@@ -1145,6 +1772,7 @@ const Shop = {
 
     init() {
         this._ensureState();
+        this._ensureBundleCatalogRuntime({ silent: true });
         const chipsEl = document.getElementById('shop-chips-display');
         if (chipsEl) chipsEl.textContent = (window.Economy?.getChips?.() || 0).toLocaleString('pt-BR');
     },

@@ -12,7 +12,8 @@ const Inventory = {
         { id:'title_legend',   type:'title',  name:'Lendario',          icon:'\u{1F451}', rarity:'epic',      price:1000, minLevel:25, preview:'Reservado para os veteranos' },
         { id:'title_nyan',     type:'title',  name:'nyan~ Master',      icon:'\u{1F431}', rarity:'epic',      price:800,  minLevel:15, preview:'O titulo mais kawaii de todos' },
         { id:'title_master_nyan', type:'title', name:'Mestre Nyan~',    icon:'\u{1F451}', rarity:'milestone', price:0,    minLevel:25, preview:'Titulo de marco - desbloqueado ao atingir nivel 25', milestone:true },
-        { id:'title_patchday_310', type:'title', name:'Patch Day v3.10', icon:'\u{1F381}', rarity:'weekly', price:0, minLevel:1, preview:'Recompensa exclusiva de lancamento da v3.10', eventOnly:true },
+        { id:'title_patchday_310', type:'title', name:'Patch Day v3.10', icon:'\u{1F381}', rarity:'bundle', price:0, minLevel:1, preview:'Recompensa exclusiva de lancamento da v3.10', eventOnly:true },
+        { id:'title_bundle_nebula_311', type:'title', name:'Comandante Nebula', icon:'\u{1F30C}', rarity:'bundle', price:750, minLevel:1, preview:'Titulo legado do Bundle Nebula', eventOnly:true, endsAt:'2026-04-30T23:59:59-03:00' },
         { id:'title_season1_silver', type:'title', name:'Aurora da Temporada', icon:'\u{1F338}', rarity:'seasonal', price:450, minLevel:1, preview:'Titulo sazonal da Temporada 1', seasonId:'season_1', endsAt:'2026-05-15T23:59:59-03:00', eventOnly:true },
         { id:'title_season1_champion', type:'title', name:'Despertar Supremo', icon:'\u{1F451}', rarity:'seasonal', price:0, minLevel:1, preview:'Titulo final da Temporada 1', seasonId:'season_1', endsAt:'2026-05-15T23:59:59-03:00', eventOnly:true, rewardOnly:true, seasonFinalReward:true },
         { id:'border_simple',  type:'border', name:'Borda Simples',     icon:'\u2B1C', rarity:'common',    price:400,  minLevel:5,  preview:'Borda branca discreta',
@@ -69,11 +70,18 @@ const Inventory = {
                 100% { border-color:#818cf8; box-shadow:0 0 6px 2px rgba(129,140,248,0.8); }
             }`
         },
-        { id:'border_patchday_310', type:'border', name:'Patch Neon', icon:'\u{1F6E0}\uFE0F', rarity:'epic', price:1250, minLevel:1, preview:'Borda limitada do evento de patch v3.10', eventOnly:true,
+        { id:'border_patchday_310', type:'border', name:'Patch Neon', icon:'\u{1F6E0}\uFE0F', rarity:'bundle', price:1250, minLevel:1, preview:'Borda limitada do evento de patch v3.10', eventOnly:true,
           css:'border: 2.5px solid #22d3ee; box-shadow: 0 0 8px rgba(34,211,238,0.6), 0 0 18px rgba(236,72,153,0.35); animation: patchPulse 2.4s ease-in-out infinite;',
           extraStyle:`@keyframes patchPulse {
               0%,100% { border-color:#22d3ee; box-shadow:0 0 8px rgba(34,211,238,0.6),0 0 18px rgba(236,72,153,0.35); }
               50% { border-color:#ec4899; box-shadow:0 0 10px rgba(236,72,153,0.7),0 0 20px rgba(34,211,238,0.4); }
+          }`
+        },
+        { id:'border_bundle_nebula_311', type:'border', name:'Fronteira Nebula', icon:'\u{1F680}', rarity:'bundle', price:1450, minLevel:1, preview:'Borda limitada do Bundle Nebula', eventOnly:true, endsAt:'2026-04-30T23:59:59-03:00',
+          css:'border:2.5px solid #60a5fa; box-shadow:0 0 8px rgba(96,165,250,0.55), 0 0 18px rgba(129,140,248,0.35); animation: nebulaBorderPulse 2.6s ease-in-out infinite;',
+          extraStyle:`@keyframes nebulaBorderPulse {
+              0%,100% { border-color:#60a5fa; box-shadow:0 0 8px rgba(96,165,250,0.55),0 0 18px rgba(129,140,248,0.35); }
+              50% { border-color:#a78bfa; box-shadow:0 0 10px rgba(167,139,250,0.65),0 0 20px rgba(96,165,250,0.42); }
           }`
         },
         { id:'border_season1', type:'border', name:'Fronteira S1', icon:'\u{1F338}', rarity:'seasonal', price:800, minLevel:1, preview:'Borda exclusiva da Temporada 1', seasonId:'season_1', endsAt:'2026-05-15T23:59:59-03:00', eventOnly:true,
@@ -88,15 +96,17 @@ const Inventory = {
         { id:'theme_midnight', type:'theme', name:'Midnight',          icon:'\u{1F319}', rarity:'rare',   price:1200, minLevel:10, preview:'Indigo - particulas de estrelas',  themeId:'indigo', effect:'stars' },
         { id:'theme_neon',     type:'theme', name:'Neon',              icon:'\u26A1', rarity:'epic',   price:1800, minLevel:15, preview:'Teal - efeito glitch no login',   themeId:'teal',   effect:'glitch' },
         { id:'theme_fire',     type:'theme', name:'Chamas',            icon:'\u{1F525}', rarity:'epic',   price:1800, minLevel:15, preview:'Vermelho - particulas de fogo',  themeId:'red',    effect:'fire' },
-        { id:'theme_patchpulse_intro', type:'theme', name:'Patch Pulse Intro', icon:'\u{1F300}', rarity:'weekly', price:1250, minLevel:1, preview:'Intro limitada do evento v3.10 com pulso neon', themeId:'teal', effect:'patchpulse', eventOnly:true, preserveTheme:true },
+        { id:'theme_patchpulse_intro', type:'theme', name:'Patch Pulse Intro', icon:'\u{1F300}', rarity:'bundle', price:1250, minLevel:1, preview:'Intro limitada do evento v3.10 com pulso neon', themeId:'teal', effect:'patchpulse', eventOnly:true, preserveTheme:true },
 
         { id:'effect_slide', type:'effect', name:'Slide',  icon:'\u2194\uFE0F', rarity:'common', price:600,  minLevel:7,  preview:'Troca de ferramenta com deslize lateral' },
         { id:'effect_zoom',  type:'effect', name:'Zoom',   icon:'\u{1F50D}', rarity:'common', price:600,  minLevel:7,  preview:'Zoom suave ao trocar de pagina' },
         { id:'effect_flip',  type:'effect', name:'Flip',   icon:'\u{1F504}', rarity:'rare',   price:1000, minLevel:12, preview:'Rotacao lateral ao navegar' },
+        { id:'effect_bundle_nebula_311', type:'effect', name:'Nebula Drift', icon:'\u{1FA90}', rarity:'bundle', price:750, minLevel:1, preview:'Efeito de navegacao exclusivo do Bundle Nebula', eventOnly:true, endsAt:'2026-04-30T23:59:59-03:00' },
 
         { id:'particle_stars',  type:'particle', name:'Estrelas',         icon:'\u2728', rarity:'common', price:500, minLevel:6,  preview:'Estrelinhas ao redor do avatar' },
         { id:'particle_hearts', type:'particle', name:'Coracoes',         icon:'\u{1F495}', rarity:'common', price:500, minLevel:6,  preview:'Coracoes flutuando' },
         { id:'particle_nyan',   type:'particle', name:'Patinhas nyan~', icon:'\u{1F43E}', rarity:'rare',   price:900, minLevel:10, preview:'Patinhas de gato girando' },
+        { id:'particle_bundle_nebula_311', type:'particle', name:'Poeira Nebula', icon:'\u{1F30C}', rarity:'bundle', price:950, minLevel:1, preview:'Particulas exclusivas do Bundle Nebula', eventOnly:true, endsAt:'2026-04-30T23:59:59-03:00' },
         { id:'particle_veteran_spark', type:'particle', name:'Sigilos Veteranos', icon:'\u25C8', rarity:'milestone', price:0, minLevel:10, preview:'Particulas de marco - sigilos dourados ao atingir nivel 10', milestone:true },
         { id:'particle_season1_petals', type:'particle', name:'Petalas S1', icon:'\u{1F33A}', rarity:'seasonal', price:0, minLevel:1, preview:'Efeito raro de petalas da Temporada 1', seasonId:'season_1', endsAt:'2026-05-15T23:59:59-03:00', eventOnly:true, rewardOnly:true },
     ],
@@ -106,6 +116,7 @@ const Inventory = {
         rare:      { label:'Raro',    color:'#3b82f6', bg:'rgba(59,130,246,0.12)'  },
         epic:      { label:'Epico',   color:'#a855f7', bg:'rgba(168,85,247,0.12)'  },
         milestone: { label:'Marco',   color:'#f59e0b', bg:'rgba(245,158,11,0.12)'  },
+        bundle:    { label:'Bundle',  color:'#10b981', bg:'rgba(16,185,129,0.12)'  },
         weekly:    { label:'Semanal', color:'#10b981', bg:'rgba(16,185,129,0.12)'  },
         seasonal:  { label:'Sazonal', color:'#fb7185', bg:'rgba(251,113,133,0.12)' },
     },
@@ -125,8 +136,11 @@ const Inventory = {
     load() {
         const legacySeasonBadgeTitleId = 'title_season1_badge';
         const legacySentinelTitleIds = ['title_security_sentinel_v310', 'title_bug_hunter_v310'];
+        const nebulaLegacyTitleId = 'title_bundle_nebula_311';
+        const nebulaBundleEffectId = 'effect_bundle_nebula_311';
         const data = this._normalizeData(Utils.loadData(this.KEY) || this._defaultData());
         let changed = false;
+        let removedEquippedTitle = false;
 
         const canMigrateSentinelBadge = typeof window.Badges?.unlock === 'function';
         const hasLegacySentinelTitle = data.owned.some((id) => legacySentinelTitleIds.includes(id))
@@ -137,6 +151,7 @@ const Inventory = {
             if (legacySentinelWasEquipped) {
                 window.Badges.equip?.('badge_security_sentinel_v310', { silent: true, skipSync: true });
                 delete data.equipped.title;
+                removedEquippedTitle = true;
             }
             data.owned = data.owned.filter((id) => !legacySentinelTitleIds.includes(id));
             changed = true;
@@ -150,10 +165,31 @@ const Inventory = {
 
         if (hasSeasonBadgeMigrated && data.equipped.title === legacySeasonBadgeTitleId) {
             delete data.equipped.title;
+            removedEquippedTitle = true;
             changed = true;
         }
 
-        if (changed) this.save(data, { skipSync: true, preserveUpdatedAt: true });
+        const ownsLegacyNebulaTitle = data.owned.includes(nebulaLegacyTitleId)
+            || String(data.equipped.title || '').trim() === nebulaLegacyTitleId;
+        if (ownsLegacyNebulaTitle) {
+            if (!data.owned.includes(nebulaBundleEffectId)) {
+                data.owned.push(nebulaBundleEffectId);
+            }
+            data.owned = data.owned.filter((id) => id !== nebulaLegacyTitleId);
+            if (String(data.equipped.title || '').trim() === nebulaLegacyTitleId) {
+                delete data.equipped.title;
+                removedEquippedTitle = true;
+            }
+            changed = true;
+        }
+
+        if (changed) {
+            this.save(data, { skipSync: true, preserveUpdatedAt: true });
+            if (removedEquippedTitle) {
+                this._removeTitle();
+                this._syncEquippedToCloud('title', null);
+            }
+        }
         return data;
     },
 
@@ -549,6 +585,29 @@ const Inventory = {
                 chars: ['\u{1F43E}','\u{1F431}','\u{1F43E}','\u{1F431}','\u{1F43E}','\u{1F431}','\u{1F43E}','\u{1F431}'],
                 color: '#a855f7', glow: 'rgba(168,85,247,0.55)', anim: 'particleBounce',
             },
+            particle_bundle_nebula_311: {
+                chars: ['\u00b7','\u2022','\u2726','\u00b7','\u2022','\u2726','\u00b7','\u2022'],
+                color: '#93c5fd',
+                glow: 'rgba(59,130,246,0.35)',
+                anim: 'particleNebulaTwinkle',
+                fontSize: '8px',
+                fontWeight: '600',
+                textColor: '#dbeafe',
+                textShadow: '0 0 6px rgba(191,219,254,0.5)',
+                duration: '3.6s',
+                ringShadow: '0 0 0 1px rgba(147,197,253,0.75), 0 0 8px rgba(59,130,246,0.28)',
+                ringBackground: 'radial-gradient(circle at 50% 50%, rgba(59,130,246,0.12), rgba(30,64,175,0.03) 62%, transparent 100%)',
+                positions: [
+                    { top:'6%',  left:'16%' },
+                    { top:'2%',  left:'50%' },
+                    { top:'6%',  left:'84%' },
+                    { top:'50%', right:'2%' },
+                    { bottom:'6%', left:'84%' },
+                    { bottom:'2%', left:'50%' },
+                    { bottom:'6%', left:'16%' },
+                    { top:'50%', left:'2%' },
+                ],
+            },
             particle_veteran_spark: {
                 chars: ['\u25C6','\u25C7','\u25C6','\u25C8','\u25C6','\u25C7','\u25C6','\u25C8'],
                 color: '#f59e0b',
@@ -594,6 +653,10 @@ const Inventory = {
                 50%     { opacity:1;    transform:translate(-50%,-50%) translateX(0) translateY(-4px) scale(1.18) rotate(18deg); }
                 75%     { opacity:0.76; transform:translate(-50%,-50%) translateX(-2px) translateY(-2px) scale(1.02) rotate(8deg); }
             }
+            @keyframes particleNebulaTwinkle {
+                0%,100% { opacity:0.34; transform:translate(-50%,-50%) translateY(0) scale(0.88); }
+                50%     { opacity:0.95; transform:translate(-50%,-50%) translateY(-2px) scale(1.16); }
+            }
             @keyframes particleGlow {
                 0%,100% { opacity:0.5; }
                 50%      { opacity:0.9; }
@@ -617,15 +680,19 @@ const Inventory = {
         container.style.cssText = 'position:absolute;inset:-2px;pointer-events:none;z-index:200;overflow:visible;border-radius:inherit;';
 
         const glow = document.createElement('div');
+        const ringShadow = cfg.ringShadow || `0 0 0 1.5px ${cfg.color}, 0 0 10px 1px ${cfg.glow}`;
         glow.style.cssText = `
             position:absolute; inset:0; border-radius:inherit;
-            box-shadow: 0 0 0 1.5px ${cfg.color}, 0 0 10px 1px ${cfg.glow};
+            box-shadow: ${ringShadow};
+            background: ${cfg.ringBackground || 'transparent'};
             animation: particleGlow 1.8s ease-in-out infinite;
             pointer-events:none;
         `;
         container.appendChild(glow);
 
-        const positions = [
+        const positions = Array.isArray(cfg.positions) && cfg.positions.length > 0
+            ? cfg.positions
+            : [
             { top:'-6px',    left:'12%'   },
             { top:'-6px',    left:'50%'   },
             { top:'-6px',    left:'85%'   },

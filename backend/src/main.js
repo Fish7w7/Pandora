@@ -197,7 +197,7 @@ function createWindow() {
     console.log('[>] Carregando:', indexPath);
 
     // Remove menubar padrão do Electron (nao apagar esse comentário)
-    Menu.setApplicationMenu(null);
+    //Menu.setApplicationMenu(null);
 
     mainWindow.loadFile(indexPath);
 
@@ -259,6 +259,59 @@ autoUpdater.logger          = null;
 
 let lastUpdateCheck    = 0;
 const UPDATE_CHECK_COOLDOWN = 300000;
+const BUNDLE_CATALOG_DEFAULT_URLS = [
+    'https://raw.githubusercontent.com/Fish7w7/Pandora/main/frontend/public/bundle-catalog.json',
+    'https://raw.githubusercontent.com/Fish7w7/Pandora/main/bundle-catalog.json',
+];
+const BUNDLE_CATALOG_URLS = String(process.env.NYAN_BUNDLE_CATALOG_URLS || '')
+    .split(',')
+    .map((entry) => String(entry || '').trim())
+    .filter(Boolean)
+    .filter((entry) => {
+        try {
+            const parsed = new URL(entry);
+            return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+        } catch (_) {
+            return false;
+        }
+    });
+const ACTIVE_BUNDLE_CATALOG_URLS = BUNDLE_CATALOG_URLS.length
+    ? BUNDLE_CATALOG_URLS
+    : BUNDLE_CATALOG_DEFAULT_URLS;
+
+function _sanitizeBundleCatalog(raw = {}) {
+    if (!raw || typeof raw !== 'object') return null;
+
+    const bundles = Array.isArray(raw.bundles) ? raw.bundles : [];
+    const customBundles = Array.isArray(raw.customBundles)
+        ? raw.customBundles
+        : Array.isArray(raw.custom_bundles)
+            ? raw.custom_bundles
+            : [];
+    const settings = raw.settings && typeof raw.settings === 'object' ? raw.settings : {};
+
+    return {
+        version: Number(raw.version || 1),
+        updatedAt: String(raw.updatedAt || ''),
+        settings,
+        bundles,
+        customBundles,
+    };
+}
+
+async function _fetchJsonWithTimeout(url, timeoutMs = 8000, headers = {}) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+        const response = await fetch(url, { signal: controller.signal, headers });
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+        return await response.json();
+    } finally {
+        clearTimeout(timeout);
+    }
+}
 
 function setupAutoUpdater() {
     autoUpdater.on('checking-for-update', () => {
@@ -452,6 +505,56 @@ ipcMain.handle('check-for-updates', async () => {
     }
 
     return { success: false, error: 'Não foi possível verificar atualizações' };
+});
+
+ipcMain.handle('get-bundle-catalog', async (_event, payload = {}) => {
+    const timeoutMs = _safeEnvNumber(payload?.timeoutMs, 8000, 1000);
+    const payloadUrls = Array.isArray(payload?.urls)
+        ? payload.urls
+            .map((entry) => String(entry || '').trim())
+            .filter(Boolean)
+            .filter((entry) => {
+                try {
+                    const parsed = new URL(entry);
+                    return parsed.protocol === 'http:' || parsed.protocol === 'https:';
+                } catch (_) {
+                    return false;
+                }
+            })
+        : [];
+
+    const sources = payloadUrls.length ? payloadUrls : ACTIVE_BUNDLE_CATALOG_URLS;
+    const errors = [];
+    const headers = {
+        'User-Agent': 'NyanTools-BundleCatalog',
+        'Accept': 'application/json, text/plain, */*',
+    };
+
+    for (const source of sources) {
+        try {
+            const json = await _fetchJsonWithTimeout(source, timeoutMs, headers);
+            const data = _sanitizeBundleCatalog(json);
+            if (!data) throw new Error('Formato invalido de catalogo');
+            return {
+                success: true,
+                source,
+                fetchedAt: Date.now(),
+                data,
+            };
+        } catch (error) {
+            errors.push({
+                source,
+                error: String(error?.message || 'Falha desconhecida'),
+            });
+        }
+    }
+
+    return {
+        success: false,
+        error: 'Nao foi possivel carregar o catalogo de bundles.',
+        sources,
+        errors,
+    };
 });
 
 ipcMain.handle('install-update-now', () => {

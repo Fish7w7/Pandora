@@ -33,6 +33,7 @@ try {
         isReady: true,
 
         checkForUpdates: () => invoke('check-for-updates'),
+        getBundleCatalog: (options = {}) => invoke('get-bundle-catalog', options),
 
         onUpdaterStatus: (callback) => {
             if (typeof callback !== 'function') return () => {};
