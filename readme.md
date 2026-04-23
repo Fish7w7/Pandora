@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.10.0-purple?style=for-the-badge&logo=electron)
+![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.12.1-purple?style=for-the-badge&logo=electron)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)
 ![Electron](https://img.shields.io/badge/Electron-27.0.0-47848F?style=for-the-badge&logo=electron)
@@ -53,7 +53,7 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
 - 🔍 **Command Palette** — Busca universal com Ctrl+P
 - 🧭 **Histórico de Navegação** — Alt+← volta, Alt+→ avança entre ferramentas
 - 💾 **Auto-save** — Configurações e dados salvos automaticamente
-- 🔄 **Auto-update** — Sistema integrado com GitHub API + changelog + barra de progresso
+- 🔄 **Auto-update** — Sistema integrado com GitHub API + changelog + barra de progresso + notificações proativas
 - 🔐 **Tela de Login** — Glassmorphism com fundo dinâmico por horário e intro animada
 - 📊 **Dashboard de Estatísticas** — Uso por ferramenta, sequência de dias, recordes
 - 💾 **Backup e Restore** — Exporte/importe configurações em JSON
@@ -82,7 +82,7 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
    ```
 
 2. **Execute o Instalador**
-   - Baixe `NyanTools-3.10.0-Setup.exe`
+   - Baixe `NyanTools-3.12.1-Setup.exe`
    - Execute e siga o assistente de instalação
 
 3. **Pronto! にゃん~**
@@ -380,12 +380,12 @@ npm run build:all      # Todas as plataformas
 
 ```
 dist/
-├── NyanTools-3.10.0-Setup.exe       # Windows — instalador
-├── NyanTools 3.10.0.exe             # Windows — portátil
-├── NyanTools-3.10.0-x64.dmg        # macOS Intel
-├── NyanTools-3.10.0-arm64.dmg      # macOS Apple Silicon
-├── NyanTools-3.10.0-x64.AppImage   # Linux
-└── NyanTools-3.10.0-amd64.deb      # Linux Debian/Ubuntu
+├── NyanTools-3.12.1-Setup.exe       # Windows — instalador
+├── NyanTools 3.12.1.exe             # Windows — portátil
+├── NyanTools-3.12.1-x64.dmg        # macOS Intel
+├── NyanTools-3.12.1-arm64.dmg      # macOS Apple Silicon
+├── NyanTools-3.12.1-x64.AppImage   # Linux
+└── NyanTools-3.12.1-amd64.deb      # Linux Debian/Ubuntu
 ```
 
 ---
@@ -452,7 +452,20 @@ dist/
 - [x] Efeitos de navegação: Slide, Zoom e Bounce
 - [x] Bloco Economy no Perfil com barra de XP e histórico
 
-### **✅ v3.10.0 "Nyan Worlds" — Atual**
+### **✅ v3.12.1 "Sync & Update Reliability" — Atual**
+- [x] DevLab Bundles com publicação remota protegida por conflito (baseline/updatedAt)
+- [x] Auditoria de catálogo e rollback remoto por histórico no DevLab
+- [x] Loja com sincronização de bundles em background (assinatura remota + cache busting)
+- [x] Updater proativo com estado pendente persistente, dedupe de checks e badge de update
+- [x] Correções de consistência/encoding em textos do app
+
+### **✅ v3.12.0 "DevLab Bundles Refresh"**
+- [x] Painel de bundles separado e reorganizado dentro do DevLab
+- [x] Melhor hierarquia visual e textos em português mais claros no editor de bundles
+- [x] Refatoração do DevLab em módulos para facilitar manutenção
+- [x] Correções visuais e de legibilidade no fluxo de bundles
+
+### **✅ v3.10.0 "Nyan Worlds"**
 - [x] Sistema de Amigos — adicionar por NyanTag, aceitar/recusar convites
 - [x] Status em tempo real — Online, Jogando, Ausente, Offline
 - [x] Chat privado 1:1 com histórico persistente no Firebase
@@ -548,7 +561,7 @@ MIT License — Copyright (c) 2026 Fish7w7
 
 *Your Purr-fect Toolkit! 🐱✨*
 
-**v3.10.0 — Nyan Worlds 🌍**
+**v3.12.1 — Sync & Update Reliability 🚀**
 
 **[⬆ Voltar ao topo](#-nyantools-にゃん)**
 
