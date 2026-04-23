@@ -1,27 +1,25 @@
 {
-    "version": "3.11.1",
-    "buildDate": "2026-04-21",
+    "version": "3.12.1",
+    "buildDate": "2026-04-23",
     "changelog": [
-        "Quiz diario agora persiste progresso, bloqueia repeticoes no mesmo dia e impede reset por navegacao",
-        "Rotacao recente de perguntas reduz repeticoes em curto prazo",
-        "Loja diaria e sazonal permanecem estaveis apos compra e durante o ciclo",
-        "Marcos de nivel agora misturam particula, titulo e borda em vez de repetir tres bordas",
-        "Titulo atual no perfil recebeu hierarquia visual mais limpa e coerente com o hero",
-        "Inventario e estado do quiz entram na sincronizacao com Firebase",
-        "Aviso leve de atualizacao aparece no boot mesmo com a checagem automatica desligada"
+        "Bundles com sincronizacao remota em background e cache busting para reduzir inconsistencias entre usuarios",
+        "DevLab com publicacao remota protegida por conflito, auditoria de catalogo e rollback por historico",
+        "Indicador de update pendente agora aparece tambem em Configuracoes nos favoritos",
+        "Updater mais robusto com estado pendente persistente, dedupe de verificacoes e fonte de deteccao no painel",
+        "Correcao de textos com encoding quebrado no inventory e ajustes de consistencia"
     ],
-    "tag_name": "v3.11.1",
-    "releaseDate": "2026-04-21",
-    "name": "NyanTools v3.11.1",
-    "codename": "Patch de Correcao e Consistencia",
-    "body": "## NyanTools v3.11.1 - Patch de Correcao e Consistencia\\n\\n- Quiz diario agora persiste progresso, bloqueia repeticoes no mesmo dia e impede reset por navegacao\\n- Rotacao de perguntas usa historico recente para reduzir repeticoes em curto prazo\\n- Loja do dia e loja sazonal nao trocam contexto apos compra e ficam fixas durante o ciclo\\n- Marcos de nivel ficaram mais variados: nivel 10 da particulas, nivel 25 da titulo e nivel 50 mantem a borda final\\n- Titulo atual no perfil ganhou hierarquia visual mais limpa e integrada ao hero\\n- Inventario e quiz entram na sincronizacao com Firebase\\n- Aviso leve de update aparece no boot mesmo com a opcao automatica desligada\\n\\nVersao anterior: v3.11.0",
+    "tag_name": "v3.12.1",
+    "releaseDate": "2026-04-23",
+    "name": "NyanTools v3.12.1",
+    "codename": "Sync & Update Reliability",
+    "body": "## NyanTools v3.12.1 - Sync & Update Reliability\\n\\n- Bundles com sincronizacao remota em background e cache busting para reduzir inconsistencias entre usuarios\\n- DevLab com publicacao remota protegida por conflito, auditoria de catalogo e rollback por historico\\n- Badge de update pendente aparece tambem em Configuracoes nos favoritos\\n- Updater mais robusto com estado pendente persistente, dedupe de verificacoes e fonte de deteccao no painel\\n- Correcao de textos com encoding quebrado no inventory\\n\\nVersao anterior: v3.12.0",
     "previousVersion": {
-        "version": "3.11.0",
-        "tag": "v3.11.0",
-        "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.11.0"
+        "version": "3.12.0",
+        "tag": "v3.12.0",
+        "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.12.0"
     },
-    "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.11.1",
-    "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.11.1",
+    "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.12.1",
+    "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.12.1",
     "statistics": {
         "filesNew": 0,
         "filesRewritten": 0,
