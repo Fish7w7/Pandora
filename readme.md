@@ -414,97 +414,125 @@ dist/
 
 ## 📝 Roadmap
 
-### **✅ v3.12.x "DevLab Bundles & Update Reliability" — Atual**
-- [x] Painel de bundles separado e reorganizado dentro do DevLab
-- [x] Melhor hierarquia visual e textos em português mais claros no editor de bundles
-- [x] Refatoração do DevLab em módulos para facilitar manutenção
-- [x] Publicação remota protegida por conflito (baseline/updatedAt)
-- [x] Auditoria de catálogo e rollback remoto por histórico no DevLab
-- [x] Loja com sincronização de bundles em background (assinatura remota + cache busting)
-- [x] Updater proativo com estado pendente persistente, dedupe de checks e badge de update
-- [x] Correções de consistência/encoding em textos do app
+### 📦 Histórico (v3.4 → v3.11)
+- [x] **v3.4.x "Tanuki"** — Auto-update com GitHub API + fallback.
+- [x] **v3.5.0 "First Impression"** — Novo login dinâmico + intro + partículas.
+- [x] **v3.6.0 "Smooth & Pretty"** — Avatar, UI polish, micro-animações e navegação melhorada.
+- [x] **v3.7.0 "Zona Arcade"** — Type Racer, Caça-Níquel e Quiz Diário.
+- [x] **v3.8.0 "Nyan Economy"** — XP, chips, missões, loja e inventário.
+- [x] **v3.10.0 "Nyan Worlds"** — Amigos, presença, chat 1:1, desafios e feed social.
+- [x] **v3.11.x "Correções e Consistência"** — Estabilidade, economia e sincronização.
 
-### **🔮 Próximas Atualizações (Planejado)**
-> Realinhado com o roadmap interno: como a `v3.12.x` atual teve outro foco, o antigo plano de `v3.12.0` foi movido para `v3.13.0` e os próximos seguiram em sequência.
+### 🚧 Atual (v3.12.x)
+#### ✅ v3.12.x "DevLab Bundles & Update Reliability"
+- [x] DevLab de bundles modularizado e com melhor UX
+- [x] Publicação remota protegida por conflito + auditoria/rollback
+- [x] Sincronização de bundles em background com cache busting
+- [x] Updater proativo com estado pendente persistente e dedupe
+- [x] Correções de consistência e encoding
 
-### **🧩 v3.13.0 "Squads"**
-- [ ] Clãs e grupos sociais
+### 🔮 Futuro (v3.13+)
+
+#### 🧩 v3.13.0 "Squads Base"
+**Prioridade:** Alta  
+**Dependências:**
+- Sistema de amigos e NyanTag ✔️
+- Presença em tempo real ✔️
+- Infra de chat 1:1 reaproveitável ✔️
+- Backend persistente para grupos (coleções/regras/índices) ❗
+
+**Escopo:**
+- [ ] Criar squad (clã)
+- [ ] Entrar/sair de squad
+- [ ] Lista de membros e cargos básicos
+
+**Métricas de sucesso:**
+- [ ] `% de usuários ativos` que entram em um squad (meta inicial: 20% em 14 dias)
+- [ ] `Retenção de squads` (meta inicial: 60% ativos após 7 dias)
+
+#### 💬 v3.13.1 "Squads Social"
+**Prioridade:** Alta  
+**Dependências:**
+- v3.13.0 entregue ✔️
+- Política anti-spam/moderação básica ❗
+
+**Escopo:**
 - [ ] Chat em grupo
-- [ ] Ranking entre clãs
-- [ ] Desafios coletivos
-- [ ] Mural compartilhado por grupo
-- [ ] Metas cooperativas com recompensas
+- [ ] Mural compartilhado do squad
 
-### **🤖 v3.14.0 "Smart Companion"**
-- [ ] IA para resumir notas
-- [ ] IA para transformar texto em tarefas
-- [ ] Sugestões de rotina, missão pessoal e organização
-- [ ] Ajuda para bio/perfil e respostas no chat
-- [ ] Recomendações baseadas no uso
+**Métricas de sucesso:**
+- [ ] `Mensagens por squad/dia`
+- [ ] `% de squads com atividade semanal` no chat/mural
+
+#### 🏆 v3.13.2 "Squads Competitive"
+**Prioridade:** Média-Alta  
+**Dependências:**
+- v3.13.0 entregue ✔️
+- Eventos/cron jobs para desafios e pontuação ❗
+
+**Escopo:**
+- [ ] Ranking entre squads
+- [ ] Desafios coletivos
+- [ ] Metas cooperativas com recompensa
+
+**Métricas de sucesso:**
+- [ ] `% de squads participando de desafios`
+- [ ] `Retenção D7/D30` de usuários em squads vs. sem squad
+
+#### 🤖 v3.14.0 "Smart Companion Core"
+**Prioridade:** Alta  
+**Dependências:**
+- Notas e tarefas estáveis ✔️
+- Pipeline de prompts + limites/custos da IA ❗
+
+**Escopo:**
+- [ ] Resumo inteligente de notas
+- [ ] Transformar texto em tarefas
+
+**Métricas de sucesso:**
+- [ ] `Ações geradas por IA/semana` (resumos + tarefas)
+- [ ] `% de tarefas IA concluídas`
+
+#### 🗓️ v3.14.1 "Assistente Pessoal"
+**Prioridade:** Média  
+**Dependências:**
+- v3.14.0 entregue ✔️
+- Coleta de contexto de uso com consentimento ❗
+
+**Escopo:**
+- [ ] Sugestões de rotina
+- [ ] Missão pessoal e organização do dia
+
+**Métricas de sucesso:**
+- [ ] `Uso semanal da assistente`
+- [ ] `% de sugestões aceitas/aplicadas`
+
+#### 🧠 v3.14.2 "Social & Perfil IA"
+**Prioridade:** Média  
+**Dependências:**
+- v3.14.0 entregue ✔️
+- Regras de privacidade para social/perfil ❗
+
+**Escopo:**
+- [ ] Ajuda para bio/perfil
+- [ ] Ajuda para respostas no chat
 - [ ] Insights pessoais no dashboard
 
-### **🚀 v4.0.0 (Quando fizer sentido)**
-- [ ] Grande redesign da navegação
+**Métricas de sucesso:**
+- [ ] `Uso das funções de perfil/chat por semana`
+- [ ] `CTR dos insights` no dashboard
+
+#### 🚀 v4.0.0 (quando fizer sentido)
+**Gatilhos para iniciar:**
+- [ ] Squads (Base + Social + Competitive) estável
+- [ ] Smart Companion (Core + Assistente + Social/Perfil) validado por métricas
+- [ ] Backlog técnico do core priorizado
+
+**Escopo inicial:**
+- [ ] Redesign de navegação
 - [ ] Arquitetura modular/plugin system
-- [ ] Refactor forte no core
-- [ ] Migração de dados/configurações
+- [ ] Refactor forte no core + migração de dados/configurações
 - [ ] Reposicionamento de produto
-
-### **✅ v3.11.x "Correções e Consistência"**
-- [x] Correções de exploit no Quiz Diário e maior estabilidade da rotação de perguntas
-- [x] Loja diária/sazonal mais estável sem troca indevida após compra
-- [x] Ajustes de progressão de nível e entrega de recompensas no inventário
-- [x] Melhor consistência entre estado local, perfil e sincronização online
-
-### **✅ v3.10.0 "Nyan Worlds"**
-- [x] Sistema de Amigos — adicionar por NyanTag, aceitar/recusar convites
-- [x] Status em tempo real — Online, Jogando, Ausente, Offline
-- [x] Chat privado 1:1 com histórico persistente no Firebase
-- [x] Murais por jogo — feed com reações 🐱⭐💎🔥 e comentários
-- [x] Desafios de 24h — duelos side-by-side entre amigos
-- [x] Perfil público — bio, recordes, conquistas e comparação lado a lado
-- [x] Placar Global — Top 10 por jogo, filtro global vs amigos
-- [x] Feed de atividade — linha do tempo de resultados e recordes
-- [x] NyanTag — identidade única com badge de versão
-- [x] Loja revisada e corrigida
-
-### **✅ v3.8.0 "Nyan Economy"**
-- [x] Sistema de XP e Níveis com marcos (Veterano nv10, Mestre nv25, Lendário nv50)
-- [x] Chips — moeda integrada a todos os jogos e missões
-- [x] Missões Diárias — 3 por dia + desafio semanal com recompensas
-- [x] Loja com rotação semanal — títulos, bordas, temas, efeitos e partículas
-- [x] Inventário com equipar/desequipar em tempo real
-- [x] Temas visuais com efeitos de login (Sakura, Midnight, Neon, Chamas)
-- [x] Partículas de perfil em órbita ao redor do avatar
-- [x] Bordas animadas incluindo Borda Neon com pulso de cor
-- [x] Efeitos de navegação: Slide, Zoom e Bounce
-- [x] Bloco Economy no Perfil com barra de XP e histórico
-
-### **✅ v3.7.0 "Zona Arcade"**
-- [x] Type Racer — jogo de digitação com WPM e precisão
-- [x] Caça-Níquel — jogo casual com símbolos do NyanTools
-- [x] Quiz Diário — 10 perguntas de cultura geral, mesmas para todos no mesmo dia
-
-### **✅ v3.6.0 "Smooth & Pretty"**
-- [x] Avatar SVG gerado automaticamente por nome
-- [x] Redesign dos cards do Dashboard e Zona Offline
-- [x] Empty States ilustrados (Notas, Tarefas, Favoritos)
-- [x] CSS vars de tipografia globais
-- [x] Micro-animações nos botões (scale + ripple)
-- [x] Histórico de navegação (Alt+← / Alt+→)
-- [x] Barra de progresso do download corrigida
-
-### **✅ v3.5.0 "First Impression"**
-- [x] Tela de login com fundo dinâmico por horário
-- [x] 80+ frases motivacionais com typing effect
-- [x] Intro animada ao abrir o app
-- [x] Loading screen redesenhada
-- [x] Partículas decorativas no fundo do login
-
-### **✅ v3.4.x "Tanuki"**
-- [x] Sistema de auto-update com GitHub API
-- [x] Barra de progresso do download (fix definitivo na v3.6.0)
-- [x] Fallback automático quando native updater falha
 
 ---
 
