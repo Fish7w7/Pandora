@@ -423,116 +423,72 @@ dist/
 - [x] **v3.10.0 "Nyan Worlds"** — Amigos, presença, chat 1:1, desafios e feed social.
 - [x] **v3.11.x "Correções e Consistência"** — Estabilidade, economia e sincronização.
 
-### 🚧 Atual (v3.12.x)
-#### ✅ v3.12.x "DevLab Bundles & Update Reliability"
-- [x] DevLab de bundles modularizado e com melhor UX
-- [x] Publicação remota protegida por conflito + auditoria/rollback
-- [x] Sincronização de bundles em background com cache busting
-- [x] Updater proativo com estado pendente persistente e dedupe
-- [x] Correções de consistência e encoding
+### 🚧 Atual
+#### v3.12.x — DevLab Bundles & Update Reliability
+- [x] DevLab modularizado
+- [x] Sistema de bundles com sync e rollback
+- [x] Updater proativo com estado persistente
+- [x] Correções gerais de consistência
 
-### 🔮 Futuro (v3.13+)
+### 🔮 Futuro (Próximas versões)
 
-#### 🧩 v3.13.0 "Squads Base"
-**Prioridade:** Alta  
-**Dependências:**
-- Sistema de amigos e NyanTag ✔️
-- Presença em tempo real ✔️
-- Infra de chat 1:1 reaproveitável ✔️
-- Backend persistente para grupos (coleções/regras/índices) ❗
+#### 🧩 v3.13 — Squads (Base)
+**Objetivo:** criar sistema de grupos sociais
 
 **Escopo:**
-- [ ] Criar squad (clã)
-- [ ] Entrar/sair de squad
-- [ ] Lista de membros e cargos básicos
+- [ ] Criação de squads (custo em chips)
+- [ ] Entrada por código
+- [ ] Lista de membros
+- [ ] Identidade (nome + tag)
 
-**Métricas de sucesso:**
-- [ ] `% de usuários ativos` que entram em um squad (meta inicial: 20% em 14 dias)
-- [ ] `Retenção de squads` (meta inicial: 60% ativos após 7 dias)
+**Métricas:**
+- [ ] % usuários em squads
+- [ ] Retenção D7 (com vs sem squad)
 
-#### 💬 v3.13.1 "Squads Social"
-**Prioridade:** Alta  
-**Dependências:**
-- v3.13.0 entregue ✔️
-- Política anti-spam/moderação básica ❗
+---
 
-**Escopo:**
-- [ ] Chat em grupo
-- [ ] Mural compartilhado do squad
-
-**Métricas de sucesso:**
-- [ ] `Mensagens por squad/dia`
-- [ ] `% de squads com atividade semanal` no chat/mural
-
-#### 🏆 v3.13.2 "Squads Competitive"
-**Prioridade:** Média-Alta  
-**Dependências:**
-- v3.13.0 entregue ✔️
-- Eventos/cron jobs para desafios e pontuação ❗
-
-**Escopo:**
+#### 🧩 v3.13.x — Squads (Expansão)
 - [ ] Ranking entre squads
 - [ ] Desafios coletivos
-- [ ] Metas cooperativas com recompensa
+- [ ] Metas cooperativas
 
-**Métricas de sucesso:**
-- [ ] `% de squads participando de desafios`
-- [ ] `Retenção D7/D30` de usuários em squads vs. sem squad
+---
 
-#### 🤖 v3.14.0 "Smart Companion Core"
-**Prioridade:** Alta  
-**Dependências:**
-- Notas e tarefas estáveis ✔️
-- Pipeline de prompts + limites/custos da IA ❗
+#### 🤖 v3.14 — Smart Companion (Core)
+**Objetivo:** produtividade assistida por IA
 
 **Escopo:**
-- [ ] Resumo inteligente de notas
-- [ ] Transformar texto em tarefas
+- [ ] Resumo de notas
+- [ ] Texto → tarefas
 
-**Métricas de sucesso:**
-- [ ] `Ações geradas por IA/semana` (resumos + tarefas)
-- [ ] `% de tarefas IA concluídas`
+**Métricas:**
+- [ ] Ações geradas por semana
+- [ ] % tarefas concluídas
 
-#### 🗓️ v3.14.1 "Assistente Pessoal"
-**Prioridade:** Média  
-**Dependências:**
-- v3.14.0 entregue ✔️
-- Coleta de contexto de uso com consentimento ❗
+---
 
-**Escopo:**
+#### 🤖 v3.14.1 — Assistente Pessoal
 - [ ] Sugestões de rotina
-- [ ] Missão pessoal e organização do dia
+- [ ] Organização do dia
 
-**Métricas de sucesso:**
-- [ ] `Uso semanal da assistente`
-- [ ] `% de sugestões aceitas/aplicadas`
+---
 
-#### 🧠 v3.14.2 "Social & Perfil IA"
-**Prioridade:** Média  
-**Dependências:**
-- v3.14.0 entregue ✔️
-- Regras de privacidade para social/perfil ❗
+#### 🤖 v3.14.2 — Social & Perfil IA
+- [ ] Bio assistida
+- [ ] Respostas no chat
+- [ ] Insights no dashboard
+
+---
+
+#### 🚀 v4.0 — Quando fizer sentido
+**Gatilhos:**
+- [ ] Squads funcionando bem
+- [ ] IA validada por métricas
 
 **Escopo:**
-- [ ] Ajuda para bio/perfil
-- [ ] Ajuda para respostas no chat
-- [ ] Insights pessoais no dashboard
-
-**Métricas de sucesso:**
-- [ ] `Uso das funções de perfil/chat por semana`
-- [ ] `CTR dos insights` no dashboard
-
-#### 🚀 v4.0.0 (quando fizer sentido)
-**Gatilhos para iniciar:**
-- [ ] Squads (Base + Social + Competitive) estável
-- [ ] Smart Companion (Core + Assistente + Social/Perfil) validado por métricas
-- [ ] Backlog técnico do core priorizado
-
-**Escopo inicial:**
-- [ ] Redesign de navegação
-- [ ] Arquitetura modular/plugin system
-- [ ] Refactor forte no core + migração de dados/configurações
-- [ ] Reposicionamento de produto
+- [ ] Redesign da navegação
+- [ ] Sistema modular/plugin
+- [ ] Refactor do core
 
 ---
 
