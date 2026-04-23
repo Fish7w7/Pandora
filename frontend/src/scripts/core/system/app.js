@@ -175,6 +175,11 @@ const App = {
             DevSecurity.init().catch(() => {}).finally(() => this.renderNavMenu());
         }
         this.initNewSystems();
+        if (window.Shop?.startBundleCatalogSync) {
+            window.Shop.startBundleCatalogSync({ forceBoot: true, silent: true });
+        } else if (window.Shop?._ensureBundleCatalogRuntime) {
+            window.Shop._ensureBundleCatalogRuntime({ force: true, silent: true, cacheBust: true });
+        }
         Router.currentRoute = 'home';
         Router.render();
         this.checkWhatsNew();
@@ -447,7 +452,7 @@ const App = {
         const navMenu = document.getElementById('nav-menu');
         if (!navMenu) return;
 
-        const hasUpdate = window.AutoUpdater?.updateAvailable;
+        const hasUpdate = window.AutoUpdater?.hasPendingUpdate?.() ?? !!window.AutoUpdater?.updateAvailable;
         const groups = [
             { label: null,             items: ['home'] },
             { label: 'Ferramentas',    items: ['password','weather','translator','ai-assistant','temp-email'] },

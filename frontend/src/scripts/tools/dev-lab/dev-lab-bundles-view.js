@@ -21,6 +21,17 @@
             activeBundleItems,
             activeBundleSources,
             globalMinAgeDays,
+            historyCount,
+            historyLoading,
+            historyOptions,
+            historySelectedId,
+            historySelectedMeta,
+            bundleAuditLabel,
+            bundleAuditErrors,
+            bundleAuditWarnings,
+            publisherAuthLabel,
+            bundleConflictActive,
+            bundleConflictLabel,
         } = {}) {
             return `
                 <section style="display:${activeSection === 'bundles' ? 'block' : 'none'};margin-top:0.85rem;border-radius:16px;border:1px solid ${c.borderStrong};background:${c.panel};padding:0.9rem 1rem;">
@@ -35,6 +46,8 @@
                                 style="padding:0.36rem 0.6rem;border-radius:8px;border:1px solid ${c.border};background:${c.bg};color:${c.sub};font-size:0.63rem;font-weight:700;cursor:${unlocked ? 'pointer' : 'not-allowed'};opacity:${unlocked ? '1' : '0.5'};">Atualizar cache</button>
                             <button onclick="DevLab.bundleEditorReload(true)" ${unlocked ? '' : 'disabled'}
                                 style="padding:0.36rem 0.6rem;border-radius:8px;border:none;background:linear-gradient(135deg,#0ea5e9,#6366f1);color:#fff;font-size:0.63rem;font-weight:800;cursor:${unlocked ? 'pointer' : 'not-allowed'};opacity:${unlocked ? '1' : '0.5'};">Sincronizar remoto</button>
+                            <button onclick="DevLab.bundleEditorPublishRemote()" ${unlocked ? '' : 'disabled'}
+                                style="padding:0.36rem 0.6rem;border-radius:8px;border:none;background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:0.63rem;font-weight:800;cursor:${unlocked ? 'pointer' : 'not-allowed'};opacity:${unlocked ? '1' : '0.5'};">Publicar remoto</button>
                             <button onclick="DevLab.bundleEditorExport()" ${unlocked ? '' : 'disabled'}
                                 style="padding:0.36rem 0.6rem;border-radius:8px;border:1px solid ${c.border};background:${c.bg};color:${c.sub};font-size:0.63rem;font-weight:700;cursor:${unlocked ? 'pointer' : 'not-allowed'};opacity:${unlocked ? '1' : '0.5'};">Exportar JSON</button>
                         </div>
@@ -54,6 +67,51 @@
                             Origem: <strong style="color:${c.sub};">${bundleMetaSource}</strong> &middot;
                             Atualizado: <strong style="color:${c.sub};">${bundleMetaUpdated}</strong> &middot;
                             Fetch: <strong style="color:${c.sub};">${bundleMetaFetchedLabel}</strong>
+                        </div>
+                    </div>
+                    <div style="border-radius:12px;border:1px solid ${c.border};background:${c.bg};padding:0.62rem 0.8rem;margin-bottom:0.65rem;display:grid;gap:0.46rem;">
+                        <div style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;">
+                            <div style="font-size:0.59rem;color:${c.sub};padding:0.17rem 0.45rem;border-radius:999px;border:1px solid ${c.border};background:${c.panel};">
+                                Auditoria: <strong style="color:${c.text};">${bundleAuditErrors} erro(s)</strong> · ${bundleAuditWarnings} alerta(s)
+                            </div>
+                            <div style="font-size:0.59rem;color:${c.muted};padding:0.17rem 0.45rem;border-radius:999px;border:1px solid ${c.border};background:${c.panel};">
+                                Ultima auditoria: ${bundleAuditLabel}
+                            </div>
+                            <div style="font-size:0.59rem;color:${c.muted};padding:0.17rem 0.45rem;border-radius:999px;border:1px solid ${c.border};background:${c.panel};">
+                                Publicacao: ${publisherAuthLabel}
+                            </div>
+                        </div>
+                        ${bundleConflictActive ? `
+                        <div style="display:flex;align-items:center;justify-content:space-between;gap:0.45rem;flex-wrap:wrap;border-radius:9px;border:1px solid ${c.warnBorder};background:${c.warnBg};padding:0.38rem 0.5rem;">
+                            <div style="font-size:0.6rem;color:${c.sub};">
+                                Conflito de publicacao detectado. Remoto atualizado em <strong style="color:${c.text};">${bundleConflictLabel}</strong>.
+                            </div>
+                            <button onclick="DevLab.bundleEditorSyncAndRetryConflict()" ${unlocked ? '' : 'disabled'}
+                                style="padding:0.34rem 0.55rem;border-radius:8px;border:none;background:linear-gradient(135deg,#0ea5e9,#2563eb);color:#fff;font-size:0.62rem;font-weight:800;cursor:${unlocked ? 'pointer' : 'not-allowed'};opacity:${unlocked ? '1' : '0.5'};">Sincronizar e tentar de novo</button>
+                        </div>` : ''}
+                        <div style="display:flex;align-items:center;gap:0.42rem;flex-wrap:wrap;">
+                            <button onclick="DevLab.bundleEditorRunCatalogAudit()" ${unlocked ? '' : 'disabled'}
+                                style="padding:0.36rem 0.6rem;border-radius:8px;border:1px solid ${c.border};background:${c.panel};color:${c.sub};font-size:0.63rem;font-weight:700;cursor:${unlocked ? 'pointer' : 'not-allowed'};opacity:${unlocked ? '1' : '0.5'};">Auditar catalogo</button>
+                            <button onclick="DevLab.bundleEditorCheckPublisherAuth()" ${unlocked ? '' : 'disabled'}
+                                style="padding:0.36rem 0.6rem;border-radius:8px;border:1px solid ${c.border};background:${c.panel};color:${c.sub};font-size:0.63rem;font-weight:700;cursor:${unlocked ? 'pointer' : 'not-allowed'};opacity:${unlocked ? '1' : '0.5'};">Verificar claim</button>
+                            <button onclick="DevLab.bundleEditorRefreshRemoteHistory()" ${unlocked ? '' : 'disabled'}
+                                style="padding:0.36rem 0.6rem;border-radius:8px;border:1px solid ${c.border};background:${c.panel};color:${c.sub};font-size:0.63rem;font-weight:700;cursor:${unlocked ? 'pointer' : 'not-allowed'};opacity:${unlocked ? '1' : '0.5'};">${historyLoading ? 'Carregando...' : 'Atualizar historico'}</button>
+                            <div style="font-size:0.61rem;color:${c.muted};padding:0.2rem 0.5rem;border-radius:999px;border:1px solid ${c.border};background:${c.panel};">
+                                Revisoes: <strong style="color:${c.text};">${historyCount}</strong>
+                            </div>
+                        </div>
+                        <div style="display:grid;grid-template-columns:1.8fr auto;gap:0.42rem;align-items:end;">
+                            <div>
+                                <label style="display:block;font-size:0.61rem;color:${c.sub};margin-bottom:0.12rem;">Rollback remoto (histórico)</label>
+                                <select id="devlab-history-select" onchange="DevLab.bundleEditorSelectHistory(this.value)"
+                                    style="width:100%;padding:0.4rem 0.52rem;border-radius:8px;border:1px solid ${c.border};background:${this._isDark() ? 'rgba(255,255,255,0.04)' : '#fff'};color:${c.text};font-size:0.67rem;">
+                                    <option value="" ${historySelectedId ? '' : 'selected'}>${historyCount > 0 ? 'Selecione uma revisao para rollback' : 'Nenhuma revisao remota carregada'}</option>
+                                    ${historyOptions}
+                                </select>
+                                <div style="font-size:0.57rem;color:${c.muted};margin-top:0.15rem;">Revisao selecionada: ${historySelectedMeta}</div>
+                            </div>
+                            <button onclick="DevLab.bundleEditorRollbackRemoteSelected()" ${unlocked ? '' : 'disabled'}
+                                style="padding:0.4rem 0.62rem;border-radius:8px;border:none;background:linear-gradient(135deg,#f97316,#ef4444);color:#fff;font-size:0.63rem;font-weight:800;cursor:${unlocked ? 'pointer' : 'not-allowed'};opacity:${unlocked ? '1' : '0.5'};">Reverter selecionada</button>
                         </div>
                     </div>
                     <div style="border-radius:12px;border:1px solid ${c.border};border-left:3px solid #10b981;background:${c.bg};padding:0.65rem 0.8rem;margin-bottom:0.65rem;">
@@ -264,13 +322,15 @@
                         </div>
                         <div style="border-radius:12px;border:1px solid ${c.border};background:${c.bg};padding:0.6rem 0.8rem;display:flex;align-items:center;justify-content:space-between;gap:0.55rem;flex-wrap:wrap;">
                             <div style="font-size:0.61rem;color:${c.muted};max-width:500px;">
-                                Este painel altera apenas o catálogo de bundles. A definição dos itens continua no módulo Inventory.
+                                "Salvar no catalogo local" afeta so este app. Para propagar para outros usuarios, use "Publicar remoto".
                             </div>
                             <div style="display:flex;gap:0.45rem;">
                                 <button onclick="DevLab.bundleEditorDelete()" ${unlocked ? '' : 'disabled'}
                                     style="padding:0.46rem 0.85rem;border-radius:9px;border:1px solid ${c.dangerBorder};background:${c.dangerBg};color:${c.text};font-size:0.67rem;font-weight:700;cursor:${unlocked ? 'pointer' : 'not-allowed'};opacity:${unlocked ? '1' : '0.5'};">Excluir bundle</button>
                                 <button onclick="DevLab.bundleEditorSave()" ${unlocked ? '' : 'disabled'}
                                     style="padding:0.46rem 1.05rem;border-radius:9px;border:none;background:linear-gradient(135deg,#10b981,#14b8a6);color:#fff;font-size:0.67rem;font-weight:800;cursor:${unlocked ? 'pointer' : 'not-allowed'};opacity:${unlocked ? '1' : '0.5'};">Salvar no catálogo local</button>
+                                <button onclick="DevLab.bundleEditorPublishRemote()" ${unlocked ? '' : 'disabled'}
+                                    style="padding:0.46rem 1.05rem;border-radius:9px;border:none;background:linear-gradient(135deg,#059669,#10b981);color:#fff;font-size:0.67rem;font-weight:800;cursor:${unlocked ? 'pointer' : 'not-allowed'};opacity:${unlocked ? '1' : '0.5'};">Publicar para todos</button>
                             </div>
                         </div>
                     </div>

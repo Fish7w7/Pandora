@@ -1,7 +1,7 @@
 ﻿
 
 const AutoUpdater = {
-    currentVersion: '3.12.0',
+    currentVersion: '3.12.1',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -24,14 +24,35 @@ const AutoUpdater = {
     _initialized: false,
     _uiRenderScheduled: false,
     _uiRenderNeedsNav: false,
+    _proactiveBannerVersion: '',
+    _importantModalVersion: '',
+    _checkInFlightPromise: null,
+    _sessionNotifiedVersion: '',
+    _lastVersionSource: '',
+    pendingStateStorageKey: 'update_pending_state_v1',
     launchNoticeCooldownMs: 12 * 60 * 60 * 1000,
 
 
       changelog: [
     {
+        version: '3.12.1',
+        date: '2026-04-23T12:00:00',
+        label: 'Atual',
+        labelColor: 'bg-green-500',
+        author: 'Clara & Gabriel',
+        changes: [
+            { type: '📡', text: 'Bundles agora sincronizam melhor entre instancias com assinatura remota, sync em background e cache busting' },
+            { type: '🧪', text: 'DevLab ganhou publicacao remota protegida por baseline, auditoria do catalogo e rollback por historico' },
+            { type: '🛡️', text: 'Conflitos de publicacao passam a ser detectados com aviso visual e acao de sincronizar e tentar novamente' },
+            { type: '🔔', text: 'Updater proativo ficou mais robusto com estado pendente persistente, dedupe de checks e fonte da deteccao no painel' },
+            { type: '📍', text: 'Badge de update pendente agora aparece tambem em Configuracoes nos favoritos' },
+            { type: '🔤', text: 'Correcao de textos com encoding quebrado no inventory e ajustes de consistencia geral da interface' },
+        ]
+    },
+    {
         version: '3.12.0',
         date: '2026-04-22T12:00:00',
-        label: 'Atual',
+        label: '',
         labelColor: 'bg-green-500',
         author: 'Clara & Gabriel',
         changes: [
@@ -42,22 +63,6 @@ const AutoUpdater = {
             { type: '⚡', text: 'Render do DevLab foi otimizado para evitar recargas em cascata durante acoes internas' },
             { type: '🔎', text: 'Busca de bundles recebeu debounce para reduzir custo de filtro por tecla' },
             { type: '🧭', text: 'Updater agora coalesce updates de UI para reduzir renders redundantes' },
-        ]
-    },
-    {
-        version: '3.11.1',
-        date: '2026-04-21T12:00:00',
-        label: '',
-        labelColor: 'bg-green-500',
-        author: 'Gabriel',
-        changes: [
-            { type: '🧠', text: 'Quiz diario agora persiste progresso, bloqueia repeticao no mesmo dia e impede reset por navegacao' },
-            { type: '🔁', text: 'Rotacao recente de perguntas reduz repeticoes em curto prazo sem travar a variedade' },
-            { type: '🛍️', text: 'Loja do dia e loja sazonal ficaram estaveis por ciclo, sem trocar contexto apos compras' },
-            { type: '🎁', text: 'Marcos de nivel ficaram mais variados: nivel 10 da particulas, nivel 25 da titulo e nivel 50 mantem a borda final' },
-            { type: '🪪', text: 'Titulo atual no perfil ganhou hierarquia visual mais limpa e integrada ao hero' },
-            { type: '🔄', text: 'Inventario e estado do quiz entram na sincronizacao com Firebase para reduzir inconsistencias' },
-            { type: '⬆️', text: 'Aviso leve de atualizacao passa a aparecer no boot mesmo com a opcao automatica desligada' },
         ]
     },
 ],
@@ -105,6 +110,7 @@ const AutoUpdater = {
         const lastCheck = Utils.loadData('last_update_check');
         const canCheck  = this.canCheckNow();
         const isDev = this._devMode && this._isDevEnv;
+        const sourceLabel = this._getVersionSourceLabel();
 
         const latestEntry = this.changelog[0];
         let daysSince = null;
@@ -132,6 +138,7 @@ const AutoUpdater = {
                             <div class="flex items-center gap-3 mt-0.5 flex-wrap">
                                 <div class="text-xs text-gray-400">${this._getLastCheckText(lastCheck)}</div>
                                 ${daysSince !== null ? `<div class="text-xs text-gray-500">${daysSince === 0 ? '· atualizado hoje' : '· atualizado há ' + daysSince + (daysSince === 1 ? ' dia' : ' dias')}</div>` : ''}
+                                <div class="text-xs text-gray-500">· fonte detecção: ${sourceLabel}</div>
                             </div>
                         </div>
                     </div>
@@ -446,6 +453,38 @@ const AutoUpdater = {
         }
     },
 
+    _escapeHtml(value = '') {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+    },
+
+    _normalizeSourceTag(source = '') {
+        const safe = String(source || '').trim().toLowerCase();
+        if (!safe) return '';
+        if (safe.includes('native')) return 'native';
+        if (safe.includes('cache') || safe.includes('storage')) return 'cache';
+        if (safe.includes('fallback')) return 'fallback';
+        if (safe.includes('github') || safe.includes('launch') || safe.includes('manual') || safe.includes('background')) return 'github';
+        return safe;
+    },
+
+    _setVersionSource(source = '') {
+        this._lastVersionSource = this._normalizeSourceTag(source);
+    },
+
+    _getVersionSourceLabel() {
+        const tag = this._normalizeSourceTag(this._lastVersionSource || '');
+        if (tag === 'native') return 'Native updater';
+        if (tag === 'cache') return 'Cache local';
+        if (tag === 'fallback') return 'GitHub fallback';
+        if (tag === 'github') return 'GitHub API';
+        return 'Indefinida';
+    },
+
     _normalizeCheckOptions(input = false) {
         if (typeof input === 'object' && input !== null) {
             return {
@@ -490,23 +529,490 @@ const AutoUpdater = {
         return false;
     },
 
-    _shouldNotifyUpdate(version = '', source = 'manual') {
-        if (!version) return false;
-        if (this._isSnoozed()) return false;
-        if (source === 'manual') return true;
+    _normalizeVersion(version = '') {
+        return String(version || '').trim().replace(/^v/i, '');
+    },
+
+    _getPendingVersion() {
+        return this._normalizeVersion(this.latestVersion?.tag_name || this.latestVersion?.version || '');
+    },
+
+    _getPendingState() {
+        const raw = Utils.loadData(this.pendingStateStorageKey);
+        if (!raw || typeof raw !== 'object') return null;
+        const version = this._normalizeVersion(raw.version || '');
+        const seenAt = Number(raw.seenAt || raw.at || 0);
+        const source = this._normalizeSourceTag(raw.source || '');
+        if (!version) {
+            Utils.removeData(this.pendingStateStorageKey);
+            return null;
+        }
+        if (!this._devMode && this.compareVersions(version, this.currentVersion) <= 0) {
+            Utils.removeData(this.pendingStateStorageKey);
+            return null;
+        }
+        return {
+            version,
+            seenAt: Number.isFinite(seenAt) && seenAt > 0 ? seenAt : Date.now(),
+            source: source || 'cache',
+        };
+    },
+
+    _savePendingState(version = '', source = '') {
+        const safe = this._normalizeVersion(version);
+        if (!safe) return;
+        const safeSource = this._normalizeSourceTag(source || this._lastVersionSource || '');
+        Utils.saveData(this.pendingStateStorageKey, {
+            version: safe,
+            seenAt: Date.now(),
+            source: safeSource || 'cache',
+        });
+    },
+
+    _clearPendingState() {
+        Utils.removeData(this.pendingStateStorageKey);
+    },
+
+    _restorePendingStateFromStorage() {
+        const pending = this._getPendingState();
+        if (!pending) return false;
+        this._setVersionSource(pending.source || 'cache');
+        const currentPending = this._getPendingVersion();
+        if (!currentPending || currentPending !== pending.version) {
+            this.latestVersion = {
+                tag_name: `v${pending.version}`,
+                version: pending.version,
+                html_url: this.githubReleasesUrl,
+                body: '',
+                _fromStorage: true,
+            };
+        }
+        this.updateAvailable = true;
+        return true;
+    },
+
+    hasPendingUpdate() {
+        if (this.updateAvailable === true) return true;
+        return !!this._getPendingState();
+    },
+
+    _cleanupStaleUpdateStateForCurrentVersion() {
+        const current = this._normalizeVersion(this.currentVersion || '');
+        if (!current) return;
+
+        const clearIfOlderOrEqual = (storageKey = '') => {
+            const stored = this._normalizeVersion(Utils.loadData(storageKey) || '');
+            if (!stored) return;
+            if (this.compareVersions(stored, current) <= 0) {
+                Utils.removeData(storageKey);
+            }
+        };
+
+        clearIfOlderOrEqual('update_ignored_version');
+        clearIfOlderOrEqual('update_important_modal_seen');
+
+        const reminder = Utils.loadData('update_reminder_state');
+        if (reminder && typeof reminder === 'object') {
+            const reminderVersion = this._normalizeVersion(reminder.version || '');
+            if (!reminderVersion || this.compareVersions(reminderVersion, current) <= 0) {
+                Utils.removeData('update_reminder_state');
+            }
+        }
 
         const notice = Utils.loadData('update_notice_state');
-        if (!notice || notice.version !== version) return true;
-        return Date.now() - Number(notice.at || 0) >= this.launchNoticeCooldownMs;
+        if (notice && typeof notice === 'object') {
+            const noticeVersion = this._normalizeVersion(notice.version || '');
+            if (!noticeVersion || this.compareVersions(noticeVersion, current) <= 0) {
+                Utils.removeData('update_notice_state');
+            }
+        }
+
+        const pending = this._getPendingState();
+        if (pending && this.compareVersions(pending.version, current) <= 0) {
+            this._clearPendingState();
+        }
+
+        const cache = Utils.loadData('version_cache');
+        if (cache?.data && typeof cache.data === 'object') {
+            const cachedVersion = this._normalizeVersion(cache.data.tag_name || cache.data.version || '');
+            if (cachedVersion && this.compareVersions(cachedVersion, current) <= 0) {
+                Utils.removeData('version_cache');
+            }
+        }
+    },
+
+    _getIgnoredVersion() {
+        return this._normalizeVersion(Utils.loadData('update_ignored_version') || '');
+    },
+
+    _isVersionIgnored(version = '') {
+        const safe = this._normalizeVersion(version);
+        if (!safe) return false;
+        return this._getIgnoredVersion() === safe;
+    },
+
+    _getReminderState() {
+        const raw = Utils.loadData('update_reminder_state');
+        if (!raw || typeof raw !== 'object') return null;
+        const version = this._normalizeVersion(raw.version || '');
+        const until = Number(raw.until || 0);
+        if (!version || !Number.isFinite(until) || until <= 0) {
+            Utils.removeData('update_reminder_state');
+            return null;
+        }
+        if (Date.now() >= until) {
+            Utils.removeData('update_reminder_state');
+            return null;
+        }
+        return { version, until };
+    },
+
+    _isReminderActive(version = '') {
+        const safe = this._normalizeVersion(version);
+        if (!safe) return false;
+        const reminder = this._getReminderState();
+        if (!reminder) return false;
+        return reminder.version === safe;
+    },
+
+    _setReminderForVersion(version = '', hours = 24) {
+        const safe = this._normalizeVersion(version);
+        if (!safe) return;
+        const safeHours = Math.max(1, Number(hours) || 24);
+        Utils.saveData('update_reminder_state', {
+            version: safe,
+            until: Date.now() + (safeHours * 60 * 60 * 1000),
+        });
+    },
+
+    _clearReminderForVersion(version = '') {
+        const reminder = this._getReminderState();
+        const safe = this._normalizeVersion(version);
+        if (!reminder) return;
+        if (!safe || reminder.version === safe) {
+            Utils.removeData('update_reminder_state');
+        }
+    },
+
+    _ignoreVersion(version = '') {
+        const safe = this._normalizeVersion(version);
+        if (!safe) return;
+        Utils.saveData('update_ignored_version', safe);
+        this._clearReminderForVersion(safe);
+    },
+
+    _hasShownImportantModal(version = '') {
+        const safe = this._normalizeVersion(version);
+        if (!safe) return false;
+        return this._normalizeVersion(Utils.loadData('update_important_modal_seen') || '') === safe;
+    },
+
+    _markImportantModalShown(version = '') {
+        const safe = this._normalizeVersion(version);
+        if (!safe) return;
+        Utils.saveData('update_important_modal_seen', safe);
+    },
+
+    _shouldSuppressProactiveNotice(version = '') {
+        const safe = this._normalizeVersion(version);
+        if (!safe) return true;
+        if (this._isVersionIgnored(safe)) return true;
+        if (this._isReminderActive(safe)) return true;
+        return false;
+    },
+
+    _getReleaseHighlights(limit = 3, version = '') {
+        const parsedLimit = Math.floor(Number(limit));
+        const safeLimit = Number.isFinite(parsedLimit)
+            ? Math.max(1, Math.min(10, parsedLimit))
+            : 3;
+        const targetVersion = this._normalizeVersion(version || this._getPendingVersion());
+        let highlights = this.latestVersion?.body
+            ? this._parseReleaseBody(this.latestVersion.body)
+            : [];
+        if (!highlights.length && targetVersion) {
+            const localEntry = this.changelog.find((entry) => this._normalizeVersion(entry?.version || '') === targetVersion);
+            if (localEntry?.changes?.length) {
+                highlights = localEntry.changes.map((entry) => `${entry.type} ${entry.text}`);
+            }
+        }
+        return highlights.slice(0, safeLimit);
+    },
+
+    _isImportantUpdate(version = '') {
+        const safe = this._normalizeVersion(version);
+        if (!safe) return false;
+        const cur = this._normalizeVersion(this.currentVersion);
+        const nextParts = safe.split('.').map((n) => Number(n) || 0);
+        const curParts = cur.split('.').map((n) => Number(n) || 0);
+        const majorBump = (nextParts[0] || 0) > (curParts[0] || 0);
+        const minorBump = (nextParts[0] || 0) === (curParts[0] || 0)
+            && (nextParts[1] || 0) > (curParts[1] || 0);
+        return majorBump || minorBump;
+    },
+
+    _ensurePromptStyles() {
+        if (document.getElementById('nyan-update-prompt-style')) return;
+        const style = document.createElement('style');
+        style.id = 'nyan-update-prompt-style';
+        style.textContent = `
+            #nyan-update-banner {
+                position: fixed;
+                right: 1rem;
+                bottom: 1rem;
+                z-index: 99995;
+                width: min(440px, calc(100vw - 2rem));
+                border-radius: 16px;
+                border: 1px solid rgba(16, 185, 129, 0.35);
+                background: linear-gradient(145deg, rgba(5, 16, 26, 0.96), rgba(8, 22, 36, 0.96));
+                box-shadow: 0 24px 70px rgba(0, 0, 0, 0.5);
+                color: #e2e8f0;
+                font-family: 'DM Sans', sans-serif;
+                backdrop-filter: blur(8px);
+            }
+            #nyan-update-banner .upd-btn,
+            #nyan-update-important-modal .upd-btn {
+                border-radius: 10px;
+                font-size: 0.75rem;
+                font-weight: 800;
+                padding: 0.5rem 0.72rem;
+                cursor: pointer;
+                border: 1px solid transparent;
+                transition: all 0.15s ease;
+            }
+            #nyan-update-banner .upd-btn-primary,
+            #nyan-update-important-modal .upd-btn-primary {
+                background: linear-gradient(135deg, #10b981, #059669);
+                color: #ffffff;
+                border-color: rgba(16, 185, 129, 0.35);
+            }
+            #nyan-update-banner .upd-btn-secondary,
+            #nyan-update-important-modal .upd-btn-secondary {
+                background: rgba(255, 255, 255, 0.06);
+                color: #cbd5e1;
+                border-color: rgba(255, 255, 255, 0.15);
+            }
+            #nyan-update-banner .upd-btn:hover,
+            #nyan-update-important-modal .upd-btn:hover { filter: brightness(1.08); }
+            #nyan-update-important-modal {
+                position: fixed;
+                inset: 0;
+                z-index: 99996;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background: rgba(2, 6, 23, 0.72);
+            }
+        `;
+        document.head.appendChild(style);
+    },
+
+    _removeProactiveBanner() {
+        document.getElementById('nyan-update-banner')?.remove();
+        this._proactiveBannerVersion = '';
+    },
+
+    _closeImportantModal() {
+        document.getElementById('nyan-update-important-modal')?.remove();
+        this._importantModalVersion = '';
+    },
+
+    _dismissProactiveUpdateUI() {
+        this._removeProactiveBanner();
+        this._closeImportantModal();
+    },
+
+    _openUpdatesCenter() {
+        if (window.Settings) {
+            window.Settings.currentTab = 'updates';
+        }
+        if (window.Router?.navigate) {
+            window.Router.navigate('settings');
+            return;
+        }
+        this._queueUIRender({ withNav: true });
+    },
+
+    _showProactiveBanner(version = '') {
+        const safe = this._normalizeVersion(version);
+        if (!safe) return;
+        if (this._proactiveBannerVersion === safe && document.getElementById('nyan-update-banner')) return;
+        this._ensurePromptStyles();
+        this._removeProactiveBanner();
+
+        const highlights = this._getReleaseHighlights(2, safe);
+        const card = document.createElement('div');
+        card.id = 'nyan-update-banner';
+        card.innerHTML = `
+            <div style="padding:0.9rem 0.95rem;">
+                <div style="display:flex;align-items:flex-start;gap:0.65rem;">
+                    <div style="width:34px;height:34px;border-radius:10px;background:rgba(16,185,129,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">⬆️</div>
+                    <div style="flex:1;min-width:0;">
+                        <div style="font-size:0.9rem;font-weight:900;color:#a7f3d0;">Nova versão disponível (v${safe})</div>
+                        <div style="font-size:0.72rem;opacity:0.8;margin-top:0.15rem;">Atualização detectada ao iniciar. Deseja atualizar agora?</div>
+                        ${highlights.length ? `<div style="margin-top:0.45rem;font-size:0.68rem;opacity:0.86;display:grid;gap:0.14rem;">${highlights.map((line) => `<div>• ${this._escapeHtml(line)}</div>`).join('')}</div>` : ''}
+                    </div>
+                </div>
+                <div style="display:flex;gap:0.42rem;margin-top:0.72rem;flex-wrap:wrap;">
+                    <button id="upd-banner-now" class="upd-btn upd-btn-primary">Atualizar agora</button>
+                    <button id="upd-banner-details" class="upd-btn upd-btn-secondary">Ver detalhes</button>
+                    <button id="upd-banner-later" class="upd-btn upd-btn-secondary">Lembrar depois</button>
+                </div>
+            </div>
+        `;
+
+        card.querySelector('#upd-banner-now')?.addEventListener('click', () => {
+            this._removeProactiveBanner();
+            this._openUpdatesCenter();
+            this._confirmDownload();
+        });
+        card.querySelector('#upd-banner-details')?.addEventListener('click', () => {
+            this._removeProactiveBanner();
+            this._openUpdatesCenter();
+        });
+        card.querySelector('#upd-banner-later')?.addEventListener('click', () => {
+            this._setReminderForVersion(safe, 24);
+            this._removeProactiveBanner();
+            Utils.showNotification('🔕 Lembrete de atualização reagendado para amanhã.', 'info');
+        });
+
+        document.body.appendChild(card);
+        this._proactiveBannerVersion = safe;
+    },
+
+    _showImportantUpdateModal(version = '') {
+        const safe = this._normalizeVersion(version);
+        if (!safe) return;
+        if (this._importantModalVersion === safe && document.getElementById('nyan-update-important-modal')) return;
+        this._ensurePromptStyles();
+        this._closeImportantModal();
+        this._markImportantModalShown(safe);
+
+        const highlights = this._getReleaseHighlights(4, safe);
+        const modal = document.createElement('div');
+        modal.id = 'nyan-update-important-modal';
+        modal.innerHTML = `
+            <div style="width:min(520px, calc(100vw - 2rem));border-radius:18px;border:1px solid rgba(56,189,248,0.35);background:linear-gradient(145deg,#0b1321,#111827);padding:1.25rem 1.25rem 1.1rem;color:#e5e7eb;font-family:'DM Sans',sans-serif;box-shadow:0 30px 80px rgba(0,0,0,0.6);">
+                <div style="display:flex;align-items:center;gap:0.55rem;margin-bottom:0.55rem;">
+                    <span style="font-size:1.3rem;">🚀</span>
+                    <div style="font-size:1.03rem;font-weight:900;">Atualização importante disponível (v${safe})</div>
+                </div>
+                <div style="font-size:0.78rem;opacity:0.82;line-height:1.55;">
+                    Esta versão traz mudanças relevantes. Você pode atualizar agora ou revisar os detalhes antes.
+                </div>
+                <div style="margin-top:0.7rem;border-radius:12px;border:1px solid rgba(255,255,255,0.12);background:rgba(255,255,255,0.04);padding:0.68rem 0.75rem;font-size:0.72rem;display:grid;gap:0.2rem;">
+                    ${highlights.length ? highlights.map((line) => `<div>• ${this._escapeHtml(line)}</div>`).join('') : '<div>Sem detalhes extras desta versão.</div>'}
+                </div>
+                <div style="display:flex;gap:0.45rem;flex-wrap:wrap;margin-top:0.8rem;">
+                    <button id="upd-important-now" class="upd-btn upd-btn-primary">Atualizar agora</button>
+                    <button id="upd-important-details" class="upd-btn upd-btn-secondary">Ver detalhes</button>
+                    <button id="upd-important-later" class="upd-btn upd-btn-secondary">Lembrar depois</button>
+                    <button id="upd-important-ignore" class="upd-btn upd-btn-secondary">Ignorar versão</button>
+                </div>
+            </div>
+        `;
+
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) this._closeImportantModal();
+        });
+        modal.querySelector('#upd-important-now')?.addEventListener('click', () => {
+            this._closeImportantModal();
+            this._removeProactiveBanner();
+            this._openUpdatesCenter();
+            this._confirmDownload();
+        });
+        modal.querySelector('#upd-important-details')?.addEventListener('click', () => {
+            this._closeImportantModal();
+            this._openUpdatesCenter();
+        });
+        modal.querySelector('#upd-important-later')?.addEventListener('click', () => {
+            this._setReminderForVersion(safe, 24);
+            this._closeImportantModal();
+            this._removeProactiveBanner();
+            Utils.showNotification('🔕 Lembrete de atualização reagendado para amanhã.', 'info');
+        });
+        modal.querySelector('#upd-important-ignore')?.addEventListener('click', () => {
+            this._ignoreVersion(safe);
+            this._closeImportantModal();
+            this._removeProactiveBanner();
+            Utils.showNotification(`🗂️ Versão v${safe} marcada como ignorada.`, 'info');
+        });
+
+        document.body.appendChild(modal);
+        this._importantModalVersion = safe;
+    },
+
+    _handleProactiveUpdateAvailable(version = '', options = {}) {
+        const safe = this._normalizeVersion(version);
+        if (!safe) return;
+        if (this._shouldSuppressProactiveNotice(safe)) {
+            this._dismissProactiveUpdateUI();
+            return;
+        }
+        const alreadyInUpdatesCenter = window.Router?.currentRoute === 'settings'
+            && window.Settings?.currentTab === 'updates';
+        if (alreadyInUpdatesCenter) return;
+        this._showProactiveBanner(safe);
+        if (this._isImportantUpdate(safe) && !this._hasShownImportantModal(safe)) {
+            this._showImportantUpdateModal(safe);
+        }
+    },
+
+    _shouldNotifyUpdate(version = '', source = 'manual') {
+        const safe = this._normalizeVersion(version);
+        if (!safe) return false;
+        if (this._normalizeVersion(this._sessionNotifiedVersion) === safe) return false;
+        if (this._isSnoozed()) return false;
+        if (this._isVersionIgnored(safe)) return false;
+        if (this._isReminderActive(safe)) return false;
+
+        const notice = Utils.loadData('update_notice_state');
+        if (notice && this._normalizeVersion(notice.version) === safe) {
+            const elapsed = Date.now() - Number(notice.at || 0);
+            if (Number.isFinite(elapsed) && elapsed < this.launchNoticeCooldownMs) {
+                return false;
+            }
+        }
+
+        if (source === 'manual') return true;
+        return true;
     },
 
     _markUpdateNotified(version = '') {
-        if (!version) return;
-        Utils.saveData('update_notice_state', { version, at: Date.now() });
+        const safe = this._normalizeVersion(version);
+        if (!safe) return;
+        this._sessionNotifiedVersion = safe;
+        Utils.saveData('update_notice_state', { version: safe, at: Date.now() });
+    },
+
+    _restoreProactiveUpdateUIIfNeeded() {
+        const pendingVersion = this._getPendingVersion() || this._getPendingState()?.version || '';
+        if (!pendingVersion || !this.hasPendingUpdate()) {
+            this._dismissProactiveUpdateUI();
+            return;
+        }
+        if (this._shouldSuppressProactiveNotice(pendingVersion)) {
+            this._dismissProactiveUpdateUI();
+            return;
+        }
+
+        const alreadyInUpdatesCenter = window.Router?.currentRoute === 'settings'
+            && window.Settings?.currentTab === 'updates';
+        if (alreadyInUpdatesCenter) return;
+
+        if (!document.getElementById('nyan-update-banner')) {
+            this._showProactiveBanner(pendingVersion);
+        }
+        if (this._isImportantUpdate(pendingVersion)
+            && !this._hasShownImportantModal(pendingVersion)
+            && !document.getElementById('nyan-update-important-modal')) {
+            this._showImportantUpdateModal(pendingVersion);
+        }
     },
 
     _syncUpdateUI() {
         this._queueUIRender({ withNav: true });
+        window.setTimeout(() => this._restoreProactiveUpdateUIIfNeeded(), 0);
     },
 
     async init() {
@@ -534,6 +1040,18 @@ const AutoUpdater = {
             });
         }
 
+        this._cleanupStaleUpdateStateForCurrentVersion();
+        this._restorePendingStateFromStorage();
+
+        const cachedVersion = this._loadVersionCache();
+        if (cachedVersion) {
+            this._processVersionData(cachedVersion, {
+                silentNoUpdate: true,
+                notifyOnAvailable: false,
+                source: 'launch-cache',
+            });
+        }
+
         if (this.canCheckNow()) {
             setTimeout(() => this.checkForUpdates({
                 silentNoUpdate: true,
@@ -555,6 +1073,7 @@ const AutoUpdater = {
                 this._nativeResponded = true;
                 clearTimeout(this._nativeFallbackTimer); // cancela fallback desnecessário
                 this.updateAvailable = true;
+                this._setVersionSource('native');
                 this.downloading = false;  // usuário decide quando baixar
                 this.latestVersion = {
                     tag_name: `v${status.version}`,
@@ -563,11 +1082,14 @@ const AutoUpdater = {
                     html_url: this.githubReleasesUrl,
                     _fromNativeUpdater: true
                 };
+                const nativeVersion = this._normalizeVersion(status.version || '');
+                this._savePendingState(nativeVersion, 'native');
                 Utils.saveData('last_update_check', { date: Date.now(), version: this.currentVersion });
-                if (this._shouldNotifyUpdate(status.version, 'native')) {
-                    this._markUpdateNotified(status.version);
-                    Utils.showNotification(`🎉 Nova versão disponível: v${status.version}`, 'success');
+                if (this._shouldNotifyUpdate(nativeVersion, 'native')) {
+                    this._markUpdateNotified(nativeVersion);
+                    Utils.showNotification(`🎉 Nova versão disponível: v${nativeVersion}`, 'success');
                 }
+                this._handleProactiveUpdateAvailable(nativeVersion, { source: 'native' });
                 this._syncUpdateUI();
                 break;
 
@@ -576,6 +1098,10 @@ const AutoUpdater = {
                 this._nativeResponded = true; // cancela o fallback timer
                 clearTimeout(this._nativeFallbackTimer);
                 this.updateAvailable = false;
+                this._setVersionSource('native');
+                this.latestVersion = null;
+                this._clearPendingState();
+                this._dismissProactiveUpdateUI();
                 this._syncUpdateUI();
                 break;
 
@@ -583,6 +1109,9 @@ const AutoUpdater = {
                 this.downloading = false;
                 this.downloadProgress = 100;
                 this._logInstall(this.currentVersion, status.version || '');
+                this._setVersionSource('native');
+                this._clearPendingState();
+                this._dismissProactiveUpdateUI();
                 Utils.showNotification(`🎉 v${status.version} baixada! Reiniciando em 5s...`, 'success');
                 this._syncUpdateUI();
                 break;
@@ -618,9 +1147,14 @@ const AutoUpdater = {
     async checkForUpdates(input = false) {
         const options = this._normalizeCheckOptions(input);
 
+        if (this._checkInFlightPromise) {
+            if (!options.silentNoUpdate) Utils.showNotification('⏱️ Verificação em andamento...', 'info');
+            return this._checkInFlightPromise;
+        }
+
         if (this.checking) {
             if (!options.silentNoUpdate) Utils.showNotification('⏱️ Verificação em andamento...', 'info');
-            return;
+            return null;
         }
 
         if (!this.canCheckNow(options.force) && !this._devMode) {
@@ -629,52 +1163,61 @@ const AutoUpdater = {
                 const minutesLeft = Math.ceil((this.minCheckInterval - (Date.now() - lastCheck.date)) / 60000);
                 Utils.showNotification(`⏱️ Aguarde ${minutesLeft} min para verificar novamente`, 'warning');
             }
-            return;
+            return null;
         }
 
-        this.checking = true;
-        this._nativeResponded = false;
-        if (!options.silentNoUpdate) this._queueUIRender();
+        const run = async () => {
+            this.checking = true;
+            this._nativeResponded = false;
+            if (!options.silentNoUpdate) this._queueUIRender();
 
-        try {
-            let data;
+            try {
+                let data;
 
-            if (window.electronAPI?.isReady) {
-                const result = await window.electronAPI.checkForUpdates();
+                if (window.electronAPI?.isReady) {
+                    const result = await window.electronAPI.checkForUpdates();
 
-                if (!result.success) {
-                    if (result.rateLimited) {
-                        if (!options.silentNoUpdate) Utils.showNotification('⏱️ Aguarde alguns minutos para verificar novamente', 'warning');
-                        return;
+                    if (!result.success) {
+                        if (result.rateLimited) {
+                            if (!options.silentNoUpdate) Utils.showNotification('⏱️ Aguarde alguns minutos para verificar novamente', 'warning');
+                            return null;
+                        }
+                        throw new Error(result.error || 'Falha na verificação');
                     }
-                    throw new Error(result.error || 'Falha na verificação');
+
+                    data = result.data;
+                } else {
+                    const res = await fetch(this.updateUrl, {
+                        headers: { 'Accept': 'application/vnd.github.v3+json' }
+                    });
+                    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+                    data = await res.json();
                 }
 
-                data = result.data;
-            } else {
-                const res = await fetch(this.updateUrl, {
-                    headers: { 'Accept': 'application/vnd.github.v3+json' }
-                });
-                if (!res.ok) throw new Error(`HTTP ${res.status}`);
-                data = await res.json();
-            }
+                this._cacheVersion(data);
+                Utils.saveData('last_update_check', { date: Date.now(), version: this.currentVersion });
+                this._processVersionData(data, options);
+                return data;
 
-            this._cacheVersion(data);
-            Utils.saveData('last_update_check', { date: Date.now(), version: this.currentVersion });
-            this._processVersionData(data, options);
-
-        } catch (error) {
-            console.error('❌ Erro ao verificar atualizações:', error);
-            const cached = this._loadVersionCache();
-            if (cached) {
-                this._processVersionData(cached, { ...options, source: `${options.source}:cache` });
-                return;
+            } catch (error) {
+                console.error('❌ Erro ao verificar atualizações:', error);
+                const cached = this._loadVersionCache();
+                if (cached) {
+                    this._processVersionData(cached, { ...options, source: `${options.source}:cache` });
+                    return cached;
+                }
+                if (!options.silentNoUpdate) Utils.showNotification('❌ Erro ao verificar atualizações', 'error');
+                return null;
+            } finally {
+                this.checking = false;
+                if (!options.silentNoUpdate) this._queueUIRender();
             }
-            if (!options.silentNoUpdate) Utils.showNotification('❌ Erro ao verificar atualizações', 'error');
-        } finally {
-            this.checking = false;
-            if (!options.silentNoUpdate) this._queueUIRender();
-        }
+        };
+
+        this._checkInFlightPromise = run().finally(() => {
+            this._checkInFlightPromise = null;
+        });
+        return this._checkInFlightPromise;
     },
 
     _processVersionData(data, options = {}) {
@@ -682,21 +1225,31 @@ const AutoUpdater = {
 
         if (data.usingNativeUpdater) return;
 
-        const latest = (data.tag_name || data.version || '').replace('v', '');
+        const latest = this._normalizeVersion(data.tag_name || data.version || '');
         if (!latest) return;
+        const detectedSource = this._normalizeSourceTag(
+            options.source
+            || (data._fromFallback ? 'fallback' : '')
+            || 'github'
+        );
+        this._setVersionSource(detectedSource);
 
         if (this.compareVersions(latest, this.currentVersion) > 0 || this._devMode) {
             this.updateAvailable = true;
             this.latestVersion   = data;
+            this._savePendingState(latest, detectedSource);
             if (options.notifyOnAvailable && this._shouldNotifyUpdate(latest, options.source || 'manual')) {
                 this._markUpdateNotified(latest);
                 const changes = this._parseReleaseBody(data.body || '').slice(0, 3);
                 const preview = changes.length > 0 ? '\n' + changes.map(c => `• ${c}`).join('\n') : '';
                 Utils.showNotification(`🎉 Nova versão disponível: v${latest}${preview}`, 'success');
             }
+            this._handleProactiveUpdateAvailable(latest, options);
         } else {
             this.updateAvailable = false;
             this.latestVersion = null;
+            this._clearPendingState();
+            this._dismissProactiveUpdateUI();
             if (!options.silentNoUpdate) {
             Utils.showNotification('✅ Você está na versão mais recente!', 'success');
             }
@@ -916,9 +1469,14 @@ const AutoUpdater = {
     },
 
     _snoozeUpdate() {
-        const tomorrow = Date.now() + 86400000;
-        Utils.saveData('update_snooze', tomorrow);
-        this.updateAvailable = false;
+        const pendingVersion = this._getPendingVersion();
+        if (pendingVersion) {
+            this._setReminderForVersion(pendingVersion, 24);
+        } else {
+            const tomorrow = Date.now() + 86400000;
+            Utils.saveData('update_snooze', tomorrow);
+        }
+        this._dismissProactiveUpdateUI();
         Utils.showNotification('🔕 Lembrete agendado para amanhã', 'info');
         this._syncUpdateUI();
     },

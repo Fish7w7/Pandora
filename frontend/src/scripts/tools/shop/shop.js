@@ -18,8 +18,11 @@ const Shop = {
     _stateLoaded: false,
     _stateCache: null,
     BUNDLE_CATALOG_CACHE_KEY: 'nyan_bundle_catalog_cache_v1',
-    BUNDLE_CATALOG_CACHE_TTL_MS: 5 * 60 * 1000,
+    BUNDLE_CATALOG_CACHE_TTL_MS: 2 * 60 * 1000,
+    BUNDLE_CATALOG_BG_SYNC_INTERVAL_MS: 75 * 1000,
+    BUNDLE_CATALOG_FORCE_SYNC_MIN_INTERVAL_MS: 20 * 1000,
     BUNDLE_CATALOG_TIMEOUT_MS: 8000,
+    BUNDLE_CATALOG_REMOTE_DOC_PATH: 'config/bundleCatalog',
     BUNDLE_CATALOG_URLS: [
         'https://raw.githubusercontent.com/Fish7w7/Pandora/main/frontend/public/bundle-catalog.json',
         'https://raw.githubusercontent.com/Fish7w7/Pandora/main/bundle-catalog.json',
@@ -27,7 +30,13 @@ const Shop = {
     _bundleCatalogLoaded: false,
     _bundleCatalogLoadPromise: null,
     _bundleCatalogLastRefreshMs: 0,
-    _bundleCatalogMeta: { source: 'embedded', fetchedAt: 0, updatedAt: '' },
+    _bundleCatalogMeta: { source: 'embedded', fetchedAt: 0, updatedAt: '', version: 1, identity: '' },
+    _bundleCatalogSyncStarted: false,
+    _bundleCatalogSyncTimer: null,
+    _bundleCatalogSyncListenersBound: false,
+    _bundleCatalogLastForceSyncMs: 0,
+    _bundleCatalogRemoteUnsub: null,
+    _bundleCatalogRemoteBindRetries: 0,
     // Fallback local: usado quando o catalogo remoto nao responde.
     BUNDLES: [
         {
@@ -157,6 +166,175 @@ const Shop = {
         };
     },
 
+    _getBundleCatalogIdentity(rawCatalog = {}) {
+        const source = rawCatalog && typeof rawCatalog === 'object' ? rawCatalog : {};
+        const updatedAt = String(source.updatedAt || '').trim();
+        const version = Number(source.version);
+        const bundles = Array.isArray(source.bundles) ? source.bundles : [];
+        const customBundles = Array.isArray(source.customBundles)
+            ? source.customBundles
+            : Array.isArray(source.custom_bundles)
+                ? source.custom_bundles
+                : [];
+
+        const minAgeRaw = Number(
+            source.settings?.customBundleMinAgeDays
+            ?? source.customBundleMinAgeDays
+            ?? 0
+        );
+        const minAge = Number.isFinite(minAgeRaw) && minAgeRaw > 0 ? Math.floor(minAgeRaw) : 0;
+
+        const rows = [...bundles, ...customBundles]
+            .map((entry) => {
+                const id = String(entry?.id || '').trim();
+                if (!id) return '';
+                const items = Array.isArray(entry?.items)
+                    ? entry.items.map((itemId) => String(itemId || '').trim()).filter(Boolean).sort().join(',')
+                    : '';
+                const sourceIds = Array.isArray(entry?.sourceBundleIds)
+                    ? entry.sourceBundleIds.map((sourceId) => String(sourceId || '').trim()).filter(Boolean).sort().join(',')
+                    : '';
+                return [
+                    id,
+                    String(entry?.kind || ''),
+                    String(entry?.status || ''),
+                    String(entry?.startsAt || ''),
+                    String(entry?.endsAt || ''),
+                    String(entry?.priority || ''),
+                    String(entry?.bundleDiscountPct || ''),
+                    entry?.enabled === false ? '0' : '1',
+                    entry?.active === false ? '0' : '1',
+                    items,
+                    sourceIds,
+                ].join('|');
+            })
+            .filter(Boolean)
+            .sort();
+
+        const seed = [
+            `updatedAt:${updatedAt || '-'}`,
+            `version:${Number.isFinite(version) && version > 0 ? Math.floor(version) : 0}`,
+            `minAge:${minAge}`,
+            ...rows,
+        ].join('||');
+
+        // Hash curto para comparar mudancas sem guardar fingerprint gigante no storage.
+        let hash = 5381;
+        for (let index = 0; index < seed.length; index += 1) {
+            hash = ((hash << 5) + hash) ^ seed.charCodeAt(index);
+            hash = hash >>> 0;
+        }
+
+        return `h:${hash.toString(36)}`;
+    },
+
+    _withCacheBust(url = '', token = '') {
+        const safeUrl = String(url || '').trim();
+        const safeToken = String(token || '').trim();
+        if (!safeUrl || !safeToken) return safeUrl;
+        try {
+            const parsed = new URL(safeUrl);
+            parsed.searchParams.set('nyan_cb', safeToken);
+            return parsed.toString();
+        } catch (_) {
+            const joiner = safeUrl.includes('?') ? '&' : '?';
+            return `${safeUrl}${joiner}nyan_cb=${encodeURIComponent(safeToken)}`;
+        }
+    },
+
+    _extractRemoteBundleCatalog(remoteDoc = null) {
+        if (!remoteDoc || typeof remoteDoc !== 'object') return null;
+
+        const nestedCatalog = remoteDoc.catalog && typeof remoteDoc.catalog === 'object'
+            ? remoteDoc.catalog
+            : null;
+        const source = nestedCatalog || remoteDoc;
+        const hasBundlePayload = Array.isArray(source.bundles)
+            || Array.isArray(source.customBundles)
+            || Array.isArray(source.custom_bundles);
+        if (!hasBundlePayload) return null;
+
+        return this._normalizeBundleCatalog(source);
+    },
+
+    async _loadRemoteBundleCatalog() {
+        if (!window.NyanFirebase?.isReady?.()) return null;
+
+        const path = String(this.BUNDLE_CATALOG_REMOTE_DOC_PATH || '').trim();
+        if (!path) return null;
+
+        const doc = await window.NyanFirebase.getDoc(path).catch(() => null);
+        if (!doc) return null;
+
+        const catalog = this._extractRemoteBundleCatalog(doc);
+        if (!catalog) return null;
+
+        return {
+            source: `firebase:${path}`,
+            fetchedAt: Date.now(),
+            data: catalog,
+        };
+    },
+
+    _commitRemoteBundleCatalogSnapshot(remoteDoc = null, { force = false } = {}) {
+        const catalog = this._extractRemoteBundleCatalog(remoteDoc);
+        if (!catalog) return false;
+
+        const source = `firebase:${String(this.BUNDLE_CATALOG_REMOTE_DOC_PATH || '').trim()}`;
+        const currentSource = String(this._bundleCatalogMeta?.source || '');
+        if (!force && currentSource === 'devlab-editor') {
+            return false;
+        }
+
+        const identity = this._getBundleCatalogIdentity(catalog);
+        if (!force && this._bundleCatalogLoaded && String(this._bundleCatalogMeta?.identity || '') === identity) {
+            return false;
+        }
+
+        const now = Date.now();
+        const applied = this._applyBundleCatalog(catalog, {
+            source,
+            fetchedAt: now,
+            updatedAt: catalog.updatedAt || '',
+            version: Number(catalog.version || 1),
+            identity,
+        });
+        this._saveBundleCatalogCache(catalog, {
+            source,
+            fetchedAt: now,
+            updatedAt: applied.updatedAt || catalog.updatedAt || '',
+            version: Number(applied.version || catalog.version || 1),
+            identity,
+        });
+        this._refreshShopIfVisible();
+        return true;
+    },
+
+    _ensureRemoteBundleCatalogSubscription() {
+        if (this._bundleCatalogRemoteUnsub) return;
+        if (!window.NyanFirebase?.isReady?.()) {
+            if (this._bundleCatalogRemoteBindRetries >= 8) return;
+            this._bundleCatalogRemoteBindRetries += 1;
+            window.setTimeout(() => this._ensureRemoteBundleCatalogSubscription(), 1500);
+            return;
+        }
+
+        const path = String(this.BUNDLE_CATALOG_REMOTE_DOC_PATH || '').trim();
+        if (!path) return;
+
+        this._bundleCatalogRemoteUnsub = window.NyanFirebase.onSnapshot(path, (doc) => {
+            this._commitRemoteBundleCatalogSnapshot(doc, { force: false });
+        });
+    },
+
+    _shouldRunForcedBundleSync(now = Date.now()) {
+        const gap = Math.max(5000, Number(this.BUNDLE_CATALOG_FORCE_SYNC_MIN_INTERVAL_MS || 20000));
+        const last = Number(this._bundleCatalogLastForceSyncMs || 0);
+        if (last > 0 && now - last < gap) return false;
+        this._bundleCatalogLastForceSyncMs = now;
+        return true;
+    },
+
     _applyBundleCatalog(rawCatalog = {}, meta = {}) {
         const catalog = this._normalizeBundleCatalog(rawCatalog);
 
@@ -166,12 +344,18 @@ const Shop = {
 
         const fetchedAt = Number(meta.fetchedAt);
         const safeFetchedAt = Number.isFinite(fetchedAt) && fetchedAt > 0 ? fetchedAt : Date.now();
+        const version = Number(meta.version || catalog.version || 1);
+        const safeVersion = Number.isFinite(version) && version > 0 ? Math.floor(version) : 1;
+        const identity = String(meta.identity || this._getBundleCatalogIdentity(catalog)).trim();
+
         this._bundleCatalogLoaded = true;
         this._bundleCatalogLastRefreshMs = safeFetchedAt;
         this._bundleCatalogMeta = {
             source: String(meta.source || this._bundleCatalogMeta?.source || 'embedded'),
             fetchedAt: safeFetchedAt,
             updatedAt: String(meta.updatedAt || catalog.updatedAt || ''),
+            version: safeVersion,
+            identity: identity || this._bundleCatalogMeta?.identity || '',
         };
 
         return catalog;
@@ -188,21 +372,29 @@ const Shop = {
             source: cached.source || 'cache',
             fetchedAt: Number(cached.fetchedAt || 0),
             updatedAt: cached.updatedAt || data.updatedAt || '',
+            version: Number(cached.version || data.version || 1),
+            identity: String(cached.identity || ''),
         });
         return true;
     },
 
     _saveBundleCatalogCache(rawCatalog = {}, meta = {}) {
+        const version = Number(meta.version || rawCatalog.version || 1);
+        const safeVersion = Number.isFinite(version) && version > 0 ? Math.floor(version) : 1;
+        const identity = String(meta.identity || this._getBundleCatalogIdentity(rawCatalog)).trim();
         Utils.saveData(this.BUNDLE_CATALOG_CACHE_KEY, {
             source: String(meta.source || 'unknown'),
             fetchedAt: Number(meta.fetchedAt || Date.now()),
             updatedAt: String(meta.updatedAt || rawCatalog.updatedAt || ''),
+            version: safeVersion,
+            identity,
             data: rawCatalog,
         });
     },
 
     _isBundleCatalogStale(now = Date.now()) {
         if (!this._bundleCatalogLoaded) return true;
+        if (String(this._bundleCatalogMeta?.source || '') === 'devlab-editor') return false;
         const age = now - Number(this._bundleCatalogLastRefreshMs || 0);
         return !Number.isFinite(age) || age >= this.BUNDLE_CATALOG_CACHE_TTL_MS;
     },
@@ -216,7 +408,7 @@ const Shop = {
         window.Router?.render?.();
     },
 
-    async refreshBundleCatalog({ force = false, silent = true } = {}) {
+    async refreshBundleCatalog({ force = false, silent = true, cacheBust = false } = {}) {
         if (this._bundleCatalogLoadPromise) {
             return this._bundleCatalogLoadPromise;
         }
@@ -236,27 +428,66 @@ const Shop = {
         const run = async () => {
             const errors = [];
             const timeoutMs = Math.max(2000, Number(this.BUNDLE_CATALOG_TIMEOUT_MS || 8000));
+            const shouldCacheBust = cacheBust === true || force === true;
+            const cacheBustToken = shouldCacheBust ? Date.now().toString(36) : '';
 
             const applyResult = (data, source, fetchedAt = Date.now()) => {
-                const normalized = this._applyBundleCatalog(data, {
+                const normalizedInput = this._normalizeBundleCatalog(data);
+                const nextIdentity = this._getBundleCatalogIdentity(normalizedInput);
+                const nextVersion = Number(normalizedInput.version || 1);
+                const safeVersion = Number.isFinite(nextVersion) && nextVersion > 0 ? Math.floor(nextVersion) : 1;
+                const nextUpdatedAt = String(normalizedInput.updatedAt || data?.updatedAt || '');
+                const previousIdentity = String(this._bundleCatalogMeta?.identity || '');
+                const changed = !this._bundleCatalogLoaded || !previousIdentity || previousIdentity !== nextIdentity;
+
+                if (changed) {
+                    this._applyBundleCatalog(normalizedInput, {
+                        source,
+                        fetchedAt,
+                        updatedAt: nextUpdatedAt,
+                        version: safeVersion,
+                        identity: nextIdentity,
+                    });
+                    this._refreshShopIfVisible();
+                } else {
+                    this._bundleCatalogLoaded = true;
+                    this._bundleCatalogLastRefreshMs = fetchedAt;
+                    this._bundleCatalogMeta = {
+                        ...this._bundleCatalogMeta,
+                        source: String(source || this._bundleCatalogMeta?.source || 'memory'),
+                        fetchedAt,
+                        updatedAt: nextUpdatedAt || String(this._bundleCatalogMeta?.updatedAt || ''),
+                        version: safeVersion,
+                        identity: nextIdentity,
+                    };
+                }
+
+                this._saveBundleCatalogCache(normalizedInput, {
                     source,
                     fetchedAt,
-                    updatedAt: data?.updatedAt || '',
+                    updatedAt: nextUpdatedAt,
+                    version: safeVersion,
+                    identity: nextIdentity,
                 });
-                this._saveBundleCatalogCache(data, {
-                    source,
-                    fetchedAt,
-                    updatedAt: normalized.updatedAt || data?.updatedAt || '',
-                });
-                this._refreshShopIfVisible();
-                return { success: true, source, fetchedAt, data: normalized };
+                return { success: true, source, fetchedAt, data: normalizedInput, changed };
             };
+
+            this._ensureRemoteBundleCatalogSubscription();
+            try {
+                const remote = await this._loadRemoteBundleCatalog();
+                if (remote?.data) {
+                    return applyResult(remote.data, remote.source || 'firebase', Number(remote.fetchedAt || 0) || Date.now());
+                }
+            } catch (error) {
+                errors.push(`remote: ${String(error?.message || error)}`);
+            }
 
             if (window.electronAPI?.getBundleCatalog) {
                 try {
                     const response = await window.electronAPI.getBundleCatalog({
                         urls: this.BUNDLE_CATALOG_URLS,
                         timeoutMs,
+                        cacheBust: cacheBustToken,
                     });
                     if (response?.success && response.data) {
                         return applyResult(response.data, response.source || 'ipc', Number(response.fetchedAt || 0) || Date.now());
@@ -269,10 +500,14 @@ const Shop = {
                 }
             }
 
-            for (const source of this.BUNDLE_CATALOG_URLS) {
+            for (let index = 0; index < this.BUNDLE_CATALOG_URLS.length; index += 1) {
+                const source = this.BUNDLE_CATALOG_URLS[index];
                 try {
+                    const requestUrl = shouldCacheBust
+                        ? this._withCacheBust(source, `${cacheBustToken}-${index}`)
+                        : source;
                     const response = await Utils.fetchWithTimeout(
-                        source,
+                        requestUrl,
                         {
                             cache: 'no-store',
                             headers: { Accept: 'application/json' },
@@ -300,9 +535,22 @@ const Shop = {
             }
 
             if (!this._bundleCatalogLoaded) {
+                const now = Date.now();
+                const embeddedSnapshot = {
+                    version: 1,
+                    updatedAt: '',
+                    bundles: this.BUNDLES,
+                    customBundles: this.CUSTOM_BUNDLES,
+                };
                 this._bundleCatalogLoaded = true;
-                this._bundleCatalogLastRefreshMs = Date.now();
-                this._bundleCatalogMeta = { source: 'embedded', fetchedAt: Date.now(), updatedAt: '' };
+                this._bundleCatalogLastRefreshMs = now;
+                this._bundleCatalogMeta = {
+                    source: 'embedded',
+                    fetchedAt: now,
+                    updatedAt: '',
+                    version: 1,
+                    identity: this._getBundleCatalogIdentity(embeddedSnapshot),
+                };
             }
 
             if (!silent) {
@@ -322,12 +570,58 @@ const Shop = {
         return this._bundleCatalogLoadPromise;
     },
 
-    _ensureBundleCatalogRuntime({ force = false, silent = true } = {}) {
+    _ensureBundleCatalogRuntime({ force = false, silent = true, cacheBust = false } = {}) {
         if (!this._bundleCatalogLoaded) {
             this._loadBundleCatalogCache();
         }
         if (!force && !this._isBundleCatalogStale()) return;
-        this.refreshBundleCatalog({ force, silent }).catch(() => {});
+        this.refreshBundleCatalog({ force, silent, cacheBust }).catch(() => {});
+    },
+
+    _bindBundleCatalogSyncListeners() {
+        if (this._bundleCatalogSyncListenersBound) return;
+        this._bundleCatalogSyncListenersBound = true;
+
+        window.addEventListener('online', () => {
+            if (!this._shouldRunForcedBundleSync()) return;
+            this._ensureBundleCatalogRuntime({ force: true, silent: true, cacheBust: true });
+        });
+
+        window.addEventListener('focus', () => {
+            this._ensureBundleCatalogRuntime({ force: false, silent: true });
+        });
+
+        document.addEventListener('visibilitychange', () => {
+            if (document.visibilityState !== 'visible') return;
+            this._ensureBundleCatalogRuntime({ force: false, silent: true });
+        });
+    },
+
+    startBundleCatalogSync({ forceBoot = true, silent = true } = {}) {
+        if (!this._bundleCatalogLoaded) {
+            this._loadBundleCatalogCache();
+        }
+
+        this._ensureRemoteBundleCatalogSubscription();
+        this._bindBundleCatalogSyncListeners();
+
+        const usingLocalOverride = String(this._bundleCatalogMeta?.source || '') === 'devlab-editor';
+        const shouldForceBoot = forceBoot === true && !usingLocalOverride && this._shouldRunForcedBundleSync();
+        this._ensureBundleCatalogRuntime({
+            force: shouldForceBoot,
+            silent,
+            cacheBust: shouldForceBoot,
+        });
+
+        if (this._bundleCatalogSyncStarted) return;
+        this._bundleCatalogSyncStarted = true;
+
+        const intervalMs = Math.max(30000, Number(this.BUNDLE_CATALOG_BG_SYNC_INTERVAL_MS || 75000));
+        this._bundleCatalogSyncTimer = window.setInterval(() => {
+            if (document.visibilityState === 'hidden') return;
+            this._ensureRemoteBundleCatalogSubscription();
+            this._ensureBundleCatalogRuntime({ force: false, silent: true });
+        }, intervalMs);
     },
 
     _getCycleKey(date = new Date()) {
@@ -1772,7 +2066,7 @@ const Shop = {
 
     init() {
         this._ensureState();
-        this._ensureBundleCatalogRuntime({ silent: true });
+        this.startBundleCatalogSync({ forceBoot: false, silent: true });
         const chipsEl = document.getElementById('shop-chips-display');
         if (chipsEl) chipsEl.textContent = (window.Economy?.getChips?.() || 0).toLocaleString('pt-BR');
     },

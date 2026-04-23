@@ -72,6 +72,11 @@ const Favorites = {
 
     _renderFavItem(tool) {
         const isActive = App.currentTool === tool.id;
+        const hasUpdateBadge = (window.AutoUpdater?.hasPendingUpdate?.() ?? !!window.AutoUpdater?.updateAvailable) && tool.id === 'settings';
+        const updateBadge = hasUpdateBadge
+            ? '<span class="nav-update-dot" title="Atualizacao disponivel" style="margin-left:auto;"></span>'
+            : '';
+        const starMargin = hasUpdateBadge ? '0' : 'auto';
         return `
             <button class="nav-item ${isActive ? 'active' : ''} fav-item"
                     data-tool="${tool.id}" data-fav-id="${tool.id}"
@@ -81,7 +86,8 @@ const Favorites = {
                 <span class="nav-drag-handle">⠿</span>
                 <span class="nav-icon">${tool.icon}</span>
                 <span class="nav-label">${tool.name}</span>
-                <span class="nav-star-btn active" onclick="event.stopPropagation(); Favorites._toggle('${tool.id}')" title="Remover dos favoritos">★</span>
+                ${updateBadge}
+                <span class="nav-star-btn active" style="margin-left:${starMargin};" onclick="event.stopPropagation(); Favorites._toggle('${tool.id}')" title="Remover dos favoritos">★</span>
             </button>
         `;
     },
@@ -156,3 +162,4 @@ const Favorites = {
 };
 
 window.Favorites = Favorites;
+

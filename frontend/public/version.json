@@ -1,12 +1,11 @@
 {
-    "version": "3.12.0",
-    "buildDate": "2026-04-22",
+    "version": "3.12.1",
+    "buildDate": "2026-04-23",
     "changelog": [
-        "DevLab recebeu um painel de bundles separado, mais organizado e com melhor hierarquia visual",
-        "Editor de bundles ganhou validacao em tempo real e campos mais claros para uso interno",
-        "Refatoracao do DevLab em modulos (view, logica e acoes) para facilitar manutencao",
-        "Correcao de acentuacao e encoding no painel de bundles",
-        "Otimizacao de performance no DevLab para evitar re-render em cascata",
-        "Updater otimizado com atualizacao de UI em lote para reduzir renders redundantes"
+        "Bundles com sincronizacao remota em background e cache busting para reduzir inconsistencias entre usuarios",
+        "DevLab com publicacao remota protegida por conflito, auditoria de catalogo e rollback por historico",
+        "Indicador de update pendente agora aparece tambem em Configuracoes nos favoritos",
+        "Updater mais robusto com estado pendente persistente, dedupe de verificacoes e fonte de deteccao no painel",
+        "Correcao de textos com encoding quebrado no inventory e ajustes de consistencia"
     ]
 }

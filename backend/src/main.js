@@ -275,6 +275,7 @@ autoUpdater.logger          = null;
 
 let lastUpdateCheck    = 0;
 let lastDetectedReleaseTag = '';
+let updateCheckInFlight = null;
 const UPDATE_CHECK_COOLDOWN = 300000;
 const BUNDLE_CATALOG_DEFAULT_URLS = [
     'https://raw.githubusercontent.com/Fish7w7/Pandora/main/frontend/public/bundle-catalog.json',
@@ -327,6 +328,20 @@ async function _fetchJsonWithTimeout(url, timeoutMs = 8000, headers = {}) {
         return await response.json();
     } finally {
         clearTimeout(timeout);
+    }
+}
+
+function _appendCacheBustParam(url, token = '') {
+    const safeUrl = String(url || '').trim();
+    const safeToken = String(token || '').trim();
+    if (!safeUrl || !safeToken) return safeUrl;
+    try {
+        const parsed = new URL(safeUrl);
+        parsed.searchParams.set('nyan_cb', safeToken);
+        return parsed.toString();
+    } catch (_) {
+        const joiner = safeUrl.includes('?') ? '&' : '?';
+        return `${safeUrl}${joiner}nyan_cb=${encodeURIComponent(safeToken)}`;
     }
 }
 
@@ -488,6 +503,10 @@ ipcMain.handle('start-update-download', async () => {
 });
 
 ipcMain.handle('check-for-updates', async () => {
+    if (updateCheckInFlight) {
+        return updateCheckInFlight;
+    }
+
     const now = Date.now();
     if (now - lastUpdateCheck < UPDATE_CHECK_COOLDOWN) {
         return { success: false, rateLimited: true,
@@ -495,41 +514,49 @@ ipcMain.handle('check-for-updates', async () => {
     }
     lastUpdateCheck = now;
 
-    const URLS = [
-        'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
-        'https://raw.githubusercontent.com/Fish7w7/Pandora/main/version.json'
-    ];
+    const run = async () => {
+        const URLS = [
+            'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
+            'https://raw.githubusercontent.com/Fish7w7/Pandora/main/version.json'
+        ];
 
-    for (const url of URLS) {
-        try {
-            const controller = new AbortController();
-            const tid = setTimeout(() => controller.abort(), 10000);
-            const isFallback = url.includes('raw.githubusercontent');
-            const headers = isFallback
-                ? { 'User-Agent': 'NyanTools-Updater' }
-                : { 'User-Agent': 'NyanTools-Updater', 'Accept': 'application/vnd.github.v3+json' };
-            const response = await fetch(url, { signal: controller.signal, headers });
-            clearTimeout(tid);
-            if (!response.ok) continue;
-            const data = await response.json();
-            if (isFallback && data.version && !data.tag_name) {
-                data.tag_name = `v${data.version}`;
-                data._fromFallback = true;
-            }
-            const safeTagName = String(data.tag_name || '').trim();
-            if (safeTagName && safeTagName !== lastDetectedReleaseTag) {
-                lastDetectedReleaseTag = safeTagName;
-                console.log('[OK] GitHub API versao detectada:', safeTagName);
-            }
-            return { success: true, data, fromFallback: !!data._fromFallback };
-        } catch (_) {}
-    }
+        for (const url of URLS) {
+            try {
+                const controller = new AbortController();
+                const tid = setTimeout(() => controller.abort(), 10000);
+                const isFallback = url.includes('raw.githubusercontent');
+                const headers = isFallback
+                    ? { 'User-Agent': 'NyanTools-Updater' }
+                    : { 'User-Agent': 'NyanTools-Updater', 'Accept': 'application/vnd.github.v3+json' };
+                const response = await fetch(url, { signal: controller.signal, headers });
+                clearTimeout(tid);
+                if (!response.ok) continue;
+                const data = await response.json();
+                if (isFallback && data.version && !data.tag_name) {
+                    data.tag_name = `v${data.version}`;
+                    data._fromFallback = true;
+                }
+                const safeTagName = String(data.tag_name || '').trim();
+                if (safeTagName && safeTagName !== lastDetectedReleaseTag) {
+                    lastDetectedReleaseTag = safeTagName;
+                    console.log('[OK] GitHub API versao detectada:', safeTagName);
+                }
+                return { success: true, data, fromFallback: !!data._fromFallback };
+            } catch (_) {}
+        }
 
-    return { success: false, error: 'Não foi possível verificar atualizações' };
+        return { success: false, error: 'Não foi possível verificar atualizações' };
+    };
+
+    updateCheckInFlight = run().finally(() => {
+        updateCheckInFlight = null;
+    });
+    return updateCheckInFlight;
 });
 
 ipcMain.handle('get-bundle-catalog', async (_event, payload = {}) => {
     const timeoutMs = _safeEnvNumber(payload?.timeoutMs, 8000, 1000);
+    const cacheBustToken = String(payload?.cacheBust || '').trim();
     const payloadUrls = Array.isArray(payload?.urls)
         ? payload.urls
             .map((entry) => String(entry || '').trim())
@@ -549,16 +576,23 @@ ipcMain.handle('get-bundle-catalog', async (_event, payload = {}) => {
     const headers = {
         'User-Agent': 'NyanTools-BundleCatalog',
         'Accept': 'application/json, text/plain, */*',
+        'Cache-Control': 'no-cache, no-store, must-revalidate',
+        'Pragma': 'no-cache',
     };
 
-    for (const source of sources) {
+    for (let index = 0; index < sources.length; index += 1) {
+        const source = sources[index];
         try {
-            const json = await _fetchJsonWithTimeout(source, timeoutMs, headers);
+            const requestUrl = cacheBustToken
+                ? _appendCacheBustParam(source, `${cacheBustToken}-${index}`)
+                : source;
+            const json = await _fetchJsonWithTimeout(requestUrl, timeoutMs, headers);
             const data = _sanitizeBundleCatalog(json);
             if (!data) throw new Error('Formato invalido de catalogo');
             return {
                 success: true,
                 source,
+                requestUrl,
                 fetchedAt: Date.now(),
                 data,
             };

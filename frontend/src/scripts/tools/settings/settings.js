@@ -162,16 +162,21 @@ const Settings = {
     },
 
     renderTabsNavigation() {
+        const hasPendingUpdate = window.AutoUpdater?.hasPendingUpdate?.() ?? !!window.AutoUpdater?.updateAvailable;
         return `
             <div class="flex gap-1 bg-gray-100 rounded-2xl p-1.5 mb-6 overflow-x-auto">
                 ${this.tabs.map(tab => {
                     const isActive = this.currentTab === tab.id;
+                    const updateBadge = hasPendingUpdate && tab.id === 'updates'
+                        ? `<span title="Atualização pendente" style="width:8px;height:8px;border-radius:999px;background:#ef4444;box-shadow:0 0 0 3px rgba(239,68,68,0.18);animation:pulse 2s infinite;"></span>`
+                        : '';
                     return `
                         <button onclick="Settings.switchTab('${tab.id}')"
                                 class="flex items-center gap-2 px-5 py-2.5 rounded-xl font-semibold text-sm transition-all whitespace-nowrap flex-1 justify-center
                                        ${isActive ? 'bg-white text-gray-900 shadow-md' : 'text-gray-500 hover:text-gray-700'}">
                             <span>${tab.icon}</span>
                             <span>${tab.name}</span>
+                            ${updateBadge}
                         </button>
                     `;
                 }).join('')}

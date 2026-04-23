@@ -289,10 +289,10 @@ const Inventory = {
 
     buy(itemId, weeklyPrice = 0) {
         const item = this.getItem(itemId);
-        if (!item) return { ok:false, reason:'Item nÃ£o encontrado' };
-        if (item.milestone) return { ok:false, reason:'Este item Ã© desbloqueado por marco de nÃ­vel' };
+        if (!item) return { ok:false, reason:'Item nao encontrado' };
+        if (item.milestone) return { ok:false, reason:'Este item e desbloqueado por marco de nivel' };
         if (item.rewardOnly) return { ok:false, reason:'Este item so e obtido por recompensa da temporada' };
-        if (this.owns(itemId)) return { ok:false, reason:'VocÃª jÃ¡ possui este item' };
+        if (this.owns(itemId)) return { ok:false, reason:'Voce ja possui este item' };
 
         if (item.endsAt) {
             const endsAt = Date.parse(item.endsAt);
@@ -549,7 +549,7 @@ const Inventory = {
     },
 
     // _applyTheme: ao equipar um tema de intro, aplica o tema de cor correspondente.
-    // O efeito da intro Ã© lido diretamente pelo LoginIntro via getEquippedItem('theme').
+    // O efeito da intro e lido diretamente pelo LoginIntro via getEquippedItem('theme').
     // Nao salva mais shop_login_effect - nao e necessario.
     _applyTheme(item) {
         if (item.preserveTheme) return;
@@ -732,7 +732,7 @@ const Inventory = {
         Object.entries(data.equipped).forEach(([type, itemId]) => {
             // FIX: nunca reaplicar 'theme' no boot - o tema de cor e gerenciado pelo
             // ThemeManager.init() que le app_color_theme salvo pelo usuario.
-            // Reaplicar aqui sobrescreveria a escolha manual do usuÃ¡rio.
+            // Reaplicar aqui sobrescreveria a escolha manual do usuario.
             if (type === 'theme') return;
             const item = this.getItem(itemId);
             if (item && this.owns(itemId)) this._applyEquipped(item);

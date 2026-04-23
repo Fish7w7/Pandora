@@ -106,6 +106,48 @@
         const bundleMetaFetchedLabel = bundleMetaFetched > 0
             ? this._escapeHtml(new Date(bundleMetaFetched).toLocaleString('pt-BR'))
             : '-';
+        const historyEntries = Array.isArray(this._bundleEditorHistoryEntries) ? this._bundleEditorHistoryEntries : [];
+        const historyLoading = this._bundleEditorHistoryLoading === true;
+        const historySelectedId = String(this._bundleEditorHistorySelectedId || '');
+        const historyOptions = historyEntries
+            .map((entry) => {
+                const safeId = this._escapeHtml(String(entry?.id || ''));
+                const updatedAtRaw = String(entry?.updatedAt || '').trim();
+                const updatedAtLabel = updatedAtRaw
+                    ? this._escapeHtml(new Date(updatedAtRaw).toLocaleString('pt-BR'))
+                    : '-';
+                const action = this._escapeHtml(String(entry?.action || 'published'));
+                const selected = safeId && safeId === historySelectedId ? 'selected' : '';
+                return `<option value="${safeId}" ${selected}>${updatedAtLabel} · ${action} · ${safeId}</option>`;
+            })
+            .join('');
+        const historySelected = historyEntries.find((entry) => String(entry?.id || '') === historySelectedId) || null;
+        const historySelectedMeta = historySelected
+            ? this._escapeHtml(
+                `${String(historySelected.action || 'published')} · ${String(historySelected.updatedBy?.username || historySelected.updatedBy?.nyanTag || historySelected.updatedBy?.uid || 'autor desconhecido')}`
+            )
+            : '-';
+        const bundleAudit = this._bundleEditorLastAudit && typeof this._bundleEditorLastAudit === 'object'
+            ? this._bundleEditorLastAudit
+            : null;
+        const bundleAuditLabel = bundleAudit?.generatedAtMs
+            ? this._escapeHtml(new Date(bundleAudit.generatedAtMs).toLocaleString('pt-BR'))
+            : 'sem auditoria recente';
+        const bundleAuditErrors = this._safeInt(bundleAudit?.errorCount, 0, 0, 9999);
+        const bundleAuditWarnings = this._safeInt(bundleAudit?.warningCount, 0, 0, 9999);
+        const publisherAuthInfo = this._bundleEditorPublisherAuthInfo && typeof this._bundleEditorPublisherAuthInfo === 'object'
+            ? this._bundleEditorPublisherAuthInfo
+            : null;
+        const publisherAuthLabel = publisherAuthInfo?.available
+            ? (publisherAuthInfo.devPublisher ? 'Claim devPublisher ativa' : 'Claim devPublisher ausente')
+            : 'Claim devPublisher nao verificada';
+        const bundleConflict = this._bundleEditorLastConflict && typeof this._bundleEditorLastConflict === 'object'
+            ? this._bundleEditorLastConflict
+            : null;
+        const bundleConflictActive = !!bundleConflict;
+        const bundleConflictLabel = bundleConflict?.remoteUpdatedLabel
+            ? this._escapeHtml(bundleConflict.remoteUpdatedLabel)
+            : '-';
         const globalMinAgeDays = this._safeInt(bundleState?.settings?.customBundleMinAgeDays, 90, 1, 9999);
         const officialBundleCount = Array.isArray(bundleState?.bundles) ? bundleState.bundles.length : 0;
         const customBundleCount = Array.isArray(bundleState?.customBundles) ? bundleState.customBundles.length : 0;
@@ -332,6 +374,17 @@
                         activeBundleItems,
                         activeBundleSources,
                         globalMinAgeDays,
+                        historyCount: historyEntries.length,
+                        historyLoading,
+                        historyOptions,
+                        historySelectedId,
+                        historySelectedMeta,
+                        bundleAuditLabel,
+                        bundleAuditErrors,
+                        bundleAuditWarnings,
+                        publisherAuthLabel,
+                        bundleConflictActive,
+                        bundleConflictLabel,
                     })
                     : ''}
                 <section style="display:${activeSection === 'geral' ? 'block' : 'none'};margin-top:0.8rem;border-radius:14px;border:1px solid ${c.dangerBorder};background:${c.dangerBg};padding:0.75rem;">
