@@ -414,6 +414,77 @@ dist/
 
 ## 📝 Roadmap
 
+### **✅ v3.12.x "DevLab Bundles & Update Reliability" — Atual**
+- [x] Painel de bundles separado e reorganizado dentro do DevLab
+- [x] Melhor hierarquia visual e textos em português mais claros no editor de bundles
+- [x] Refatoração do DevLab em módulos para facilitar manutenção
+- [x] Publicação remota protegida por conflito (baseline/updatedAt)
+- [x] Auditoria de catálogo e rollback remoto por histórico no DevLab
+- [x] Loja com sincronização de bundles em background (assinatura remota + cache busting)
+- [x] Updater proativo com estado pendente persistente, dedupe de checks e badge de update
+- [x] Correções de consistência/encoding em textos do app
+
+### **🔮 Próximas Atualizações (Planejado)**
+> Realinhado com o roadmap interno: como a `v3.12.x` atual teve outro foco, o antigo plano de `v3.12.0` foi movido para `v3.13.0` e os próximos seguiram em sequência.
+
+### **🧩 v3.13.0 "Squads"**
+- [ ] Clãs e grupos sociais
+- [ ] Chat em grupo
+- [ ] Ranking entre clãs
+- [ ] Desafios coletivos
+- [ ] Mural compartilhado por grupo
+- [ ] Metas cooperativas com recompensas
+
+### **🤖 v3.14.0 "Smart Companion"**
+- [ ] IA para resumir notas
+- [ ] IA para transformar texto em tarefas
+- [ ] Sugestões de rotina, missão pessoal e organização
+- [ ] Ajuda para bio/perfil e respostas no chat
+- [ ] Recomendações baseadas no uso
+- [ ] Insights pessoais no dashboard
+
+### **🚀 v4.0.0 (Quando fizer sentido)**
+- [ ] Grande redesign da navegação
+- [ ] Arquitetura modular/plugin system
+- [ ] Refactor forte no core
+- [ ] Migração de dados/configurações
+- [ ] Reposicionamento de produto
+
+### **✅ v3.11.x "Correções e Consistência"**
+- [x] Correções de exploit no Quiz Diário e maior estabilidade da rotação de perguntas
+- [x] Loja diária/sazonal mais estável sem troca indevida após compra
+- [x] Ajustes de progressão de nível e entrega de recompensas no inventário
+- [x] Melhor consistência entre estado local, perfil e sincronização online
+
+### **✅ v3.10.0 "Nyan Worlds"**
+- [x] Sistema de Amigos — adicionar por NyanTag, aceitar/recusar convites
+- [x] Status em tempo real — Online, Jogando, Ausente, Offline
+- [x] Chat privado 1:1 com histórico persistente no Firebase
+- [x] Murais por jogo — feed com reações 🐱⭐💎🔥 e comentários
+- [x] Desafios de 24h — duelos side-by-side entre amigos
+- [x] Perfil público — bio, recordes, conquistas e comparação lado a lado
+- [x] Placar Global — Top 10 por jogo, filtro global vs amigos
+- [x] Feed de atividade — linha do tempo de resultados e recordes
+- [x] NyanTag — identidade única com badge de versão
+- [x] Loja revisada e corrigida
+
+### **✅ v3.8.0 "Nyan Economy"**
+- [x] Sistema de XP e Níveis com marcos (Veterano nv10, Mestre nv25, Lendário nv50)
+- [x] Chips — moeda integrada a todos os jogos e missões
+- [x] Missões Diárias — 3 por dia + desafio semanal com recompensas
+- [x] Loja com rotação semanal — títulos, bordas, temas, efeitos e partículas
+- [x] Inventário com equipar/desequipar em tempo real
+- [x] Temas visuais com efeitos de login (Sakura, Midnight, Neon, Chamas)
+- [x] Partículas de perfil em órbita ao redor do avatar
+- [x] Bordas animadas incluindo Borda Neon com pulso de cor
+- [x] Efeitos de navegação: Slide, Zoom e Bounce
+- [x] Bloco Economy no Perfil com barra de XP e histórico
+
+### **✅ v3.7.0 "Zona Arcade"**
+- [x] Type Racer — jogo de digitação com WPM e precisão
+- [x] Caça-Níquel — jogo casual com símbolos do NyanTools
+- [x] Quiz Diário — 10 perguntas de cultura geral, mesmas para todos no mesmo dia
+
 ### **✅ v3.6.0 "Smooth & Pretty"**
 - [x] Avatar SVG gerado automaticamente por nome
 - [x] Redesign dos cards do Dashboard e Zona Offline
@@ -434,48 +505,6 @@ dist/
 - [x] Sistema de auto-update com GitHub API
 - [x] Barra de progresso do download (fix definitivo na v3.6.0)
 - [x] Fallback automático quando native updater falha
-
-### **✅ v3.7.0 "Zona Arcade"**
-- [x] Type Racer — jogo de digitação com WPM e precisão
-- [x] Caça-Níquel — jogo casual com símbolos do NyanTools
-- [x] Quiz Diário — 10 perguntas de cultura geral, mesmas para todos no mesmo dia
-
-### **✅ v3.8.0 "Nyan Economy"**
-- [x] Sistema de XP e Níveis com marcos (Veterano nv10, Mestre nv25, Lendário nv50)
-- [x] Chips — moeda integrada a todos os jogos e missões
-- [x] Missões Diárias — 3 por dia + desafio semanal com recompensas
-- [x] Loja com rotação semanal — títulos, bordas, temas, efeitos e partículas
-- [x] Inventário com equipar/desequipar em tempo real
-- [x] Temas visuais com efeitos de login (Sakura, Midnight, Neon, Chamas)
-- [x] Partículas de perfil em órbita ao redor do avatar
-- [x] Bordas animadas incluindo Borda Neon com pulso de cor
-- [x] Efeitos de navegação: Slide, Zoom e Bounce
-- [x] Bloco Economy no Perfil com barra de XP e histórico
-
-### **✅ v3.12.1 "Sync & Update Reliability" — Atual**
-- [x] DevLab Bundles com publicação remota protegida por conflito (baseline/updatedAt)
-- [x] Auditoria de catálogo e rollback remoto por histórico no DevLab
-- [x] Loja com sincronização de bundles em background (assinatura remota + cache busting)
-- [x] Updater proativo com estado pendente persistente, dedupe de checks e badge de update
-- [x] Correções de consistência/encoding em textos do app
-
-### **✅ v3.12.0 "DevLab Bundles Refresh"**
-- [x] Painel de bundles separado e reorganizado dentro do DevLab
-- [x] Melhor hierarquia visual e textos em português mais claros no editor de bundles
-- [x] Refatoração do DevLab em módulos para facilitar manutenção
-- [x] Correções visuais e de legibilidade no fluxo de bundles
-
-### **✅ v3.10.0 "Nyan Worlds"**
-- [x] Sistema de Amigos — adicionar por NyanTag, aceitar/recusar convites
-- [x] Status em tempo real — Online, Jogando, Ausente, Offline
-- [x] Chat privado 1:1 com histórico persistente no Firebase
-- [x] Murais por jogo — feed com reações 🐱⭐💎🔥 e comentários
-- [x] Desafios de 24h — duelos side-by-side entre amigos
-- [x] Perfil público — bio, recordes, conquistas e comparação lado a lado
-- [x] Placar Global — Top 10 por jogo, filtro global vs amigos
-- [x] Feed de atividade — linha do tempo de resultados e recordes
-- [x] NyanTag — identidade única com badge de versão
-- [x] Loja revisada e corrigida
 
 ---
 
