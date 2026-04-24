@@ -1,7 +1,7 @@
 ﻿
 
 const AutoUpdater = {
-    currentVersion: '3.12.1',
+    currentVersion: '3.13.0',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -35,9 +35,27 @@ const AutoUpdater = {
 
       changelog: [
     {
+        version: '3.13.0',
+        date: '2026-04-24T12:00:00',
+        label: 'Atual',
+        labelColor: 'bg-green-500',
+        author: 'Clara',
+        changes: [
+            { type: '◆', text: 'Nova aba Social > Clãs com criação, entrada por código, saída e exploração de clãs existentes' },
+            { type: '💰', text: 'Criar um Clã custa chips, valida nome/tag únicos e deposita o valor no cofre do Clã' },
+            { type: '👥', text: 'Membros têm roles leader/member, limite de 10 pessoas e regra de um clã por usuário' },
+            { type: '🔐', text: 'Clãs podem ser públicos ou privados; privados geram pedidos para o líder aceitar ou recusar' },
+            { type: '🛡️', text: 'Líder pode expulsar membros, excluir o clã e transferir liderança ao sair' },
+            { type: '🎨', text: 'Personalização com descrição, foto por arquivo, privacidade e UI rework da tela de Clãs' },
+            { type: '🔗', text: 'Convites para amigos, convites recebidos, exclusão de convites e busca por nome/tag' },
+            { type: '👤', text: 'Perfil, presença e cards de amigos exibem clã/tag e permitem convidar amigos' },
+            { type: '🔥', text: 'Sincronização online preparada para clãs, convites e pedidos privados' },
+        ]
+    },
+    {
         version: '3.12.1',
         date: '2026-04-23T12:00:00',
-        label: 'Atual',
+        label: '',
         labelColor: 'bg-green-500',
         author: 'Clara & Gabriel',
         changes: [
@@ -47,22 +65,6 @@ const AutoUpdater = {
             { type: '🔔', text: 'Updater proativo ficou mais robusto com estado pendente persistente, dedupe de checks e fonte da deteccao no painel' },
             { type: '📍', text: 'Badge de update pendente agora aparece tambem em Configuracoes nos favoritos' },
             { type: '🔤', text: 'Correcao de textos com encoding quebrado no inventory e ajustes de consistencia geral da interface' },
-        ]
-    },
-    {
-        version: '3.12.0',
-        date: '2026-04-22T12:00:00',
-        label: '',
-        labelColor: 'bg-green-500',
-        author: 'Clara & Gabriel',
-        changes: [
-            { type: '🧪', text: 'Painel de bundles do DevLab foi separado e reorganizado para uso interno' },
-            { type: '🧱', text: 'Editor de bundles ficou mais claro, com melhor hierarquia visual e campos em portugues' },
-            { type: '🛠️', text: 'Refatoracao do DevLab em modulos para reduzir acoplamento e facilitar manutencao' },
-            { type: '✅', text: 'Correcao de acentuacao e encoding no painel de bundles' },
-            { type: '⚡', text: 'Render do DevLab foi otimizado para evitar recargas em cascata durante acoes internas' },
-            { type: '🔎', text: 'Busca de bundles recebeu debounce para reduzir custo de filtro por tecla' },
-            { type: '🧭', text: 'Updater agora coalesce updates de UI para reduzir renders redundantes' },
         ]
     },
 ],

@@ -1,30 +1,35 @@
 {
-    "version": "3.12.1",
-    "buildDate": "2026-04-23",
+    "version": "3.13.0",
+    "buildDate": "2026-04-24",
     "changelog": [
-        "Bundles com sincronizacao remota em background e cache busting para reduzir inconsistencias entre usuarios",
-        "DevLab com publicacao remota protegida por conflito, auditoria de catalogo e rollback por historico",
-        "Indicador de update pendente agora aparece tambem em Configuracoes nos favoritos",
-        "Updater mais robusto com estado pendente persistente, dedupe de verificacoes e fonte de deteccao no painel",
-        "Correcao de textos com encoding quebrado no inventory e ajustes de consistencia"
+        "Nova aba Social > Clãs com tela propria, estados sem clã/dentro do clã e exploração de clãs existentes",
+        "Criação de Clã com custo em chips, depósito automático no cofre e validação de nome/tag únicos",
+        "Sistema de membros com leader/member, limite de 10 pessoas, um clã por usuário e saída sem penalidade",
+        "Entrada por código, clãs públicos com entrada direta e clãs privados com pedidos para aprovação do líder",
+        "Líder pode aceitar/recusar pedidos, expulsar membros, excluir o clã e transferir liderança ao sair",
+        "Personalização do clã com descrição, imagem por arquivo e privacidade público/privado",
+        "Convites para amigos, convites recebidos, exclusão de convites e limpeza de convites inválidos",
+        "Busca/listagem de clãs existentes com limite de 10, refresh e entrada/solicitação direto pelo explorador",
+        "Integração com perfil, presença e amigos exibindo nome/tag do clã e ação de convite",
+        "Sincronização online preparada para clãs, convites e pedidos privados"
     ],
-    "tag_name": "v3.12.1",
-    "releaseDate": "2026-04-23",
-    "name": "NyanTools v3.12.1",
-    "codename": "Sync & Update Reliability",
-    "body": "## NyanTools v3.12.1 - Sync & Update Reliability\\n\\n- Bundles com sincronizacao remota em background e cache busting para reduzir inconsistencias entre usuarios\\n- DevLab com publicacao remota protegida por conflito, auditoria de catalogo e rollback por historico\\n- Badge de update pendente aparece tambem em Configuracoes nos favoritos\\n- Updater mais robusto com estado pendente persistente, dedupe de verificacoes e fonte de deteccao no painel\\n- Correcao de textos com encoding quebrado no inventory\\n\\nVersao anterior: v3.12.0",
+    "tag_name": "v3.13.0",
+    "releaseDate": "2026-04-24",
+    "name": "NyanTools v3.13.0",
+    "codename": "Clãs (Base)",
+    "body": "## NyanTools v3.13.0 - Clãs (Base)\\n\\n- Nova aba Social > Clãs com tela propria, estados sem clã/dentro do clã e exploração de clãs existentes\\n- Criação de Clã com custo em chips, depósito automático no cofre e validação de nome/tag únicos\\n- Sistema de membros com leader/member, limite de 10 pessoas, um clã por usuário e saída sem penalidade\\n- Entrada por código, clãs públicos com entrada direta e clãs privados com pedidos para aprovação do líder\\n- Líder pode aceitar/recusar pedidos, expulsar membros, excluir o clã e transferir liderança ao sair\\n- Personalização do clã com descrição, imagem por arquivo e privacidade público/privado\\n- Convites para amigos, convites recebidos, exclusão de convites e limpeza de convites inválidos\\n- Busca/listagem de clãs existentes com limite de 10, refresh e entrada/solicitação direto pelo explorador\\n- Integração com perfil, presença e amigos exibindo nome/tag do clã e ação de convite\\n- Sincronização online preparada para clãs, convites e pedidos privados\\n\\nVersao anterior: v3.12.1",
     "previousVersion": {
-        "version": "3.12.0",
-        "tag": "v3.12.0",
-        "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.12.0"
+        "version": "3.12.1",
+        "tag": "v3.12.1",
+        "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.12.1"
     },
-    "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.12.1",
-    "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.12.1",
+    "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.13.0",
+    "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.13.0",
     "statistics": {
-        "filesNew": 0,
+        "filesNew": 4,
         "filesRewritten": 0,
-        "filesModified": 12,
-        "bugsFixed": 7,
-        "featuresAdded": 5
+        "filesModified": 8,
+        "bugsFixed": 4,
+        "featuresAdded": 10
     }
 }

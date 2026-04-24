@@ -1,7 +1,7 @@
 {
   "name": "nyantools",
-  "version": "3.12.1",
-  "description": "NyanTools - Your purr-fect toolkit nyan~ | Season Rush - temporadas, eventos semanais e progressao sazonal",
+  "version": "3.13.0",
+  "description": "NyanTools - Your purr-fect toolkit nyan~ | Clãs sociais, amigos, presença, jogos e ferramentas",
   "main": "backend/src/main.js",
   "scripts": {
     "start": "electron .",

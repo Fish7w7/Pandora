@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.12.1-purple?style=for-the-badge&logo=electron)
+![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.13.0-purple?style=for-the-badge&logo=electron)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)
 ![Electron](https://img.shields.io/badge/Electron-27.0.0-47848F?style=for-the-badge&logo=electron)
@@ -69,6 +69,7 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
 - 📰 **Feed de Atividade** — Linha do tempo com resultados e recordes dos amigos
 - ⚔️ **Desafios de 24h** — Duelos side-by-side entre amigos em qualquer jogo
 - 🖼️ **Murais por Jogo** — Feed com reações 🐱⭐💎🔥 e comentários
+- 🧩 **Clãs** — Grupos sociais com membros, convites, privacidade, cofre e presença integrada
 
 ---
 
@@ -82,7 +83,7 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
    ```
 
 2. **Execute o Instalador**
-   - Baixe `NyanTools-3.12.1-Setup.exe`
+   - Baixe `NyanTools-3.13.0-Setup.exe`
    - Execute e siga o assistente de instalação
 
 3. **Pronto! にゃん~**
@@ -123,7 +124,7 @@ npm run dev
 
 #### **🔥 Firebase (Nyan Network)**
 1. Crie um projeto em [console.firebase.google.com](https://console.firebase.google.com)
-2. Ative **Firestore** e **Authentication**
+2. Ative **Authentication** e o banco de dados online
 3. Cole o `firebaseConfig` nas configurações do app
 
 ---
@@ -380,12 +381,12 @@ npm run build:all      # Todas as plataformas
 
 ```
 dist/
-├── NyanTools-3.12.1-Setup.exe       # Windows — instalador
-├── NyanTools 3.12.1.exe             # Windows — portátil
-├── NyanTools-3.12.1-x64.dmg        # macOS Intel
-├── NyanTools-3.12.1-arm64.dmg      # macOS Apple Silicon
-├── NyanTools-3.12.1-x64.AppImage   # Linux
-└── NyanTools-3.12.1-amd64.deb      # Linux Debian/Ubuntu
+├── NyanTools-3.13.0-Setup.exe       # Windows — instalador
+├── NyanTools 3.13.0.exe             # Windows — portátil
+├── NyanTools-3.13.0-x64.dmg        # macOS Intel
+├── NyanTools-3.13.0-arm64.dmg      # macOS Apple Silicon
+├── NyanTools-3.13.0-x64.AppImage   # Linux
+└── NyanTools-3.13.0-amd64.deb      # Linux Debian/Ubuntu
 ```
 
 ---
@@ -402,7 +403,7 @@ dist/
 - **MyMemory** — Tradução gratuita
 - **Google Gemini** — IA conversacional
 - **GitHub API** — Atualizações automáticas
-- **Firebase** — Autenticação, Firestore (Nyan Network)
+- **Firebase** — Autenticação e dados online (Nyan Network)
 
 ### **Build**
 - **Electron Builder** — Empacotamento multiplataforma
@@ -422,33 +423,25 @@ dist/
 - [x] **v3.8.0 "Nyan Economy"** — XP, chips, missões, loja e inventário.
 - [x] **v3.10.0 "Nyan Worlds"** — Amigos, presença, chat 1:1, desafios e feed social.
 - [x] **v3.11.x "Correções e Consistência"** — Estabilidade, economia e sincronização.
+- [x] **v3.12.x "DevLab Bundles & Update Reliability"** — Bundles, sync remoto e updater mais confiável.
 
 ### 🚧 Atual
-#### v3.12.x — DevLab Bundles & Update Reliability
-- [x] DevLab modularizado
-- [x] Sistema de bundles com sync e rollback
-- [x] Updater proativo com estado persistente
-- [x] Correções gerais de consistência
+#### v3.13.0 — Clãs (Base)
+- [x] Nova aba Social > Clãs
+- [x] Criação de clã com custo em chips e cofre
+- [x] Nome/tag únicos e código de convite único
+- [x] Entrada por código, clãs públicos e clãs privados com aprovação do líder
+- [x] Lista de membros, limite de 10, saída e transferência de liderança
+- [x] Líder pode aceitar/recusar pedidos, expulsar membros e excluir o clã
+- [x] Personalização com descrição, imagem por arquivo e privacidade
+- [x] Convites para amigos e convites recebidos com exclusão
+- [x] Busca/listagem de clãs existentes com refresh
+- [x] Integração com perfil, presença e amigos
 
 ### 🔮 Futuro (Próximas versões)
 
-#### 🧩 v3.13 — Squads (Base)
-**Objetivo:** criar sistema de grupos sociais
-
-**Escopo:**
-- [ ] Criação de squads (custo em chips)
-- [ ] Entrada por código
-- [ ] Lista de membros
-- [ ] Identidade (nome + tag)
-
-**Métricas:**
-- [ ] % usuários em squads
-- [ ] Retenção D7 (com vs sem squad)
-
----
-
-#### 🧩 v3.13.x — Squads (Expansão)
-- [ ] Ranking entre squads
+#### 🧩 v3.13.x — Clãs (Expansão)
+- [ ] Ranking entre clãs
 - [ ] Desafios coletivos
 - [ ] Metas cooperativas
 
@@ -482,7 +475,7 @@ dist/
 
 #### 🚀 v4.0 — Quando fizer sentido
 **Gatilhos:**
-- [ ] Squads funcionando bem
+- [ ] Clãs funcionando bem
 - [ ] IA validada por métricas
 
 **Escopo:**
@@ -574,7 +567,7 @@ MIT License — Copyright (c) 2026 Fish7w7
 
 *Your Purr-fect Toolkit! 🐱✨*
 
-**v3.12.1 — Sync & Update Reliability 🚀**
+**v3.13.0 — Clãs (Base) 🚀**
 
 **[⬆ Voltar ao topo](#-nyantools-にゃん)**
 

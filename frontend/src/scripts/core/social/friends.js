@@ -1432,7 +1432,7 @@ const Friends = {
                 <div style="font-size:0.65rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:${sub};margin-bottom:0.75rem;">
                     Passos para ativar
                 </div>
-                ${['Crie um projeto em console.firebase.google.com','Ative Authentication + Firestore','Cole o firebaseConfig em firebase.js','Reinicie o app'].map((s, i) => `
+                ${['Crie um projeto em console.firebase.google.com','Ative Authentication + banco de dados online','Cole o firebaseConfig em firebase.js','Reinicie o app'].map((s, i) => `
                     <div style="display:flex;align-items:flex-start;gap:0.625rem;margin-bottom:0.5rem;font-size:0.78rem;color:${sub};">
                         <span style="font-weight:800;color:var(--theme-primary,#a855f7);min-width:16px;">${i+1}.</span>
                         <span>${s}</span>
