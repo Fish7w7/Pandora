@@ -3,6 +3,10 @@ const Squads = {
     COLLECTION: 'squads',
     CREATE_COST: 500,
     MAX_MEMBERS: 10,
+    MAX_MESSAGES: 100,
+    MAX_FEED_ITEMS: 100,
+    MAX_MESSAGE_LENGTH: 500,
+    MAX_SCORE_HISTORY: 250,
     INVITE_CODE_LENGTH: 6,
 
     _events: {},
@@ -101,6 +105,100 @@ const Squads = {
         return String(text || '').trim().toLowerCase();
     },
 
+    _sortByCreatedAt(items = [], direction = 'asc') {
+        const multiplier = direction === 'desc' ? -1 : 1;
+        return [...items].sort((a, b) => (Number(a.createdAt || 0) - Number(b.createdAt || 0)) * multiplier);
+    },
+
+    _normalizeMessages(messages = []) {
+        return this._sortByCreatedAt(Array.isArray(messages) ? messages : [])
+            .map((message) => ({
+                id: String(message?.id || window.Utils?.generateId?.() || `${Date.now()}`),
+                userId: String(message?.userId || '').trim(),
+                content: String(message?.content || '').trim().slice(0, this.MAX_MESSAGE_LENGTH),
+                createdAt: Number(message?.createdAt || Date.now()),
+            }))
+            .filter((message) => !!message.userId && !!message.content)
+            .slice(-this.MAX_MESSAGES);
+    },
+
+    _normalizeFeed(feed = []) {
+        return this._sortByCreatedAt(Array.isArray(feed) ? feed : [], 'desc')
+            .map((item) => ({
+                id: String(item?.id || window.Utils?.generateId?.() || `${Date.now()}`),
+                type: item?.type === 'event' ? 'event' : 'system',
+                content: String(item?.content || '').trim().slice(0, 220),
+                actorUserId: String(item?.actorUserId || '').trim(),
+                actorLabel: String(item?.actorLabel || '').trim().slice(0, 80),
+                action: String(item?.action || '').trim().slice(0, 80),
+                createdAt: Number(item?.createdAt || Date.now()),
+            }))
+            .filter((item) => !!item.content)
+            .slice(0, this.MAX_FEED_ITEMS);
+    },
+
+    _normalizeScoreHistory(history = []) {
+        return this._sortByCreatedAt(Array.isArray(history) ? history : [], 'desc')
+            .map((item) => ({
+                id: String(item?.id || window.Utils?.generateId?.() || `${Date.now()}`),
+                userId: String(item?.userId || '').trim(),
+                source: ['game', 'record', 'daily_quiz', 'daily_mission'].includes(item?.source) ? item.source : 'game',
+                points: Math.max(0, Math.floor(Number(item?.points || 0))),
+                key: String(item?.key || '').trim(),
+                createdAt: Number(item?.createdAt || Date.now()),
+            }))
+            .filter((item) => !!item.userId && item.points > 0)
+            .slice(0, this.MAX_SCORE_HISTORY);
+    },
+
+    _makeEntryId(prefix = 'squad') {
+        return window.Utils?.generateUUID?.()
+            || window.Utils?.generateId?.()
+            || `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    },
+
+    _formatActor(userId = '') {
+        const uid = String(userId || '').trim();
+        if (!uid) return 'Alguem';
+        if (uid === this._uid()) {
+            return window.NyanAuth?.getNyanTag?.() || window.NyanAuth?.currentUser?.username || 'Voce';
+        }
+        return uid.slice(0, 8);
+    },
+
+    _feedEntry(content, type = 'system', createdAt = Date.now(), meta = {}) {
+        return {
+            id: this._makeEntryId('feed'),
+            type: type === 'event' ? 'event' : 'system',
+            content: String(content || '').trim(),
+            actorUserId: String(meta.actorUserId || '').trim(),
+            actorLabel: String(meta.actorLabel || '').trim().slice(0, 80),
+            action: String(meta.action || '').trim().slice(0, 80),
+            createdAt,
+        };
+    },
+
+    _withFeedEntry(squad, content, type = 'system', at = Date.now(), meta = {}) {
+        if (!content) return this._normalizeSquad(squad);
+        return this._normalizeSquad({
+            ...squad,
+            feed: [this._feedEntry(content, type, at, meta), ...(squad.feed || [])],
+            lastActivityAt: at,
+            updatedAt: at,
+        });
+    },
+
+    _isMember(squad, uid = this._uid()) {
+        const safeUid = String(uid || '').trim();
+        return !!safeUid && !!squad?.members?.some((member) => member.userId === safeUid);
+    },
+
+    _requireMember(squad) {
+        if (!squad || !this._isMember(squad)) {
+            throw new Error('Apenas membros do Cla podem acessar esse espaco.');
+        }
+    },
+
     _normalizeSquad(raw = {}) {
         const now = Date.now();
         const members = Array.isArray(raw.members) ? raw.members : [];
@@ -130,6 +228,11 @@ const Squads = {
             inviteCode: this._normalizeCode(raw.inviteCode),
             memberIds,
             members: normalizedMembers,
+            messages: this._normalizeMessages(raw.messages),
+            feed: this._normalizeFeed(raw.feed),
+            score: Math.max(0, Math.floor(Number(raw.score || 0))),
+            scoreHistory: this._normalizeScoreHistory(raw.scoreHistory),
+            lastActivityAt: Number(raw.lastActivityAt || raw.updatedAt || raw.createdAt || now),
             createdAt: Number(raw.createdAt || now),
             updatedAt: Number(raw.updatedAt || now),
         };
@@ -419,8 +522,16 @@ const Squads = {
             visibility,
             ownerId: uid,
             balance: this.CREATE_COST,
+            score: 0,
+            scoreHistory: [],
             inviteCode: await this._generateInviteCode(),
             members: [{ userId: uid, role: 'leader', joinedAt: now }],
+            feed: [this._feedEntry(`Cla ${name} [${tag}] criado.`, 'system', now, {
+                actorUserId: uid,
+                actorLabel: this._formatActor(uid),
+                action: 'criou o cla.',
+            })],
+            lastActivityAt: now,
             createdAt: now,
             updatedAt: now,
         });
@@ -459,13 +570,17 @@ const Squads = {
             return { pending: true, squad };
         }
 
-        const updated = this._normalizeSquad({
+        const joinedAt = Date.now();
+        const updated = this._withFeedEntry({
             ...squad,
             members: [
                 ...squad.members,
-                { userId: uid, role: 'member', joinedAt: Date.now() },
+                { userId: uid, role: 'member', joinedAt },
             ],
-            updatedAt: Date.now(),
+        }, `${this._formatActor(uid)} entrou no cla.`, 'event', joinedAt, {
+            actorUserId: uid,
+            actorLabel: this._formatActor(uid),
+            action: 'entrou no cla.',
         });
 
         const saved = await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updated.id}`, updated, false);
@@ -510,11 +625,15 @@ const Squads = {
                 continue;
             }
 
-            const updated = this._normalizeSquad({
+            const leftAt = Date.now();
+            const updated = this._withFeedEntry({
                 ...squad,
                 ownerId: leavingMember?.role === 'leader' ? remainingMembers[0].userId : squad.ownerId,
                 members: remainingMembers,
-                updatedAt: Date.now(),
+            }, `${this._formatActor(uid)} saiu do cla.`, 'event', leftAt, {
+                actorUserId: uid,
+                actorLabel: this._formatActor(uid),
+                action: 'saiu do cla.',
             });
 
             const saved = await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updated.id}`, updated, false);
@@ -607,13 +726,17 @@ const Squads = {
         const request = (await this.listJoinRequests()).find((item) => item.userId === safeUserId);
         if (!request) throw new Error('Pedido nao encontrado.');
 
-        const updated = this._normalizeSquad({
+        const joinedAt = Date.now();
+        const updated = this._withFeedEntry({
             ...squad,
             members: [
                 ...squad.members,
-                { userId: safeUserId, role: 'member', joinedAt: Date.now() },
+                { userId: safeUserId, role: 'member', joinedAt },
             ],
-            updatedAt: Date.now(),
+        }, `${this._formatActor(safeUserId)} entrou no cla.`, 'event', joinedAt, {
+            actorUserId: safeUserId,
+            actorLabel: request.username || request.nyanTag || this._formatActor(safeUserId),
+            action: 'entrou no cla.',
         });
 
         const saved = await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updated.id}`, updated, false);
@@ -692,10 +815,14 @@ const Squads = {
         if (!target) throw new Error('Membro nao encontrado no Clã.');
         if (target.role === 'leader') throw new Error('Nao e possivel expulsar o lider.');
 
-        const updated = this._normalizeSquad({
+        const kickedAt = Date.now();
+        const updated = this._withFeedEntry({
             ...squad,
             members: squad.members.filter((member) => member.userId !== safeTargetUid),
-            updatedAt: Date.now(),
+        }, `${this._formatActor(safeTargetUid)} saiu do cla.`, 'event', kickedAt, {
+            actorUserId: safeTargetUid,
+            actorLabel: this._formatActor(safeTargetUid),
+            action: 'saiu do cla.',
         });
 
         const saved = await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updated.id}`, updated, false);
@@ -733,6 +860,218 @@ const Squads = {
         if (!squad?.ownerId) return;
         const snap = await getDocs(collection(window.NyanFirebase.db, `requests/${squad.ownerId}/squadJoin`));
         await Promise.all(snap.docs.map((doc) => deleteDoc(doc.ref)));
+    },
+
+    async listChatMessages(options = {}) {
+        const squad = await this.getCurrentSquad({ force: options.force === true });
+        this._requireMember(squad);
+        return this._normalizeMessages(squad.messages);
+    },
+
+    async listFeed(options = {}) {
+        const squad = await this.getCurrentSquad({ force: options.force === true });
+        this._requireMember(squad);
+        return this._normalizeFeed(squad.feed);
+    },
+
+    _rankOf(squads = [], squadId = '') {
+        const index = squads
+            .filter((squad) => squad.id && squad.name && squad.tag)
+            .sort((a, b) => {
+                const scoreDiff = Number(b.score || 0) - Number(a.score || 0);
+                if (scoreDiff !== 0) return scoreDiff;
+                return Number(a.createdAt || 0) - Number(b.createdAt || 0);
+            })
+            .findIndex((squad) => squad.id === squadId);
+        return index >= 0 ? index + 1 : null;
+    },
+
+    async listSquadRanking(options = {}) {
+        this._requireOnline();
+        const limit = Math.max(1, Math.min(25, Number(options.limit || 10)));
+        const all = await this._getAllRemoteSquads();
+        const currentId = this.getCurrentSquadSync()?.id || null;
+
+        return all
+            .filter((squad) => squad.id && squad.name && squad.tag)
+            .sort((a, b) => {
+                const scoreDiff = Number(b.score || 0) - Number(a.score || 0);
+                if (scoreDiff !== 0) return scoreDiff;
+                return Number(a.createdAt || 0) - Number(b.createdAt || 0);
+            })
+            .slice(0, limit)
+            .map((squad, index) => ({
+                ...squad,
+                rank: index + 1,
+                isCurrent: squad.id === currentId,
+            }));
+    },
+
+    async awardPoints(input = {}) {
+        this._requireOnline();
+        const uid = this._uid();
+        if (!uid) return null;
+
+        const source = ['game', 'record', 'daily_quiz', 'daily_mission'].includes(input.source) ? input.source : null;
+        const points = Math.max(0, Math.min(200, Math.floor(Number(input.points || 0))));
+        if (!source || points <= 0) return null;
+
+        const squad = await this.getCurrentSquad({ force: true });
+        if (!squad || !this._isMember(squad, uid)) return null;
+
+        const key = String(input.key || `${source}:${uid}:${Date.now()}`).trim();
+        const history = this._normalizeScoreHistory(squad.scoreHistory);
+        if (key && history.some((item) => item.key === key)) return null;
+
+        const allBefore = await this._getAllRemoteSquads().catch(() => []);
+        const rankBefore = this._rankOf(allBefore, squad.id);
+        const now = Date.now();
+        const entry = {
+            id: this._makeEntryId('score'),
+            userId: uid,
+            source,
+            points,
+            key,
+            createdAt: now,
+        };
+
+        const actor = input.actorLabel || this._formatActor(uid);
+        const feed = [...(squad.feed || [])];
+        if (points >= 25) {
+            feed.unshift(this._feedEntry(`${squad.tag} ganhou ${points} pontos.`, 'event', now, {
+                actorUserId: uid,
+                actorLabel: actor,
+                action: `contribuiu com ${points} pontos.`,
+            }));
+        } else if (points >= 12) {
+            feed.unshift(this._feedEntry(`${actor} contribuiu com ${points} pontos.`, 'event', now, {
+                actorUserId: uid,
+                actorLabel: actor,
+                action: `contribuiu com ${points} pontos.`,
+            }));
+        }
+
+        const updated = this._normalizeSquad({
+            ...squad,
+            score: Number(squad.score || 0) + points,
+            scoreHistory: [entry, ...history],
+            feed,
+            lastActivityAt: now,
+            updatedAt: now,
+        });
+
+        const saved = await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updated.id}`, updated, false);
+        if (!saved) throw new Error('Nao foi possivel registrar pontos do squad.');
+
+        const allAfter = allBefore.map((item) => item.id === updated.id ? updated : item);
+        if (!allAfter.some((item) => item.id === updated.id)) allAfter.push(updated);
+        const rankAfter = this._rankOf(allAfter, updated.id);
+        if (rankBefore && rankAfter && rankAfter < rankBefore) {
+            const ranked = this._normalizeSquad({
+                ...updated,
+                feed: [
+                    this._feedEntry(`${updated.tag} subiu para #${rankAfter} no ranking.`, 'event', now + 1, {
+                        action: `subiu para #${rankAfter} no ranking.`,
+                    }),
+                    ...(updated.feed || []),
+                ],
+                updatedAt: now + 1,
+            });
+            await window.NyanFirebase.setDoc(`${this.COLLECTION}/${ranked.id}`, ranked, false).catch(() => {});
+            this._cacheSquad(ranked, true);
+            this._emit('onSquadUpdated', { squad: ranked });
+            return { squad: ranked, entry, rankBefore, rankAfter };
+        }
+
+        this._cacheSquad(updated, true);
+        this._emit('onSquadUpdated', { squad: updated });
+        return { squad: updated, entry, rankBefore, rankAfter };
+    },
+
+    subscribeCurrentSquad(handler) {
+        if (typeof handler !== 'function') return () => {};
+        const current = this.getCurrentSquadSync();
+        if (!current?.id || !this._isReady()) return () => {};
+        this._requireMember(current);
+
+        const ref = window.NyanFirebase.docRef(`${this.COLLECTION}/${current.id}`);
+        const unsub = window.NyanFirebase.fn.onSnapshot(ref, (snap) => {
+            if (!snap.exists()) {
+                this._clearCurrentSquad(current.id);
+                handler(null);
+                this._emit('onSquadUpdated', { squad: null, removedSquadId: current.id });
+                return;
+            }
+
+            const squad = this._normalizeSquad({ id: snap.id, ...snap.data() });
+            if (!this._isMember(squad)) {
+                this._clearCurrentSquad(squad.id);
+                handler(null);
+                this._emit('onSquadUpdated', { squad: null, removedSquadId: squad.id });
+                return;
+            }
+
+            this._cacheSquad(squad, true);
+            this._updateUserSquadProfile(squad).catch(() => {});
+            handler(squad);
+        }, (err) => {
+            console.warn('[Squads] Listener do squad falhou:', err?.code || err?.message || err);
+        });
+
+        window.NyanFirebase._listeners?.push?.(unsub);
+        return unsub;
+    },
+
+    async sendMessage(content = '') {
+        this._requireOnline();
+        const uid = this._uid();
+        if (!uid) throw new Error('Usuario online nao encontrado.');
+
+        const safeContent = String(content || '').trim().replace(/\s+/g, ' ');
+        if (!safeContent) throw new Error('Digite uma mensagem.');
+        if (safeContent.length > this.MAX_MESSAGE_LENGTH) {
+            throw new Error(`Mensagem muito longa. Use ate ${this.MAX_MESSAGE_LENGTH} caracteres.`);
+        }
+
+        const squad = await this.getCurrentSquad({ force: true });
+        this._requireMember(squad);
+
+        const now = Date.now();
+        const message = {
+            id: this._makeEntryId('msg'),
+            userId: uid,
+            content: safeContent,
+            createdAt: now,
+        };
+        const path = `${this.COLLECTION}/${squad.id}`;
+        const saved = await window.NyanFirebase.updateDoc(path, {
+            messages: window.NyanFirebase.fn.arrayUnion(message),
+            lastActivityAt: now,
+            updatedAt: now,
+        });
+        if (!saved) throw new Error('Nao foi possivel enviar a mensagem.');
+
+        const fresh = await window.NyanFirebase.getDoc(path).catch(() => null);
+        const updated = this._normalizeSquad({
+            ...(fresh || squad),
+            messages: fresh?.messages || [...(squad.messages || []), message],
+            lastActivityAt: now,
+            updatedAt: now,
+        });
+
+        if ((fresh?.messages || []).length > this.MAX_MESSAGES) {
+            await window.NyanFirebase.setDoc(path, {
+                messages: updated.messages,
+                lastActivityAt: updated.lastActivityAt,
+                updatedAt: updated.updatedAt,
+            }, true).catch(() => {});
+        }
+
+        this._cacheSquad(updated, true);
+        await this._updateUserSquadProfile(updated).catch(() => {});
+        this._emit('onChatMessage', { squad: updated, message });
+        this._emit('onSquadUpdated', { squad: updated });
+        return message;
     },
 
     async listMembers(squadId = null) {
@@ -826,12 +1165,14 @@ const Squads = {
                 squadId: squad.id,
                 squadName: squad.name,
                 squadTag: squad.tag,
+                squadLastActivity: Number(squad.lastActivityAt || squad.updatedAt || Date.now()),
                 squad: { id: squad.id, name: squad.name, tag: squad.tag },
             }
             : {
                 squadId: null,
                 squadName: null,
                 squadTag: null,
+                squadLastActivity: null,
                 squad: null,
             };
 
@@ -846,6 +1187,7 @@ const Squads = {
 Squads.onSquadCreated = (handler) => Squads.on('onSquadCreated', handler);
 Squads.onMemberJoin = (handler) => Squads.on('onMemberJoin', handler);
 Squads.onMemberLeave = (handler) => Squads.on('onMemberLeave', handler);
+Squads.onChatMessage = (handler) => Squads.on('onChatMessage', handler);
 Squads.onSquadUpdated = (handler) => Squads.on('onSquadUpdated', handler);
 
 window.Squads = Squads;

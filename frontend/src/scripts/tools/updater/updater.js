@@ -1,7 +1,7 @@
 ﻿
 
 const AutoUpdater = {
-    currentVersion: '3.13.0',
+    currentVersion: '3.13.2',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -35,9 +35,26 @@ const AutoUpdater = {
 
       changelog: [
     {
+        version: '3.13.2',
+        date: '2026-04-25T12:00:00',
+        label: 'Atual',
+        labelColor: 'bg-green-500',
+        author: 'Clara',
+        changes: [
+            { type: '◆', text: 'Sistema de Clãs integrado ao Social, com criação por chips, cofre, nome/tag únicos e entrada por convite' },
+            { type: '👥', text: 'Limite de membros por clã e hierarquia inicial com leader/member' },
+            { type: '💬', text: 'Chat em grupo exclusivo por clã, com mensagens em tempo real e histórico persistente' },
+            { type: '📰', text: 'Mural interno com feed do clã e eventos automáticos de criação, entrada, saída e atividades relevantes' },
+            { type: '🏆', text: 'Pontuação por clã, ranking global dinâmico e histórico básico de pontuação (scoreHistory)' },
+            { type: '🔗', text: 'Perfil, presença, amigos e eventos sociais agora exibem e refletem o clã do usuário' },
+            { type: '⚙️', text: 'Persistência completa dos clãs, hooks de clã e estrutura pronta para sincronização futura' },
+            { type: '🧠', text: 'Organização social mais modular, preparada para desafios, metas e economia de clãs' },
+        ]
+    },
+    {
         version: '3.13.0',
         date: '2026-04-24T12:00:00',
-        label: 'Atual',
+        label: '',
         labelColor: 'bg-green-500',
         author: 'Clara',
         changes: [
@@ -50,21 +67,6 @@ const AutoUpdater = {
             { type: '🔗', text: 'Convites para amigos, convites recebidos, exclusão de convites e busca por nome/tag' },
             { type: '👤', text: 'Perfil, presença e cards de amigos exibem clã/tag e permitem convidar amigos' },
             { type: '🔥', text: 'Sincronização online preparada para clãs, convites e pedidos privados' },
-        ]
-    },
-    {
-        version: '3.12.1',
-        date: '2026-04-23T12:00:00',
-        label: '',
-        labelColor: 'bg-green-500',
-        author: 'Clara & Gabriel',
-        changes: [
-            { type: '📡', text: 'Bundles agora sincronizam melhor entre instancias com assinatura remota, sync em background e cache busting' },
-            { type: '🧪', text: 'DevLab ganhou publicacao remota protegida por baseline, auditoria do catalogo e rollback por historico' },
-            { type: '🛡️', text: 'Conflitos de publicacao passam a ser detectados com aviso visual e acao de sincronizar e tentar novamente' },
-            { type: '🔔', text: 'Updater proativo ficou mais robusto com estado pendente persistente, dedupe de checks e fonte da deteccao no painel' },
-            { type: '📍', text: 'Badge de update pendente agora aparece tambem em Configuracoes nos favoritos' },
-            { type: '🔤', text: 'Correcao de textos com encoding quebrado no inventory e ajustes de consistencia geral da interface' },
         ]
     },
 ],

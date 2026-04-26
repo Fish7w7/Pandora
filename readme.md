@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.13.0-purple?style=for-the-badge&logo=electron)
+![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.13.2-purple?style=for-the-badge&logo=electron)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)
 ![Electron](https://img.shields.io/badge/Electron-27.0.0-47848F?style=for-the-badge&logo=electron)
@@ -83,7 +83,7 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
    ```
 
 2. **Execute o Instalador**
-   - Baixe `NyanTools-3.13.0-Setup.exe`
+   - Baixe `NyanTools-3.13.2-Setup.exe`
    - Execute e siga o assistente de instalação
 
 3. **Pronto! にゃん~**
@@ -381,12 +381,12 @@ npm run build:all      # Todas as plataformas
 
 ```
 dist/
-├── NyanTools-3.13.0-Setup.exe       # Windows — instalador
-├── NyanTools 3.13.0.exe             # Windows — portátil
-├── NyanTools-3.13.0-x64.dmg        # macOS Intel
-├── NyanTools-3.13.0-arm64.dmg      # macOS Apple Silicon
-├── NyanTools-3.13.0-x64.AppImage   # Linux
-└── NyanTools-3.13.0-amd64.deb      # Linux Debian/Ubuntu
+├── NyanTools-3.13.2-Setup.exe       # Windows — instalador
+├── NyanTools 3.13.2.exe             # Windows — portátil
+├── NyanTools-3.13.2-x64.dmg        # macOS Intel
+├── NyanTools-3.13.2-arm64.dmg      # macOS Apple Silicon
+├── NyanTools-3.13.2-x64.AppImage   # Linux
+└── NyanTools-3.13.2-amd64.deb      # Linux Debian/Ubuntu
 ```
 
 ---
@@ -426,7 +426,7 @@ dist/
 - [x] **v3.12.x "DevLab Bundles & Update Reliability"** — Bundles, sync remoto e updater mais confiável.
 
 ### 🚧 Atual
-#### v3.13.0 — Clãs (Base)
+#### v3.13.2 — Clãs (Expansão)
 - [x] Nova aba Social > Clãs
 - [x] Criação de clã com custo em chips e cofre
 - [x] Nome/tag únicos e código de convite único
@@ -567,7 +567,7 @@ MIT License — Copyright (c) 2026 Fish7w7
 
 *Your Purr-fect Toolkit! 🐱✨*
 
-**v3.13.0 — Clãs (Base) 🚀**
+**v3.13.2 — Clãs (Expansão) 🚀**
 
 **[⬆ Voltar ao topo](#-nyantools-にゃん)**
 

@@ -3,6 +3,10 @@ const SquadsUI = {
     _browseOffset: 0,
     _browseNextOffset: 0,
     _browseQuery: '',
+    _squadSocialUnsub: null,
+    _squadSocialId: null,
+    _squadPresenceUnsubs: [],
+    _squadPresenceId: null,
 
     render() {
         if (!window.NyanAuth?.isOnline?.()) {
@@ -119,10 +123,12 @@ const SquadsUI = {
                             <div style="max-width:580px;font-size:0.82rem;line-height:1.55;color:${squad.description ? c.sub : c.muted};margin-bottom:0.85rem;">
                                 ${this._escape(squad.description || 'Sem descricao ainda.')}
                             </div>
-                            <div style="display:grid;grid-template-columns:repeat(3,minmax(100px,1fr));gap:0.55rem;max-width:500px;">
+                            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:0.55rem;max-width:620px;">
                                 <div style="${this._miniStat(c)}"><span>Membros</span><strong>${squad.members.length}/${window.Squads.MAX_MEMBERS}</strong></div>
                                 <div style="${this._miniStat(c)}"><span>Codigo</span><strong style="letter-spacing:0.08em;">${squad.inviteCode}</strong></div>
                                 <div style="${this._miniStat(c)}"><span>Cofre</span><strong>${Number(squad.balance || 0).toLocaleString('pt-BR')}</strong></div>
+                                <div style="${this._miniStat(c)}"><span>Pontos</span><strong id="squad-score-stat">${Number(squad.score || 0).toLocaleString('pt-BR')}</strong></div>
+                                <div style="${this._miniStat(c)}"><span>Atividade</span><strong id="squad-activity-stat">${this._relativeTime(squad.lastActivityAt || squad.updatedAt)}</strong></div>
                             </div>
                         </div>
                     </div>
@@ -132,6 +138,29 @@ const SquadsUI = {
                         <button onclick="SquadsUI.confirmLeave()" style="${this._btnDanger()}${isLeader && !canLeaderLeave ? 'display:none;' : ''}grid-column:${isLeader ? 'auto' : '1 / -1'};">${isLeader ? 'Passar lideranca' : 'Sair do cla'}</button>
                         ${isLeader ? `<button onclick="SquadsUI.confirmDeleteSquad()" style="${this._btnDanger()}">Excluir cla</button>` : ''}
                     </div>
+                </div>
+            </section>
+
+            ${this._renderSquadTabs(c)}
+
+            <div id="squad-section-chat" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:1rem;align-items:start;">
+                ${this._renderChatPanel(c)}
+                <div style="display:grid;gap:1rem;">
+                    ${this._renderFeedPanel(c)}
+                    ${this._renderRecentActivityPanel(c)}
+                </div>
+            </div>
+
+            <section id="squad-section-ranking" style="${this._panel(c)}">
+                <div style="${this._sectionBar()}">
+                    <div>
+                        <div style="${this._eyebrow(c)}">Ranking</div>
+                        <div style="${this._sectionTitle(c)}">Squads por pontuacao</div>
+                    </div>
+                    <button onclick="SquadsUI.loadRanking()" style="${this._btnGhost(c)}">Atualizar</button>
+                </div>
+                <div id="squad-ranking-list">
+                    <div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Carregando ranking...</div>
                 </div>
             </section>
 
@@ -181,6 +210,317 @@ const SquadsUI = {
 
     _renderMembersSkeleton(c) {
         return `<div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Carregando membros...</div>`;
+    },
+
+    _renderSquadTabs(c) {
+        const item = (label, target) => `<button onclick="document.getElementById('${target}')?.scrollIntoView({behavior:'smooth',block:'start'})" style="${this._btnGhost(c)}">${label}</button>`;
+        return `<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;padding:0.65rem;border:1px solid ${c.border};background:${c.bg};border-radius:16px;">
+            ${item('Visao geral', 'squads-main-content')}
+            ${item('Chat', 'squad-section-chat')}
+            ${item('Mural', 'squad-feed-list')}
+            ${item('Ranking', 'squad-section-ranking')}
+        </div>`;
+    },
+
+    _renderChatPanel(c) {
+        return `<section style="${this._panel(c)}min-height:420px;display:flex;flex-direction:column;">
+            <div style="${this._sectionBar()}">
+                <div>
+                    <div style="${this._eyebrow(c)}">Chat</div>
+                    <div style="${this._sectionTitle(c)}">Conversa do Cla</div>
+                </div>
+                <span id="squad-chat-live-pill" style="${this._pill('rgba(16,185,129,0.1)', 'rgba(16,185,129,0.24)', '#10b981')}">Ao vivo</span>
+            </div>
+            <div id="squad-chat-list" style="flex:1;min-height:260px;max-height:360px;overflow-y:auto;display:grid;align-content:start;gap:0.58rem;padding:0.2rem 0.15rem 0.7rem;">
+                <div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Carregando chat...</div>
+            </div>
+            <div style="display:flex;gap:0.55rem;align-items:flex-end;padding-top:0.75rem;border-top:1px solid ${c.border};">
+                <textarea id="squad-chat-input" maxlength="${window.Squads?.MAX_MESSAGE_LENGTH || 500}"
+                    onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();SquadsUI.sendSquadMessage();}"
+                    placeholder="Mensagem para o squad"
+                    style="flex:1;min-height:42px;max-height:104px;resize:vertical;box-sizing:border-box;padding:0.7rem 0.78rem;border-radius:13px;border:1px solid ${c.border};background:${c.input};color:${c.text};font-size:0.78rem;font-family:'DM Sans',sans-serif;line-height:1.35;outline:none;"></textarea>
+                <button id="squad-chat-send" onclick="SquadsUI.sendSquadMessage()" style="${this._btnPrimary()}min-width:84px;">Enviar</button>
+            </div>
+        </section>`;
+    },
+
+    _renderFeedPanel(c) {
+        return `<section style="${this._panel(c)}">
+            <div style="${this._sectionBar()}">
+                <div>
+                    <div style="${this._eyebrow(c)}">Mural</div>
+                    <div style="${this._sectionTitle(c)}">Eventos do Squad</div>
+                </div>
+            </div>
+            <div id="squad-feed-list" style="display:grid;gap:0.55rem;max-height:260px;overflow-y:auto;">
+                <div style="padding:0.9rem;text-align:center;color:${c.muted};font-size:0.78rem;">Carregando mural...</div>
+            </div>
+        </section>`;
+    },
+
+    _renderRecentActivityPanel(c) {
+        return `<section style="${this._panel(c)}">
+            <div style="${this._sectionBar()}">
+                <div>
+                    <div style="${this._eyebrow(c)}">Presenca</div>
+                    <div style="${this._sectionTitle(c)}">Atividade recente</div>
+                </div>
+            </div>
+            <div id="squad-activity-list" style="display:grid;gap:0.48rem;">
+                <div style="padding:0.8rem;text-align:center;color:${c.muted};font-size:0.78rem;">Carregando atividade...</div>
+            </div>
+        </section>`;
+    },
+
+    async loadSquadSocial(force = false) {
+        const chatList = document.getElementById('squad-chat-list');
+        const feedList = document.getElementById('squad-feed-list');
+        const activityList = document.getElementById('squad-activity-list');
+        if (!window.Squads || (!chatList && !feedList && !activityList)) return;
+        const c = this._colors(document.body.classList.contains('dark-theme'));
+
+        try {
+            const [messages, feed] = await Promise.all([
+                window.Squads.listChatMessages({ force }),
+                window.Squads.listFeed({ force }),
+            ]);
+
+            if (chatList) {
+                chatList.innerHTML = messages.length
+                    ? messages.map((message) => this._renderChatMessage(message, c)).join('')
+                    : `<div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Nenhuma mensagem ainda.</div>`;
+                chatList.scrollTop = chatList.scrollHeight;
+            }
+
+            if (feedList) {
+                feedList.innerHTML = feed.length
+                    ? feed.map((item) => this._renderFeedItem(item, c)).join('')
+                    : `<div style="padding:0.9rem;text-align:center;color:${c.muted};font-size:0.78rem;">O mural ainda esta vazio.</div>`;
+            }
+
+            if (activityList) this._renderRecentActivity(activityList, c);
+        } catch (err) {
+            const error = this._escape(err.message || 'Erro ao carregar social do cla.');
+            if (chatList) chatList.innerHTML = `<div style="padding:1rem;text-align:center;color:#ef4444;font-size:0.78rem;">${error}</div>`;
+            if (feedList) feedList.innerHTML = `<div style="padding:0.9rem;text-align:center;color:#ef4444;font-size:0.78rem;">${error}</div>`;
+            if (activityList) activityList.innerHTML = `<div style="padding:0.8rem;text-align:center;color:#ef4444;font-size:0.78rem;">${error}</div>`;
+        }
+    },
+
+    async loadRanking() {
+        const list = document.getElementById('squad-ranking-list');
+        if (!list || !window.Squads?.listSquadRanking) return;
+        const c = this._colors(document.body.classList.contains('dark-theme'));
+
+        try {
+            const items = await window.Squads.listSquadRanking({ limit: 10 });
+            if (!items.length) {
+                list.innerHTML = `<div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Nenhum squad no ranking ainda.</div>`;
+                return;
+            }
+            list.innerHTML = `<div style="display:grid;gap:0.55rem;">${items.map((squad) => this._renderRankingItem(squad, c)).join('')}</div>`;
+        } catch (err) {
+            list.innerHTML = `<div style="padding:1rem;text-align:center;color:#ef4444;font-size:0.78rem;">${this._escape(err.message || 'Erro ao carregar ranking.')}</div>`;
+        }
+    },
+
+    _renderRankingItem(squad, c) {
+        return `<div style="display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:0.72rem;align-items:center;padding:0.72rem;border-radius:14px;border:1px solid ${squad.isCurrent ? 'rgba(168,85,247,0.32)' : c.border};background:${squad.isCurrent ? 'rgba(168,85,247,0.12)' : c.bg2};">
+            <div style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${squad.rank <= 3 ? 'rgba(245,158,11,0.14)' : 'rgba(148,163,184,0.12)'};color:${squad.rank <= 3 ? '#f59e0b' : c.sub};font-weight:900;">#${squad.rank}</div>
+            <div style="min-width:0;">
+                <div style="display:flex;align-items:center;gap:0.45rem;min-width:0;flex-wrap:wrap;">
+                    <span style="font-size:0.84rem;font-weight:900;color:${c.text};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this._escape(squad.name)}</span>
+                    <span style="${this._pill('rgba(168,85,247,0.12)', 'rgba(168,85,247,0.24)', 'var(--theme-primary,#a855f7)')}">[${this._escape(squad.tag)}]</span>
+                </div>
+            </div>
+            <div style="font-size:0.9rem;font-weight:900;color:${c.text};">${Number(squad.score || 0).toLocaleString('pt-BR')}</div>
+        </div>`;
+    },
+
+    startSquadSocialLive() {
+        const squad = window.Squads?.getCurrentSquadSync?.();
+        if (!squad?.id || !window.Squads?.subscribeCurrentSquad) return;
+        if (this._squadSocialUnsub && this._squadSocialId === squad.id) return;
+
+        this.stopSquadSocialLive();
+        this._squadSocialId = squad.id;
+
+        try {
+            this._squadSocialUnsub = window.Squads.subscribeCurrentSquad((updatedSquad) => {
+                if (!document.getElementById('squad-chat-list')) {
+                    this.stopSquadSocialLive();
+                    this.stopSquadPresenceLive();
+                    return;
+                }
+
+                if (!updatedSquad) {
+                    this.refresh({ silent: true });
+                    return;
+                }
+
+                this.renderSquadSocialFromSquad(updatedSquad);
+            });
+        } catch (err) {
+            this._squadSocialUnsub = null;
+            this._squadSocialId = null;
+            console.warn('[SquadsUI] Listener social indisponivel:', err?.message || err);
+        }
+    },
+
+    stopSquadSocialLive() {
+        if (this._squadSocialUnsub) {
+            try { this._squadSocialUnsub(); } catch (_) {}
+        }
+        this._squadSocialUnsub = null;
+        this._squadSocialId = null;
+    },
+
+    renderSquadSocialFromSquad(squad) {
+        const chatList = document.getElementById('squad-chat-list');
+        const feedList = document.getElementById('squad-feed-list');
+        if (!chatList && !feedList) return;
+
+        const c = this._colors(document.body.classList.contains('dark-theme'));
+        const messages = window.Squads?._normalizeMessages?.(squad.messages || []) || [];
+        const feed = window.Squads?._normalizeFeed?.(squad.feed || []) || [];
+
+        if (chatList) {
+            const wasNearBottom = chatList.scrollHeight - chatList.scrollTop - chatList.clientHeight < 90;
+            chatList.innerHTML = messages.length
+                ? messages.map((message) => this._renderChatMessage(message, c)).join('')
+                : `<div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Nenhuma mensagem ainda.</div>`;
+            if (wasNearBottom) chatList.scrollTop = chatList.scrollHeight;
+        }
+
+        if (feedList) {
+            feedList.innerHTML = feed.length
+                ? feed.map((item) => this._renderFeedItem(item, c)).join('')
+                : `<div style="padding:0.9rem;text-align:center;color:${c.muted};font-size:0.78rem;">O mural ainda esta vazio.</div>`;
+        }
+
+        const activityStat = document.getElementById('squad-activity-stat');
+        if (activityStat) activityStat.textContent = this._relativeTime(squad.lastActivityAt || squad.updatedAt);
+        const scoreStat = document.getElementById('squad-score-stat');
+        if (scoreStat) scoreStat.textContent = Number(squad.score || 0).toLocaleString('pt-BR');
+        if (document.getElementById('squad-ranking-list')) this.loadRanking();
+    },
+
+    _renderChatMessage(message, c) {
+        const isMine = message.userId === window.NyanAuth?.getUID?.();
+        const member = this._memberProfiles.find((item) => item.userId === message.userId);
+        const profile = member?.profile || {};
+        const name = profile.username || profile.nyanTag || (isMine ? (window.NyanAuth?.getNyanTag?.() || 'Voce') : message.userId.slice(0, 8));
+        return `<div style="display:flex;justify-content:${isMine ? 'flex-end' : 'flex-start'};">
+            <div style="max-width:min(78%,520px);padding:0.68rem 0.78rem;border-radius:${isMine ? '15px 15px 4px 15px' : '15px 15px 15px 4px'};border:1px solid ${isMine ? 'rgba(168,85,247,0.28)' : c.border};background:${isMine ? 'rgba(168,85,247,0.14)' : c.bg2};box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);">
+                <div style="display:flex;align-items:center;gap:0.45rem;justify-content:space-between;margin-bottom:0.28rem;">
+                    <span style="font-size:0.66rem;font-weight:900;color:${isMine ? 'var(--theme-primary,#a855f7)' : c.text};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this._escape(name)}</span>
+                    <span style="font-size:0.58rem;color:${c.muted};white-space:nowrap;">${this._formatTime(message.createdAt)}</span>
+                </div>
+                <div style="font-size:0.78rem;line-height:1.42;color:${c.text};white-space:pre-wrap;word-break:break-word;">${this._escape(message.content)}</div>
+            </div>
+        </div>`;
+    },
+
+    _renderFeedItem(item, c) {
+        const accent = item.type === 'event' ? '#10b981' : 'var(--theme-primary,#a855f7)';
+        const content = this._resolveFeedContent(item);
+        return `<div style="display:flex;gap:0.62rem;padding:0.68rem;border:1px solid ${c.border};border-radius:14px;background:${c.bg2};">
+            <div style="width:9px;height:9px;border-radius:999px;background:${accent};box-shadow:0 0 0 4px ${item.type === 'event' ? 'rgba(16,185,129,0.1)' : 'rgba(168,85,247,0.1)'};margin-top:0.28rem;flex-shrink:0;"></div>
+            <div style="min-width:0;flex:1;">
+                <div style="font-size:0.76rem;line-height:1.42;color:${c.text};font-weight:800;">${this._escape(content)}</div>
+                <div style="font-size:0.62rem;color:${c.muted};margin-top:0.2rem;">${this._formatDateTime(item.createdAt)}</div>
+            </div>
+        </div>`;
+    },
+
+    _resolveFeedContent(item = {}) {
+        const actor = this._displayNameByUserId(item.actorUserId) || item.actorLabel;
+        if (item.action && actor) return `${actor} ${item.action}`;
+
+        const content = String(item.content || '').trim();
+        const match = content.match(/^(\S+)\s+(entrou|saiu)\s+no\s+cla\./i);
+        if (!match) return content;
+
+        const token = match[1];
+        const action = match[2].toLowerCase();
+        const known = this._displayNameByToken(token);
+        const safeActor = known || (/^[a-z0-9_-]{6,28}$/i.test(token) && !token.includes('#') ? 'Membro' : token);
+        return `${safeActor} ${action} no cla.`;
+    },
+
+    _displayNameByUserId(userId = '') {
+        const uid = String(userId || '').trim();
+        if (!uid) return '';
+        const member = this._memberProfiles.find((item) => item.userId === uid);
+        const profile = member?.profile || {};
+        return profile.username || profile.nyanTag || '';
+    },
+
+    _displayNameByToken(token = '') {
+        const safe = String(token || '').trim();
+        if (!safe) return '';
+        const lowered = safe.toLowerCase();
+        const member = this._memberProfiles.find((item) => {
+            const profile = item.profile || {};
+            return String(item.userId || '').toLowerCase().startsWith(lowered)
+                || String(profile.username || '').toLowerCase() === lowered
+                || String(profile.nyanTag || '').toLowerCase() === lowered;
+        });
+        if (!member) return '';
+        const profile = member.profile || {};
+        return profile.username || profile.nyanTag || '';
+    },
+
+    _renderRecentActivity(container, c) {
+        const members = this._memberProfiles || [];
+        const rows = members
+            .map((member) => {
+                const profile = member.profile || {};
+                const name = profile.username || profile.nyanTag || member.userId.slice(0, 8);
+                const label = profile.presenceLabel || (profile.status ? this._escape(profile.status) : 'Sem atividade recente');
+                const at = profile.presenceUpdated?.seconds ? profile.presenceUpdated.seconds * 1000 : profile.squadLastActivity;
+                return { name, label, at, status: profile.status || 'offline' };
+            })
+            .sort((a, b) => Number(b.at || 0) - Number(a.at || 0))
+            .slice(0, 5);
+
+        if (!rows.length) {
+            container.innerHTML = `<div style="padding:0.8rem;text-align:center;color:${c.muted};font-size:0.78rem;">Nenhuma atividade recente.</div>`;
+            return;
+        }
+
+        container.innerHTML = rows.map((row) => `<div style="display:flex;align-items:center;gap:0.62rem;padding:0.62rem;border:1px solid ${c.border};background:${c.bg2};border-radius:13px;">
+            <span style="width:8px;height:8px;border-radius:999px;background:${row.status === 'offline' ? c.muted : '#10b981'};flex-shrink:0;"></span>
+            <div style="min-width:0;flex:1;">
+                <div style="font-size:0.76rem;font-weight:900;color:${c.text};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this._escape(row.name)}</div>
+                <div style="font-size:0.64rem;color:${c.muted};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this._escape(row.label)}${row.at ? ` &middot; ${this._relativeTime(row.at)}` : ''}</div>
+            </div>
+        </div>`).join('');
+    },
+
+    async sendSquadMessage() {
+        const input = document.getElementById('squad-chat-input');
+        const button = document.getElementById('squad-chat-send');
+        const content = input?.value || '';
+        if (!content.trim()) return;
+
+        if (button) {
+            button.disabled = true;
+            button.style.opacity = '0.65';
+        }
+
+        try {
+            await window.Squads.sendMessage(content);
+            if (input) input.value = '';
+            await this.loadSquadSocial(true);
+        } catch (err) {
+            window.Utils?.showNotification?.(err.message || 'Erro ao enviar mensagem.', 'error');
+        } finally {
+            if (button) {
+                button.disabled = false;
+                button.style.opacity = '1';
+            }
+        }
     },
 
     _miniStat(c) {
@@ -257,7 +597,12 @@ const SquadsUI = {
                 this.loadMembers();
                 this.loadJoinRequests();
                 this.loadFriendInvites();
+                this.loadSquadSocial();
+                this.loadRanking();
+                this.startSquadSocialLive();
             } else {
+                this.stopSquadSocialLive();
+                this.stopSquadPresenceLive();
                 this.loadIncomingInvites();
                 this.loadPublicSquads();
             }
@@ -430,14 +775,62 @@ const SquadsUI = {
         try {
             const members = await window.Squads.listMembers();
             this._memberProfiles = members;
+            this.startSquadPresenceLive(members);
             if (!members.length) {
                 list.innerHTML = `<div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Nenhum membro encontrado.</div>`;
                 return;
             }
             list.innerHTML = members.map((member) => this._renderMember(member, c)).join('');
+            const activityList = document.getElementById('squad-activity-list');
+            if (activityList) this._renderRecentActivity(activityList, c);
+            const currentSquad = window.Squads?.getCurrentSquadSync?.();
+            if (currentSquad) this.renderSquadSocialFromSquad(currentSquad);
         } catch (err) {
             list.innerHTML = `<div style="padding:1rem;text-align:center;color:#ef4444;font-size:0.78rem;">${this._escape(err.message || 'Erro ao listar membros.')}</div>`;
         }
+    },
+
+    startSquadPresenceLive(members = this._memberProfiles) {
+        const squad = window.Squads?.getCurrentSquadSync?.();
+        if (!squad?.id || !window.NyanFirebase?.isReady?.() || !window.NyanFirebase?.fn?.onSnapshot) return;
+        if (this._squadPresenceId === squad.id && this._squadPresenceUnsubs.length) return;
+
+        this.stopSquadPresenceLive();
+        this._squadPresenceId = squad.id;
+
+        members.forEach((member) => {
+            if (!member?.userId) return;
+            const unsub = window.NyanFirebase.fn.onSnapshot(
+                window.NyanFirebase.docRef(`users/${member.userId}`),
+                (snap) => {
+                    if (!snap.exists()) return;
+                    const profile = { id: snap.id, uid: snap.id, ...snap.data() };
+                    const idx = this._memberProfiles.findIndex((item) => item.userId === member.userId);
+                    if (idx >= 0) {
+                        this._memberProfiles[idx] = { ...this._memberProfiles[idx], profile };
+                    }
+
+                    const activityList = document.getElementById('squad-activity-list');
+                    if (activityList) {
+                        const c = this._colors(document.body.classList.contains('dark-theme'));
+                        this._renderRecentActivity(activityList, c);
+                    }
+                    const currentSquad = window.Squads?.getCurrentSquadSync?.();
+                    if (currentSquad) this.renderSquadSocialFromSquad(currentSquad);
+                },
+                (err) => console.warn('[SquadsUI] Presenca do membro falhou:', err?.code || err?.message || err)
+            );
+            this._squadPresenceUnsubs.push(unsub);
+            window.NyanFirebase._listeners?.push?.(unsub);
+        });
+    },
+
+    stopSquadPresenceLive() {
+        this._squadPresenceUnsubs.forEach((unsub) => {
+            try { unsub(); } catch (_) {}
+        });
+        this._squadPresenceUnsubs = [];
+        this._squadPresenceId = null;
     },
 
     _renderMember(member, c) {
@@ -1019,6 +1412,37 @@ const SquadsUI = {
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;')
             .replace(/'/g, '&#039;');
+    },
+
+    _formatTime(timestamp) {
+        const value = Number(timestamp || 0);
+        if (!value) return '';
+        return new Date(value).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    },
+
+    _formatDateTime(timestamp) {
+        const value = Number(timestamp || 0);
+        if (!value) return '';
+        return new Date(value).toLocaleString('pt-BR', {
+            day: '2-digit',
+            month: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+        });
+    },
+
+    _relativeTime(timestamp) {
+        const value = Number(timestamp || 0);
+        if (!value) return 'sem registro';
+        const diff = Math.max(0, Date.now() - value);
+        const minutes = Math.floor(diff / 60000);
+        if (minutes < 1) return 'agora';
+        if (minutes < 60) return `${minutes}min`;
+        const hours = Math.floor(minutes / 60);
+        if (hours < 24) return `${hours}h`;
+        const days = Math.floor(hours / 24);
+        if (days < 7) return `${days}d`;
+        return new Date(value).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' });
     },
 
     _btnPrimary() {

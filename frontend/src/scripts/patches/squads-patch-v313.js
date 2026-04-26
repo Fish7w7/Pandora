@@ -24,6 +24,7 @@
         patchProfile();
         patchFriends();
         patchPublicProfile();
+        patchSquadScoring();
         patchOnlineReady();
     });
 
@@ -229,6 +230,81 @@
         });
         window.addEventListener('nyan:squad:onMemberLeave', () => {
             if (window.Router?.currentRoute === 'profile') window.Router.render();
+        });
+    }
+
+    function patchSquadScoring() {
+        wait(() => window.Squads && window.Missions && window.Economy, () => {
+            if (window.__squadsScoringV3132Patched) return;
+            window.__squadsScoringV3132Patched = true;
+
+            const todayKey = () => {
+                const d = new Date();
+                return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            };
+
+            const award = (payload) => {
+                if (!window.NyanAuth?.isOnline?.() || !window.Squads?.getCurrentSquadSync?.()) return;
+                window.Squads.awardPoints(payload).catch(() => {});
+            };
+
+            const originalTrack = window.Missions.track?.bind(window.Missions);
+            if (originalTrack && !window.Missions.__squadsScoringPatched) {
+                window.Missions.__squadsScoringPatched = true;
+                window.Missions.track = function(ctx = {}) {
+                    const before = JSON.stringify((this.load?.().missions || []).map((m) => ({ id: m.id, completed: m.completed })));
+                    const result = originalTrack(ctx);
+                    const day = todayKey();
+
+                    if (ctx.event === 'quiz_finish') {
+                        award({
+                            source: 'daily_quiz',
+                            points: Math.max(5, Math.min(25, Number(ctx.score || 0) * 2)),
+                            key: `daily_quiz:${day}`,
+                        });
+                    } else if (ctx.event === 'play_game') {
+                        award({
+                            source: 'game',
+                            points: 3,
+                            key: `game:${day}:${ctx.game || 'any'}`,
+                        });
+                    } else if (['typeracer_finish', 'flappy_finish', 'score_2048', 'forca_win', 'termo_win'].includes(ctx.event)) {
+                        award({
+                            source: 'game',
+                            points: 5,
+                            key: `game:${day}:${ctx.event}`,
+                        });
+                    }
+
+                    const afterMissions = this.load?.().missions || [];
+                    const beforeState = new Map(JSON.parse(before).map((m) => [m.id, m.completed]));
+                    afterMissions
+                        .filter((m) => m.completed && beforeState.get(m.id) === false)
+                        .forEach((m) => award({
+                            source: 'daily_mission',
+                            points: m.diff === 'hard' ? 24 : (m.diff === 'medium' ? 16 : 10),
+                            key: `daily_mission:${day}:${m.id}`,
+                        }));
+
+                    return result;
+                };
+            }
+
+            const originalCheckRecord = window.Economy.checkRecord?.bind(window.Economy);
+            if (originalCheckRecord && !window.Economy.__squadsScoringPatched) {
+                window.Economy.__squadsScoringPatched = true;
+                window.Economy.checkRecord = function(storageKey, newScore, higherIsBetter = true) {
+                    const wasRecord = originalCheckRecord(storageKey, newScore, higherIsBetter);
+                    if (wasRecord) {
+                        award({
+                            source: 'record',
+                            points: 20,
+                            key: `record:${storageKey}:${newScore}`,
+                        });
+                    }
+                    return wasRecord;
+                };
+            }
         });
     }
 

@@ -1,6 +1,6 @@
 {
   "name": "nyantools",
-  "version": "3.13.0",
+  "version": "3.13.2",
   "description": "NyanTools - Your purr-fect toolkit nyan~ | Clãs sociais, amigos, presença, jogos e ferramentas",
   "main": "backend/src/main.js",
   "scripts": {

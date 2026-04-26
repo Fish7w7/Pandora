@@ -1,16 +1,12 @@
 {
-    "version": "3.13.0",
-    "buildDate": "2026-04-24",
+    "version": "3.13.2",
+    "buildDate": "2026-04-25",
     "changelog": [
-        "Nova aba Social > Clãs com tela propria, estados sem clã/dentro do clã e exploração de clãs existentes",
-        "Criação de Clã com custo em chips, depósito automático no cofre e validação de nome/tag únicos",
-        "Sistema de membros com leader/member, limite de 10 pessoas, um clã por usuário e saída sem penalidade",
-        "Entrada por código, clãs públicos com entrada direta e clãs privados com pedidos para aprovação do líder",
-        "Líder pode aceitar/recusar pedidos, expulsar membros, excluir o clã e transferir liderança ao sair",
-        "Personalização do clã com descrição, imagem por arquivo e privacidade público/privado",
-        "Convites para amigos, convites recebidos, exclusão de convites e limpeza de convites inválidos",
-        "Busca/listagem de clãs existentes com limite de 10, refresh e entrada/solicitação direto pelo explorador",
-        "Integração com perfil, presença e amigos exibindo nome/tag do clã e ação de convite",
-        "Sincronização online preparada para clãs, convites e pedidos privados"
+        "Sistema de Clãs integrado ao Social com criacao, cofre, nome/tag unicos e entrada por convite",
+        "Chat exclusivo por clã com mensagens em tempo real, historico persistente e limite inicial de performance",
+        "Mural interno com feed e eventos automaticos de criacao, entrada, saida e atividades relevantes",
+        "Pontuacao competitiva por clã, ranking global dinamico e historico basico de score",
+        "Perfil, presenca, amigos e eventos sociais agora refletem informacoes do clã do usuario",
+        "Persistencia completa dos clãs com hooks e estrutura preparada para expansoes futuras"
     ]
 }
