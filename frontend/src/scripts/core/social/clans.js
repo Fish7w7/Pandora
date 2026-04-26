@@ -1,0 +1,1 @@
+window.Clans = window.Squads;

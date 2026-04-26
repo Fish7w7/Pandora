@@ -1,0 +1,1 @@
+window.ClansUI = window.SquadsUI;

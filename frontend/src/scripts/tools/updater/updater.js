@@ -1,7 +1,7 @@
 ﻿
 
 const AutoUpdater = {
-    currentVersion: '3.13.2',
+    currentVersion: '3.13.3',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -35,9 +35,27 @@ const AutoUpdater = {
 
       changelog: [
     {
+        version: '3.13.3',
+        date: '2026-04-26T12:00:00',
+        label: 'Atual',
+        labelColor: 'bg-green-500',
+        author: 'Gabriel & Clara',
+        changes: [
+            { type: '🎯', text: 'Metas diarias e semanais do Clã com progresso coletivo por pontos, partidas, quizzes e ranking' },
+            { type: '💰', text: 'Recompensas de metas distribuem chips entre membros e debitam o cofre sem saldo negativo' },
+            { type: '⚔️', text: 'Desafios de 24h entre Clãs com placar sincronizado para os dois lados e limite de um desafio ativo' },
+            { type: '🛠️', text: 'Corrigido desafio aparecendo apenas para quem desafia; ambos os Clãs agora enxergam a disputa' },
+            { type: '🧩', text: 'HUB de Clãs redesenhado com header forte, Visao Geral, abas reais e sidebar mais leve' },
+            { type: '📌', text: 'Visao Geral resume top metas, atividade recente, desafio atual e ranking compacto' },
+            { type: '🎨', text: 'Layout visual unificado com grid principal/sidebar, cards padronizados e sidebar com scroll interno' },
+            { type: '🧹', text: 'Sistema de convites por amigos removido; entrada por codigo e pedidos de Clãs privados continuam' },
+            { type: '🔌', text: 'Hooks de metas, recompensas e desafios adicionados para integracoes futuras' },
+        ]
+    },
+    {
         version: '3.13.2',
         date: '2026-04-25T12:00:00',
-        label: 'Atual',
+        label: '',
         labelColor: 'bg-green-500',
         author: 'Clara',
         changes: [
@@ -49,24 +67,6 @@ const AutoUpdater = {
             { type: '🔗', text: 'Perfil, presença, amigos e eventos sociais agora exibem e refletem o clã do usuário' },
             { type: '⚙️', text: 'Persistência completa dos clãs, hooks de clã e estrutura pronta para sincronização futura' },
             { type: '🧠', text: 'Organização social mais modular, preparada para desafios, metas e economia de clãs' },
-        ]
-    },
-    {
-        version: '3.13.0',
-        date: '2026-04-24T12:00:00',
-        label: '',
-        labelColor: 'bg-green-500',
-        author: 'Clara',
-        changes: [
-            { type: '◆', text: 'Nova aba Social > Clãs com criação, entrada por código, saída e exploração de clãs existentes' },
-            { type: '💰', text: 'Criar um Clã custa chips, valida nome/tag únicos e deposita o valor no cofre do Clã' },
-            { type: '👥', text: 'Membros têm roles leader/member, limite de 10 pessoas e regra de um clã por usuário' },
-            { type: '🔐', text: 'Clãs podem ser públicos ou privados; privados geram pedidos para o líder aceitar ou recusar' },
-            { type: '🛡️', text: 'Líder pode expulsar membros, excluir o clã e transferir liderança ao sair' },
-            { type: '🎨', text: 'Personalização com descrição, foto por arquivo, privacidade e UI rework da tela de Clãs' },
-            { type: '🔗', text: 'Convites para amigos, convites recebidos, exclusão de convites e busca por nome/tag' },
-            { type: '👤', text: 'Perfil, presença e cards de amigos exibem clã/tag e permitem convidar amigos' },
-            { type: '🔥', text: 'Sincronização online preparada para clãs, convites e pedidos privados' },
         ]
     },
 ],

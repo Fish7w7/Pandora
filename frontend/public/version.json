@@ -1,12 +1,15 @@
 {
-    "version": "3.13.2",
-    "buildDate": "2026-04-25",
+    "version": "3.13.3",
+    "buildDate": "2026-04-26",
     "changelog": [
-        "Sistema de Clãs integrado ao Social com criacao, cofre, nome/tag unicos e entrada por convite",
-        "Chat exclusivo por clã com mensagens em tempo real, historico persistente e limite inicial de performance",
-        "Mural interno com feed e eventos automaticos de criacao, entrada, saida e atividades relevantes",
-        "Pontuacao competitiva por clã, ranking global dinamico e historico basico de score",
-        "Perfil, presenca, amigos e eventos sociais agora refletem informacoes do clã do usuario",
-        "Persistencia completa dos clãs com hooks e estrutura preparada para expansoes futuras"
+        "Metas diarias e semanais do Clã com progresso coletivo por pontos, partidas, quizzes e ranking",
+        "Recompensas de metas distribuem chips entre membros e debitam o cofre sem permitir saldo negativo",
+        "Desafios de 24h entre Clãs com placar sincronizado para os dois lados e limite de um desafio ativo",
+        "Corrigido desafio aparecendo apenas para quem desafia; ambos os Clãs agora enxergam a disputa",
+        "HUB de Clãs redesenhado com header forte, Visao Geral, abas reais e sidebar mais leve",
+        "Visao Geral resume top metas, atividade recente, desafio atual e ranking compacto",
+        "Layout visual unificado com grid principal/sidebar, cards padronizados e sidebar com scroll interno",
+        "Sistema de convites por amigos removido; entrada por codigo e pedidos de Clãs privados continuam",
+        "Hooks de metas, recompensas e desafios adicionados para integracoes futuras"
     ]
 }

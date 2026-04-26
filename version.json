@@ -1,31 +1,34 @@
 {
-    "version": "3.13.2",
-    "buildDate": "2026-04-25",
+    "version": "3.13.3",
+    "buildDate": "2026-04-26",
     "changelog": [
-        "Sistema de Clãs integrado ao Social com criacao, cofre, nome/tag unicos e entrada por convite",
-        "Chat exclusivo por clã com mensagens em tempo real, historico persistente e limite inicial de performance",
-        "Mural interno com feed e eventos automaticos de criacao, entrada, saida e atividades relevantes",
-        "Pontuacao competitiva por clã, ranking global dinamico e historico basico de score",
-        "Perfil, presenca, amigos e eventos sociais agora refletem informacoes do clã do usuario",
-        "Persistencia completa dos clãs com hooks e estrutura preparada para expansoes futuras"
+        "Metas diarias e semanais do Clã com progresso coletivo por pontos, partidas, quizzes e ranking",
+        "Recompensas de metas distribuem chips entre membros e debitam o cofre sem permitir saldo negativo",
+        "Desafios de 24h entre Clãs com placar sincronizado para os dois lados e limite de um desafio ativo",
+        "Corrigido desafio aparecendo apenas para quem desafia; ambos os Clãs agora enxergam a disputa",
+        "HUB de Clãs redesenhado com header forte, Visao Geral, abas reais e sidebar mais leve",
+        "Visao Geral resume top metas, atividade recente, desafio atual e ranking compacto",
+        "Layout visual unificado com grid principal/sidebar, cards padronizados e sidebar com scroll interno",
+        "Sistema de convites por amigos removido; entrada por codigo e pedidos de Clãs privados continuam",
+        "Hooks de metas, recompensas e desafios adicionados para integracoes futuras"
     ],
-    "tag_name": "v3.13.2",
-    "releaseDate": "2026-04-25",
-    "name": "NyanTools v3.13.2",
-    "codename": "Clãs (Expansão)",
-    "body": "## NyanTools v3.13.2 - Clãs (Expansão)\n\n### Clãs\n- Sistema de Clãs integrado ao Social\n- Criacao de Clã com custo em chips\n- Sistema de cofre (balance do clã)\n- Nome e tag unicos por clã\n- Entrada via codigo de convite\n- Limite de membros por clã\n- Hierarquia inicial (leader / member)\n\n### Chat\n- Chat em grupo exclusivo por clã\n- Envio de mensagens em tempo real\n- Historico persistente de mensagens\n- Limite inicial de mensagens para controle de performance\n\n### Mural\n- Sistema de feed interno do clã\n- Eventos automaticos de criacao, entrada, saida e atividades relevantes\n\n### Competitivo\n- Sistema de pontuacao por clã\n- Ranking global de clãs\n- Atualizacao dinamica de posicoes\n- Historico basico de pontuacao (scoreHistory)\n\n### Integracoes\n- Perfil agora exibe clã do usuario (nome + tag)\n- Presenca mostra atividade no clã\n- Integracao com sistema de amigos para convites\n- Eventos do clã refletem no sistema social\n\n### Sistema\n- Persistencia completa dos clãs\n- Estrutura preparada para sincronizacao futura\n- Hooks implementados para criacao, entrada, saida e atualizacao de clã\n- Sistema preparado para expansao (desafios, metas, economia)\n\n### Melhorias gerais\n- Melhor organizacao do sistema social\n- Base solida para features competitivas futuras\n- Estrutura modular mantida e escalavel\n\nVersao anterior: v3.13.1",
+    "tag_name": "v3.13.3",
+    "releaseDate": "2026-04-26",
+    "name": "NyanTools v3.13.3",
+    "codename": "Clãs: Metas, Desafios & Hub",
+    "body": "## NyanTools v3.13.3 - Clãs: Metas, Desafios & Hub\n\n### Metas e Economia\n- Metas diarias e semanais com progresso coletivo\n- Objetivos por pontos, partidas, quizzes e pontuacao de ranking\n- Recompensas distribuem chips entre membros e debitam o cofre do Clã\n- Bloqueio contra saldo negativo e multiplos resgates\n- Historico de transacoes com premios e distribuicoes\n\n### Desafios entre Clãs\n- Desafios diretos de 24h entre dois Clãs\n- Apenas um desafio ativo por Clã\n- Bloqueio de auto-desafio\n- Placar alimentado pelos pontos ja registrados no sistema competitivo\n- Desafio agora aparece para os dois Clãs envolvidos\n- Encerramento automatico com vitoria, derrota, empate e premio fixo ao vencedor\n\n### HUB de Clãs\n- Rework completo da aba de Clãs como HUB central\n- Header mais forte com avatar, nome, tag, status, descricao, membros, pontos, cofre e ranking\n- Sistema de abas reais: Visao Geral, Chat, Mural, Ranking, Metas e Desafios\n- Visao Geral com top metas, ultimas atividades, desafio atual e ranking compacto\n- Sidebar direita mais leve para membros e pedidos\n\n### Layout e UX\n- Fundo unificado para remover blocos escuros quebrados\n- Grid consistente com conteudo principal e sidebar\n- Cards padronizados com mesma cor, borda e raio\n- Sidebar com scroll interno e menos densidade visual\n- Metas e mural mais compactos para reduzir poluicao\n\n### Convites\n- Sistema de convites por amigos removido da aba de Clãs\n- Botao Convidar e painel Convidar amigos removidos\n- Entrada por codigo e pedidos de Clãs privados continuam funcionando\n\n### Mural e Hooks\n- Eventos automaticos para meta concluida, recompensa distribuida, desafio iniciado e desafio finalizado\n- Hooks adicionados: onGoalCompleted, onRewardDistributed, onChallengeStarted e onChallengeEnded\n\nVersao anterior: v3.13.2",
     "previousVersion": {
-        "version": "3.13.1",
-        "tag": "v3.13.1",
-        "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.13.1"
+        "version": "3.13.2",
+        "tag": "v3.13.2",
+        "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.13.2"
     },
-    "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.13.2",
-    "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.13.2",
+    "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.13.3",
+    "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.13.3",
     "statistics": {
-        "filesNew": 0,
+        "filesNew": 4,
         "filesRewritten": 0,
-        "filesModified": 6,
-        "bugsFixed": 1,
-        "featuresAdded": 6
+        "filesModified": 10,
+        "bugsFixed": 3,
+        "featuresAdded": 9
     }
 }

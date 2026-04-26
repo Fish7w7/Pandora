@@ -1,5 +1,7 @@
 const SquadsUI = {
     _memberProfiles: [],
+    _activeTab: 'overview',
+    _showAllGoals: false,
     _browseOffset: 0,
     _browseNextOffset: 0,
     _browseQuery: '',
@@ -18,7 +20,7 @@ const SquadsUI = {
         const c = this._colors(d);
 
         return `
-        <div style="max-width:980px;margin:0 auto;font-family:'DM Sans',sans-serif;">
+        <div id="squads-design-root" style="max-width:1180px;margin:0 auto;font-family:'DM Sans',sans-serif;background:${c.page};box-shadow:0 0 0 100vmax ${c.page};border-radius:0;padding:1rem 0 1.2rem;box-sizing:border-box;">
             ${this._renderHeader(c)}
             <div id="squads-main-content">
                 ${squad ? this._renderSquadHome(squad, c) : this._renderNoSquad(c)}
@@ -40,13 +42,14 @@ const SquadsUI = {
     _colors(d) {
         return {
             d,
-            bg: d ? 'rgba(255,255,255,0.04)' : '#ffffff',
-            bg2: d ? 'rgba(255,255,255,0.065)' : '#f8fafc',
-            border: d ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)',
+            page: d ? '#1E1F2B' : '#f4f6fb',
+            bg: d ? '#2A2B3C' : '#ffffff',
+            bg2: d ? '#252636' : '#f8fafc',
+            border: d ? 'rgba(255,255,255,0.05)' : 'rgba(15,23,42,0.08)',
             text: d ? '#f1f5f9' : '#0f172a',
             sub: d ? 'rgba(255,255,255,0.58)' : 'rgba(15,23,42,0.58)',
             muted: d ? 'rgba(255,255,255,0.34)' : 'rgba(15,23,42,0.38)',
-            input: d ? 'rgba(255,255,255,0.06)' : '#f4f4f9',
+            input: d ? '#242536' : '#f4f4f9',
         };
     },
 
@@ -86,7 +89,7 @@ const SquadsUI = {
                         </p>
                     </div>
                 </div>
-                <div style="display:grid;gap:0.65rem;align-content:center;padding:0.85rem;border-radius:18px;border:1px solid ${c.border};background:${c.d ? 'rgba(0,0,0,0.16)' : 'rgba(255,255,255,0.72)'};">
+                <div style="display:grid;gap:0.65rem;align-content:center;padding:0.85rem;border-radius:12px;border:1px solid ${c.border};background:${c.bg};">
                     <button onclick="SquadsUI.openCreateModal()" style="${this._btnPrimary()}width:100%;">Criar Clã</button>
                     <button onclick="SquadsUI.openJoinModal()" style="${this._btnSecondary(c)}width:100%;">Entrar com código</button>
                     <div style="font-size:0.68rem;color:${c.muted};line-height:1.4;text-align:center;">
@@ -94,118 +97,188 @@ const SquadsUI = {
                     </div>
                 </div>
             </div>
-        </section>
-        <div id="squad-invites-content" style="margin-top:0.9rem;"></div>`;
+        </section>`;
     },
 
     _renderSquadHome(squad, c) {
         const isLeader = squad.members?.find((m) => m.userId === window.NyanAuth?.getUID?.())?.role === 'leader';
-        const canLeaderLeave = isLeader && (squad.members?.length || 0) > 1;
-        const image = this._renderSquadImage(squad, c, 104);
-        const visibility = squad.visibility === 'private' ? 'Privado' : 'Publico';
+        if (!this._tabs().some((tab) => tab.id === this._activeTab)) this._activeTab = 'overview';
         return `
+        ${this._renderHubStyles()}
         <div style="display:grid;grid-template-columns:minmax(0,1fr);gap:1rem;">
-            <section style="position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(124,58,237,0.24),${c.bg} 38%,rgba(6,182,212,0.12));border:1px solid rgba(168,85,247,0.22);border-radius:24px;padding:1.25rem;box-shadow:0 22px 64px rgba(0,0,0,0.16);">
-                <div style="position:absolute;right:-130px;top:-145px;width:320px;height:320px;background:radial-gradient(circle,rgba(168,85,247,0.22),transparent 68%);pointer-events:none;"></div>
-                <div style="position:absolute;left:34%;bottom:-170px;width:360px;height:260px;background:radial-gradient(circle,rgba(6,182,212,0.18),transparent 70%);pointer-events:none;"></div>
-                <div style="position:relative;display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;align-items:start;">
-                    <div style="display:flex;gap:1rem;align-items:flex-start;min-width:0;">
-                        ${image}
-                        <div style="min-width:0;flex:1;">
-                            <div style="display:flex;align-items:center;gap:0.55rem;flex-wrap:wrap;margin-bottom:0.5rem;">
-                                <div style="font-family:'Syne',sans-serif;font-size:1.65rem;font-weight:900;color:${c.text};line-height:1;">
-                                    ${this._escape(squad.name)}
-                                </div>
-                                <span style="${this._pill('rgba(168,85,247,0.13)', 'rgba(168,85,247,0.28)', 'var(--theme-primary,#a855f7)')}">[${this._escape(squad.tag)}]</span>
-                                ${isLeader ? `<span style="${this._pill('rgba(245,158,11,0.1)', 'rgba(245,158,11,0.25)', '#f59e0b')}">Lider</span>` : ''}
-                                <span style="${this._pill(squad.visibility === 'private' ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)', squad.visibility === 'private' ? 'rgba(245,158,11,0.24)' : 'rgba(16,185,129,0.24)', squad.visibility === 'private' ? '#f59e0b' : '#10b981')}">${visibility}</span>
-                            </div>
-                            <div style="max-width:580px;font-size:0.82rem;line-height:1.55;color:${squad.description ? c.sub : c.muted};margin-bottom:0.85rem;">
-                                ${this._escape(squad.description || 'Sem descricao ainda.')}
-                            </div>
-                            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:0.55rem;max-width:620px;">
-                                <div style="${this._miniStat(c)}"><span>Membros</span><strong>${squad.members.length}/${window.Squads.MAX_MEMBERS}</strong></div>
-                                <div style="${this._miniStat(c)}"><span>Codigo</span><strong style="letter-spacing:0.08em;">${squad.inviteCode}</strong></div>
-                                <div style="${this._miniStat(c)}"><span>Cofre</span><strong>${Number(squad.balance || 0).toLocaleString('pt-BR')}</strong></div>
-                                <div style="${this._miniStat(c)}"><span>Pontos</span><strong id="squad-score-stat">${Number(squad.score || 0).toLocaleString('pt-BR')}</strong></div>
-                                <div style="${this._miniStat(c)}"><span>Atividade</span><strong id="squad-activity-stat">${this._relativeTime(squad.lastActivityAt || squad.updatedAt)}</strong></div>
-                            </div>
-                        </div>
+            ${this._renderSquadHero(squad, c, isLeader)}
+            <div id="squad-hub-layout" style="display:grid;grid-template-columns:minmax(0,2fr) minmax(300px,1fr);gap:20px;align-items:start;background:transparent;">
+                <main id="squad-hub-main" style="min-width:0;display:grid;gap:0.8rem;background:transparent;">
+                    ${this._renderSquadTabs(c)}
+                    <div id="squad-tab-content" style="min-width:0;">
+                        ${this._renderActiveTabContent(squad, c)}
                     </div>
-                    <div style="display:grid;grid-template-columns:${isLeader ? 'repeat(2,minmax(0,1fr))' : '1fr'};gap:0.5rem;min-width:260px;">
-                        ${isLeader ? `<button onclick="SquadsUI.openCustomizeModal()" style="${this._btnGhost(c)}">Personalizar</button>` : ''}
-                        <button onclick="Utils.copyToClipboard('${squad.inviteCode}')" style="${this._btnSecondary(c)}">Copiar codigo</button>
-                        <button onclick="SquadsUI.confirmLeave()" style="${this._btnDanger()}${isLeader && !canLeaderLeave ? 'display:none;' : ''}grid-column:${isLeader ? 'auto' : '1 / -1'};">${isLeader ? 'Passar lideranca' : 'Sair do cla'}</button>
-                        ${isLeader ? `<button onclick="SquadsUI.confirmDeleteSquad()" style="${this._btnDanger()}">Excluir cla</button>` : ''}
-                    </div>
-                </div>
-            </section>
-
-            ${this._renderSquadTabs(c)}
-
-            <div id="squad-section-chat" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,320px),1fr));gap:1rem;align-items:start;">
-                ${this._renderChatPanel(c)}
-                <div style="display:grid;gap:1rem;">
-                    ${this._renderFeedPanel(c)}
-                    ${this._renderRecentActivityPanel(c)}
-                </div>
-            </div>
-
-            <section id="squad-section-ranking" style="${this._panel(c)}">
-                <div style="${this._sectionBar()}">
-                    <div>
-                        <div style="${this._eyebrow(c)}">Ranking</div>
-                        <div style="${this._sectionTitle(c)}">Squads por pontuacao</div>
-                    </div>
-                    <button onclick="SquadsUI.loadRanking()" style="${this._btnGhost(c)}">Atualizar</button>
-                </div>
-                <div id="squad-ranking-list">
-                    <div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Carregando ranking...</div>
-                </div>
-            </section>
-
-            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;align-items:start;">
-                <section style="${this._panel(c)}">
-                    <div style="${this._sectionBar()}">
-                        <div>
-                            <div style="${this._eyebrow(c)}">Membros</div>
-                            <div style="${this._sectionTitle(c)}">Lista do Cla</div>
-                        </div>
-                        <button onclick="SquadsUI.refresh()" style="${this._btnGhost(c)}">Atualizar</button>
-                    </div>
-                    <div id="squad-members-list">
-                        ${this._renderMembersSkeleton(c)}
-                    </div>
-                </section>
-
-                <div style="display:grid;gap:1rem;">
-                    ${isLeader ? `<section style="${this._panel(c)}">
-                        <div style="${this._sectionBar()}">
-                            <div>
-                                <div style="${this._eyebrow(c)}">Pedidos</div>
-                                <div style="${this._sectionTitle(c)}">Entrada no cla</div>
-                            </div>
-                            <button onclick="SquadsUI.loadJoinRequests()" style="${this._btnGhost(c)}">Atualizar</button>
-                        </div>
-                        <div id="squad-join-requests-list">
-                            <div style="padding:0.8rem;text-align:center;color:${c.muted};font-size:0.78rem;">Carregando pedidos...</div>
-                        </div>
-                    </section>` : ''}
-
-                    <section style="${this._panel(c)}">
-                        <div style="${this._sectionBar()}">
-                            <div>
-                                <div style="${this._eyebrow(c)}">Convites</div>
-                                <div style="${this._sectionTitle(c)}">Convidar amigos</div>
-                            </div>
-                        </div>
-                        <div id="squad-friends-invite-list">
-                            <div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Carregando amigos...</div>
-                        </div>
-                    </section>
-                </div>
+                </main>
+                ${this._renderClanSidebar(c, isLeader)}
             </div>
         </div>`;
+    },
+
+    _renderHubStyles() {
+        return `<style>
+            #squads-main-content,
+            #squad-tab-content,
+            #squad-section-overview,
+            #squad-hub-main {
+                background: transparent !important;
+            }
+            @media (max-width: 980px) {
+                #squad-hub-layout { grid-template-columns: 1fr !important; }
+                #squad-hub-sidebar { position: static !important; max-height: none !important; padding-right: 0 !important; }
+                #squad-hero-actions { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
+            }
+            @media (max-width: 640px) {
+                #squad-hero-inner { grid-template-columns: 1fr !important; }
+                #squad-hero-actions { grid-template-columns: 1fr !important; }
+                .squad-overview-grid { grid-template-columns: 1fr !important; }
+            }
+            .squad-member-row:hover,
+            .squad-invite-row:hover,
+            .squad-request-row:hover {
+                transform: translateY(-1px);
+                border-color: rgba(168,85,247,0.28) !important;
+            }
+        </style>`;
+    },
+
+    _renderSquadHero(squad, c, isLeader) {
+        const canLeaderLeave = isLeader && (squad.members?.length || 0) > 1;
+        const image = this._renderSquadImage(squad, c, 112);
+        const visibility = squad.visibility === 'private' ? 'Privado' : 'Publico';
+        const visibilityColor = squad.visibility === 'private' ? '#f59e0b' : '#10b981';
+        const description = squad.description || 'Sem descricao ainda.';
+        const leaderAction = isLeader
+            ? `<button onclick="SquadsUI.confirmLeave()" ${!canLeaderLeave ? 'disabled' : ''} style="${canLeaderLeave ? this._btnDanger() : this._btnDisabled(c)}">Passar lideranca</button>
+               <button onclick="SquadsUI.confirmDeleteSquad()" style="${this._btnDanger()}">Excluir cla</button>`
+            : `<button onclick="SquadsUI.confirmLeave()" style="${this._btnDanger()}">Sair do cla</button>`;
+
+        return `<section style="position:relative;overflow:hidden;background:linear-gradient(135deg,rgba(124,58,237,0.34),${c.bg} 45%,rgba(6,182,212,0.16));border:1px solid rgba(168,85,247,0.28);border-radius:24px;padding:1.15rem;box-shadow:0 20px 48px rgba(0,0,0,0.18);">
+            <div id="squad-hero-inner" style="position:relative;display:grid;grid-template-columns:minmax(0,1fr) minmax(240px,330px);gap:1rem;align-items:stretch;">
+                <div style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:1rem;align-items:start;min-width:0;">
+                    ${image}
+                    <div style="min-width:0;">
+                        <div style="display:flex;align-items:center;gap:0.55rem;flex-wrap:wrap;margin-bottom:0.45rem;">
+                            <h2 style="margin:0;font-family:'Syne',sans-serif;font-size:clamp(1.55rem,3vw,2.15rem);font-weight:900;color:${c.text};line-height:1.02;">${this._escape(squad.name)}</h2>
+                            <span style="${this._pill('rgba(168,85,247,0.13)', 'rgba(168,85,247,0.28)', 'var(--theme-primary,#a855f7)')}">[${this._escape(squad.tag)}]</span>
+                            ${isLeader ? `<span style="${this._pill('rgba(245,158,11,0.1)', 'rgba(245,158,11,0.25)', '#f59e0b')}">Lider</span>` : ''}
+                            <span style="${this._pill(`${squad.visibility === 'private' ? 'rgba(245,158,11,0.1)' : 'rgba(16,185,129,0.1)'}`, `${squad.visibility === 'private' ? 'rgba(245,158,11,0.24)' : 'rgba(16,185,129,0.24)'}`, visibilityColor)}">${visibility}</span>
+                        </div>
+                        <p style="max-width:620px;margin:0 0 0.9rem;font-size:0.84rem;line-height:1.55;color:${squad.description ? c.sub : c.muted};">${this._escape(description)}</p>
+                        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:0.58rem;max-width:720px;">
+                            ${this._renderHeroStat(c, 'Membros', `${squad.members.length}/${window.Squads.MAX_MEMBERS}`)}
+                            ${this._renderHeroStat(c, 'Pontos', Number(squad.score || 0).toLocaleString('pt-BR'), 'squad-score-stat')}
+                            ${this._renderHeroStat(c, 'Cofre', Number(squad.balance || 0).toLocaleString('pt-BR'))}
+                            ${this._renderHeroStat(c, 'Ranking', '--', 'squad-rank-stat')}
+                        </div>
+                    </div>
+                </div>
+                <div id="squad-hero-actions" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0.55rem;align-content:start;">
+                    <button onclick="Utils.copyToClipboard('${this._escape(squad.inviteCode)}')" style="${this._btnSecondary(c)}">Copiar codigo</button>
+                    ${isLeader ? `<button onclick="SquadsUI.openCustomizeModal()" style="${this._btnGhost(c)}">Personalizar</button>` : ''}
+                    ${leaderAction}
+                </div>
+            </div>
+        </section>`;
+    },
+
+    _renderHeroStat(c, label, value, id = '') {
+        return `<div style="${this._miniStat(c)}min-height:58px;justify-content:center;">
+            <span>${label}</span>
+            <strong ${id ? `id="${id}"` : ''} style="font-size:0.92rem;color:${c.text};line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${value}</strong>
+        </div>`;
+    },
+
+    _renderActiveTabContent(squad, c) {
+        const tab = this._activeTab || 'overview';
+        if (tab === 'chat') return `<div id="squad-section-chat">${this._renderChatPanel(c)}</div>`;
+        if (tab === 'mural') return `<div id="squad-section-mural">${this._renderFeedPanel(c)}</div>`;
+        if (tab === 'ranking') return this._renderRankingPanel(c);
+        if (tab === 'goals') return this._renderGoalsPanel(c);
+        if (tab === 'challenges') return this._renderChallengesPanel(c);
+        return this._renderOverviewTab(squad, c);
+    },
+
+    _renderOverviewTab(squad, c) {
+        return `<section id="squad-section-overview" style="display:grid;gap:0.74rem;">
+            <div class="squad-overview-grid" style="display:grid;grid-template-columns:minmax(0,1.08fr) minmax(280px,0.92fr);gap:0.74rem;align-items:start;">
+                ${this._renderCompactPanel(c, 'Metas', 'Top objetivos', `<button onclick="SquadsUI.switchTab('goals')" style="${this._btnGhost(c)}">Ver metas</button>`, `<div id="squad-overview-goals" style="display:grid;gap:0.42rem;">${this._renderMiniState(c, 'Carregando metas...')}</div>`)}
+                ${this._renderCompactPanel(c, 'Desafio atual', 'Clã contra Clã', `<button onclick="SquadsUI.switchTab('challenges')" style="${this._btnSecondary(c)}">Abrir</button>`, `<div id="squad-overview-challenge">${this._renderMiniState(c, 'Verificando desafios...')}</div>`, { highlight: true })}
+            </div>
+            <div class="squad-overview-grid" style="display:grid;grid-template-columns:minmax(0,1.12fr) minmax(250px,0.88fr);gap:0.74rem;align-items:start;">
+                ${this._renderCompactPanel(c, 'Atividade recente', 'Mural resumido', `<button onclick="SquadsUI.switchTab('mural')" style="${this._btnGhost(c)}">Ver mural</button>`, `<div id="squad-overview-feed" style="display:grid;gap:0.38rem;">${this._renderMiniState(c, 'Carregando atividades...')}</div>`)}
+                ${this._renderCompactPanel(c, 'Ranking', 'Posicao compacta', `<button onclick="SquadsUI.switchTab('ranking')" style="${this._btnGhost(c)}">Ranking</button>`, `<div id="squad-overview-ranking">${this._renderMiniState(c, 'Carregando ranking...')}</div>`, { compact: true })}
+            </div>
+        </section>`;
+    },
+
+    _renderCompactPanel(c, eyebrow, title, action, body, options = {}) {
+        const bg = c.bg;
+        const border = options.highlight ? 'rgba(168,85,247,0.28)' : c.border;
+        const shadow = options.highlight ? '0 12px 32px rgba(124,58,237,0.12)' : 'none';
+        return `<section style="background:${bg};border:1px solid ${border};border-radius:12px;padding:${options.compact ? '0.68rem' : '0.74rem'};box-shadow:${shadow};">
+            <div style="${this._sectionBar()}margin-bottom:${options.highlight ? '0.62rem' : '0.52rem'};">
+                <div style="min-width:0;">
+                    <div style="${this._eyebrow(c)}">${eyebrow}</div>
+                    <div style="${this._sectionTitle(c)}font-size:${options.highlight ? '1.05rem' : '0.92rem'};">${title}</div>
+                </div>
+                ${action || ''}
+            </div>
+            ${body}
+        </section>`;
+    },
+
+    _renderMiniState(c, text) {
+        return `<div style="padding:0.8rem;text-align:center;color:${c.muted};font-size:0.76rem;border:1px dashed ${c.border};border-radius:12px;background:${c.bg2};">${this._escape(text)}</div>`;
+    },
+
+    _renderRankingPanel(c) {
+        return `<section id="squad-section-ranking" style="${this._panel(c)}">
+            <div style="${this._sectionBar()}">
+                <div>
+                    <div style="${this._eyebrow(c)}">Ranking</div>
+                    <div style="${this._sectionTitle(c)}">Clãs por pontuacao</div>
+                </div>
+                <button onclick="SquadsUI.loadRanking()" style="${this._btnGhost(c)}">Atualizar</button>
+            </div>
+            <div id="squad-ranking-list">
+                <div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Carregando ranking...</div>
+            </div>
+        </section>`;
+    },
+
+    _renderClanSidebar(c, isLeader) {
+        const sidePanel = `background:${c.bg};border:1px solid ${c.border};border-radius:12px;padding:0.66rem;box-shadow:none;`;
+        return `<aside id="squad-hub-sidebar" style="position:sticky;top:0.75rem;display:grid;gap:0.64rem;min-width:0;max-height:calc(100vh - 200px);overflow-y:auto;padding-right:16px;box-sizing:border-box;">
+            <section style="${sidePanel}">
+                <div style="${this._sectionBar()}margin-bottom:0.5rem;">
+                    <div>
+                        <div style="${this._eyebrow(c)}">Membros</div>
+                        <div style="${this._sectionTitle(c)}font-size:0.86rem;">Lista do Cla</div>
+                    </div>
+                    <button onclick="SquadsUI.loadMembers()" style="${this._btnGhost(c)}">Atualizar</button>
+                </div>
+                <div id="squad-members-list" style="max-height:260px;overflow-y:auto;padding-right:0.1rem;">
+                    ${this._renderMembersSkeleton(c)}
+                </div>
+            </section>
+            ${isLeader ? `<section style="${sidePanel}">
+                <div style="${this._sectionBar()}margin-bottom:0.5rem;">
+                    <div>
+                        <div style="${this._eyebrow(c)}">Pedidos</div>
+                        <div style="${this._sectionTitle(c)}font-size:0.86rem;">Entrada no cla</div>
+                    </div>
+                    <button onclick="SquadsUI.loadJoinRequests()" style="${this._btnGhost(c)}">Atualizar</button>
+                </div>
+                <div id="squad-join-requests-list" style="max-height:180px;overflow-y:auto;padding-right:0.1rem;">
+                    <div style="padding:0.8rem;text-align:center;color:${c.muted};font-size:0.76rem;">Carregando pedidos...</div>
+                </div>
+            </section>` : ''}
+        </aside>`;
     },
 
     _renderMembersSkeleton(c) {
@@ -213,17 +286,82 @@ const SquadsUI = {
     },
 
     _renderSquadTabs(c) {
-        const item = (label, target) => `<button onclick="document.getElementById('${target}')?.scrollIntoView({behavior:'smooth',block:'start'})" style="${this._btnGhost(c)}">${label}</button>`;
-        return `<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;padding:0.65rem;border:1px solid ${c.border};background:${c.bg};border-radius:16px;">
-            ${item('Visao geral', 'squads-main-content')}
-            ${item('Chat', 'squad-section-chat')}
-            ${item('Mural', 'squad-feed-list')}
-            ${item('Ranking', 'squad-section-ranking')}
+        const tabs = this._tabs();
+        return `<div id="squad-tabs" style="display:flex;gap:0.45rem;flex-wrap:wrap;align-items:center;padding:0.48rem;border:1px solid ${c.border};background:${c.bg};border-radius:12px;">
+            ${tabs.map((tab) => {
+                const active = this._activeTab === tab.id;
+                return `<button onclick="SquadsUI.switchTab('${tab.id}')" style="${active ? this._btnSecondary(c) : this._btnGhost(c)}${active ? 'box-shadow:0 10px 28px rgba(124,58,237,0.16);' : ''}">${tab.label}</button>`;
+            }).join('')}
         </div>`;
     },
 
+    _tabs() {
+        return [
+            { id: 'overview', label: 'Visão Geral ⭐' },
+            { id: 'chat', label: 'Chat' },
+            { id: 'mural', label: 'Mural' },
+            { id: 'ranking', label: 'Ranking' },
+            { id: 'goals', label: 'Metas ⭐' },
+            { id: 'challenges', label: 'Desafios ⭐' },
+        ];
+    },
+
+    switchTab(tab) {
+        if (!this._tabs().some((item) => item.id === tab)) return;
+        this._activeTab = tab;
+        if (tab !== 'goals') this._showAllGoals = false;
+
+        const squad = window.Squads?.getCurrentSquadSync?.();
+        if (!squad) return;
+
+        const c = this._colors(document.body.classList.contains('dark-theme'));
+        const tabs = document.getElementById('squad-tabs');
+        const content = document.getElementById('squad-tab-content');
+        if (tabs) tabs.outerHTML = this._renderSquadTabs(c);
+        if (content) content.innerHTML = this._renderActiveTabContent(squad, c);
+        this._loadActiveTabData();
+    },
+
+    _loadActiveTabData() {
+        if (this._activeTab === 'overview') return this.loadOverview();
+        if (this._activeTab === 'chat' || this._activeTab === 'mural') return this.loadSquadSocial();
+        if (this._activeTab === 'ranking') return this.loadRanking();
+        if (this._activeTab === 'goals') return this.loadGoals();
+        if (this._activeTab === 'challenges') return this.loadChallenges();
+    },
+
+    _renderGoalsPanel(c) {
+        return `<section id="squad-section-goals" style="${this._panel(c)}">
+            <div style="${this._sectionBar()}">
+                <div>
+                    <div style="${this._eyebrow(c)}">Metas</div>
+                    <div style="${this._sectionTitle(c)}">Objetivos coletivos</div>
+                </div>
+                <button onclick="SquadsUI.loadGoals()" style="${this._btnGhost(c)}">Atualizar</button>
+            </div>
+            <div id="squad-goals-list" style="display:grid;gap:0.6rem;">
+                <div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Carregando metas...</div>
+            </div>
+        </section>`;
+    },
+
+    _renderChallengesPanel(c) {
+        return `<section id="squad-section-challenges" style="${this._panel(c)}">
+            <div style="${this._sectionBar()}">
+                <div>
+                    <div style="${this._eyebrow(c)}">Desafios</div>
+                    <div style="${this._sectionTitle(c)}">Clã contra Clã</div>
+                </div>
+                <button onclick="SquadsUI.openChallengeModal()" style="${this._btnSecondary(c)}">Desafiar</button>
+            </div>
+            <div id="squad-challenges-list" style="display:grid;gap:0.6rem;">
+                <div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Carregando desafios...</div>
+            </div>
+        </section>`;
+    },
+
     _renderChatPanel(c) {
-        return `<section style="${this._panel(c)}min-height:420px;display:flex;flex-direction:column;">
+        return `<section style="${this._panel(c)}min-height:440px;display:flex;flex-direction:column;">
             <div style="${this._sectionBar()}">
                 <div>
                     <div style="${this._eyebrow(c)}">Chat</div>
@@ -231,14 +369,14 @@ const SquadsUI = {
                 </div>
                 <span id="squad-chat-live-pill" style="${this._pill('rgba(16,185,129,0.1)', 'rgba(16,185,129,0.24)', '#10b981')}">Ao vivo</span>
             </div>
-            <div id="squad-chat-list" style="flex:1;min-height:260px;max-height:360px;overflow-y:auto;display:grid;align-content:start;gap:0.58rem;padding:0.2rem 0.15rem 0.7rem;">
+            <div id="squad-chat-list" style="flex:1;min-height:280px;max-height:410px;overflow-y:auto;display:grid;align-content:start;gap:0.46rem;padding:0.12rem 0.1rem 0.65rem;">
                 <div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Carregando chat...</div>
             </div>
-            <div style="display:flex;gap:0.55rem;align-items:flex-end;padding-top:0.75rem;border-top:1px solid ${c.border};">
+            <div style="display:flex;gap:0.5rem;align-items:flex-end;padding-top:0.7rem;border-top:1px solid ${c.border};">
                 <textarea id="squad-chat-input" maxlength="${window.Squads?.MAX_MESSAGE_LENGTH || 500}"
                     onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();SquadsUI.sendSquadMessage();}"
-                    placeholder="Mensagem para o squad"
-                    style="flex:1;min-height:42px;max-height:104px;resize:vertical;box-sizing:border-box;padding:0.7rem 0.78rem;border-radius:13px;border:1px solid ${c.border};background:${c.input};color:${c.text};font-size:0.78rem;font-family:'DM Sans',sans-serif;line-height:1.35;outline:none;"></textarea>
+                    placeholder="Mensagem para o clã"
+                    style="flex:1;min-height:40px;max-height:96px;resize:vertical;box-sizing:border-box;padding:0.66rem 0.74rem;border-radius:13px;border:1px solid ${c.border};background:${c.input};color:${c.text};font-size:0.78rem;font-family:'DM Sans',sans-serif;line-height:1.35;outline:none;"></textarea>
                 <button id="squad-chat-send" onclick="SquadsUI.sendSquadMessage()" style="${this._btnPrimary()}min-width:84px;">Enviar</button>
             </div>
         </section>`;
@@ -249,7 +387,7 @@ const SquadsUI = {
             <div style="${this._sectionBar()}">
                 <div>
                     <div style="${this._eyebrow(c)}">Mural</div>
-                    <div style="${this._sectionTitle(c)}">Eventos do Squad</div>
+                    <div style="${this._sectionTitle(c)}">Eventos do Clã</div>
                 </div>
             </div>
             <div id="squad-feed-list" style="display:grid;gap:0.55rem;max-height:260px;overflow-y:auto;">
@@ -307,6 +445,107 @@ const SquadsUI = {
         }
     },
 
+    async loadOverview() {
+        const goalsEl = document.getElementById('squad-overview-goals');
+        const feedEl = document.getElementById('squad-overview-feed');
+        const challengeEl = document.getElementById('squad-overview-challenge');
+        const rankingEl = document.getElementById('squad-overview-ranking');
+        if (!window.Squads || (!goalsEl && !feedEl && !challengeEl && !rankingEl)) return;
+        const c = this._colors(document.body.classList.contains('dark-theme'));
+
+        try {
+            const [goals, feed, challenges, ranking] = await Promise.all([
+                window.Squads.listGoals ? window.Squads.listGoals({ force: true }).catch(() => []) : Promise.resolve([]),
+                window.Squads.listFeed ? window.Squads.listFeed({ force: false }).catch(() => []) : Promise.resolve([]),
+                window.Squads.listChallenges ? window.Squads.listChallenges({ force: true }).catch(() => []) : Promise.resolve([]),
+                window.Squads.listSquadRanking ? window.Squads.listSquadRanking({ limit: 25 }).catch(() => []) : Promise.resolve([]),
+            ]);
+
+            if (goalsEl) {
+                goalsEl.innerHTML = goals.length
+                    ? goals.slice(0, 3).map((goal) => this._renderOverviewGoal(goal, c)).join('')
+                    : this._renderMiniState(c, 'Nenhuma meta ativa agora.');
+            }
+
+            if (feedEl) {
+                feedEl.innerHTML = feed.length
+                    ? feed.slice(0, 3).map((item) => this._renderFeedItem(item, c)).join('')
+                    : this._renderMiniState(c, 'O mural ainda esta vazio.');
+            }
+
+            if (rankingEl) {
+                const current = ranking.find((item) => item.isCurrent);
+                this._updateRankStat(current?.rank);
+                rankingEl.innerHTML = current
+                    ? this._renderOverviewRanking(current, c)
+                    : this._renderMiniState(c, 'Seu Cla ainda nao apareceu no ranking.');
+            }
+
+            if (challengeEl) {
+                const currentSquad = window.Squads.getCurrentSquadSync?.();
+                const active = challenges.find((challenge) => challenge.status === 'active');
+                const latest = active || challenges[0];
+                if (!latest) {
+                    challengeEl.innerHTML = this._renderChallengeEmpty(c, true);
+                } else {
+                    const squads = window.Squads.listPublicSquads
+                        ? await window.Squads.listPublicSquads({ limit: 25 }).catch(() => ({ items: [] }))
+                        : { items: [] };
+                    const byId = Object.fromEntries((squads?.items || []).map((squad) => [squad.id, squad]));
+                    if (currentSquad?.id) byId[currentSquad.id] = currentSquad;
+                    challengeEl.innerHTML = this._renderChallengeItem(latest, c, byId, currentSquad?.id, true);
+                }
+            }
+        } catch (err) {
+            const message = this._escape(err.message || 'Erro ao carregar visao geral.');
+            [goalsEl, feedEl, challengeEl, rankingEl].filter(Boolean).forEach((el) => {
+                el.innerHTML = `<div style="padding:0.85rem;text-align:center;color:#ef4444;font-size:0.78rem;">${message}</div>`;
+            });
+        }
+    },
+
+    _renderOverviewGoal(goal, c) {
+        const pct = Math.min(100, Math.round((Number(goal.progress || 0) / Math.max(1, Number(goal.target || 1))) * 100));
+        const done = !!goal.completed;
+        return `<div style="display:grid;gap:0.32rem;padding:0.46rem 0.52rem;border:1px solid ${done ? 'rgba(16,185,129,0.24)' : c.border};background:${done ? 'rgba(16,185,129,0.07)' : c.bg2};border-radius:10px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:0.7rem;">
+                <div style="min-width:0;font-size:0.72rem;font-weight:900;color:${c.text};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this._escape(goal.description)}</div>
+                <span style="font-size:0.62rem;font-weight:900;color:${done ? '#10b981' : c.muted};">${pct}%</span>
+            </div>
+            <div style="height:4px;border-radius:999px;overflow:hidden;background:${c.d ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)'};">
+                <div style="width:${pct}%;height:100%;border-radius:999px;background:linear-gradient(90deg,#10b981,#a855f7);"></div>
+            </div>
+            <div style="font-size:0.58rem;color:${c.muted};font-weight:800;">${Number(goal.progress || 0).toLocaleString('pt-BR')} / ${Number(goal.target || 0).toLocaleString('pt-BR')} · ${Number(goal.reward || 0).toLocaleString('pt-BR')} chips</div>
+        </div>`;
+    },
+
+    _renderOverviewRanking(item, c) {
+        const top = Number(item.rank || 0) <= 3;
+        return `<div style="display:grid;grid-template-columns:38px minmax(0,1fr) auto;gap:0.62rem;align-items:center;padding:0.58rem;border:1px solid ${top ? 'rgba(245,158,11,0.24)' : c.border};background:${c.bg2};border-radius:10px;">
+            <div style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${top ? 'rgba(245,158,11,0.14)' : 'rgba(168,85,247,0.14)'};color:${top ? '#f59e0b' : 'var(--theme-primary,#a855f7)'};font-weight:900;font-size:0.78rem;">#${item.rank}</div>
+            <div style="min-width:0;">
+                <div style="font-size:0.78rem;font-weight:900;color:${c.text};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this._escape(item.name)}</div>
+                <div style="font-size:0.61rem;color:${c.muted};font-weight:800;">[${this._escape(item.tag)}]</div>
+            </div>
+            <strong style="font-size:0.88rem;color:${c.text};">${Number(item.score || 0).toLocaleString('pt-BR')}</strong>
+        </div>`;
+    },
+
+    _updateRankStat(rank) {
+        const stat = document.getElementById('squad-rank-stat');
+        if (stat) stat.textContent = rank ? `#${rank}` : '--';
+    },
+
+    async loadRankSummary() {
+        if (!window.Squads?.listSquadRanking) return;
+        try {
+            const items = await window.Squads.listSquadRanking({ limit: 25 });
+            this._updateRankStat(items.find((item) => item.isCurrent)?.rank);
+        } catch (_) {
+            this._updateRankStat(null);
+        }
+    },
+
     async loadRanking() {
         const list = document.getElementById('squad-ranking-list');
         if (!list || !window.Squads?.listSquadRanking) return;
@@ -315,18 +554,144 @@ const SquadsUI = {
         try {
             const items = await window.Squads.listSquadRanking({ limit: 10 });
             if (!items.length) {
-                list.innerHTML = `<div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Nenhum squad no ranking ainda.</div>`;
+                this._updateRankStat(null);
+                list.innerHTML = `<div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Nenhum Clã no ranking ainda.</div>`;
                 return;
             }
+            this._updateRankStat(items.find((item) => item.isCurrent)?.rank);
             list.innerHTML = `<div style="display:grid;gap:0.55rem;">${items.map((squad) => this._renderRankingItem(squad, c)).join('')}</div>`;
         } catch (err) {
             list.innerHTML = `<div style="padding:1rem;text-align:center;color:#ef4444;font-size:0.78rem;">${this._escape(err.message || 'Erro ao carregar ranking.')}</div>`;
         }
     },
 
+    async loadGoals() {
+        const list = document.getElementById('squad-goals-list');
+        if (!list || !window.Squads?.listGoals) return;
+        const c = this._colors(document.body.classList.contains('dark-theme'));
+
+        try {
+            const goals = await window.Squads.listGoals({ force: true });
+            if (!goals.length) {
+                list.innerHTML = `<div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Nenhuma meta ativa agora.</div>`;
+                return;
+            }
+            const visible = this._showAllGoals ? goals : goals.slice(0, 3);
+            const showAll = !this._showAllGoals && goals.length > visible.length;
+            list.innerHTML = `${visible.map((goal) => this._renderGoalItem(goal, c)).join('')}${showAll ? `
+                <button onclick="SquadsUI.showAllGoals()" style="${this._btnGhost(c)}width:100%;justify-content:center;margin-top:0.1rem;">Ver todas (${goals.length})</button>
+            ` : ''}`;
+        } catch (err) {
+            list.innerHTML = `<div style="padding:1rem;text-align:center;color:#ef4444;font-size:0.78rem;">${this._escape(err.message || 'Erro ao carregar metas.')}</div>`;
+        }
+    },
+
+    showAllGoals() {
+        this._showAllGoals = true;
+        this.loadGoals();
+    },
+
+    _renderGoalItem(goal, c) {
+        const pct = Math.min(100, Math.round((Number(goal.progress || 0) / Math.max(1, Number(goal.target || 1))) * 100));
+        const done = goal.completed;
+        const claimed = !!goal.rewardClaimedAt;
+        const typeLabel = goal.type === 'weekly' ? 'Semanal' : 'Diaria';
+        const action = claimed
+            ? `<button disabled style="${this._btnDisabled(c)}">Resgatada</button>`
+            : done
+                ? `<button onclick="SquadsUI.claimGoalReward('${this._escape(goal.id)}')" style="${this._btnSecondary(c)}">Resgatar</button>`
+                : `<button disabled style="${this._btnDisabled(c)}">${pct}%</button>`;
+        return `<div style="display:grid;gap:0.34rem;padding:0.54rem 0.6rem;border:1px solid ${done ? 'rgba(16,185,129,0.28)' : c.border};background:${done ? 'rgba(16,185,129,0.08)' : c.bg2};border-radius:10px;">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:0.7rem;">
+                <div style="min-width:0;">
+                    <div style="font-size:0.73rem;font-weight:900;color:${c.text};line-height:1.28;">${this._escape(goal.description)}</div>
+                    <div style="font-size:0.62rem;color:${c.muted};margin-top:0.12rem;">${typeLabel} · ${Number(goal.reward || 0).toLocaleString('pt-BR')} chips</div>
+                </div>
+                ${action}
+            </div>
+            <div style="height:4px;border-radius:999px;overflow:hidden;background:${c.d ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)'};">
+                <div style="width:${pct}%;height:100%;border-radius:999px;background:linear-gradient(90deg,#10b981,#a855f7);"></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;font-size:0.6rem;color:${c.muted};font-weight:800;">
+                <span>${Number(goal.progress || 0).toLocaleString('pt-BR')} / ${Number(goal.target || 0).toLocaleString('pt-BR')}</span>
+                <span>${done ? (claimed ? 'Recompensa distribuida' : 'Concluida') : 'Em progresso'}</span>
+            </div>
+        </div>`;
+    },
+
+    async claimGoalReward(goalId) {
+        try {
+            const result = await window.Squads.claimGoalReward(goalId);
+            window.Utils?.showNotification?.(`Recompensa distribuida: ${Number(result.amount || 0).toLocaleString('pt-BR')} chips.`, 'success');
+            await this.refresh({ silent: true });
+        } catch (err) {
+            window.Utils?.showNotification?.(err.message || 'Erro ao resgatar meta.', 'error');
+        }
+    },
+
+    async loadChallenges() {
+        const list = document.getElementById('squad-challenges-list');
+        if (!list || !window.Squads?.listChallenges) return;
+        const c = this._colors(document.body.classList.contains('dark-theme'));
+
+        try {
+            const challenges = await window.Squads.listChallenges({ force: true });
+            if (!challenges.length) {
+                list.innerHTML = this._renderChallengeEmpty(c);
+                return;
+            }
+            const squads = await window.Squads.listPublicSquads({ limit: 25 }).catch(() => ({ items: [] }));
+            const byId = Object.fromEntries((squads.items || []).map((squad) => [squad.id, squad]));
+            const current = window.Squads.getCurrentSquadSync();
+            if (current?.id) byId[current.id] = current;
+            list.innerHTML = challenges.map((challenge) => this._renderChallengeItem(challenge, c, byId, current?.id)).join('');
+        } catch (err) {
+            list.innerHTML = `<div style="padding:1rem;text-align:center;color:#ef4444;font-size:0.78rem;">${this._escape(err.message || 'Erro ao carregar desafios.')}</div>`;
+        }
+    },
+
+    _renderChallengeEmpty(c, compact = false) {
+        return `<div style="display:grid;gap:${compact ? '0.42rem' : '0.55rem'};place-items:center;text-align:center;padding:${compact ? '1rem 0.74rem' : '1.2rem 0.85rem'};border:1px dashed rgba(168,85,247,0.32);border-radius:12px;background:${c.bg2};">
+            <div style="width:${compact ? '44px' : '46px'};height:${compact ? '44px' : '46px'};border-radius:16px;display:flex;align-items:center;justify-content:center;background:rgba(168,85,247,0.16);color:var(--theme-primary,#a855f7);font-weight:900;box-shadow:0 12px 28px rgba(124,58,237,0.14);">VS</div>
+            <div style="font-size:${compact ? '0.86rem' : '0.9rem'};font-weight:900;color:${c.text};">Nenhum desafio ativo</div>
+            <div style="max-width:300px;font-size:0.66rem;line-height:1.42;color:${c.muted};">Chame outro Clã para uma disputa de 24h e coloque o placar em movimento.</div>
+            <button onclick="SquadsUI.openChallengeModal()" style="${this._btnSecondary(c)}${compact ? 'min-height:32px;padding:0.5rem 0.7rem;font-size:0.7rem;' : ''}">Desafiar agora</button>
+        </div>`;
+    },
+
+    _renderChallengeItem(challenge, c, squadsById = {}, currentId = '', featured = false) {
+        const a = squadsById[challenge.squadA] || { tag: 'A', name: 'Clã A' };
+        const b = squadsById[challenge.squadB] || { tag: 'B', name: 'Clã B' };
+        const mineIsA = currentId === challenge.squadA;
+        const mineScore = mineIsA ? challenge.scoreA : challenge.scoreB;
+        const otherScore = mineIsA ? challenge.scoreB : challenge.scoreA;
+        const other = mineIsA ? b : a;
+        const active = challenge.status === 'active';
+        const leftMs = Math.max(0, Number(challenge.endsAt || 0) - Date.now());
+        const status = active ? `Termina em ${this._formatDuration(leftMs)}` : (challenge.winnerId ? `Vencedor: [${this._escape((squadsById[challenge.winnerId] || {}).tag || '?')}]` : 'Empate');
+        const scoreSize = featured ? '1.72rem' : '1rem';
+        return `<div style="display:grid;gap:${featured ? '0.72rem' : '0.52rem'};padding:${featured ? '0.9rem' : '0.68rem'};border:1px solid ${active ? 'rgba(245,158,11,0.34)' : c.border};background:${c.bg2};border-radius:12px;">
+            <div style="display:flex;justify-content:space-between;gap:0.8rem;align-items:flex-start;">
+                <div style="min-width:0;">
+                    <div style="font-size:${featured ? '0.92rem' : '0.78rem'};font-weight:900;color:${c.text};">Contra [${this._escape(other.tag || '?')}]</div>
+                    <div style="font-size:0.63rem;color:${c.muted};margin-top:0.16rem;">${this._escape(other.name || 'Clã')} · ${status}</div>
+                </div>
+                <span style="${this._pill(active ? 'rgba(245,158,11,0.1)' : 'rgba(148,163,184,0.1)', active ? 'rgba(245,158,11,0.24)' : 'rgba(148,163,184,0.24)', active ? '#f59e0b' : c.sub)}">${active ? 'Ativo' : 'Finalizado'}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:0.6rem;align-items:center;text-align:center;">
+                <strong style="font-size:${scoreSize};color:${c.text};line-height:1;">${Number(mineScore || 0).toLocaleString('pt-BR')}</strong>
+                <span style="font-size:0.66rem;color:${c.muted};font-weight:900;">vs</span>
+                <strong style="font-size:${scoreSize};color:${c.text};line-height:1;">${Number(otherScore || 0).toLocaleString('pt-BR')}</strong>
+            </div>
+        </div>`;
+    },
+
     _renderRankingItem(squad, c) {
-        return `<div style="display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:0.72rem;align-items:center;padding:0.72rem;border-radius:14px;border:1px solid ${squad.isCurrent ? 'rgba(168,85,247,0.32)' : c.border};background:${squad.isCurrent ? 'rgba(168,85,247,0.12)' : c.bg2};">
-            <div style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${squad.rank <= 3 ? 'rgba(245,158,11,0.14)' : 'rgba(148,163,184,0.12)'};color:${squad.rank <= 3 ? '#f59e0b' : c.sub};font-weight:900;">#${squad.rank}</div>
+        const top = Number(squad.rank || 0) <= 3;
+        const border = squad.isCurrent ? 'rgba(168,85,247,0.34)' : (top ? 'rgba(245,158,11,0.26)' : c.border);
+        const bg = c.bg2;
+        return `<div style="display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:0.72rem;align-items:center;padding:0.68rem;border-radius:10px;border:1px solid ${border};background:${bg};">
+            <div style="width:34px;height:34px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:${top ? 'rgba(245,158,11,0.14)' : 'rgba(148,163,184,0.12)'};color:${top ? '#f59e0b' : c.sub};font-weight:900;">#${squad.rank}</div>
             <div style="min-width:0;">
                 <div style="display:flex;align-items:center;gap:0.45rem;min-width:0;flex-wrap:wrap;">
                     <span style="font-size:0.84rem;font-weight:900;color:${c.text};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this._escape(squad.name)}</span>
@@ -347,7 +712,7 @@ const SquadsUI = {
 
         try {
             this._squadSocialUnsub = window.Squads.subscribeCurrentSquad((updatedSquad) => {
-                if (!document.getElementById('squad-chat-list')) {
+                if (!document.getElementById('squads-main-content')) {
                     this.stopSquadSocialLive();
                     this.stopSquadPresenceLive();
                     return;
@@ -378,7 +743,11 @@ const SquadsUI = {
     renderSquadSocialFromSquad(squad) {
         const chatList = document.getElementById('squad-chat-list');
         const feedList = document.getElementById('squad-feed-list');
-        if (!chatList && !feedList) return;
+        const hasOverview = !!document.getElementById('squad-section-overview');
+        const hasRanking = !!document.getElementById('squad-ranking-list');
+        const hasGoals = !!document.getElementById('squad-goals-list');
+        const hasChallenges = !!document.getElementById('squad-challenges-list');
+        if (!chatList && !feedList && !hasOverview && !hasRanking && !hasGoals && !hasChallenges) return;
 
         const c = this._colors(document.body.classList.contains('dark-theme'));
         const messages = window.Squads?._normalizeMessages?.(squad.messages || []) || [];
@@ -402,7 +771,10 @@ const SquadsUI = {
         if (activityStat) activityStat.textContent = this._relativeTime(squad.lastActivityAt || squad.updatedAt);
         const scoreStat = document.getElementById('squad-score-stat');
         if (scoreStat) scoreStat.textContent = Number(squad.score || 0).toLocaleString('pt-BR');
-        if (document.getElementById('squad-ranking-list')) this.loadRanking();
+        if (hasOverview) this.loadOverview();
+        if (hasRanking) this.loadRanking();
+        if (hasGoals) this.loadGoals();
+        if (hasChallenges) this.loadChallenges();
     },
 
     _renderChatMessage(message, c) {
@@ -411,12 +783,12 @@ const SquadsUI = {
         const profile = member?.profile || {};
         const name = profile.username || profile.nyanTag || (isMine ? (window.NyanAuth?.getNyanTag?.() || 'Voce') : message.userId.slice(0, 8));
         return `<div style="display:flex;justify-content:${isMine ? 'flex-end' : 'flex-start'};">
-            <div style="max-width:min(78%,520px);padding:0.68rem 0.78rem;border-radius:${isMine ? '15px 15px 4px 15px' : '15px 15px 15px 4px'};border:1px solid ${isMine ? 'rgba(168,85,247,0.28)' : c.border};background:${isMine ? 'rgba(168,85,247,0.14)' : c.bg2};box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);">
-                <div style="display:flex;align-items:center;gap:0.45rem;justify-content:space-between;margin-bottom:0.28rem;">
+            <div style="max-width:min(68%,440px);padding:0.54rem 0.64rem;border-radius:${isMine ? '14px 14px 4px 14px' : '14px 14px 14px 4px'};border:1px solid ${isMine ? 'rgba(168,85,247,0.28)' : c.border};background:${isMine ? 'rgba(168,85,247,0.14)' : c.bg2};box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);">
+                <div style="display:flex;align-items:center;gap:0.45rem;justify-content:space-between;margin-bottom:0.22rem;">
                     <span style="font-size:0.66rem;font-weight:900;color:${isMine ? 'var(--theme-primary,#a855f7)' : c.text};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this._escape(name)}</span>
                     <span style="font-size:0.58rem;color:${c.muted};white-space:nowrap;">${this._formatTime(message.createdAt)}</span>
                 </div>
-                <div style="font-size:0.78rem;line-height:1.42;color:${c.text};white-space:pre-wrap;word-break:break-word;">${this._escape(message.content)}</div>
+                <div style="font-size:0.76rem;line-height:1.38;color:${c.text};white-space:pre-wrap;word-break:break-word;">${this._escape(message.content)}</div>
             </div>
         </div>`;
     },
@@ -424,11 +796,11 @@ const SquadsUI = {
     _renderFeedItem(item, c) {
         const accent = item.type === 'event' ? '#10b981' : 'var(--theme-primary,#a855f7)';
         const content = this._resolveFeedContent(item);
-        return `<div style="display:flex;gap:0.62rem;padding:0.68rem;border:1px solid ${c.border};border-radius:14px;background:${c.bg2};">
-            <div style="width:9px;height:9px;border-radius:999px;background:${accent};box-shadow:0 0 0 4px ${item.type === 'event' ? 'rgba(16,185,129,0.1)' : 'rgba(168,85,247,0.1)'};margin-top:0.28rem;flex-shrink:0;"></div>
+        return `<div style="display:flex;gap:0.5rem;padding:0.46rem 0.52rem;border:1px solid ${c.border};border-radius:10px;background:${c.bg2};">
+            <div style="width:7px;height:7px;border-radius:999px;background:${accent};box-shadow:0 0 0 3px ${item.type === 'event' ? 'rgba(16,185,129,0.1)' : 'rgba(168,85,247,0.1)'};margin-top:0.3rem;flex-shrink:0;"></div>
             <div style="min-width:0;flex:1;">
-                <div style="font-size:0.76rem;line-height:1.42;color:${c.text};font-weight:800;">${this._escape(content)}</div>
-                <div style="font-size:0.62rem;color:${c.muted};margin-top:0.2rem;">${this._formatDateTime(item.createdAt)}</div>
+                <div style="font-size:0.71rem;line-height:1.32;color:${c.text};font-weight:800;">${this._escape(content)}</div>
+                <div style="font-size:0.59rem;color:${c.muted};margin-top:0.16rem;">${this._formatDateTime(item.createdAt)}</div>
             </div>
         </div>`;
     },
@@ -524,7 +896,7 @@ const SquadsUI = {
     },
 
     _miniStat(c) {
-        return `display:flex;flex-direction:column;gap:0.18rem;padding:0.65rem 0.75rem;border-radius:14px;border:1px solid ${c.border};background:${c.d ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.76)'};font-size:0.66rem;color:${c.muted};box-shadow:inset 0 1px 0 rgba(255,255,255,0.04);`;
+        return `display:flex;flex-direction:column;gap:0.18rem;padding:0.65rem 0.75rem;border-radius:12px;border:1px solid ${c.border};background:${c.bg};font-size:0.66rem;color:${c.muted};box-shadow:none;`;
     },
 
     _pill(bg, border, color) {
@@ -532,7 +904,7 @@ const SquadsUI = {
     },
 
     _panel(c) {
-        return `background:${c.bg};border:1px solid ${c.border};border-radius:20px;padding:1rem;box-shadow:0 14px 38px rgba(0,0,0,0.1);`;
+        return `background:${c.bg};border:1px solid ${c.border};border-radius:12px;padding:0.88rem;box-shadow:none;`;
     },
 
     _sectionBar() {
@@ -564,7 +936,7 @@ const SquadsUI = {
                     <div style="${this._eyebrow(c)}">Explorar</div>
                     <div style="font-family:'Syne',sans-serif;font-size:1.2rem;font-weight:900;color:${c.text};line-height:1.1;">Clãs existentes</div>
                 </div>
-                <div style="display:flex;gap:0.5rem;align-items:center;min-width:min(100%,420px);flex:1;max-width:520px;flex-wrap:wrap;padding:0.45rem;border:1px solid ${c.border};background:${c.d ? 'rgba(0,0,0,0.14)' : 'rgba(248,250,252,0.86)'};border-radius:16px;">
+                <div style="display:flex;gap:0.5rem;align-items:center;min-width:min(100%,420px);flex:1;max-width:520px;flex-wrap:wrap;padding:0.45rem;border:1px solid ${c.border};background:${c.bg};border-radius:12px;">
                     <input id="squad-search-input" type="text" maxlength="40" value="${this._escape(this._browseQuery)}"
                         onkeydown="if(event.key==='Enter') SquadsUI.searchPublicSquads()"
                         placeholder="Procurar por nome ou tag"
@@ -581,7 +953,7 @@ const SquadsUI = {
 
     _renderPublicState(c, text, type = 'empty') {
         const color = type === 'error' ? '#ef4444' : c.muted;
-        return `<div style="display:flex;align-items:center;justify-content:center;min-height:116px;border:1px dashed ${c.border};border-radius:16px;background:${c.d ? 'rgba(0,0,0,0.12)' : 'rgba(255,255,255,0.55)'};color:${color};font-size:0.78rem;text-align:center;padding:1rem;">${this._escape(text)}</div>`;
+        return `<div style="display:flex;align-items:center;justify-content:center;min-height:116px;border:1px dashed ${c.border};border-radius:12px;background:${c.bg2};color:${color};font-size:0.78rem;text-align:center;padding:1rem;">${this._escape(text)}</div>`;
     },
 
     async refresh(options = {}) {
@@ -596,14 +968,12 @@ const SquadsUI = {
             if (squad) {
                 this.loadMembers();
                 this.loadJoinRequests();
-                this.loadFriendInvites();
-                this.loadSquadSocial();
-                this.loadRanking();
+                this.loadRankSummary();
+                this._loadActiveTabData();
                 this.startSquadSocialLive();
             } else {
                 this.stopSquadSocialLive();
                 this.stopSquadPresenceLive();
-                this.loadIncomingInvites();
                 this.loadPublicSquads();
             }
             if (!options.silent) window.Utils?.showNotification?.('Clãs atualizados.', 'success');
@@ -716,6 +1086,56 @@ const SquadsUI = {
         }
     },
 
+    async openChallengeModal() {
+        const c = this._colors(document.body.classList.contains('dark-theme'));
+        this._openModal({
+            id: 'squad-challenge-modal',
+            title: 'Desafiar Clã',
+            body: `<div style="font-size:0.78rem;color:var(--squad-modal-sub);line-height:1.5;margin-bottom:0.8rem;">
+                Escolha um Clã para uma disputa de 24h. Cada ponto ganho durante o periodo conta para o placar.
+            </div>
+            <div id="squad-challenge-targets" style="display:grid;gap:0.55rem;max-height:360px;overflow-y:auto;">
+                <div style="padding:1rem;text-align:center;color:var(--squad-modal-sub);font-size:0.78rem;">Carregando Clãs...</div>
+            </div>
+            <div id="squad-challenge-status" style="min-height:1rem;font-size:0.72rem;margin-top:0.7rem;color:#ef4444;"></div>`,
+            footer: `<button onclick="document.getElementById('squad-challenge-modal').remove()" style="${this._modalCancelBtn()}">Fechar</button>`,
+        });
+
+        const list = document.getElementById('squad-challenge-targets');
+        try {
+            const current = window.Squads.getCurrentSquadSync();
+            const result = await window.Squads.listPublicSquads({ limit: 25 });
+            const targets = (result.items || []).filter((squad) => squad.id !== current?.id);
+            if (!targets.length) {
+                list.innerHTML = `<div style="padding:1rem;text-align:center;color:var(--squad-modal-sub);font-size:0.78rem;">Nenhum Clã disponivel para desafiar agora.</div>`;
+                return;
+            }
+            list.innerHTML = targets.map((squad) => `<button onclick="SquadsUI.startChallenge('${this._escape(squad.id)}')" style="display:flex;align-items:center;justify-content:space-between;gap:0.8rem;width:100%;text-align:left;padding:0.75rem;border-radius:14px;border:1px solid ${c.border};background:${c.bg2};color:${c.text};cursor:pointer;font-family:'DM Sans',sans-serif;">
+                <span style="min-width:0;">
+                    <strong style="display:block;font-size:0.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this._escape(squad.name)} [${this._escape(squad.tag)}]</strong>
+                    <span style="font-size:0.66rem;color:${c.muted};">${Number(squad.score || 0).toLocaleString('pt-BR')} pontos · ${(squad.members || []).length} membros</span>
+                </span>
+                <span style="${this._pill('rgba(245,158,11,0.1)', 'rgba(245,158,11,0.24)', '#f59e0b')}">24h</span>
+            </button>`).join('');
+        } catch (err) {
+            list.innerHTML = `<div style="padding:1rem;text-align:center;color:#ef4444;font-size:0.78rem;">${this._escape(err.message || 'Erro ao carregar Clãs.')}</div>`;
+        }
+    },
+
+    async startChallenge(targetSquadId) {
+        const status = document.getElementById('squad-challenge-status');
+        try {
+            if (status) status.textContent = 'Iniciando desafio...';
+            await window.Squads.startChallenge(targetSquadId);
+            document.getElementById('squad-challenge-modal')?.remove();
+            window.Utils?.showNotification?.('Desafio iniciado por 24h.', 'success');
+            await this.refresh({ silent: true });
+        } catch (err) {
+            if (status) status.textContent = err.message || 'Erro ao iniciar desafio.';
+            window.Utils?.showNotification?.(err.message || 'Erro ao iniciar desafio.', 'error');
+        }
+    },
+
     async loadJoinRequests() {
         const list = document.getElementById('squad-join-requests-list');
         if (!list || !window.Squads) return;
@@ -730,16 +1150,16 @@ const SquadsUI = {
 
             list.innerHTML = requests.map((request) => {
                 const name = request.username || request.nyanTag || request.userId?.slice(0, 8) || 'Usuario';
-                return `<div style="display:flex;align-items:center;gap:0.72rem;padding:0.78rem;border:1px solid ${c.border};background:${c.bg2};border-radius:15px;margin-bottom:0.5rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);">
-                    <div style="width:42px;height:42px;border-radius:14px;overflow:hidden;background:${c.bg};flex-shrink:0;">
+                return `<div class="squad-request-row" style="display:flex;align-items:center;gap:0.52rem;padding:0.52rem;border:1px solid ${c.border};background:${c.bg2};border-radius:13px;margin-bottom:0.38rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);transition:transform .16s ease,border-color .16s ease;">
+                    <div style="width:36px;height:36px;border-radius:12px;overflow:hidden;background:${c.bg};flex-shrink:0;">
                         ${request.avatar ? `<img src="${this._escape(request.avatar)}" style="width:100%;height:100%;object-fit:cover;" alt="Avatar"/>` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:900;color:white;background:linear-gradient(135deg,#7c3aed,#06b6d4);">${this._escape(name.charAt(0).toUpperCase())}</div>`}
                     </div>
                     <div style="flex:1;min-width:0;">
-                        <div style="font-size:0.82rem;font-weight:800;color:${c.text};">${this._escape(name)}</div>
-                        <div style="font-size:0.67rem;color:${c.muted};">${this._escape(request.nyanTag || request.userId || '')}</div>
+                        <div style="font-size:0.76rem;font-weight:900;color:${c.text};">${this._escape(name)}</div>
+                        <div style="font-size:0.61rem;color:${c.muted};">${this._escape(request.nyanTag || request.userId || '')}</div>
                     </div>
-                    <button onclick="SquadsUI.acceptJoinRequest('${this._escape(request.userId)}')" style="${this._btnSecondary(c)}">Aceitar</button>
-                    <button onclick="SquadsUI.rejectJoinRequest('${this._escape(request.userId)}')" style="${this._btnGhost(c)}">Recusar</button>
+                    <button onclick="SquadsUI.acceptJoinRequest('${this._escape(request.userId)}')" style="${this._btnSecondary(c)}min-height:31px;padding:0.45rem 0.55rem;font-size:0.68rem;">Aceitar</button>
+                    <button onclick="SquadsUI.rejectJoinRequest('${this._escape(request.userId)}')" style="${this._btnGhost(c)}min-height:31px;padding:0.45rem 0.55rem;font-size:0.68rem;">Recusar</button>
                 </div>`;
             }).join('');
         } catch (err) {
@@ -841,6 +1261,7 @@ const SquadsUI = {
         const currentSquad = window.Squads?.getCurrentSquadSync?.();
         const currentUID = window.NyanAuth?.getUID?.();
         const canKick = currentSquad?.ownerId === currentUID && member.userId !== currentUID && !isLeader;
+        const profileUid = profile.uid || member.userId;
         const joined = member.joinedAt
             ? new Date(member.joinedAt).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: '2-digit' })
             : '';
@@ -851,144 +1272,23 @@ const SquadsUI = {
                 : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#7c3aed,#ec4899);color:white;font-weight:900;">${name.charAt(0).toUpperCase()}</div>`);
 
         return `
-        <div style="display:flex;align-items:center;gap:0.78rem;padding:0.82rem;border:1px solid ${isLeader ? 'rgba(245,158,11,0.36)' : c.border};
-            background:${isLeader ? 'linear-gradient(135deg,rgba(245,158,11,0.12),rgba(245,158,11,0.04))' : c.bg2};border-radius:16px;margin-bottom:0.55rem;box-shadow:${isLeader ? '0 10px 28px rgba(245,158,11,0.08)' : 'inset 0 1px 0 rgba(255,255,255,0.03)'};">
-            <div style="width:46px;height:46px;border-radius:14px;overflow:hidden;flex-shrink:0;box-shadow:0 10px 24px rgba(0,0,0,0.14);">${avatar}</div>
+        <div class="squad-member-row" onclick="Friends.viewProfile('${this._escape(profileUid)}', 'squads')" style="display:flex;align-items:center;gap:0.54rem;padding:0.52rem;border:1px solid ${isLeader ? 'rgba(245,158,11,0.32)' : c.border};
+            background:${c.bg2};border-radius:10px;margin-bottom:0.38rem;box-shadow:none;cursor:pointer;transition:transform .16s ease,border-color .16s ease;">
+            <div style="width:36px;height:36px;border-radius:12px;overflow:hidden;flex-shrink:0;box-shadow:0 8px 18px rgba(0,0,0,0.12);">${avatar}</div>
             <div style="flex:1;min-width:0;">
                 <div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;">
-                    <span style="font-size:0.84rem;font-weight:800;color:${c.text};">${this._escape(name)}</span>
-                    <span style="font-size:0.58rem;font-weight:900;letter-spacing:0.08em;text-transform:uppercase;color:${isLeader ? '#f59e0b' : c.muted};padding:0.18rem 0.42rem;border-radius:999px;background:${isLeader ? 'rgba(245,158,11,0.12)' : 'rgba(148,163,184,0.1)'};">
+                    <span style="font-size:0.75rem;font-weight:900;color:${c.text};">${this._escape(name)}</span>
+                    <span style="font-size:0.52rem;font-weight:900;letter-spacing:0.08em;text-transform:uppercase;color:${isLeader ? '#f59e0b' : c.muted};padding:0.16rem 0.34rem;border-radius:999px;background:${isLeader ? 'rgba(245,158,11,0.12)' : 'rgba(148,163,184,0.1)'};">
                         ${isLeader ? 'Leader' : 'Member'}
                     </span>
                 </div>
-                <div style="font-size:0.68rem;color:${c.muted};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
+                <div style="font-size:0.6rem;color:${c.muted};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
                     ${this._escape(tag)}${joined ? ` · entrou em ${joined}` : ''}
                 </div>
             </div>
-            ${profile.uid ? `<button onclick="Friends.viewProfile('${profile.uid}')" style="${this._btnGhost(c)}">Perfil</button>` : ''}
-            ${canKick ? `<button onclick="SquadsUI.confirmKick('${member.userId}')" style="${this._btnDanger()}">Expulsar</button>` : ''}
+            <button onclick="event.stopPropagation();Friends.viewProfile('${this._escape(profileUid)}', 'squads')" style="${this._btnGhost(c)}min-height:31px;padding:0.45rem 0.55rem;font-size:0.68rem;">Perfil</button>
+            ${canKick ? `<button onclick="event.stopPropagation();SquadsUI.confirmKick('${this._escape(member.userId)}')" style="${this._btnDanger()}min-height:31px;padding:0.45rem 0.55rem;font-size:0.68rem;">Expulsar</button>` : ''}
         </div>`;
-    },
-
-    async loadFriendInvites() {
-        const list = document.getElementById('squad-friends-invite-list');
-        if (!list || !window.Squads) return;
-        const c = this._colors(document.body.classList.contains('dark-theme'));
-
-        try {
-            const friends = await window.Squads.getFriendProfiles();
-            if (!friends.length) {
-                list.innerHTML = `<div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Adicione amigos para convidar para o Clã.</div>`;
-                return;
-            }
-
-            const currentSquad = window.Squads.getCurrentSquadSync();
-            const currentMemberIds = new Set((currentSquad?.members || []).map((member) => member.userId));
-            list.innerHTML = friends.map((friend) => {
-                const inSquad = currentMemberIds.has(friend.uid);
-                return `<div style="display:flex;align-items:center;gap:0.7rem;padding:0.75rem;border:1px solid ${c.border};background:${c.bg2};border-radius:15px;margin-bottom:0.5rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);">
-                    <div style="flex:1;min-width:0;">
-                        <div style="font-size:0.82rem;font-weight:800;color:${c.text};">${this._escape(friend.username || 'Usuario')}</div>
-                        <div style="font-size:0.67rem;color:${c.muted};">${this._escape(friend.nyanTag || friend.uid)}</div>
-                    </div>
-                    <button ${inSquad ? 'disabled' : ''} onclick="SquadsUI.inviteFriend('${friend.uid}')"
-                        style="${inSquad ? this._btnDisabled(c) : this._btnSecondary(c)}">${inSquad ? 'No Clã' : 'Convidar'}</button>
-                </div>`;
-            }).join('');
-        } catch (err) {
-            list.innerHTML = `<div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Nao foi possivel carregar amigos.</div>`;
-        }
-    },
-
-    async loadIncomingInvites() {
-        const wrap = document.getElementById('squad-invites-content');
-        if (!wrap || !window.NyanFirebase?.isReady?.()) return;
-        const uid = window.NyanAuth?.getUID?.();
-        if (!uid) return;
-        const c = this._colors(document.body.classList.contains('dark-theme'));
-
-        try {
-            const { collection, getDocs } = window.NyanFirebase.fn;
-            const snap = await getDocs(collection(window.NyanFirebase.db, `squadInvites/${uid}/inbox`));
-            const rawInvites = snap.docs
-                .map((doc) => ({ id: doc.id, ...doc.data() }))
-                .filter((invite) => invite.status !== 'accepted')
-                .sort((a, b) => (b.sentAt?.seconds || 0) - (a.sentAt?.seconds || 0))
-                .slice(0, 4);
-            const checks = await Promise.all(rawInvites.map(async (invite) => {
-                if (!invite.squadId) return invite;
-                const squad = await window.NyanFirebase.getDoc(`squads/${invite.squadId}`).catch(() => null);
-                if (squad) return invite;
-                await this.deleteInvite(invite.id, { silent: true });
-                return null;
-            }));
-            const invites = checks.filter(Boolean);
-
-            if (!invites.length) {
-                wrap.innerHTML = '';
-                return;
-            }
-
-            wrap.innerHTML = `<section style="background:${c.bg};border:1px solid ${c.border};border-radius:18px;padding:1rem;">
-                <div style="font-size:0.62rem;font-weight:900;letter-spacing:0.1em;text-transform:uppercase;color:${c.muted};margin-bottom:0.55rem;">Convites recebidos</div>
-                ${invites.map((invite) => `
-                    <div style="display:flex;align-items:center;gap:0.7rem;padding:0.7rem;border-radius:13px;background:${c.bg2};border:1px solid ${c.border};margin-bottom:0.45rem;">
-                        <div style="flex:1;min-width:0;">
-                            <div style="font-size:0.82rem;font-weight:800;color:${c.text};">${this._escape(invite.squadName || 'Clã')} [${this._escape(invite.squadTag || '---')}]</div>
-                            <div style="font-size:0.67rem;color:${c.muted};">Enviado por ${this._escape(invite.fromTag || 'um amigo')}</div>
-                        </div>
-                        <button onclick="SquadsUI.openJoinModal('${this._escape(invite.inviteCode || '')}')" style="${this._btnSecondary(c)}">Entrar</button>
-                        <button onclick="SquadsUI.deleteInvite('${this._escape(invite.id)}')" style="${this._btnGhost(c)}">Excluir</button>
-                    </div>
-                `).join('')}
-            </section>`;
-        } catch (err) {
-            wrap.innerHTML = '';
-        }
-    },
-
-    async deleteInvite(inviteId, options = {}) {
-        const uid = window.NyanAuth?.getUID?.();
-        const safeInviteId = String(inviteId || '').trim();
-        if (!uid || !safeInviteId || !window.NyanFirebase?.isReady?.()) return false;
-
-        try {
-            await window.NyanFirebase.fn.deleteDoc(
-                window.NyanFirebase.docRef(`squadInvites/${uid}/inbox/${safeInviteId}`)
-            );
-            if (!options.silent) {
-                window.Utils?.showNotification?.('Convite excluido.', 'success');
-                this.loadIncomingInvites();
-            }
-            return true;
-        } catch (err) {
-            if (!options.silent) window.Utils?.showNotification?.(err.message || 'Erro ao excluir convite.', 'error');
-            return false;
-        }
-    },
-
-    async deleteInvitesByCode(code) {
-        const uid = window.NyanAuth?.getUID?.();
-        const safeCode = String(code || '').trim().toUpperCase();
-        if (!uid || !safeCode || !window.NyanFirebase?.isReady?.()) return;
-
-        const { collection, getDocs } = window.NyanFirebase.fn;
-        const snap = await getDocs(collection(window.NyanFirebase.db, `squadInvites/${uid}/inbox`)).catch(() => null);
-        if (!snap) return;
-
-        await Promise.all(snap.docs
-            .map((doc) => ({ id: doc.id, ...doc.data() }))
-            .filter((invite) => String(invite.inviteCode || '').trim().toUpperCase() === safeCode)
-            .map((invite) => this.deleteInvite(invite.id, { silent: true })));
-    },
-
-    async inviteFriend(friendUid) {
-        try {
-            await window.Squads.inviteFriend(friendUid);
-            window.Utils?.showNotification?.('Convite de Clã enviado.', 'success');
-        } catch (err) {
-            window.Utils?.showNotification?.(err.message || 'Erro ao enviar convite.', 'error');
-        }
     },
 
     _imageIds(mode = 'custom') {
@@ -1148,12 +1448,10 @@ const SquadsUI = {
             const result = await window.Squads.joinByCode(code);
             const squad = result?.squad || result;
             if (result?.pending) {
-                await this.deleteInvitesByCode(code);
                 document.getElementById('squad-join-modal')?.remove();
                 window.Utils?.showNotification?.(`Pedido enviado para ${squad.name}.`, 'success');
                 return;
             }
-            await this.deleteInvitesByCode(code);
             document.getElementById('squad-join-modal')?.remove();
             window.Utils?.showNotification?.(`Voce entrou em ${squad.name}.`, 'success');
             this.refresh({ silent: true });
@@ -1429,6 +1727,15 @@ const SquadsUI = {
             hour: '2-digit',
             minute: '2-digit',
         });
+    },
+
+    _formatDuration(ms) {
+        const total = Math.max(0, Math.floor(Number(ms || 0) / 1000));
+        const hours = Math.floor(total / 3600);
+        const minutes = Math.floor((total % 3600) / 60);
+        if (hours > 0) return `${hours}h ${minutes}min`;
+        if (minutes > 0) return `${minutes}min`;
+        return `${total}s`;
     },
 
     _relativeTime(timestamp) {

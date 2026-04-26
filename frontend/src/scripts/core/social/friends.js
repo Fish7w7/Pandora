@@ -995,15 +995,15 @@ const Friends = {
         }
         const favoriteGame = Friends._getFavoriteGame(scoreMap);
 
-        const myVersion    = window.App?.version || '3.10.0';
+        const myVersion    = window.App?.version || '3.13.3';
         const theirVersion = profile.version || '?';
         let vBadgeEmoji = '', vBadgeText = '', vBadgeTitle = '';
         if (theirVersion !== '?' && myVersion) {
             const myNum    = myVersion.split('.').map(Number).reduce((a,b,i) => a + b * Math.pow(1000, 2-i), 0);
             const theirNum = theirVersion.split('.').map(Number).reduce((a,b,i) => a + b * Math.pow(1000, 2-i), 0);
-            if (theirNum === myNum)    { vBadgeEmoji='🟢'; vBadgeText='v'+theirVersion; vBadgeTitle='Versão igual à sua (v'+theirVersion+')'; }
-            else if (theirNum < myNum) { vBadgeEmoji='🟡'; vBadgeText='v'+theirVersion; vBadgeTitle='Versão desatualizada — eles têm v'+theirVersion+', você tem v'+myVersion; }
-            else                       { vBadgeEmoji='🔵'; vBadgeText='v'+theirVersion; vBadgeTitle='Versão mais nova — eles têm v'+theirVersion+', você tem v'+myVersion; }
+            if (theirNum === myNum)    { vBadgeEmoji='🟢'; vBadgeText='v'+theirVersion; vBadgeTitle='Versão igual à sua: v'+theirVersion; }
+            else if (theirNum < myNum) { vBadgeEmoji='🟡'; vBadgeText='v'+theirVersion; vBadgeTitle='Versão desatualizada: seu amigo usa v'+theirVersion+'; você usa v'+myVersion; }
+            else                       { vBadgeEmoji='🔵'; vBadgeText='v'+theirVersion; vBadgeTitle='Versão mais nova: seu amigo usa v'+theirVersion+'; você usa v'+myVersion; }
         }
 
         const myUID = NyanAuth.getUID();
@@ -1377,18 +1377,31 @@ const Friends = {
 
         _showVersionTooltip(e, text) {
         document.getElementById('version-tooltip')?.remove();
+        const host = document.getElementById('nyan-pp-banner') || document.getElementById('nyan-pp-wrap') || document.body;
         const t = document.createElement('div');
         t.id = 'version-tooltip';
         const d = document.body.classList.contains('dark-theme');
-        t.style.cssText = 'position:fixed;z-index:99999;padding:0.4rem 0.7rem;border-radius:8px;font-size:0.72rem;font-weight:600;max-width:240px;pointer-events:none;' +
+        t.style.cssText = 'position:absolute;z-index:20;padding:0.4rem 0.7rem;border-radius:8px;font-size:0.72rem;font-weight:600;max-width:240px;pointer-events:none;' +
             'background:' + (d ? '#1e1e2e' : '#1a1a1a') + ';color:#f1f5f9;box-shadow:0 4px 16px rgba(0,0,0,0.4);' +
             "font-family:'DM Sans',sans-serif;line-height:1.4;";
         t.textContent = text;
-        document.body.appendChild(t);
+        host.appendChild(t);
         const rect = e.target.getBoundingClientRect();
+        const hostRect = host.getBoundingClientRect();
+        const badgeLeft = rect.left - hostRect.left;
+        const badgeTop = rect.top - hostRect.top;
+        const badgeBottom = rect.bottom - hostRect.top;
+        t.style.maxWidth = Math.min(240, Math.max(140, hostRect.width - 24)) + 'px';
         const tw = t.offsetWidth, th = t.offsetHeight;
-        t.style.left = Math.min(rect.left + rect.width/2 - tw/2, window.innerWidth - tw - 8) + 'px';
-        t.style.top  = (rect.top - th - 6) + 'px';
+        const leftSpace = badgeLeft - 8;
+        const left = leftSpace >= Math.min(160, tw)
+            ? badgeLeft - tw - 8
+            : Math.max(8, Math.min(badgeLeft + rect.width / 2 - tw / 2, hostRect.width - tw - 8));
+        const top = leftSpace >= Math.min(160, tw)
+            ? Math.max(8, Math.min(badgeTop, hostRect.height - th - 8))
+            : Math.max(8, Math.min(badgeBottom + 6, hostRect.height - th - 8));
+        t.style.left = left + 'px';
+        t.style.top  = top + 'px';
     },
 
     _hideVersionTooltip() {

@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.13.2-purple?style=for-the-badge&logo=electron)
+![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.13.3-purple?style=for-the-badge&logo=electron)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)
 ![Electron](https://img.shields.io/badge/Electron-27.0.0-47848F?style=for-the-badge&logo=electron)
@@ -83,7 +83,7 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
    ```
 
 2. **Execute o Instalador**
-   - Baixe `NyanTools-3.13.2-Setup.exe`
+   - Baixe `NyanTools-3.13.3-Setup.exe`
    - Execute e siga o assistente de instalação
 
 3. **Pronto! にゃん~**
@@ -381,12 +381,12 @@ npm run build:all      # Todas as plataformas
 
 ```
 dist/
-├── NyanTools-3.13.2-Setup.exe       # Windows — instalador
-├── NyanTools 3.13.2.exe             # Windows — portátil
-├── NyanTools-3.13.2-x64.dmg        # macOS Intel
-├── NyanTools-3.13.2-arm64.dmg      # macOS Apple Silicon
-├── NyanTools-3.13.2-x64.AppImage   # Linux
-└── NyanTools-3.13.2-amd64.deb      # Linux Debian/Ubuntu
+├── NyanTools-3.13.3-Setup.exe       # Windows — instalador
+├── NyanTools 3.13.3.exe             # Windows — portátil
+├── NyanTools-3.13.3-x64.dmg        # macOS Intel
+├── NyanTools-3.13.3-arm64.dmg      # macOS Apple Silicon
+├── NyanTools-3.13.3-x64.AppImage   # Linux
+└── NyanTools-3.13.3-amd64.deb      # Linux Debian/Ubuntu
 ```
 
 ---
@@ -426,24 +426,23 @@ dist/
 - [x] **v3.12.x "DevLab Bundles & Update Reliability"** — Bundles, sync remoto e updater mais confiável.
 
 ### 🚧 Atual
-#### v3.13.2 — Clãs (Expansão)
-- [x] Nova aba Social > Clãs
-- [x] Criação de clã com custo em chips e cofre
-- [x] Nome/tag únicos e código de convite único
-- [x] Entrada por código, clãs públicos e clãs privados com aprovação do líder
-- [x] Lista de membros, limite de 10, saída e transferência de liderança
-- [x] Líder pode aceitar/recusar pedidos, expulsar membros e excluir o clã
-- [x] Personalização com descrição, imagem por arquivo e privacidade
-- [x] Convites para amigos e convites recebidos com exclusão
-- [x] Busca/listagem de clãs existentes com refresh
-- [x] Integração com perfil, presença e amigos
+#### v3.13.3 — Clãs: Metas, Desafios & Hub
+- [x] HUB de Clãs redesenhado com header forte, Visão Geral, abas reais e sidebar leve
+- [x] Metas diárias e semanais com progresso coletivo
+- [x] Economia do Clã com recompensas, cofre, transações e trava contra saldo negativo
+- [x] Desafios de 24h entre Clãs com placar sincronizado para os dois lados
+- [x] Correção do desafio aparecendo apenas para quem desafia
+- [x] Ranking compacto, mural resumido e desafio atual dentro da Visão Geral
+- [x] Layout unificado com grid principal/sidebar, cards padronizados e scroll interno
+- [x] Sistema de convites por amigos removido; entrada por código e pedidos privados continuam
+- [x] Hooks para metas, recompensas e desafios
 
 ### 🔮 Futuro (Próximas versões)
 
-#### 🧩 v3.13.x — Clãs (Expansão)
-- [ ] Ranking entre clãs
-- [ ] Desafios coletivos
-- [ ] Metas cooperativas
+#### 🧩 v3.13.x — Clãs (Polimento)
+- [ ] Ajustes finos de UX
+- [ ] Balanceamento de metas e recompensas
+- [ ] Melhorias visuais no histórico competitivo
 
 ---
 
@@ -567,7 +566,7 @@ MIT License — Copyright (c) 2026 Fish7w7
 
 *Your Purr-fect Toolkit! 🐱✨*
 
-**v3.13.2 — Clãs (Expansão) 🚀**
+**v3.13.3 — Clãs: Metas, Desafios & Hub 🚀**
 
 **[⬆ Voltar ao topo](#-nyantools-にゃん)**
 

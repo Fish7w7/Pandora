@@ -161,30 +161,6 @@
                 };
                 window.Friends._presenceRouteLabel.__squadsPatched = true;
             }
-
-            const originalRenderFriendCard = window.Friends._renderFriendCard?.bind(window.Friends);
-            if (!originalRenderFriendCard || window.Friends.__squadsFriendCardPatched) return;
-            window.Friends.__squadsFriendCardPatched = true;
-
-            window.Friends._renderFriendCard = function(friend, bg, bdr, text, sub, muted, d) {
-                let html = originalRenderFriendCard(friend, bg, bdr, text, sub, muted, d);
-                const squad = window.Squads?.getCurrentSquadSync?.();
-                if (!squad || !friend?.uid || squad.members?.some((member) => member.userId === friend.uid)) {
-                    return html;
-                }
-
-                const inviteButton = `
-                    <button onclick="SquadsUI.inviteFriend('${friend.uid}')"
-                            style="padding:4px 10px;border-radius:7px;border:none;cursor:pointer;
-                                font-size:0.68rem;font-weight:700;
-                                background:rgba(251,191,36,0.12);color:rgba(245,158,11,0.95);
-                                font-family:'DM Sans',sans-serif;">Clã</button>`;
-
-                if (html.includes('</div>\n        </div>\n    </div>')) {
-                    return html.replace('</div>\n        </div>\n    </div>', `${inviteButton}</div>\n        </div>\n    </div>`);
-                }
-                return html.replace('</div>\n        </div>\n    </div>`', `${inviteButton}</div>\n        </div>\n    </div>`);
-            };
         });
     }
 
