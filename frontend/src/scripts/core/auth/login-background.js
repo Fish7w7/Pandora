@@ -109,6 +109,7 @@ const LoginBackground = {
             const ls = document.getElementById('login-screen');
             if (ls && !ls.classList.contains('hidden')) this.apply();
         });
+        if (!document.body) return;
         observer.observe(document.body, {
             attributes: true, subtree: true, attributeFilter: ['class'],
         });

@@ -1,34 +1,35 @@
 {
-    "version": "3.13.3",
-    "buildDate": "2026-04-26",
+    "version": "3.14.0",
+    "buildDate": "2026-04-28",
     "changelog": [
-        "Metas diarias e semanais do Clã com progresso coletivo por pontos, partidas, quizzes e ranking",
-        "Recompensas de metas distribuem chips entre membros e debitam o cofre sem permitir saldo negativo",
-        "Desafios de 24h entre Clãs com placar sincronizado para os dois lados e limite de um desafio ativo",
-        "Corrigido desafio aparecendo apenas para quem desafia; ambos os Clãs agora enxergam a disputa",
-        "HUB de Clãs redesenhado com header forte, Visao Geral, abas reais e sidebar mais leve",
-        "Visao Geral resume top metas, atividade recente, desafio atual e ranking compacto",
-        "Layout visual unificado com grid principal/sidebar, cards padronizados e sidebar com scroll interno",
-        "Sistema de convites por amigos removido; entrada por codigo e pedidos de Clãs privados continuam",
-        "Hooks de metas, recompensas e desafios adicionados para integracoes futuras"
+        "Nyan Core finaliza a base v3.14.0 com versao, updater, storage, lifecycle e UI sincronizados",
+        "Boot do app estabilizado com init seguro, tema sem body null e Firebase iniciado somente com documento pronto",
+        "Preload, App, Updater, VersionManager e metadados agora usam a mesma versao 3.14.0",
+        "NyanStorage, NyanLifecycle e NyanLiveOps criam a base para evolucao futura sem migracao agressiva",
+        "Clãs foram estabilizados sem reload infinito, spam de permissoes ou multiplas escritas em leituras",
+        "Desafios de Clã agora liquidam recompensa do vencedor no cofre de forma idempotente",
+        "Tela offline virou experiencia de usuario final, sem instrucoes tecnicas de Firebase",
+        "UI de Clãs recebeu limpeza visual em tabs, cards, ranking, badges e textos",
+        "Listas grandes de chat, mural, feed, membros, desafios e loja foram limitadas para reduzir render pesado",
+        "Correcoes finais pos-QA cobrem tela preta, versionamento, sync social, permissao Firestore e layout"
     ],
-    "tag_name": "v3.13.3",
-    "releaseDate": "2026-04-26",
-    "name": "NyanTools v3.13.3",
-    "codename": "Clãs: Metas, Desafios & Hub",
-    "body": "## NyanTools v3.13.3 - Clãs: Metas, Desafios & Hub\n\n### Metas e Economia\n- Metas diarias e semanais com progresso coletivo\n- Objetivos por pontos, partidas, quizzes e pontuacao de ranking\n- Recompensas distribuem chips entre membros e debitam o cofre do Clã\n- Bloqueio contra saldo negativo e multiplos resgates\n- Historico de transacoes com premios e distribuicoes\n\n### Desafios entre Clãs\n- Desafios diretos de 24h entre dois Clãs\n- Apenas um desafio ativo por Clã\n- Bloqueio de auto-desafio\n- Placar alimentado pelos pontos ja registrados no sistema competitivo\n- Desafio agora aparece para os dois Clãs envolvidos\n- Encerramento automatico com vitoria, derrota, empate e premio fixo ao vencedor\n\n### HUB de Clãs\n- Rework completo da aba de Clãs como HUB central\n- Header mais forte com avatar, nome, tag, status, descricao, membros, pontos, cofre e ranking\n- Sistema de abas reais: Visao Geral, Chat, Mural, Ranking, Metas e Desafios\n- Visao Geral com top metas, ultimas atividades, desafio atual e ranking compacto\n- Sidebar direita mais leve para membros e pedidos\n\n### Layout e UX\n- Fundo unificado para remover blocos escuros quebrados\n- Grid consistente com conteudo principal e sidebar\n- Cards padronizados com mesma cor, borda e raio\n- Sidebar com scroll interno e menos densidade visual\n- Metas e mural mais compactos para reduzir poluicao\n\n### Convites\n- Sistema de convites por amigos removido da aba de Clãs\n- Botao Convidar e painel Convidar amigos removidos\n- Entrada por codigo e pedidos de Clãs privados continuam funcionando\n\n### Mural e Hooks\n- Eventos automaticos para meta concluida, recompensa distribuida, desafio iniciado e desafio finalizado\n- Hooks adicionados: onGoalCompleted, onRewardDistributed, onChallengeStarted e onChallengeEnded\n\nVersao anterior: v3.13.2",
+    "tag_name": "v3.14.0",
+    "releaseDate": "2026-04-28",
+    "name": "NyanTools v3.14.0",
+    "codename": "Nyan Core",
+    "body": "## NyanTools v3.14.0 - Nyan Core\n\n### Fundacao\n- Versao unica em package.json, version.json, frontend/public/version.json, App, Updater, VersionManager e preload\n- Boot do app mais seguro: tema aguarda document.body, Firebase inicia depois do documento pronto e version.js nao apaga o DOM\n- NyanStorage padroniza novos acessos a dados sem migrar agressivamente o legado\n- NyanLifecycle organiza cleanup de rotas, timers, listeners e subscriptions\n- NyanLiveOps adiciona contrato base para eventos futuros sem ativar eventos ainda\n\n### Clãs e Social\n- Clãs nao entram mais em reload infinito ao abrir abas, snapshots ou presenca\n- Leituras de metas/desafios nao disparam escritas remotas desnecessarias\n- Desafios de Clã finalizados liquidam o premio no cofre do vencedor uma unica vez\n- Erros esperados de permissao do Firestore em sync secundario deixam de poluir o console\n- Tela offline agora explica o modo local para usuarios finais e oferece atalhos uteis\n\n### UI e Performance\n- Design system Nyan Core com tokens, cards, botoes, badges, inputs e correcoes de overflow\n- UI de Clãs limpa icones soltos, textos desconexos, badges em ingles e o titulo \"Posicao compacta\"\n- Listas grandes limitadas para reduzir re-render em chat, mural, feed, membros, desafios, loja e ranking\n- Fixes pos-QA corrigem tela preta, body null no tema, Firebase cedo demais e layout inconsistente\n\nVersao anterior: v3.13.3",
     "previousVersion": {
-        "version": "3.13.2",
-        "tag": "v3.13.2",
-        "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.13.2"
+        "version": "3.13.3",
+        "tag": "v3.13.3",
+        "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.13.3"
     },
-    "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.13.3",
-    "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.13.3",
+    "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.14.0",
+    "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.14.0",
     "statistics": {
-        "filesNew": 4,
+        "filesNew": 5,
         "filesRewritten": 0,
-        "filesModified": 10,
-        "bugsFixed": 3,
-        "featuresAdded": 9
+        "filesModified": 28,
+        "bugsFixed": 15,
+        "featuresAdded": 0
     }
 }

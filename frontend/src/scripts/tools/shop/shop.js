@@ -3,6 +3,8 @@ const Shop = {
 
     DAILY_PER_CAT: 2,      // itens por categoria na rotacao diaria
     DAILY_MAX_GAP: 15,     // gap max de nivel para aparecer na rotacao
+    MAX_RENDERED_SHOP_ITEMS: 80,
+    MAX_RENDERED_INVENTORY_ITEMS: 120,
 
     CATEGORIES: [
         { id:'title',    label:'Titulos',    icon:'\u{1F451}' },
@@ -34,6 +36,7 @@ const Shop = {
     _bundleCatalogSyncStarted: false,
     _bundleCatalogSyncTimer: null,
     _bundleCatalogSyncListenersBound: false,
+    _bundleCatalogSyncHandlers: null,
     _bundleCatalogLastForceSyncMs: 0,
     _bundleCatalogRemoteUnsub: null,
     _bundleCatalogRemoteBindRetries: 0,
@@ -582,19 +585,25 @@ const Shop = {
         if (this._bundleCatalogSyncListenersBound) return;
         this._bundleCatalogSyncListenersBound = true;
 
-        window.addEventListener('online', () => {
+        this._bundleCatalogSyncHandlers = {
+            online: () => {
             if (!this._shouldRunForcedBundleSync()) return;
             this._ensureBundleCatalogRuntime({ force: true, silent: true, cacheBust: true });
-        });
+            },
 
-        window.addEventListener('focus', () => {
+            focus: () => {
             this._ensureBundleCatalogRuntime({ force: false, silent: true });
-        });
+            },
 
-        document.addEventListener('visibilitychange', () => {
+            visibility: () => {
             if (document.visibilityState !== 'visible') return;
             this._ensureBundleCatalogRuntime({ force: false, silent: true });
-        });
+            },
+        };
+
+        window.addEventListener('online', this._bundleCatalogSyncHandlers.online);
+        window.addEventListener('focus', this._bundleCatalogSyncHandlers.focus);
+        document.addEventListener('visibilitychange', this._bundleCatalogSyncHandlers.visibility);
     },
 
     startBundleCatalogSync({ forceBoot = true, silent = true } = {}) {
@@ -1667,7 +1676,7 @@ const Shop = {
             </div>
         </div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:0.75rem;">
-            ${items.map((item, i) => this._renderCard(item, i)).join('')}
+            ${items.slice(0, this.MAX_RENDERED_SHOP_ITEMS).map((item, i) => this._renderCard(item, i)).join('')}
         </div>`;
     },
 
@@ -1685,7 +1694,7 @@ const Shop = {
         }
 
         return this.CATEGORIES.map(cat => {
-            const catItems = owned.filter(i => i.type === cat.id);
+            const catItems = owned.filter(i => i.type === cat.id).slice(0, this.MAX_RENDERED_INVENTORY_ITEMS);
             if (catItems.length === 0) return '';
 
             return `
@@ -2069,6 +2078,29 @@ const Shop = {
         this.startBundleCatalogSync({ forceBoot: false, silent: true });
         const chipsEl = document.getElementById('shop-chips-display');
         if (chipsEl) chipsEl.textContent = (window.Economy?.getChips?.() || 0).toLocaleString('pt-BR');
+    },
+
+    cleanup(options = {}) {
+        const full = options === true || options.full === true;
+        document.getElementById('shop-modal')?.remove();
+        if (!full) return;
+
+        if (this._bundleCatalogSyncTimer) {
+            clearInterval(this._bundleCatalogSyncTimer);
+            this._bundleCatalogSyncTimer = null;
+        }
+        if (this._bundleCatalogRemoteUnsub) {
+            try { this._bundleCatalogRemoteUnsub(); } catch (_) {}
+            this._bundleCatalogRemoteUnsub = null;
+        }
+        if (this._bundleCatalogSyncHandlers) {
+            window.removeEventListener('online', this._bundleCatalogSyncHandlers.online);
+            window.removeEventListener('focus', this._bundleCatalogSyncHandlers.focus);
+            document.removeEventListener('visibilitychange', this._bundleCatalogSyncHandlers.visibility);
+            this._bundleCatalogSyncHandlers = null;
+            this._bundleCatalogSyncListenersBound = false;
+        }
+        this._bundleCatalogSyncStarted = false;
     },
 };
 

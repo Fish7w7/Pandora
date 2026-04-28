@@ -1,15 +1,16 @@
 {
-    "version": "3.13.3",
-    "buildDate": "2026-04-26",
+    "version": "3.14.0",
+    "buildDate": "2026-04-28",
     "changelog": [
-        "Metas diarias e semanais do Clã com progresso coletivo por pontos, partidas, quizzes e ranking",
-        "Recompensas de metas distribuem chips entre membros e debitam o cofre sem permitir saldo negativo",
-        "Desafios de 24h entre Clãs com placar sincronizado para os dois lados e limite de um desafio ativo",
-        "Corrigido desafio aparecendo apenas para quem desafia; ambos os Clãs agora enxergam a disputa",
-        "HUB de Clãs redesenhado com header forte, Visao Geral, abas reais e sidebar mais leve",
-        "Visao Geral resume top metas, atividade recente, desafio atual e ranking compacto",
-        "Layout visual unificado com grid principal/sidebar, cards padronizados e sidebar com scroll interno",
-        "Sistema de convites por amigos removido; entrada por codigo e pedidos de Clãs privados continuam",
-        "Hooks de metas, recompensas e desafios adicionados para integracoes futuras"
+        "Nyan Core finaliza a base v3.14.0 com versao, updater, storage, lifecycle e UI sincronizados",
+        "Boot do app estabilizado com init seguro, tema sem body null e Firebase iniciado somente com documento pronto",
+        "Preload, App, Updater, VersionManager e metadados agora usam a mesma versao 3.14.0",
+        "NyanStorage, NyanLifecycle e NyanLiveOps criam a base para evolucao futura sem migracao agressiva",
+        "Clãs foram estabilizados sem reload infinito, spam de permissoes ou multiplas escritas em leituras",
+        "Desafios de Clã agora liquidam recompensa do vencedor no cofre de forma idempotente",
+        "Tela offline virou experiencia de usuario final, sem instrucoes tecnicas de Firebase",
+        "UI de Clãs recebeu limpeza visual em tabs, cards, ranking, badges e textos",
+        "Listas grandes de chat, mural, feed, membros, desafios e loja foram limitadas para reduzir render pesado",
+        "Correcoes finais pos-QA cobrem tela preta, versionamento, sync social, permissao Firestore e layout"
     ]
 }

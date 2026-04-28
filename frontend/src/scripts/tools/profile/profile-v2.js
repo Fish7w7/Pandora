@@ -1533,12 +1533,19 @@ const ProfileV2 = {
             }).catch(() => {});
         }
 
-        window.addEventListener('nyan:presence-changed', (event) => {
+        if (!this._presenceActivityHandler) {
+            this._presenceActivityHandler = (event) => {
             const { status, label } = event.detail || {};
             if (status === 'playing') {
                 this.recordActivity('game_context', { title: label });
             }
-        });
+            };
+            window.addEventListener('nyan:presence-changed', this._presenceActivityHandler);
+        }
+    },
+
+    cleanup() {
+        document.getElementById('banner-picker-modal')?.remove();
     },
 };
 

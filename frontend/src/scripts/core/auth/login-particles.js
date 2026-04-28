@@ -67,6 +67,7 @@ const LoginParticles = {
                 this.destroy();
             }
         });
+        if (!document.body) return;
         observer.observe(document.body, {
             attributes: true, subtree: true, attributeFilter: ['class'],
         });

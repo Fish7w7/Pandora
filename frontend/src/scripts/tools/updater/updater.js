@@ -1,7 +1,7 @@
 ﻿
 
 const AutoUpdater = {
-    currentVersion: '3.13.3',
+    currentVersion: window.VersionManager?.getVersion?.() || window.NYAN_VERSION || '3.14.0',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -35,9 +35,29 @@ const AutoUpdater = {
 
       changelog: [
     {
+        version: '3.14.0',
+        date: '2026-04-28T12:00:00',
+        label: 'Atual',
+        labelColor: 'bg-green-500',
+        author: 'Gabriel',
+        changes: [
+            { type: '🧱', text: 'Nyan Core finaliza versao, updater, storage, lifecycle e UI em uma base unica' },
+            { type: '🚀', text: 'Boot do app estabilizado: tema, VersionManager e Firebase agora iniciam sem quebrar a tela' },
+            { type: '🔄', text: 'App, Updater, preload e metadados usam a mesma versao 3.14.0' },
+            { type: '💾', text: 'Camada NyanStorage adicionada para novos acessos seguros sem migracao agressiva' },
+            { type: '🧭', text: 'NyanLifecycle adiciona cleanup para rotas, timers, listeners e subscriptions' },
+            { type: '🛡️', text: 'Clãs deixam de gerar reload infinito e spam de permissao em leituras sociais' },
+            { type: '💰', text: 'Desafios de Clã agora pagam o premio ao cofre vencedor uma unica vez' },
+            { type: '🎨', text: 'UI de Clãs recebeu tabs limpas, badges revisados, ranking melhorado e textos ajustados' },
+            { type: '📴', text: 'Modo offline agora mostra uma tela amigavel para usuario final, sem instrucoes de Firebase' },
+            { type: '⚡', text: 'Listas grandes foram limitadas para reduzir render pesado em telas sociais e loja' },
+            { type: '🗓️', text: 'NyanLiveOps fica pronto para eventos futuros sem ativar eventos nesta versao' },
+        ]
+    },
+    {
         version: '3.13.3',
         date: '2026-04-26T12:00:00',
-        label: 'Atual',
+        label: '',
         labelColor: 'bg-green-500',
         author: 'Gabriel & Clara',
         changes: [
@@ -50,23 +70,6 @@ const AutoUpdater = {
             { type: '🎨', text: 'Layout visual unificado com grid principal/sidebar, cards padronizados e sidebar com scroll interno' },
             { type: '🧹', text: 'Sistema de convites por amigos removido; entrada por codigo e pedidos de Clãs privados continuam' },
             { type: '🔌', text: 'Hooks de metas, recompensas e desafios adicionados para integracoes futuras' },
-        ]
-    },
-    {
-        version: '3.13.2',
-        date: '2026-04-25T12:00:00',
-        label: '',
-        labelColor: 'bg-green-500',
-        author: 'Clara',
-        changes: [
-            { type: '◆', text: 'Sistema de Clãs integrado ao Social, com criação por chips, cofre, nome/tag únicos e entrada por convite' },
-            { type: '👥', text: 'Limite de membros por clã e hierarquia inicial com leader/member' },
-            { type: '💬', text: 'Chat em grupo exclusivo por clã, com mensagens em tempo real e histórico persistente' },
-            { type: '📰', text: 'Mural interno com feed do clã e eventos automáticos de criação, entrada, saída e atividades relevantes' },
-            { type: '🏆', text: 'Pontuação por clã, ranking global dinâmico e histórico básico de pontuação (scoreHistory)' },
-            { type: '🔗', text: 'Perfil, presença, amigos e eventos sociais agora exibem e refletem o clã do usuário' },
-            { type: '⚙️', text: 'Persistência completa dos clãs, hooks de clã e estrutura pronta para sincronização futura' },
-            { type: '🧠', text: 'Organização social mais modular, preparada para desafios, metas e economia de clãs' },
         ]
     },
 ],
@@ -1022,9 +1025,12 @@ const AutoUpdater = {
     async init() {
         if (this._initialized) return;
         this._initialized = true;
+        window.VersionManager?.syncModules?.();
 
         if (window.App?.version) {
             this.currentVersion = window.App.version;
+        } else if (window.electronAPI?.getAppVersion) {
+            this.currentVersion = window.electronAPI.getAppVersion();
         } else {
             const versionPaths = ['./version.json', '../version.json'];
             for (const vpath of versionPaths) {
@@ -1039,7 +1045,7 @@ const AutoUpdater = {
 
         if (window.electronAPI?.onUpdaterStatus && !this._statusListenerRegistered) {
                 this._statusListenerRegistered = true;
-            window.electronAPI.onUpdaterStatus((status) => {
+            this._statusUnsubscribe = window.electronAPI.onUpdaterStatus((status) => {
                 this._handleNativeStatus(status);
             });
         }
@@ -1374,7 +1380,7 @@ const AutoUpdater = {
 
         if (window.electronAPI?.onDownloadProgress && !this._progressListenerRegistered) {
             this._progressListenerRegistered = true;
-            window.electronAPI.onDownloadProgress((data) => {
+            this._progressUnsubscribe = window.electronAPI.onDownloadProgress((data) => {
                 this.downloadProgress  = data.progress  || 0;
                 this.downloadedBytes   = data.downloadedBytes || 0;
                 this.totalBytes        = data.totalBytes || 0;
@@ -1600,6 +1606,29 @@ const AutoUpdater = {
                 this._queueUIRender();
             }
         }, 200);
+    },
+
+    cleanup(options = {}) {
+        const full = options === true || options.full === true;
+        document.getElementById('nyan-update-confirm')?.remove();
+        if (!full) return;
+
+        clearInterval(this._simInterval);
+        clearTimeout(this._nativeFallbackTimer);
+        clearTimeout(this._noticeTimer);
+        if (typeof this._statusUnsubscribe === 'function') {
+            try { this._statusUnsubscribe(); } catch (_) {}
+        }
+        if (typeof this._progressUnsubscribe === 'function') {
+            try { this._progressUnsubscribe(); } catch (_) {}
+        }
+        this._statusListenerRegistered = false;
+        this._progressListenerRegistered = false;
+        this._statusUnsubscribe = null;
+        this._progressUnsubscribe = null;
+        this._initialized = false;
+        document.getElementById('nyan-update-banner')?.remove();
+        document.getElementById('nyan-update-important-modal')?.remove();
     }
 };
 

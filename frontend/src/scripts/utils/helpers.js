@@ -127,6 +127,9 @@ const Utils = {
     },
 
     saveData(key, data) {
+        if (window.NyanStorage?.set) {
+            return window.NyanStorage.set(key, data);
+        }
         try {
             localStorage.setItem(key, JSON.stringify(data));
             return true;
@@ -137,6 +140,9 @@ const Utils = {
     },
 
     loadData(key) {
+        if (window.NyanStorage?.get) {
+            return window.NyanStorage.get(key, null);
+        }
         try {
             const data = localStorage.getItem(key);
             return data ? JSON.parse(data) : null;
@@ -146,6 +152,9 @@ const Utils = {
     },
 
     removeData(key) {
+        if (window.NyanStorage?.remove) {
+            return window.NyanStorage.remove(key);
+        }
         try { localStorage.removeItem(key); return true; }
         catch (e) { return false; }
     },

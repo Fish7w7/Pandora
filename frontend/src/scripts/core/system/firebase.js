@@ -28,9 +28,20 @@ const NyanFirebase = {
     storage:   null,
     ready:     false,
     _listeners: [],
+    _initPromise: null,
 
     async init() {
         if (this.ready) return true;
+        if (this._initPromise) return this._initPromise;
+
+        this._initPromise = this._initSafely();
+        const ready = await this._initPromise;
+        if (!ready) this._initPromise = null;
+        return ready;
+    },
+
+    async _initSafely() {
+        await this._waitForDocumentBody();
 
         if (FIREBASE_CONFIG.apiKey === 'COLE_SUA_API_KEY') {
             console.warn('[Firebase] ⚠️ firebaseConfig não configurado — modo offline');
@@ -49,6 +60,30 @@ const NyanFirebase = {
             this._setOfflineMode();
             return false;
         }
+    },
+
+    _waitForDocumentBody() {
+        if (document.body) return Promise.resolve();
+
+        return new Promise((resolve) => {
+            let done = false;
+            const check = () => {
+                if (done) return;
+                if (!document.body) {
+                    setTimeout(check, 25);
+                    return;
+                }
+
+                done = true;
+                document.removeEventListener('DOMContentLoaded', check);
+                window.removeEventListener('load', check);
+                resolve();
+            };
+
+            document.addEventListener('DOMContentLoaded', check, { once: true });
+            window.addEventListener('load', check, { once: true });
+            setTimeout(check, 0);
+        });
     },
 
     async _loadSDKs() {
@@ -187,22 +222,26 @@ const NyanFirebase = {
         }
     },
 
-    async setDoc(path, data, merge = true) {
+    async setDoc(path, data, merge = true, options = {}) {
         try {
             await this.fn.setDoc(this.docRef(path), data, { merge });
             return true;
         } catch (err) {
-            console.error('[Firebase] setDoc erro:', path, err.message);
+            if (!options?.silent) {
+                console.error('[Firebase] setDoc erro:', path, err.message);
+            }
             return false;
         }
     },
 
-    async updateDoc(path, data) {
+    async updateDoc(path, data, options = {}) {
         try {
             await this.fn.updateDoc(this.docRef(path), data);
             return true;
         } catch (err) {
-            console.error('[Firebase] updateDoc erro:', path, err.message);
+            if (!options?.silent) {
+                console.error('[Firebase] updateDoc erro:', path, err.message);
+            }
             return false;
         }
     },
@@ -235,8 +274,14 @@ const NyanFirebase = {
     },
 };
 
-document.addEventListener('DOMContentLoaded', () => {
+function bootFirebase() {
     NyanFirebase.init().catch(() => {});
-});
+}
+
+if (document.readyState === 'complete') {
+    setTimeout(bootFirebase, 0);
+} else {
+    window.addEventListener('load', () => setTimeout(bootFirebase, 0), { once: true });
+}
 
 window.NyanFirebase = NyanFirebase;

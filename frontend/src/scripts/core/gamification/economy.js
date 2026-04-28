@@ -91,10 +91,14 @@ const Economy = {
 
     load() {
         try {
-            const raw = localStorage.getItem(this.KEY);
-            if (!raw) return { ...this._defaults() };
+            const parsed = window.NyanStorage?.get
+                ? window.NyanStorage.get(this.KEY, null)
+                : (() => {
+                    const raw = localStorage.getItem(this.KEY);
+                    return raw ? JSON.parse(raw) : null;
+                })();
+            if (!parsed) return { ...this._defaults() };
 
-            const parsed = JSON.parse(raw) || {};
             const source = { ...this._defaults(), ...parsed };
             const normalized = this._normalizeState(source);
 
@@ -113,8 +117,13 @@ const Economy = {
     },
 
     save(state, options = {}) {
-        try { localStorage.setItem(this.KEY, JSON.stringify(state)); }
-        catch (e) { console.error('[Economy] Erro ao salvar:', e); }
+        const saved = window.NyanStorage?.set
+            ? window.NyanStorage.set(this.KEY, state)
+            : (() => {
+                try { localStorage.setItem(this.KEY, JSON.stringify(state)); return true; }
+                catch (e) { console.error('[Economy] Erro ao salvar:', e); return false; }
+            })();
+        if (!saved) console.error('[Economy] Erro ao salvar estado.');
         if (!options.skipSync) this._scheduleRemoteSync();
     },
 
@@ -384,7 +393,7 @@ const Economy = {
             Economy._refreshUI();
         },
         addChips(amount) { Economy.grantChips(amount); },
-        reset() { localStorage.removeItem(Economy.KEY); },
+        reset() { window.NyanStorage?.remove ? window.NyanStorage.remove(Economy.KEY) : localStorage.removeItem(Economy.KEY); },
         state() { console.table(Economy.load()); },
     },
 };

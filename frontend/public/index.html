@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="NyanTools — Sua caixa de ferramentas purr-feita にゃん~">
-    <title>NyanTools にゃん~ v3.13.3</title>
+    <title>NyanTools にゃん~ v3.14.0</title>
 
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -22,6 +22,7 @@
     <link rel="stylesheet" href="../src/styles/focus-mode.css">
     <link rel="stylesheet" href="../src/styles/profile.css">
     <link rel="stylesheet" href="../src/styles/command-palette.css">
+    <link rel="stylesheet" href="../src/styles/nyan-core.css">
 
     <style>
         /* ─── Tipografia base */
@@ -352,7 +353,7 @@
             <div class="mt-6 text-center">
                 <div class="inline-flex items-center gap-2 text-white/20 text-xs font-semibold tracking-widest">
                     <span class="w-8 h-px bg-white/10 block"></span>
-                    <span>v3.13.3</span>
+                    <span data-app-version>v3.14.0</span>
                     <span class="w-8 h-px bg-white/10 block"></span>
                 </div>
             </div>
@@ -483,7 +484,10 @@
     </div>
 
     <!-- Core base -->
+    <script src="../src/scripts/core/system/version.js"></script>
     <script src="../src/scripts/utils/helpers.js"></script>
+    <script src="../src/scripts/core/system/storage.js"></script>
+    <script src="../src/scripts/core/system/lifecycle.js"></script>
     <script src="../src/scripts/core/auth/auth.js"></script>
     <script src="../src/scripts/core/system/router.js"></script>
     <script src="../src/scripts/core/system/dev-security.js"></script>
@@ -546,6 +550,7 @@
 
     <!-- v3.10 connected patches -->
     <script src="../src/scripts/core/system/state-manager.js"></script>
+    <script src="../src/scripts/core/system/liveops-schema.js"></script>
     <script src="../src/scripts/core/system/presence.js"></script>
     <script src="../src/scripts/core/system/integrations.js"></script>
     <script src="../src/scripts/core/system/v310-rewards.js"></script>

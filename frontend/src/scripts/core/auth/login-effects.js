@@ -162,6 +162,7 @@ const LoginEffects = {
                 setTimeout(() => this.inject(), 180);
             }
         });
+        if (!document.body) return;
         observer.observe(document.body, {
             attributes: true, subtree: true, attributeFilter: ['class'],
         });

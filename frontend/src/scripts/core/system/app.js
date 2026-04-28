@@ -1,5 +1,6 @@
 const App = {
-    version: '3.13.3',
+    version: window.VersionManager?.getVersion?.() || window.NYAN_VERSION || '3.14.0',
+    __squadsNativeIntegrated: true,
     user: null,
     currentTool: 'home',
     isOnline: navigator.onLine,
@@ -21,6 +22,7 @@ const App = {
         { id: 'offline', name: 'Zona Offline', icon: '\u{1F4F6}', description: 'Jogos sem internet' },
         { id: 'settings', name: 'Configurações', icon: '\u2699\uFE0F', description: 'Personalize o app' },
         { id: 'dev-lab', name: 'Dev Lab', icon: '\u{1F6E0}\uFE0F', description: 'Ajustes internos de desenvolvimento' },
+        { id: 'squads', name: 'Clãs', icon: '◆', description: 'Clãs e grupos sociais' },
         { id: 'friends', name: 'Amigos', icon: '\u{1F465}', description: 'Lista de amigos e solicitações' },
         { id: 'chat', name: 'Mensagens', icon: '\u{1F4AC}', description: 'Chat privado com amigos' },
         { id: 'leaderboard', name: 'Placar Global', icon: '\u{1F3C6}', description: 'Top 10 por jogo' },
@@ -39,6 +41,14 @@ const App = {
         return this.tools.filter((tool) => this.isToolVisible(tool.id));
     },
     init() {
+        if (this._initialized) return;
+        if (!document.body) {
+            this._scheduleInitWhenBodyReady();
+            return;
+        }
+        this._initialized = true;
+
+        window.VersionManager?.init?.();
         
         this.applyThemeOnStart();
         
@@ -58,16 +68,41 @@ const App = {
         
         this.setupGlobalListeners();
     },
+
+    _scheduleInitWhenBodyReady() {
+        if (this._waitingForBody) return;
+        this._waitingForBody = true;
+
+        const boot = () => {
+            if (!document.body) {
+                setTimeout(boot, 25);
+                return;
+            }
+            this._waitingForBody = false;
+            this.init();
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', boot, { once: true });
+        } else {
+            setTimeout(boot, 0);
+        }
+    },
     
     applyThemeOnStart() {
         const applyTheme = () => {
+            const body = document.body;
+            if (!body) return false;
             const savedTheme = window.Utils?.loadData('app_theme') || 'light';
-            document.body.classList.toggle('dark-theme', savedTheme === 'dark');
+            body.classList.toggle('dark-theme', savedTheme === 'dark');
             if (window.Utils?.saveData) {
                 window.Utils.saveData('app_theme', savedTheme);
             }
+            return true;
         };
-        applyTheme();
+        if (!applyTheme()) {
+            document.addEventListener('DOMContentLoaded', applyTheme, { once: true });
+        }
         setTimeout(applyTheme, 100);
         window.addEventListener('load', applyTheme, { once: true });
     },
@@ -110,12 +145,18 @@ const App = {
             NyanFirebase.init().then(ready => {
                 if (ready) {
                     NyanAuth._showAuthModal(user.username);
+                    if (this._authModalObserver) {
+                        this._authModalObserver.disconnect();
+                        this._authModalObserver = null;
+                    }
                     const observer = new MutationObserver(() => {
                         if (!document.getElementById('nyantag-modal')) {
                             observer.disconnect();
+                            this._authModalObserver = null;
                             this._enterApp(user);
                         }
                     });
+                    this._authModalObserver = observer;
                     observer.observe(document.body, { childList: true });
                 } else {
                     this._enterApp(user);
@@ -149,6 +190,10 @@ const App = {
         this._updateFavGame();
         setTimeout(() => this._restoreSidebarState(), 100);
         if (userAvatar) {
+            if (this._avatarObserver) {
+                this._avatarObserver.disconnect();
+                this._avatarObserver = null;
+            }
             const savedAvatar = Utils.loadData('nyan_profile_avatar');
             if (savedAvatar) {
                 userAvatar.innerHTML = `<img src="${savedAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:8px;" alt="Avatar"/>`;
@@ -168,6 +213,7 @@ const App = {
                 }
             });
             observer.observe(userAvatar, { childList: true, subtree: true });
+            this._avatarObserver = observer;
         }
 
         this.renderNavMenu();
@@ -180,6 +226,7 @@ const App = {
         } else if (window.Shop?._ensureBundleCatalogRuntime) {
             window.Shop._ensureBundleCatalogRuntime({ force: true, silent: true, cacheBust: true });
         }
+        window.AutoUpdater?.init?.();
         Router.currentRoute = 'home';
         Router.render();
         this.checkWhatsNew();
@@ -222,6 +269,7 @@ const App = {
     },
 
     initNewSystems() {
+        window.VersionManager?.syncModules?.();
         if (window.KeyboardShortcuts) {
             KeyboardShortcuts.init();
         }
@@ -256,6 +304,9 @@ const App = {
         }
         if (window.Badges) {
             Badges.init();
+        }
+        if (window.Squads && !window.Squads._initialized) {
+            Squads.init();
         }
         this.startActivityTracking();
 
@@ -458,7 +509,7 @@ const App = {
             { label: 'Ferramentas',    items: ['password','weather','translator','ai-assistant','temp-email'] },
             { label: 'Entretenimento', items: ['mini-game','music','offline'] },
             { label: 'Organização',    items: ['notes','tasks','missions','season','shop'] },
-            { label: 'Social',         items: ['friends','chat','leaderboard','feed','challenges'] },
+            { label: 'Social',         items: ['squads','friends','chat','leaderboard','feed','challenges'] },
             { label: 'Sistema',        items: ['settings','dev-lab'] }
         ];
 
@@ -523,6 +574,8 @@ const App = {
     },
     
     setupGlobalListeners() {
+        if (this._globalListenersBound) return;
+        this._globalListenersBound = true;
         const logoutBtn = document.getElementById('logout-btn');
         if (logoutBtn) {
             logoutBtn.addEventListener('click', () => this.handleLogout());
@@ -603,7 +656,7 @@ const App = {
     },
 
     _doLogout() {
-        if (this._activityInterval) { clearInterval(this._activityInterval); this._activityInterval = null; }
+        this.cleanup?.();
         if (window.FocusMode?.active) FocusMode.disable();
         if (window.DevSecurity?.lock) DevSecurity.lock().catch(() => {});
         if (window.NyanAuth) NyanAuth.logout().catch(() => {});
@@ -627,6 +680,26 @@ const App = {
     
     getTool(toolId) {
         return this.tools.find(t => t.id === toolId);
+    },
+
+    cleanup() {
+        if (this._activityInterval) {
+            clearInterval(this._activityInterval);
+            this._activityInterval = null;
+        }
+        if (this._avatarObserver) {
+            this._avatarObserver.disconnect();
+            this._avatarObserver = null;
+        }
+        if (this._authModalObserver) {
+            this._authModalObserver.disconnect();
+            this._authModalObserver = null;
+        }
+        window.NyanLifecycle?.cleanupAll?.();
+        window.SquadsUI?.cleanup?.();
+        window.Friends?.cleanup?.();
+        window.Shop?.cleanup?.({ full: true });
+        window.AutoUpdater?.cleanup?.({ full: true });
     }
 };
 
@@ -682,7 +755,18 @@ function showEasterEgg() {
     }
 }
 
-document.addEventListener('DOMContentLoaded', () => App.init());
+window.App = App;
+window.showEasterEgg = showEasterEgg;
+
+function bootApp() {
+    App.init();
+}
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bootApp, { once: true });
+} else {
+    bootApp();
+}
 
 document.addEventListener('click', (e) => {
     const link = e.target.closest('a[href]');
@@ -697,9 +781,6 @@ document.addEventListener('click', (e) => {
         }
     }
 });
-
-window.App          = App;
-window.showEasterEgg = showEasterEgg;
 
 document.addEventListener('click', (e) => {
     const btn = e.target.closest(

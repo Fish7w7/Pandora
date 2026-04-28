@@ -4,6 +4,8 @@ const Chat = {
     _unsubMessages: null,
     _target:        null,
     _pendingIds:    new Set(),
+    MAX_RENDERED_MESSAGES: 80,
+    MAX_RENDERED_CHATS: 40,
 
     getChatId(uid1, uid2) {
         return [uid1, uid2].sort().join('_');
@@ -236,7 +238,7 @@ const Chat = {
         const q = query(
             collection(NyanFirebase.db, `chats/${chatId}/messages`),
             orderBy('sentAt', 'asc'),
-            limit(100)
+            limit(this.MAX_RENDERED_MESSAGES)
         );
 
         this._unsubMessages = onSnapshot(q, (snapshot) => {
@@ -315,7 +317,8 @@ const Chat = {
             return;
         }
 
-        const items = await Promise.all(chats.map(async (chat) => {
+        const visibleChats = chats.slice(0, this.MAX_RENDERED_CHATS);
+        const items = await Promise.all(visibleChats.map(async (chat) => {
             const otherUID = chat.participants.find(u => u !== myUID);
             const other    = await NyanFirebase.getDoc(`users/${otherUID}`);
             const unread   = chat[`unread_${myUID}`] || 0;
@@ -380,6 +383,14 @@ const Chat = {
         } else {
             setTimeout(() => this._loadChatList(), 100);
         }
+    },
+
+    cleanup() {
+        if (this._unsubMessages) {
+            try { this._unsubMessages(); } catch (_) {}
+            this._unsubMessages = null;
+        }
+        this._pendingIds = new Set();
     },
 };
 

@@ -30,6 +30,7 @@ const Presence = {
         'shop':          { status: 'online',   label: 'Na loja',           icon: '🛍️' },
         'offline':       { status: 'playing',  label: 'Zona Offline',      icon: '📶' },
         'settings':      { status: 'online',   label: 'Nas configurações', icon: '⚙️' },
+        'squads':        { status: 'online',   label: 'No Clã',            icon: '◆' },
         'friends':       { status: 'online',   label: 'Vendo amigos',      icon: '👥' },
         'chat':          { status: 'online',   label: 'No chat',           icon: '💬' },
         'leaderboard':   { status: 'online',   label: 'Vendo o placar',    icon: '🏆' },

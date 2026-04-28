@@ -995,7 +995,7 @@ const Friends = {
         }
         const favoriteGame = Friends._getFavoriteGame(scoreMap);
 
-        const myVersion    = window.App?.version || '3.13.3';
+        const myVersion    = window.App?.version || window.NYAN_VERSION || '3.14.0';
         const theirVersion = profile.version || '?';
         let vBadgeEmoji = '', vBadgeText = '', vBadgeTitle = '';
         if (theirVersion !== '?' && myVersion) {
@@ -1426,31 +1426,51 @@ const Friends = {
 
     _renderOfflineState() {
         const d    = document.body.classList.contains('dark-theme');
-        const bg   = d ? 'rgba(255,255,255,0.04)' : '#ffffff';
-        const bdr  = d ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
+        const page = d ? '#1e1f2b' : '#f4f6fb';
+        const bg   = d ? 'rgba(255,255,255,0.045)' : '#ffffff';
+        const bg2  = d ? 'rgba(255,255,255,0.035)' : '#f8fafc';
+        const bdr  = d ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)';
         const text = d ? '#f1f5f9' : '#0f172a';
-        const sub  = d ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.5)';
+        const sub  = d ? 'rgba(255,255,255,0.58)' : 'rgba(15,23,42,0.58)';
+        const muted = d ? 'rgba(255,255,255,0.36)' : 'rgba(15,23,42,0.42)';
+        const primary = 'var(--theme-primary,#a855f7)';
+        const secondary = 'var(--theme-secondary,#ec4899)';
 
         return `
-        <div style="max-width:480px;margin:0 auto;text-align:center;padding:3rem 1rem;font-family:'DM Sans',sans-serif;">
-            <div style="font-size:4rem;margin-bottom:1rem;">🔌</div>
-            <h2 style="font-family:'Syne',sans-serif;font-weight:900;color:${text};margin:0 0 0.5rem;">
-                Modo offline
-            </h2>
-            <p style="font-size:0.85rem;color:${sub};line-height:1.6;margin-bottom:1.5rem;">
-                Configure o Firebase no arquivo <code>firebase.js</code> para ativar
-                o sistema de amigos, chat e placar global. にゃん~
-            </p>
-            <div style="background:${bg};border:1px solid ${bdr};border-radius:14px;padding:1.25rem;text-align:left;">
-                <div style="font-size:0.65rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:${sub};margin-bottom:0.75rem;">
-                    Passos para ativar
+        <div style="min-height:calc(100vh - 140px);display:grid;place-items:center;padding:2rem 1rem;background:${page};box-shadow:0 0 0 100vmax ${page};font-family:'DM Sans',sans-serif;">
+            <section style="width:min(760px,100%);background:${bg};border:1px solid ${bdr};border-radius:18px;padding:1.35rem;box-shadow:${d ? '0 24px 60px rgba(0,0,0,0.24)' : '0 18px 48px rgba(15,23,42,0.08)'};">
+                <div style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:1rem;align-items:start;">
+                    <div style="width:56px;height:56px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(135deg,rgba(168,85,247,0.18),rgba(236,72,153,0.12));border:1px solid rgba(168,85,247,0.22);color:${primary};font-family:'Syne',sans-serif;font-weight:900;font-size:0.82rem;">OFF</div>
+                    <div style="min-width:0;">
+                        <div style="font-size:0.68rem;font-weight:900;letter-spacing:0.12em;text-transform:uppercase;color:${muted};margin-bottom:0.34rem;">Conta local</div>
+                        <h2 style="font-family:'Syne',sans-serif;font-size:1.55rem;font-weight:900;color:${text};line-height:1.05;margin:0 0 0.45rem;">
+                            Você está usando o NyanTools offline
+                        </h2>
+                        <p style="font-size:0.84rem;color:${sub};line-height:1.58;margin:0;max-width:620px;">
+                            Os recursos sociais ficam pausados enquanto você estiver sem conta online. Seus dados locais continuam disponíveis neste dispositivo.
+                        </p>
+                    </div>
                 </div>
-                ${['Crie um projeto em console.firebase.google.com','Ative Authentication + banco de dados online','Cole o firebaseConfig em firebase.js','Reinicie o app'].map((s, i) => `
-                    <div style="display:flex;align-items:flex-start;gap:0.625rem;margin-bottom:0.5rem;font-size:0.78rem;color:${sub};">
-                        <span style="font-weight:800;color:var(--theme-primary,#a855f7);min-width:16px;">${i+1}.</span>
-                        <span>${s}</span>
-                    </div>`).join('')}
-            </div>
+
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:0.72rem;margin-top:1.15rem;">
+                    ${[
+                        ['Pausado agora', 'Amigos, Clãs, Chat, Feed e Placar Global precisam de uma conta online.'],
+                        ['Ainda funciona', 'Tarefas, jogos da Zona Offline, configurações e dados locais continuam acessíveis.'],
+                        ['Quando conectar', 'Seu perfil online volta a sincronizar presença, mensagens e progresso social.'],
+                    ].map(([title, body]) => `
+                        <div style="background:${bg2};border:1px solid ${bdr};border-radius:12px;padding:0.82rem;">
+                            <div style="font-size:0.75rem;font-weight:900;color:${text};margin-bottom:0.26rem;">${title}</div>
+                            <div style="font-size:0.72rem;line-height:1.45;color:${sub};">${body}</div>
+                        </div>
+                    `).join('')}
+                </div>
+
+                <div style="display:flex;gap:0.58rem;flex-wrap:wrap;margin-top:1.15rem;padding-top:1rem;border-top:1px solid ${bdr};">
+                    <button onclick="Router?.navigate('offline')" style="min-height:38px;padding:0.62rem 0.95rem;border:none;border-radius:10px;background:linear-gradient(135deg,${primary},${secondary});color:white;font-size:0.76rem;font-weight:900;font-family:'DM Sans',sans-serif;cursor:pointer;">Abrir Zona Offline</button>
+                    <button onclick="Router?.navigate('tasks')" style="min-height:38px;padding:0.62rem 0.95rem;border:1px solid ${bdr};border-radius:10px;background:${bg2};color:${text};font-size:0.76rem;font-weight:900;font-family:'DM Sans',sans-serif;cursor:pointer;">Lista de tarefas</button>
+                    <button onclick="Router?.navigate('settings')" style="min-height:38px;padding:0.62rem 0.95rem;border:1px solid ${bdr};border-radius:10px;background:transparent;color:${sub};font-size:0.76rem;font-weight:900;font-family:'DM Sans',sans-serif;cursor:pointer;">Configurações</button>
+                </div>
+            </section>
         </div>`;
     },
 
@@ -1505,7 +1525,7 @@ Friends._isKnownRoute = function(route) {
     if (route.startsWith('game:')) return true;
     const known = new Set([
         'home','password','weather','translator','ai-assistant','mini-game','temp-email','music',
-        'notes','tasks','missions','season','shop','offline','settings','friends','chat','leaderboard','feed',
+        'notes','tasks','missions','season','shop','offline','settings','squads','friends','chat','leaderboard','feed',
         'challenges','profile','profile-public'
     ]);
     return known.has(route);
@@ -1520,6 +1540,7 @@ Friends._presenceRouteLabel = function(route) {
         notes: 'Notas',
         missions: 'Missoes',
         season: 'Temporada',
+        squads: 'Clãs',
         friends: 'Amigos',
         chat: 'Chat',
         profile: 'Perfil',
@@ -1815,6 +1836,20 @@ Friends._renderFriendCard = function(f, bg, bdr, text, sub, muted, d) {
             </div>
         </div>
     </div>`;
+};
+
+Friends.cleanup = function() {
+    this._presenceUnsubs?.forEach((unsub) => {
+        try { unsub && unsub(); } catch (_) {}
+    });
+    this._presenceUnsubs = [];
+    if (this._presencePollTimer) {
+        clearInterval(this._presencePollTimer);
+        this._presencePollTimer = null;
+    }
+    this._presencePollUIDs = [];
+    document.getElementById('public-profile-modal')?.remove();
+    document.getElementById('crm-modal')?.remove();
 };
 
 window.Friends = Friends;

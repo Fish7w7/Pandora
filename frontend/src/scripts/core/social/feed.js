@@ -4,6 +4,7 @@ const Feed = {
 
     POST_LIMIT: 30,
     POSTS_PER_USER: 6,
+    MAX_RENDERED_POSTS: 40,
 
     async publish(type, data) {
         if (!NyanAuth.isOnline()) return;
@@ -194,7 +195,8 @@ const Feed = {
             return;
         }
 
-        container.innerHTML = posts.map((post, i) => this._renderPost(post, i)).join('');
+        const visiblePosts = posts.slice(0, this.MAX_RENDERED_POSTS);
+        container.innerHTML = visiblePosts.map((post, i) => this._renderPost(post, i)).join('');
     },
 
     async loadFeed() {
@@ -222,12 +224,12 @@ const Feed = {
         }));
 
         allPosts.sort((a, b) => (b.createdAt?.seconds||0) - (a.createdAt?.seconds||0));
-        this._cachedPosts = allPosts;
+        this._cachedPosts = allPosts.slice(0, this.MAX_RENDERED_POSTS);
 
         this._renderPosts(
             this._currentFeedTab === 'mine'
-                ? allPosts.filter(p => p.authorUID === myUID)
-                : allPosts
+                ? this._cachedPosts.filter(p => p.authorUID === myUID)
+                : this._cachedPosts
         );
     },
 

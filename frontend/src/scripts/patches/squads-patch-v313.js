@@ -29,10 +29,12 @@
     });
 
     function patchRouter() {
+        if (window.Router.routes.squads === 'SquadsUI') return;
         window.Router.routes.squads = 'SquadsUI';
     }
 
     function patchApp() {
+        if (window.App.__squadsNativeIntegrated) return;
         if (!window.App.tools.some((tool) => tool.id === 'squads')) {
             const socialIdx = window.App.tools.findIndex((tool) => tool.id === 'leaderboard');
             const insertAt = socialIdx >= 0 ? socialIdx : window.App.tools.length;
@@ -86,6 +88,7 @@
 
     function patchPresence() {
         wait(() => window.Presence, () => {
+            if (window.App?.__squadsNativeIntegrated && window.Presence.ROUTE_CONTEXTS?.squads) return;
             window.Presence.ROUTE_CONTEXTS = {
                 ...(window.Presence.ROUTE_CONTEXTS || {}),
                 squads: { status: 'online', label: 'No Clã', icon: '◆' },

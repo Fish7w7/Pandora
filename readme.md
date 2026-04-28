@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.13.3-purple?style=for-the-badge&logo=electron)
+![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.14.0-purple?style=for-the-badge&logo=electron)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)
 ![Electron](https://img.shields.io/badge/Electron-27.0.0-47848F?style=for-the-badge&logo=electron)
@@ -83,7 +83,7 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
    ```
 
 2. **Execute o Instalador**
-   - Baixe `NyanTools-3.13.3-Setup.exe`
+   - Baixe `NyanTools-3.14.0-Setup.exe`
    - Execute e siga o assistente de instalação
 
 3. **Pronto! にゃん~**
@@ -381,12 +381,12 @@ npm run build:all      # Todas as plataformas
 
 ```
 dist/
-├── NyanTools-3.13.3-Setup.exe       # Windows — instalador
-├── NyanTools 3.13.3.exe             # Windows — portátil
-├── NyanTools-3.13.3-x64.dmg        # macOS Intel
-├── NyanTools-3.13.3-arm64.dmg      # macOS Apple Silicon
-├── NyanTools-3.13.3-x64.AppImage   # Linux
-└── NyanTools-3.13.3-amd64.deb      # Linux Debian/Ubuntu
+├── NyanTools-3.14.0-Setup.exe       # Windows — instalador
+├── NyanTools 3.14.0.exe             # Windows — portátil
+├── NyanTools-3.14.0-x64.dmg        # macOS Intel
+├── NyanTools-3.14.0-arm64.dmg      # macOS Apple Silicon
+├── NyanTools-3.14.0-x64.AppImage   # Linux
+└── NyanTools-3.14.0-amd64.deb      # Linux Debian/Ubuntu
 ```
 
 ---
@@ -424,29 +424,29 @@ dist/
 - [x] **v3.10.0 "Nyan Worlds"** — Amigos, presença, chat 1:1, desafios e feed social.
 - [x] **v3.11.x "Correções e Consistência"** — Estabilidade, economia e sincronização.
 - [x] **v3.12.x "DevLab Bundles & Update Reliability"** — Bundles, sync remoto e updater mais confiável.
+- [x] **v3.13.3 "Clãs: Metas, Desafios & Hub"** — Hub social de Clãs com metas, desafios, economia e ranking.
 
 ### 🚧 Atual
-#### v3.13.3 — Clãs: Metas, Desafios & Hub
-- [x] HUB de Clãs redesenhado com header forte, Visão Geral, abas reais e sidebar leve
-- [x] Metas diárias e semanais com progresso coletivo
-- [x] Economia do Clã com recompensas, cofre, transações e trava contra saldo negativo
-- [x] Desafios de 24h entre Clãs com placar sincronizado para os dois lados
-- [x] Correção do desafio aparecendo apenas para quem desafia
-- [x] Ranking compacto, mural resumido e desafio atual dentro da Visão Geral
-- [x] Layout unificado com grid principal/sidebar, cards padronizados e scroll interno
-- [x] Sistema de convites por amigos removido; entrada por código e pedidos privados continuam
-- [x] Hooks para metas, recompensas e desafios
+#### v3.14.0 — Nyan Core
+- [x] Versão única em package.json, version.json, frontend/public/version.json, App, Updater, VersionManager e preload
+- [x] Boot estabilizado: tela preta corrigida, tema sem body null e Firebase inicializando depois do documento pronto
+- [x] NyanStorage, NyanLifecycle e NyanLiveOps criados como base segura para evolução futura
+- [x] Clãs sem reload infinito, sem spam de permissões e com listeners/leituras mais controlados
+- [x] Desafios de Clã liquidam recompensa no cofre vencedor uma única vez
+- [x] UI de Clãs polida com tabs limpas, badges revisados, ranking ajustado e textos mais consistentes
+- [x] Modo offline trocado para uma tela amigável de usuário final, sem instruções técnicas de Firebase
+- [x] Listas grandes limitadas em telas sociais, clãs, loja e ranking para reduzir render pesado
 
 ### 🔮 Futuro (Próximas versões)
 
-#### 🧩 v3.13.x — Clãs (Polimento)
+#### 🧩 Pós v3.14 — Clãs (Polimento)
 - [ ] Ajustes finos de UX
 - [ ] Balanceamento de metas e recompensas
 - [ ] Melhorias visuais no histórico competitivo
 
 ---
 
-#### 🤖 v3.14 — Smart Companion (Core)
+#### 🤖 v3.15 — Smart Companion (Core)
 **Objetivo:** produtividade assistida por IA
 
 **Escopo:**
@@ -459,13 +459,13 @@ dist/
 
 ---
 
-#### 🤖 v3.14.1 — Assistente Pessoal
+#### 🤖 Futuro — Assistente Pessoal
 - [ ] Sugestões de rotina
 - [ ] Organização do dia
 
 ---
 
-#### 🤖 v3.14.2 — Social & Perfil IA
+#### 🤖 Futuro — Social & Perfil IA
 - [ ] Bio assistida
 - [ ] Respostas no chat
 - [ ] Insights no dashboard
@@ -566,7 +566,7 @@ MIT License — Copyright (c) 2026 Fish7w7
 
 *Your Purr-fect Toolkit! 🐱✨*
 
-**v3.13.3 — Clãs: Metas, Desafios & Hub 🚀**
+**v3.14.0 — Nyan Core 🚀**
 
 **[⬆ Voltar ao topo](#-nyantools-にゃん)**
 

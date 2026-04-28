@@ -16,7 +16,7 @@ const Challenges = {
 
     async create(targetUID, gameId) {
         if (!NyanAuth.isOnline()) {
-            Utils.showNotification('❌ Modo offline — conecte o Firebase', 'error');
+            Utils.showNotification('Desafios sociais precisam de uma conta online.', 'warning');
             return null;
         }
 

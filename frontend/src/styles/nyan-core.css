@@ -1,0 +1,171 @@
+/* Nyan Core v3.14.0 - shared UI tokens and safe layout fixes */
+
+:root {
+    --nyan-surface: #ffffff;
+    --nyan-surface-soft: #f8fafc;
+    --nyan-border: rgba(15, 23, 42, 0.08);
+    --nyan-text: #0f172a;
+    --nyan-muted: rgba(15, 23, 42, 0.58);
+    --nyan-radius-card: 12px;
+    --nyan-radius-control: 10px;
+    --nyan-shadow-card: 0 14px 32px rgba(15, 23, 42, 0.08);
+    --nyan-focus: 0 0 0 3px var(--theme-shadow, rgba(168, 85, 247, 0.24));
+}
+
+body.dark-theme {
+    --nyan-surface: #252636;
+    --nyan-surface-soft: #1f2030;
+    --nyan-border: rgba(255, 255, 255, 0.08);
+    --nyan-text: #f1f5f9;
+    --nyan-muted: rgba(255, 255, 255, 0.58);
+    --nyan-shadow-card: 0 16px 36px rgba(0, 0, 0, 0.2);
+}
+
+body main {
+    zoom: 1 !important;
+}
+
+#main-content {
+    min-width: 0;
+    scroll-behavior: smooth;
+}
+
+.nyan-page-shell {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 auto;
+}
+
+.nyan-card,
+.profile-card,
+.profile-subcard,
+#settings .bg-white,
+#settings .bg-gray-800,
+.shop-item-card {
+    border-radius: var(--nyan-radius-card) !important;
+    border-color: var(--nyan-border) !important;
+}
+
+.nyan-card {
+    background: var(--nyan-surface);
+    border: 1px solid var(--nyan-border);
+    box-shadow: var(--nyan-shadow-card);
+}
+
+.nyan-btn,
+.nyan-btn-primary,
+.nyan-btn-secondary,
+.nyan-btn-ghost {
+    min-height: 36px;
+    border-radius: var(--nyan-radius-control);
+    font-family: var(--font-body, 'DM Sans', sans-serif);
+    font-weight: 800;
+    transition: transform 0.12s ease, filter 0.12s ease, background 0.12s ease;
+}
+
+.nyan-btn-primary {
+    color: #fff;
+    background: linear-gradient(135deg, var(--theme-primary), var(--theme-secondary));
+    border: 1px solid transparent;
+}
+
+.nyan-btn-secondary,
+.nyan-btn-ghost {
+    color: var(--theme-primary);
+    background: rgba(168, 85, 247, 0.1);
+    border: 1px solid rgba(168, 85, 247, 0.22);
+}
+
+.nyan-btn:hover,
+.nyan-btn-primary:hover,
+.nyan-btn-secondary:hover,
+.nyan-btn-ghost:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+}
+
+.nyan-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+    min-height: 22px;
+    padding: 0.2rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid rgba(168, 85, 247, 0.22);
+    background: rgba(168, 85, 247, 0.1);
+    color: var(--theme-primary);
+    font-size: 0.66rem;
+    font-weight: 900;
+}
+
+.nyan-input,
+input,
+textarea,
+select {
+    max-width: 100%;
+}
+
+.nyan-input:focus,
+input:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    box-shadow: var(--nyan-focus) !important;
+}
+
+.nyan-scroll-list {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+}
+
+#squads-design-root,
+#squads-main-content,
+#squad-hub-layout,
+#squad-hub-main,
+#squad-tab-content,
+#shop-main-content,
+#settings-content,
+#dev-lab,
+.profile-edit-hub {
+    min-width: 0;
+    box-sizing: border-box;
+}
+
+#squads-design-root {
+    max-width: 1180px !important;
+    padding-left: 0.25rem !important;
+    padding-right: 0.25rem !important;
+}
+
+#squad-chat-list,
+#squad-feed-list,
+#squad-members-list,
+#squad-join-requests-list {
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+}
+
+#squad-hub-sidebar {
+    scrollbar-width: thin;
+}
+
+.shop-item-card {
+    min-width: 0;
+}
+
+.shop-item-card button,
+#settings button,
+#squads-design-root button {
+    white-space: normal;
+}
+
+@media (max-width: 760px) {
+    #main-content {
+        padding: 1rem !important;
+    }
+
+    #squads-design-root {
+        padding-top: 0.5rem !important;
+    }
+}

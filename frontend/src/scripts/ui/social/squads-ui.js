@@ -9,6 +9,13 @@ const SquadsUI = {
     _squadSocialId: null,
     _squadPresenceUnsubs: [],
     _squadPresenceId: null,
+    _overviewLoading: false,
+    _goalsLoading: false,
+    _challengesLoading: false,
+    MAX_RENDERED_MESSAGES: 60,
+    MAX_RENDERED_FEED: 40,
+    MAX_RENDERED_CHALLENGES: 12,
+    MAX_RENDERED_MEMBERS: 30,
 
     render() {
         if (!window.NyanAuth?.isOnline?.()) {
@@ -34,9 +41,11 @@ const SquadsUI = {
     init() {
         window.Squads?.init?.();
         this.refresh({ silent: true });
-        setTimeout(() => {
+        clearTimeout(this._loadPublicTimer);
+        this._loadPublicTimer = setTimeout(() => {
             if (!window.Squads?.getCurrentSquadSync?.()) this.loadPublicSquads();
         }, 120);
+        window.NyanLifecycle?.trackCleanup?.('route:squads', () => this.cleanup());
     },
 
     _colors(d) {
@@ -55,8 +64,7 @@ const SquadsUI = {
 
     _renderHeader(c) {
         return `
-        <div style="text-align:center;margin-bottom:1.55rem;">
-            <div style="font-size:2.4rem;margin-bottom:0.35rem;">◆</div>
+        <div style="text-align:center;margin-bottom:1.35rem;">
             <h1 style="font-family:'Syne',sans-serif;font-size:2rem;font-weight:900;margin:0 0 0.3rem;
                 background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));
                 -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">
@@ -172,7 +180,7 @@ const SquadsUI = {
                         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(92px,1fr));gap:0.58rem;max-width:720px;">
                             ${this._renderHeroStat(c, 'Membros', `${squad.members.length}/${window.Squads.MAX_MEMBERS}`)}
                             ${this._renderHeroStat(c, 'Pontos', Number(squad.score || 0).toLocaleString('pt-BR'), 'squad-score-stat')}
-                            ${this._renderHeroStat(c, 'Cofre', Number(squad.balance || 0).toLocaleString('pt-BR'))}
+                            ${this._renderHeroStat(c, 'Cofre', Number(squad.balance || 0).toLocaleString('pt-BR'), 'squad-balance-stat')}
                             ${this._renderHeroStat(c, 'Ranking', '--', 'squad-rank-stat')}
                         </div>
                     </div>
@@ -211,7 +219,7 @@ const SquadsUI = {
             </div>
             <div class="squad-overview-grid" style="display:grid;grid-template-columns:minmax(0,1.12fr) minmax(250px,0.88fr);gap:0.74rem;align-items:start;">
                 ${this._renderCompactPanel(c, 'Atividade recente', 'Mural resumido', `<button onclick="SquadsUI.switchTab('mural')" style="${this._btnGhost(c)}">Ver mural</button>`, `<div id="squad-overview-feed" style="display:grid;gap:0.38rem;">${this._renderMiniState(c, 'Carregando atividades...')}</div>`)}
-                ${this._renderCompactPanel(c, 'Ranking', 'Posicao compacta', `<button onclick="SquadsUI.switchTab('ranking')" style="${this._btnGhost(c)}">Ranking</button>`, `<div id="squad-overview-ranking">${this._renderMiniState(c, 'Carregando ranking...')}</div>`, { compact: true })}
+                ${this._renderCompactPanel(c, 'Ranking', 'Sua posição', `<button onclick="SquadsUI.switchTab('ranking')" style="${this._btnGhost(c)}">Ranking</button>`, `<div id="squad-overview-ranking">${this._renderMiniState(c, 'Carregando ranking...')}</div>`, { compact: true })}
             </div>
         </section>`;
     },
@@ -297,12 +305,12 @@ const SquadsUI = {
 
     _tabs() {
         return [
-            { id: 'overview', label: 'Visão Geral ⭐' },
+            { id: 'overview', label: 'Visão geral' },
             { id: 'chat', label: 'Chat' },
             { id: 'mural', label: 'Mural' },
             { id: 'ranking', label: 'Ranking' },
-            { id: 'goals', label: 'Metas ⭐' },
-            { id: 'challenges', label: 'Desafios ⭐' },
+            { id: 'goals', label: 'Metas' },
+            { id: 'challenges', label: 'Desafios' },
         ];
     },
 
@@ -422,17 +430,19 @@ const SquadsUI = {
                 window.Squads.listChatMessages({ force }),
                 window.Squads.listFeed({ force }),
             ]);
+            const visibleMessages = messages.slice(-this.MAX_RENDERED_MESSAGES);
+            const visibleFeed = feed.slice(0, this.MAX_RENDERED_FEED);
 
             if (chatList) {
-                chatList.innerHTML = messages.length
-                    ? messages.map((message) => this._renderChatMessage(message, c)).join('')
+                chatList.innerHTML = visibleMessages.length
+                    ? visibleMessages.map((message) => this._renderChatMessage(message, c)).join('')
                     : `<div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Nenhuma mensagem ainda.</div>`;
                 chatList.scrollTop = chatList.scrollHeight;
             }
 
             if (feedList) {
-                feedList.innerHTML = feed.length
-                    ? feed.map((item) => this._renderFeedItem(item, c)).join('')
+                feedList.innerHTML = visibleFeed.length
+                    ? visibleFeed.map((item) => this._renderFeedItem(item, c)).join('')
                     : `<div style="padding:0.9rem;text-align:center;color:${c.muted};font-size:0.78rem;">O mural ainda esta vazio.</div>`;
             }
 
@@ -451,6 +461,8 @@ const SquadsUI = {
         const challengeEl = document.getElementById('squad-overview-challenge');
         const rankingEl = document.getElementById('squad-overview-ranking');
         if (!window.Squads || (!goalsEl && !feedEl && !challengeEl && !rankingEl)) return;
+        if (this._overviewLoading) return;
+        this._overviewLoading = true;
         const c = this._colors(document.body.classList.contains('dark-theme'));
 
         try {
@@ -501,6 +513,8 @@ const SquadsUI = {
             [goalsEl, feedEl, challengeEl, rankingEl].filter(Boolean).forEach((el) => {
                 el.innerHTML = `<div style="padding:0.85rem;text-align:center;color:#ef4444;font-size:0.78rem;">${message}</div>`;
             });
+        } finally {
+            this._overviewLoading = false;
         }
     },
 
@@ -568,6 +582,8 @@ const SquadsUI = {
     async loadGoals() {
         const list = document.getElementById('squad-goals-list');
         if (!list || !window.Squads?.listGoals) return;
+        if (this._goalsLoading) return;
+        this._goalsLoading = true;
         const c = this._colors(document.body.classList.contains('dark-theme'));
 
         try {
@@ -583,6 +599,8 @@ const SquadsUI = {
             ` : ''}`;
         } catch (err) {
             list.innerHTML = `<div style="padding:1rem;text-align:center;color:#ef4444;font-size:0.78rem;">${this._escape(err.message || 'Erro ao carregar metas.')}</div>`;
+        } finally {
+            this._goalsLoading = false;
         }
     },
 
@@ -632,6 +650,8 @@ const SquadsUI = {
     async loadChallenges() {
         const list = document.getElementById('squad-challenges-list');
         if (!list || !window.Squads?.listChallenges) return;
+        if (this._challengesLoading) return;
+        this._challengesLoading = true;
         const c = this._colors(document.body.classList.contains('dark-theme'));
 
         try {
@@ -643,10 +663,19 @@ const SquadsUI = {
             const squads = await window.Squads.listPublicSquads({ limit: 25 }).catch(() => ({ items: [] }));
             const byId = Object.fromEntries((squads.items || []).map((squad) => [squad.id, squad]));
             const current = window.Squads.getCurrentSquadSync();
-            if (current?.id) byId[current.id] = current;
-            list.innerHTML = challenges.map((challenge) => this._renderChallengeItem(challenge, c, byId, current?.id)).join('');
+            if (current?.id) {
+                byId[current.id] = current;
+                const balanceStat = document.getElementById('squad-balance-stat');
+                if (balanceStat) balanceStat.textContent = Number(current.balance || 0).toLocaleString('pt-BR');
+                const scoreStat = document.getElementById('squad-score-stat');
+                if (scoreStat) scoreStat.textContent = Number(current.score || 0).toLocaleString('pt-BR');
+            }
+            const visible = challenges.slice(0, this.MAX_RENDERED_CHALLENGES);
+            list.innerHTML = visible.map((challenge) => this._renderChallengeItem(challenge, c, byId, current?.id)).join('');
         } catch (err) {
             list.innerHTML = `<div style="padding:1rem;text-align:center;color:#ef4444;font-size:0.78rem;">${this._escape(err.message || 'Erro ao carregar desafios.')}</div>`;
+        } finally {
+            this._challengesLoading = false;
         }
     },
 
@@ -752,18 +781,20 @@ const SquadsUI = {
         const c = this._colors(document.body.classList.contains('dark-theme'));
         const messages = window.Squads?._normalizeMessages?.(squad.messages || []) || [];
         const feed = window.Squads?._normalizeFeed?.(squad.feed || []) || [];
+        const visibleMessages = messages.slice(-this.MAX_RENDERED_MESSAGES);
+        const visibleFeed = feed.slice(0, this.MAX_RENDERED_FEED);
 
         if (chatList) {
             const wasNearBottom = chatList.scrollHeight - chatList.scrollTop - chatList.clientHeight < 90;
-            chatList.innerHTML = messages.length
-                ? messages.map((message) => this._renderChatMessage(message, c)).join('')
+            chatList.innerHTML = visibleMessages.length
+                ? visibleMessages.map((message) => this._renderChatMessage(message, c)).join('')
                 : `<div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Nenhuma mensagem ainda.</div>`;
             if (wasNearBottom) chatList.scrollTop = chatList.scrollHeight;
         }
 
         if (feedList) {
-            feedList.innerHTML = feed.length
-                ? feed.map((item) => this._renderFeedItem(item, c)).join('')
+            feedList.innerHTML = visibleFeed.length
+                ? visibleFeed.map((item) => this._renderFeedItem(item, c)).join('')
                 : `<div style="padding:0.9rem;text-align:center;color:${c.muted};font-size:0.78rem;">O mural ainda esta vazio.</div>`;
         }
 
@@ -771,10 +802,8 @@ const SquadsUI = {
         if (activityStat) activityStat.textContent = this._relativeTime(squad.lastActivityAt || squad.updatedAt);
         const scoreStat = document.getElementById('squad-score-stat');
         if (scoreStat) scoreStat.textContent = Number(squad.score || 0).toLocaleString('pt-BR');
-        if (hasOverview) this.loadOverview();
-        if (hasRanking) this.loadRanking();
-        if (hasGoals) this.loadGoals();
-        if (hasChallenges) this.loadChallenges();
+        const balanceStat = document.getElementById('squad-balance-stat');
+        if (balanceStat) balanceStat.textContent = Number(squad.balance || 0).toLocaleString('pt-BR');
     },
 
     _renderChatMessage(message, c) {
@@ -1110,7 +1139,7 @@ const SquadsUI = {
                 list.innerHTML = `<div style="padding:1rem;text-align:center;color:var(--squad-modal-sub);font-size:0.78rem;">Nenhum Clã disponivel para desafiar agora.</div>`;
                 return;
             }
-            list.innerHTML = targets.map((squad) => `<button onclick="SquadsUI.startChallenge('${this._escape(squad.id)}')" style="display:flex;align-items:center;justify-content:space-between;gap:0.8rem;width:100%;text-align:left;padding:0.75rem;border-radius:14px;border:1px solid ${c.border};background:${c.bg2};color:${c.text};cursor:pointer;font-family:'DM Sans',sans-serif;">
+            list.innerHTML = targets.slice(0, this.MAX_RENDERED_CHALLENGES).map((squad) => `<button onclick="SquadsUI.startChallenge('${this._escape(squad.id)}')" style="display:flex;align-items:center;justify-content:space-between;gap:0.8rem;width:100%;text-align:left;padding:0.75rem;border-radius:14px;border:1px solid ${c.border};background:${c.bg2};color:${c.text};cursor:pointer;font-family:'DM Sans',sans-serif;">
                 <span style="min-width:0;">
                     <strong style="display:block;font-size:0.82rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${this._escape(squad.name)} [${this._escape(squad.tag)}]</strong>
                     <span style="font-size:0.66rem;color:${c.muted};">${Number(squad.score || 0).toLocaleString('pt-BR')} pontos · ${(squad.members || []).length} membros</span>
@@ -1200,7 +1229,8 @@ const SquadsUI = {
                 list.innerHTML = `<div style="padding:1rem;text-align:center;color:${c.muted};font-size:0.78rem;">Nenhum membro encontrado.</div>`;
                 return;
             }
-            list.innerHTML = members.map((member) => this._renderMember(member, c)).join('');
+            const visibleMembers = members.slice(0, this.MAX_RENDERED_MEMBERS);
+            list.innerHTML = visibleMembers.map((member) => this._renderMember(member, c)).join('');
             const activityList = document.getElementById('squad-activity-list');
             if (activityList) this._renderRecentActivity(activityList, c);
             const currentSquad = window.Squads?.getCurrentSquadSync?.();
@@ -1253,6 +1283,13 @@ const SquadsUI = {
         this._squadPresenceId = null;
     },
 
+    cleanup() {
+        clearTimeout(this._loadPublicTimer);
+        this._loadPublicTimer = null;
+        this.stopSquadSocialLive();
+        this.stopSquadPresenceLive();
+    },
+
     _renderMember(member, c) {
         const profile = member.profile || {};
         const name = profile.username || profile.nyanTag || member.userId.slice(0, 8);
@@ -1278,8 +1315,8 @@ const SquadsUI = {
             <div style="flex:1;min-width:0;">
                 <div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;">
                     <span style="font-size:0.75rem;font-weight:900;color:${c.text};">${this._escape(name)}</span>
-                    <span style="font-size:0.52rem;font-weight:900;letter-spacing:0.08em;text-transform:uppercase;color:${isLeader ? '#f59e0b' : c.muted};padding:0.16rem 0.34rem;border-radius:999px;background:${isLeader ? 'rgba(245,158,11,0.12)' : 'rgba(148,163,184,0.1)'};">
-                        ${isLeader ? 'Leader' : 'Member'}
+                    <span style="font-size:0.56rem;font-weight:900;color:${isLeader ? '#f59e0b' : c.muted};padding:0.16rem 0.36rem;border-radius:999px;background:${isLeader ? 'rgba(245,158,11,0.12)' : 'rgba(148,163,184,0.1)'};">
+                        ${isLeader ? 'Líder' : 'Membro'}
                     </span>
                 </div>
                 <div style="font-size:0.6rem;color:${c.muted};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">
@@ -1697,9 +1734,19 @@ const SquadsUI = {
     },
 
     _renderOfflineState() {
-        return `<div style="text-align:center;padding:3rem;font-family:'DM Sans',sans-serif;">
-            <div style="font-size:2rem;margin-bottom:0.75rem;">◇</div>
-            <div style="font-weight:800;">Clãs precisam da conta online.</div>
+        const d = document.body.classList.contains('dark-theme');
+        const text = d ? '#f1f5f9' : '#0f172a';
+        const sub = d ? 'rgba(255,255,255,0.58)' : 'rgba(15,23,42,0.58)';
+        const bg = d ? 'rgba(255,255,255,0.045)' : '#ffffff';
+        const border = d ? 'rgba(255,255,255,0.08)' : 'rgba(15,23,42,0.08)';
+        return `<div style="max-width:560px;margin:0 auto;padding:3rem 1rem;font-family:'DM Sans',sans-serif;text-align:center;">
+            <div style="display:inline-grid;place-items:center;width:54px;height:54px;border-radius:16px;background:rgba(168,85,247,0.12);border:1px solid rgba(168,85,247,0.22);color:var(--theme-primary,#a855f7);font-family:'Syne',sans-serif;font-weight:900;margin-bottom:0.85rem;">OFF</div>
+            <div style="font-family:'Syne',sans-serif;font-size:1.35rem;font-weight:900;color:${text};margin-bottom:0.45rem;">Clãs ficam pausados no modo offline</div>
+            <p style="font-size:0.82rem;line-height:1.55;color:${sub};margin:0 0 1rem;">Entre com uma conta online para acessar Clãs, membros, desafios e chat. Enquanto isso, seus recursos locais continuam disponíveis.</p>
+            <div style="display:flex;justify-content:center;gap:0.55rem;flex-wrap:wrap;background:${bg};border:1px solid ${border};border-radius:14px;padding:0.8rem;">
+                <button onclick="Router?.navigate('offline')" style="min-height:36px;padding:0.58rem 0.88rem;border:none;border-radius:10px;background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));color:white;font-size:0.74rem;font-weight:900;font-family:'DM Sans',sans-serif;cursor:pointer;">Abrir Zona Offline</button>
+                <button onclick="Router?.navigate('tasks')" style="min-height:36px;padding:0.58rem 0.88rem;border:1px solid ${border};border-radius:10px;background:transparent;color:${text};font-size:0.74rem;font-weight:900;font-family:'DM Sans',sans-serif;cursor:pointer;">Lista de tarefas</button>
+            </div>
         </div>`;
     },
 

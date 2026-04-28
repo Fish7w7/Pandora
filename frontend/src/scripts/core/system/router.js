@@ -19,6 +19,7 @@ const Router = {
         'season':        'Seasons',
         'shop':          'Shop',
         'dev-lab':       'DevLab',
+        'squads':        'SquadsUI',
         'profile':       'Profile',
         'friends':       'Friends',
         'profile-public':'Friends',
@@ -83,6 +84,8 @@ const Router = {
         const container = document.getElementById('tool-container');
         if (!container || !App.user) return;
 
+        this._beforeRenderRoute();
+
         const navEffect = window.Inventory?.getNavEffect?.();
         if (navEffect) this._applyNavEffect(container, navEffect);
 
@@ -91,7 +94,15 @@ const Router = {
         if (this.currentRoute === 'home') {
             if (window.Dashboard) {
                 container.innerHTML = window.Dashboard.render();
-                if (window.Dashboard.init) setTimeout(() => window.Dashboard.init(), 100);
+                if (window.Dashboard.init) {
+                    const schedule = window.NyanLifecycle?.setTimeout?.bind(window.NyanLifecycle) || ((_, fn, delay) => setTimeout(fn, delay));
+                    schedule('route:home', () => {
+                        const cleanup = window.Dashboard.init();
+                        if (typeof cleanup === 'function') {
+                            window.NyanLifecycle?.trackCleanup?.('route:home', cleanup);
+                        }
+                    }, 100);
+                }
             } else {
                 container.innerHTML = this.renderHome();
             }
@@ -102,16 +113,44 @@ const Router = {
         if (toolName && window[toolName]) {
             const tool = window[toolName];
             container.innerHTML = tool.render();
-            if (tool.init) tool.init();
+            if (tool.init) {
+                const cleanup = tool.init();
+                if (typeof cleanup === 'function') {
+                    window.NyanLifecycle?.trackCleanup?.(`route:${this.currentRoute}`, cleanup);
+                }
+            }
         } else {
             container.innerHTML = this.renderNotFound();
         }
         this.attachMiniPlayer(container);
     },
 
+    _beforeRenderRoute() {
+        if (this._mountedRoute) {
+            const previousRoute = this._mountedRoute;
+            const previousToolName = this.routes[previousRoute];
+            const previousTool = previousToolName ? window[previousToolName] : null;
+            window.NyanLifecycle?.cleanupScope?.(`route:${previousRoute}`);
+            try {
+                previousTool?.cleanup?.({
+                    full: false,
+                    route: previousRoute,
+                    nextRoute: this.currentRoute,
+                });
+            } catch (err) {
+                console.warn('[Router] cleanup falhou:', err);
+            }
+        }
+        window.NyanLifecycle?.enterRoute?.(this.currentRoute);
+        this._mountedRoute = this.currentRoute;
+    },
+
     attachMiniPlayer(container) {
         if (this.currentRoute !== 'music' && window.MusicPlayer?.isPlaying && window.MusicPlayer?.currentSong) {
-            setTimeout(() => {
+            const route = this.currentRoute;
+            const schedule = window.NyanLifecycle?.setTimeout?.bind(window.NyanLifecycle) || ((_, fn, delay) => setTimeout(fn, delay));
+            schedule(`route:${route}`, () => {
+                if (this.currentRoute !== route) return;
                 document.getElementById('mini-player')?.remove();
                 if (window.MusicPlayer.renderMiniPlayer) {
                     container.insertAdjacentHTML('beforeend', window.MusicPlayer.renderMiniPlayer());

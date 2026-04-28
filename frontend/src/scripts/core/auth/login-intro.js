@@ -397,6 +397,15 @@ const LoginIntro = {
         this._skipped  = false;
 
         if (!this._shouldPlay()) { callback?.(); return; }
+        if (!document.body) {
+            const retry = () => this.run(callback);
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', retry, { once: true });
+            } else {
+                setTimeout(retry, 25);
+            }
+            return;
+        }
 
         this._el = this._build();
         document.body.appendChild(this._el);

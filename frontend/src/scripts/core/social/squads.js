@@ -18,6 +18,8 @@ const Squads = {
     _state: null,
     _remoteHydratedAt: 0,
     _remoteBlocked: false,
+    _lastUserSquadProfileSignature: '',
+    _lastUserSquadProfileAt: 0,
 
     _defaults() {
         return {
@@ -28,6 +30,8 @@ const Squads = {
     },
 
     init() {
+        if (this._initialized) return;
+        this._initialized = true;
         this._state = this._load();
         this._remoteBlocked = false;
         if (window.NyanAuth?.isOnline?.() && window.NyanFirebase?.isReady?.()) {
@@ -136,6 +140,7 @@ const Squads = {
                 actorUserId: String(item?.actorUserId || '').trim(),
                 actorLabel: String(item?.actorLabel || '').trim().slice(0, 80),
                 action: String(item?.action || '').trim().slice(0, 80),
+                refId: String(item?.refId || '').trim(),
                 createdAt: Number(item?.createdAt || Date.now()),
             }))
             .filter((item) => !!item.content)
@@ -235,14 +240,36 @@ const Squads = {
         return this._normalizeChallenges([...merged.values()]);
     },
 
+    _makeFinishedChallenge(challenge, now = Date.now()) {
+        const normalized = this._normalizeChallenges([challenge])[0];
+        if (!normalized) return null;
+        const winnerId = normalized.scoreA === normalized.scoreB
+            ? ''
+            : (normalized.scoreA > normalized.scoreB ? normalized.squadA : normalized.squadB);
+        return {
+            ...normalized,
+            status: 'finished',
+            winnerId,
+            endsAt: Math.min(Number(normalized.endsAt || now), now),
+        };
+    },
+
     _collectChallengesForSquad(squadId = '', squads = []) {
         const safeId = String(squadId || '').trim();
         if (!safeId) return [];
         const challenges = [];
+        const now = Date.now();
         (Array.isArray(squads) ? squads : []).forEach((squad) => {
             this._normalizeChallenges(squad?.challenges || [])
                 .filter((challenge) => challenge.squadA === safeId || challenge.squadB === safeId)
-                .forEach((challenge) => challenges.push(challenge));
+                .forEach((challenge) => {
+                    if (challenge.status === 'active' && challenge.endsAt <= now) {
+                        const finished = this._makeFinishedChallenge(challenge, now);
+                        if (finished) challenges.push(finished);
+                        return;
+                    }
+                    challenges.push(challenge);
+                });
         });
         return this._mergeChallengeCopies(challenges);
     },
@@ -270,6 +297,7 @@ const Squads = {
             actorUserId: String(meta.actorUserId || '').trim(),
             actorLabel: String(meta.actorLabel || '').trim().slice(0, 80),
             action: String(meta.action || '').trim().slice(0, 80),
+            refId: String(meta.refId || '').trim(),
             createdAt,
         };
     },
@@ -287,6 +315,13 @@ const Squads = {
     _isMember(squad, uid = this._uid()) {
         const safeUid = String(uid || '').trim();
         return !!safeUid && !!squad?.members?.some((member) => member.userId === safeUid);
+    },
+
+    _isSquadManager(squad, uid = this._uid()) {
+        const safeUid = String(uid || '').trim();
+        if (!safeUid || !squad?.id) return false;
+        if (String(squad.ownerId || '').trim() === safeUid) return true;
+        return !!squad.members?.some((member) => member.userId === safeUid && member.role === 'leader');
     },
 
     _requireMember(squad) {
@@ -1066,6 +1101,53 @@ const Squads = {
         return this._normalizeSquad({ ...squad, challenges: [challenge, ...rest] });
     },
 
+    _hasChallengeReward(squad, challengeId = '') {
+        const safeId = String(challengeId || '').trim();
+        if (!safeId) return false;
+        return this._normalizeTransactions(squad?.transactions || [])
+            .some((tx) => tx.type === 'reward' && tx.refId === safeId);
+    },
+
+    _hasChallengeFeed(squad, challengeId = '', content = '') {
+        const safeId = String(challengeId || '').trim();
+        const safeContent = String(content || '').trim();
+        return this._normalizeFeed(squad?.feed || [])
+            .some((item) => (safeId && item.refId === safeId) || (safeContent && item.content === safeContent));
+    },
+
+    _challengeNeedsSettlement(squad, challenge, now = Date.now()) {
+        const current = this._normalizeSquad(squad);
+        const finished = this._makeFinishedChallenge(challenge, now);
+        if (!finished) return false;
+        if (challenge.status !== 'finished' && Number(challenge.endsAt || 0) > now) return false;
+
+        const local = this._normalizeChallenges(current.challenges || [])
+            .find((item) => item.id === finished.id);
+        const localFinished = local?.status === 'finished' && local.winnerId === finished.winnerId;
+        if (!localFinished) return true;
+
+        const isWinner = finished.winnerId && finished.winnerId === current.id;
+        const reward = Math.max(0, Number(finished.reward || this.CHALLENGE_REWARD));
+        return !!(isWinner && reward > 0 && !this._hasChallengeReward(current, finished.id));
+    },
+
+    async _settleVisibleChallenges(squad, challenges = [], allSquads = [], now = Date.now()) {
+        if (!this._isReady() || !this._isSquadManager(squad)) return false;
+        let current = this._normalizeSquad(squad);
+        let settled = false;
+
+        for (const challenge of this._normalizeChallenges(challenges)) {
+            if (!this._challengeNeedsSettlement(current, challenge, now)) continue;
+            const result = await this._finishChallenge(challenge, allSquads, now).catch(() => null);
+            if (result) {
+                settled = true;
+                current = this.getCurrentSquadSync() || current;
+            }
+        }
+
+        return settled;
+    },
+
     async _addChallengePoints(squad, points, allSquads = [], now = Date.now()) {
         const active = this._activeChallengeForSquad(squad, allSquads);
         if (!active || points <= 0) return squad;
@@ -1084,7 +1166,7 @@ const Squads = {
             await window.NyanFirebase.setDoc(`${this.COLLECTION}/${normalizedOpponent.id}`, {
                 challenges: normalizedOpponent.challenges,
                 updatedAt: now,
-            }, true).catch(() => {});
+            }, true, { silent: true }).catch(() => {});
         }
 
         return this._replaceChallenge(squad, updatedChallenge);
@@ -1102,6 +1184,9 @@ const Squads = {
                 });
         });
         for (const challenge of active) {
+            const squadA = all.find((squad) => squad.id === challenge.squadA);
+            const squadB = all.find((squad) => squad.id === challenge.squadB);
+            if (!this._isSquadManager(squadA) && !this._isSquadManager(squadB)) continue;
             await this._finishChallenge(challenge, all, now).catch(() => {});
         }
     },
@@ -1114,17 +1199,21 @@ const Squads = {
             || await window.NyanFirebase.getDoc(`${this.COLLECTION}/${challenge.squadB}`).catch(() => null);
         if (!squadA?.id || !squadB?.id) return null;
 
-        const winnerId = challenge.scoreA === challenge.scoreB ? '' : (challenge.scoreA > challenge.scoreB ? challenge.squadA : challenge.squadB);
-        const finished = { ...challenge, status: 'finished', winnerId, endsAt: Math.min(challenge.endsAt, now) };
+        const finished = this._makeFinishedChallenge(challenge, now);
+        if (!finished) return null;
+        const winnerId = finished.winnerId;
         const reward = Math.max(0, Number(challenge.reward || this.CHALLENGE_REWARD));
 
         const build = (squad, opponent) => {
-            const isWinner = winnerId && squad.id === winnerId;
+            const normalized = this._normalizeSquad(squad);
+            const isWinner = winnerId && normalized.id === winnerId;
             const isDraw = !winnerId;
-            const tx = isWinner && reward > 0 ? [{
+            const rewardAlreadyGranted = isWinner && this._hasChallengeReward(normalized, finished.id);
+            const rewardDelta = isWinner && !rewardAlreadyGranted ? reward : 0;
+            const tx = rewardDelta > 0 ? [{
                 id: this._makeEntryId('tx'),
                 type: 'reward',
-                amount: reward,
+                amount: rewardDelta,
                 description: `Premio de desafio contra ${opponent.tag}`,
                 refId: finished.id,
                 createdAt: now,
@@ -1134,21 +1223,31 @@ const Squads = {
                 : isWinner
                     ? `Vitoria contra [${opponent.tag}]! +${reward} chips no cofre.`
                     : `Derrota contra [${opponent.tag}] no desafio.`;
-            return this._withFeedEntry({
-                ...this._replaceChallenge(this._normalizeSquad(squad), finished),
-                balance: Number(squad.balance || 0) + (isWinner ? reward : 0),
-                transactions: [...tx, ...(squad.transactions || [])],
-            }, content, 'event', now, { action: content });
+            const updated = this._normalizeSquad({
+                ...this._replaceChallenge(normalized, finished),
+                balance: Number(normalized.balance || 0) + rewardDelta,
+                transactions: [...tx, ...(normalized.transactions || [])],
+            });
+            if (this._hasChallengeFeed(updated, finished.id, content)) return updated;
+            return this._withFeedEntry(updated, content, 'event', now, { action: content, refId: finished.id });
         };
 
         const updatedA = build(squadA, squadB);
         const updatedB = build(squadB, squadA);
-        await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updatedA.id}`, updatedA, false);
-        await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updatedB.id}`, updatedB, false);
-        if (this.getCurrentSquadSync()?.id === updatedA.id) this._cacheSquad(updatedA, true);
-        if (this.getCurrentSquadSync()?.id === updatedB.id) this._cacheSquad(updatedB, true);
-        this._emit('onChallengeEnded', { challenge: finished, winnerId, reward });
-        this._emit('onSquadUpdated', { squad: this.getCurrentSquadSync() });
+        const currentId = this.getCurrentSquadSync()?.id;
+        let savedAny = false;
+        if (this._isSquadManager(updatedA)) {
+            savedAny = await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updatedA.id}`, updatedA, false, { silent: true }) || savedAny;
+            if (currentId === updatedA.id) this._cacheSquad(updatedA, true);
+        }
+        if (this._isSquadManager(updatedB)) {
+            savedAny = await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updatedB.id}`, updatedB, false, { silent: true }) || savedAny;
+            if (currentId === updatedB.id) this._cacheSquad(updatedB, true);
+        }
+        if (savedAny) {
+            this._emit('onChallengeEnded', { challenge: finished, winnerId, reward });
+            this._emit('onSquadUpdated', { squad: this.getCurrentSquadSync() });
+        }
         return finished;
     },
 
@@ -1179,9 +1278,14 @@ const Squads = {
         const goals = this._ensureGoals(squad);
         const changed = JSON.stringify(goals.map((goal) => `${goal.id}:${goal.progress}:${goal.completed}:${goal.rewardClaimedAt}`))
             !== JSON.stringify((squad.goals || []).map((goal) => `${goal.id}:${goal.progress}:${goal.completed}:${goal.rewardClaimedAt}`));
-        if (changed && this._isReady()) {
+        if (changed) {
             const updated = this._normalizeSquad({ ...squad, goals, updatedAt: Date.now() });
-            await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updated.id}`, { goals: updated.goals, updatedAt: updated.updatedAt }, true).catch(() => {});
+            if (options.persist === true && this._isReady() && this._isSquadManager(updated)) {
+                await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updated.id}`, {
+                    goals: updated.goals,
+                    updatedAt: updated.updatedAt,
+                }, true, { silent: true }).catch(() => {});
+            }
             this._cacheSquad(updated, true);
             return updated.goals;
         }
@@ -1244,21 +1348,32 @@ const Squads = {
     async listChallenges(options = {}) {
         const squad = await this.getCurrentSquad({ force: options.force === true });
         this._requireMember(squad);
-        await this._finishDueChallenges().catch(() => {});
-        const fresh = await this.getCurrentSquad({ force: true });
+        if (options.persist === true || options.finishDue === true) {
+            await this._finishDueChallenges().catch(() => {});
+        }
+        let fresh = await this.getCurrentSquad({ force: true });
         this._requireMember(fresh);
-        const all = await this._getAllRemoteSquads().catch(() => [fresh]);
+        let all = await this._getAllRemoteSquads().catch(() => [fresh]);
         if (!all.some((item) => item.id === fresh.id)) all.push(fresh);
-        const challenges = this._collectChallengesForSquad(fresh.id, all);
+        let challenges = this._collectChallengesForSquad(fresh.id, all);
+        const settled = await this._settleVisibleChallenges(fresh, challenges, all).catch(() => false);
+        if (settled) {
+            fresh = this.getCurrentSquadSync() || fresh;
+            all = all.map((item) => item.id === fresh.id ? fresh : item);
+            if (!all.some((item) => item.id === fresh.id)) all.push(fresh);
+            challenges = this._collectChallengesForSquad(fresh.id, all);
+        }
 
         const localSignature = JSON.stringify(this._normalizeChallenges(fresh.challenges || []).map((item) => `${item.id}:${item.scoreA}:${item.scoreB}:${item.status}:${item.endsAt}`));
         const sharedSignature = JSON.stringify(challenges.map((item) => `${item.id}:${item.scoreA}:${item.scoreB}:${item.status}:${item.endsAt}`));
-        if (challenges.length && localSignature !== sharedSignature && this._isReady()) {
+        if (challenges.length && localSignature !== sharedSignature) {
             const updated = this._normalizeSquad({ ...fresh, challenges, updatedAt: Date.now() });
-            await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updated.id}`, {
-                challenges: updated.challenges,
-                updatedAt: updated.updatedAt,
-            }, true).catch(() => {});
+            if (options.persist === true && this._isReady() && this._isSquadManager(updated)) {
+                await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updated.id}`, {
+                    challenges: updated.challenges,
+                    updatedAt: updated.updatedAt,
+                }, true, { silent: true }).catch(() => {});
+            }
             this._cacheSquad(updated, true);
             return updated.challenges;
         }
@@ -1315,7 +1430,7 @@ const Squads = {
 
         const savedA = await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updatedA.id}`, updatedA, false);
         if (!savedA) throw new Error('Nao foi possivel iniciar o desafio no seu Clã.');
-        await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updatedB.id}`, updatedB, false).catch(() => false);
+        await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updatedB.id}`, updatedB, false, { silent: true }).catch(() => false);
         this._cacheSquad(updatedA, true);
         this._emit('onChallengeStarted', { squad: updatedA, target: updatedB, challenge });
         this._emit('onSquadUpdated', { squad: updatedA });
@@ -1547,7 +1662,33 @@ const Squads = {
                 squad: null,
             };
 
-        const ok = await window.NyanFirebase.updateDoc(`users/${uid}`, payload);
+        const stableSignature = JSON.stringify({
+            squadId: payload.squadId,
+            squadName: payload.squadName,
+            squadTag: payload.squadTag,
+            squad: payload.squad,
+        });
+        const current = window.NyanAuth?.currentUser || {};
+        const currentSignature = JSON.stringify({
+            squadId: current.squadId || null,
+            squadName: current.squadName || null,
+            squadTag: current.squadTag || null,
+            squad: current.squad || null,
+        });
+        const now = Date.now();
+        if (stableSignature === currentSignature || (
+            stableSignature === this._lastUserSquadProfileSignature
+            && now - this._lastUserSquadProfileAt < 60000
+        )) {
+            if (window.NyanAuth?.currentUser) {
+                window.NyanAuth.currentUser = { ...window.NyanAuth.currentUser, ...payload };
+            }
+            return true;
+        }
+
+        this._lastUserSquadProfileSignature = stableSignature;
+        this._lastUserSquadProfileAt = now;
+        const ok = await window.NyanFirebase.updateDoc(`users/${uid}`, payload, { silent: true });
         if (ok && window.NyanAuth?.currentUser) {
             window.NyanAuth.currentUser = { ...window.NyanAuth.currentUser, ...payload };
         }

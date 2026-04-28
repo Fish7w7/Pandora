@@ -5,6 +5,16 @@ function isValidFilePath(filePath) {
     return !filePath.replace(/\\/g, '/').includes('/../');
 }
 
+function getAppVersion() {
+    try {
+        return require('../../package.json')?.version || '0.0.0';
+    } catch (_) {
+        return '0.0.0';
+    }
+}
+
+const APP_VERSION = getAppVersion();
+
 function throttle(fn, ms = 100) {
     let last = 0;
     return (event, data) => {
@@ -29,8 +39,9 @@ async function invoke(channel, ...args) {
 try {
     contextBridge.exposeInMainWorld('electronAPI', {
 
-        version: '3.4.2',
+        version: APP_VERSION,
         isReady: true,
+        getAppVersion: () => APP_VERSION,
 
         checkForUpdates: () => invoke('check-for-updates'),
         getBundleCatalog: (options = {}) => invoke('get-bundle-catalog', options),
@@ -68,14 +79,14 @@ try {
         }
     });
 
-    console.log('[OK] [Preload v3.2.1] API exposta com sucesso');
+    console.log(`[OK] [Preload v${APP_VERSION}] API exposta com sucesso`);
 
 } catch (error) {
     console.error('[X] [Preload] ERRO CRITICO:', error);
     try {
         contextBridge.exposeInMainWorld('electronAPI', {
             isReady: false,
-            version: '3.4.2-fallback',
+            version: APP_VERSION,
             error: error.message
         });
     } catch (fallbackError) {

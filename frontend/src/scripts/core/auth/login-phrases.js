@@ -209,6 +209,7 @@ const LoginPhrases = {
                 setTimeout(() => this.inject(), 150);
             }
         });
+        if (!document.body) return;
         observer.observe(document.body, {
             attributes: true,
             subtree: true,
