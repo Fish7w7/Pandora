@@ -1,7 +1,7 @@
 {
   "name": "nyantools",
-  "version": "3.14.0",
-  "description": "NyanTools - Your purr-fect toolkit nyan~ | Nyan Core: estabilidade, consistencia e base para evolucao",
+  "version": "3.15.0",
+  "description": "NyanTools - Your purr-fect toolkit nyan~ | Eventos & Live Ops: eventos temporarios, missoes e recompensas sazonais",
   "main": "backend/src/main.js",
   "scripts": {
     "start": "electron .",

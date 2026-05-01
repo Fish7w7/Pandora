@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="NyanTools — Sua caixa de ferramentas purr-feita にゃん~">
-    <title>NyanTools にゃん~ v3.14.0</title>
+    <title>NyanTools にゃん~ v3.15.0</title>
 
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -353,7 +353,7 @@
             <div class="mt-6 text-center">
                 <div class="inline-flex items-center gap-2 text-white/20 text-xs font-semibold tracking-widest">
                     <span class="w-8 h-px bg-white/10 block"></span>
-                    <span data-app-version>v3.14.0</span>
+                    <span data-app-version>v3.15.0</span>
                     <span class="w-8 h-px bg-white/10 block"></span>
                 </div>
             </div>
@@ -502,6 +502,7 @@
     <script src="../src/scripts/tools/music-player/music.js"></script>
     <script src="../src/scripts/tools/notes/notes.js"></script>
     <script src="../src/scripts/tools/tasks/tasks.js"></script>
+    <script src="../src/scripts/tools/events/events.js"></script>
     <script src="../src/scripts/tools/shop/shop.js"></script>
     <script src="../src/scripts/tools/dev-lab/dev-lab.js"></script>
     <script src="../src/scripts/tools/dev-lab/dev-lab-general-remote-actions.js"></script>
@@ -512,7 +513,6 @@
     <script src="../src/scripts/tools/profile/profile.js"></script>
     <script src="../src/scripts/tools/profile/profile-v2.js"></script>
     <script src="../src/scripts/tools/dashboard/dashboard.js"></script>
-    <script src="../src/scripts/tools/dashboard/dashboard-home-patch.js"></script>
 
     <!-- Offline zone -->
     <script src="../src/scripts/tools/offline-zone/termo.js"></script>
@@ -548,16 +548,12 @@
     <script src="../src/scripts/core/auth/login-effects.js"></script>
     <script src="../src/scripts/core/auth/login-intro.js"></script>
 
-    <!-- v3.10 connected patches -->
+    <!-- Connected systems -->
     <script src="../src/scripts/core/system/state-manager.js"></script>
     <script src="../src/scripts/core/system/liveops-schema.js"></script>
     <script src="../src/scripts/core/system/presence.js"></script>
     <script src="../src/scripts/core/system/integrations.js"></script>
     <script src="../src/scripts/core/system/v310-rewards.js"></script>
-    <script src="../src/scripts/tools/notes/notes-integration-patch.js"></script>
-    <script src="../src/scripts/tools/tasks/tasks-integration-patch.js"></script>
-    <script src="../src/scripts/tools/profile/profile-patch-v310.js"></script>
-    <script src="../src/scripts/core/system/app-patch-v310.js"></script>
 
     <!-- Online modules -->
     <script src="../src/scripts/core/system/firebase.js"></script>
@@ -573,8 +569,6 @@
     <script src="../src/scripts/core/social/feed.js"></script>
     <script src="../src/scripts/core/social/share-to-feed.js"></script>
     <script src="../src/scripts/core/gamification/challenges.js"></script>
-    <script src="../src/scripts/patches/squads-patch-v313.js"></script>
-    <script src="../src/scripts/patches/clans-patch-v3133.js"></script>
 
     <!-- Runtime hooks -->
     <script>

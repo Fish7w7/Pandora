@@ -212,6 +212,7 @@ const OfflineZone = {
         this.currentGame    = game;
         this._startingGame  = true;  // protege init() durante o render
         this._initGame(game);
+        window.dispatchEvent(new CustomEvent('nyan:offline-game-started', { detail: { game, at: Date.now() } }));
         Router?.render();
         this._startingGame  = false; // libera após render
         if (this._escHandler) {
@@ -260,6 +261,7 @@ const OfflineZone = {
             document.removeEventListener('keydown', this._escHandler);
             this._escHandler = null;
         }
+        window.dispatchEvent(new CustomEvent('nyan:offline-game-ended', { detail: { at: Date.now() } }));
         Router?.render();
     }
 };

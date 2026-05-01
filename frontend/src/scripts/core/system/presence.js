@@ -27,6 +27,7 @@ const Presence = {
         'tasks':         { status: 'focused',  label: 'Gerenciando tarefas', icon: '✅' },
         'missions':      { status: 'online',   label: 'Nas missões',       icon: '📋' },
         'season':        { status: 'online',   label: 'Na temporada',      icon: '🌸' },
+        'events':        { status: 'online',   label: 'Nos eventos',       icon: '\u{1F4A0}' },
         'shop':          { status: 'online',   label: 'Na loja',           icon: '🛍️' },
         'offline':       { status: 'playing',  label: 'Zona Offline',      icon: '📶' },
         'settings':      { status: 'online',   label: 'Nas configurações', icon: '⚙️' },
@@ -62,8 +63,8 @@ const Presence = {
 
     init() {
         this._setupActivityTracking();
-        this._patchRouter();
-        this._patchOfflineZone();
+        this._bindRouterEvents();
+        this._bindOfflineZoneEvents();
         this._startSyncInterval();
         this._restoreState();
 
@@ -116,33 +117,25 @@ const Presence = {
         }, this.AWAY_TIMEOUT);
     },
 
-    _patchRouter() {
-        const tryPatch = () => {
-            if (!window.Router) { setTimeout(tryPatch, 500); return; }
-
-            const origNavigate = Router.navigate.bind(Router);
-            Router.navigate = (toolId) => {
-                origNavigate(toolId);
-                setTimeout(() => this.updateFromRoute(toolId), 100);
-            };
+    _bindRouterEvents() {
+        if (this._routeChangedHandler) return;
+        this._routeChangedHandler = (event) => {
+            const route = event.detail?.to || window.Router?.currentRoute || 'home';
+            setTimeout(() => this.updateFromRoute(route), 50);
         };
-        setTimeout(tryPatch, 200);
+        window.addEventListener('nyan:route-changed', this._routeChangedHandler);
     },
 
-    _patchOfflineZone() {
-        const tryPatch = () => {
-            if (!window.OfflineZone) { setTimeout(tryPatch, 1000); return; }
-
-            const origInitGame = OfflineZone._initGame?.bind(OfflineZone);
-            if (!origInitGame) return;
-
-            OfflineZone._initGame = (gameId) => {
-                origInitGame(gameId);
-                const ctx = this.GAME_CONTEXTS[gameId];
-                if (ctx) this._setContext(ctx);
-            };
+    _bindOfflineZoneEvents() {
+        if (this._offlineGameStartHandler) return;
+        this._offlineGameStartHandler = (event) => {
+            const gameId = event.detail?.game;
+            const ctx = this.GAME_CONTEXTS[gameId];
+            if (ctx) this._setContext({ ...ctx, route: `game:${gameId}` });
         };
-        setTimeout(tryPatch, 500);
+        this._offlineGameEndHandler = () => this.updateFromRoute('offline');
+        window.addEventListener('nyan:offline-game-started', this._offlineGameStartHandler);
+        window.addEventListener('nyan:offline-game-ended', this._offlineGameEndHandler);
     },
 
     updateFromRoute(route) {
@@ -276,6 +269,18 @@ const Presence = {
         clearTimeout(this._idleTimer);
         clearTimeout(this._awayTimer);
         clearInterval(this._syncInterval);
+        if (this._routeChangedHandler) {
+            window.removeEventListener('nyan:route-changed', this._routeChangedHandler);
+            this._routeChangedHandler = null;
+        }
+        if (this._offlineGameStartHandler) {
+            window.removeEventListener('nyan:offline-game-started', this._offlineGameStartHandler);
+            this._offlineGameStartHandler = null;
+        }
+        if (this._offlineGameEndHandler) {
+            window.removeEventListener('nyan:offline-game-ended', this._offlineGameEndHandler);
+            this._offlineGameEndHandler = null;
+        }
     },
 };
 
@@ -400,20 +405,20 @@ Presence._syncToFirebase = function(status, label, forcedRoute = null) {
     }
 };
 
-Presence._patchOfflineZone = function() {
-    const tryPatch = () => {
-        if (!window.OfflineZone) { setTimeout(tryPatch, 1000); return; }
-        const origInitGame = window.OfflineZone._initGame?.bind(window.OfflineZone);
-        if (!origInitGame) return;
-
-        window.OfflineZone._initGame = (gameId) => {
-            origInitGame(gameId);
-            this._currentRoute = 'offline';
-            const ctx = this.GAME_CONTEXTS?.[gameId];
-            if (ctx) this._setContext({ ...ctx, route: `game:${gameId}` });
-        };
+Presence._bindOfflineZoneEvents = function() {
+    if (this._offlineGameStartHandler) return;
+    this._offlineGameStartHandler = (event) => {
+        this._currentRoute = 'offline';
+        const gameId = event.detail?.game;
+        const ctx = this.GAME_CONTEXTS?.[gameId];
+        if (ctx) this._setContext({ ...ctx, route: `game:${gameId}` });
     };
-    setTimeout(tryPatch, 500);
+    this._offlineGameEndHandler = () => {
+        this._currentRoute = 'offline';
+        this.updateFromRoute('offline');
+    };
+    window.addEventListener('nyan:offline-game-started', this._offlineGameStartHandler);
+    window.addEventListener('nyan:offline-game-ended', this._offlineGameEndHandler);
 };
 
 window.Presence = Presence;

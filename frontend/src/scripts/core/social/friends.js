@@ -995,7 +995,7 @@ const Friends = {
         }
         const favoriteGame = Friends._getFavoriteGame(scoreMap);
 
-        const myVersion    = window.App?.version || window.NYAN_VERSION || '3.14.0';
+        const myVersion    = window.App?.version || window.NYAN_VERSION || '3.15.0';
         const theirVersion = profile.version || '?';
         let vBadgeEmoji = '', vBadgeText = '', vBadgeTitle = '';
         if (theirVersion !== '?' && myVersion) {
@@ -1119,6 +1119,17 @@ const Friends = {
                 <span class="nyan-pp-chip-name">${publicTitle.name || 'Titulo'}</span>
             </span>
         </div>` : '';
+        const publicSquadTag = profile.squadTag || profile.squad?.tag || '';
+        const publicSquadName = profile.squadName || profile.squad?.name || '';
+        const publicSquadHtml = publicSquadTag ? `
+            <div id="nyan-pp-squad-row" style="display:flex;justify-content:center;margin:-0.1rem 0 0.55rem;">
+                <span style="display:inline-flex;align-items:center;gap:0.28rem;padding:0.22rem 0.62rem;border-radius:999px;
+                    border:1px solid rgba(168,85,247,0.25);background:rgba(168,85,247,0.1);
+                    color:var(--theme-primary,#a855f7);font-size:0.66rem;font-weight:900;">
+                    Cla ${window.Utils?.escapeHTML?.(publicSquadName || '') || publicSquadName || ''} [${window.Utils?.escapeHTML?.(publicSquadTag) || publicSquadTag}]
+                </span>
+            </div>
+        ` : '';
         const publicBadgesHtml = publicBadges.map((badge) => {
             if (!badge) return '';
             const isActive = badge.id === publicEquippedBadge?.id;
@@ -1182,6 +1193,8 @@ const Friends = {
             <div id="nyan-pp-tag-row">
                 <span class="nyan-pp-tag">${profile.nyanTag || ''}</span>
             </div>
+
+            ${publicSquadHtml}
 
             <div style="text-align:center;margin-bottom:${profile.bio ? '0.5rem' : '0'};">
                 <div id="nyan-pp-status-pill"
@@ -1525,7 +1538,7 @@ Friends._isKnownRoute = function(route) {
     if (route.startsWith('game:')) return true;
     const known = new Set([
         'home','password','weather','translator','ai-assistant','mini-game','temp-email','music',
-        'notes','tasks','missions','season','shop','offline','settings','squads','friends','chat','leaderboard','feed',
+        'notes','tasks','missions','season','events','shop','offline','settings','squads','friends','chat','leaderboard','feed',
         'challenges','profile','profile-public'
     ]);
     return known.has(route);
@@ -1540,6 +1553,7 @@ Friends._presenceRouteLabel = function(route) {
         notes: 'Notas',
         missions: 'Missoes',
         season: 'Temporada',
+        events: 'Eventos',
         squads: 'Clãs',
         friends: 'Amigos',
         chat: 'Chat',

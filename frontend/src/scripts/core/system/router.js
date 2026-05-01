@@ -17,6 +17,7 @@ const Router = {
         'tasks':         'Tasks',
         'missions':      'Missions',
         'season':        'Seasons',
+        'events':        'Events',
         'shop':          'Shop',
         'dev-lab':       'DevLab',
         'squads':        'SquadsUI',
@@ -32,6 +33,12 @@ const Router = {
     _history: ['home'],
     _historyIdx: 0,
 
+    _emitRouteChanged(to, from) {
+        window.dispatchEvent(new CustomEvent('nyan:route-changed', {
+            detail: { from, to, at: Date.now() },
+        }));
+    },
+
     navigate(toolId) {
         if (toolId === 'dev-lab' && !window.DevSecurity?.canShowTool?.()) {
             const snap = window.DevSecurity?.snapshot?.() || {};
@@ -42,6 +49,7 @@ const Router = {
             return;
         }
         if (toolId === this.currentRoute) return;
+        const previousRoute = this.currentRoute;
         this.currentRoute = toolId;
         if (toolId !== 'home') {
             Utils.saveData('last_tool_route', toolId);
@@ -50,7 +58,13 @@ const Router = {
         App.updateActiveNav(toolId);
 
         if (window.Dashboard && toolId !== 'home') Dashboard.trackToolAccess(toolId);
-        if (window.Missions) Missions.track({ event: 'open_tool', tool: toolId });
+        if (window.Integrations?.trackToolUsage) {
+            Integrations.trackToolUsage(toolId);
+        } else if (window.Missions) {
+            Missions.track({ event: 'open_tool', tool: toolId });
+        } else if (window.NyanLiveOps?.track) {
+            NyanLiveOps.track({ event: 'open_tool', tool: toolId, key: `open:${toolId}:${Date.now()}` });
+        }
         if (window.Achievements?.checkNightOwl) Achievements.checkNightOwl();
 
         if (this._historyIdx < this._history.length - 1) {
@@ -59,22 +73,27 @@ const Router = {
         this._history.push(toolId);
         this._historyIdx = this._history.length - 1;
         this.render();
+        this._emitRouteChanged(toolId, previousRoute);
     },
 
     back() {
         if (this._historyIdx <= 0) return;
+        const previousRoute = this.currentRoute;
         this._historyIdx--;
         this.currentRoute = this._history[this._historyIdx];
         App.updateActiveNav(this.currentRoute);
         this.render();
+        this._emitRouteChanged(this.currentRoute, previousRoute);
     },
 
     forward() {
         if (this._historyIdx >= this._history.length - 1) return;
+        const previousRoute = this.currentRoute;
         this._historyIdx++;
         this.currentRoute = this._history[this._historyIdx];
         App.updateActiveNav(this.currentRoute);
         this.render();
+        this._emitRouteChanged(this.currentRoute, previousRoute);
     },
 
     canGoBack()    { return this._historyIdx > 0; },
@@ -94,6 +113,7 @@ const Router = {
         if (this.currentRoute === 'home') {
             if (window.Dashboard) {
                 container.innerHTML = window.Dashboard.render();
+                window.Dashboard._refreshSuggestionsWidget?.();
                 if (window.Dashboard.init) {
                     const schedule = window.NyanLifecycle?.setTimeout?.bind(window.NyanLifecycle) || ((_, fn, delay) => setTimeout(fn, delay));
                     schedule('route:home', () => {

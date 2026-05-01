@@ -404,6 +404,7 @@ const Missions = {
 
         let changed = false;
         const state = data.state || {};
+        const beforeState = new Map((data.missions || []).map((m) => [m.id, !!m.completed]));
 
         const missions = (data.missions || []).map((m) => {
             if (m.completed) return m;
@@ -475,10 +476,30 @@ const Missions = {
             this.save(data);
         }
 
+        const completedNow = missions.filter((m) => m.completed && beforeState.get(m.id) === false);
+        this._trackLiveOps(ctx);
+        this._awardSquadActivity(ctx, completedNow);
+
         this._refreshBadge();
 
         const allDone = missions.every(m => m.completed);
         if (allDone) this._checkMissionStreak();
+    },
+
+    _trackLiveOps(ctx = {}) {
+        try {
+            window.NyanLiveOps?.track?.(ctx);
+        } catch (err) {
+            console.warn('[Missions] LiveOps track falhou:', err);
+        }
+    },
+
+    _awardSquadActivity(ctx = {}, completedMissions = []) {
+        const squads = window.Squads;
+        if (!window.NyanAuth?.isOnline?.() || !squads?.getCurrentSquadSync?.() || !squads?.awardActivity) return;
+        try {
+            squads.awardActivity(ctx, { completedMissions }).catch(() => {});
+        } catch (_) {}
     },
 
     _updateProgress(m, def, ctx, state) {

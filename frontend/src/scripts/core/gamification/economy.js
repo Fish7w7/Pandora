@@ -230,6 +230,26 @@ const Economy = {
         this._refreshUI();
     },
 
+    grantXP(amount, meta = {}) {
+        const xpAmount = this._sanitizeInt(amount, 0, 0, this.MAX_TOTAL_XP);
+        if (xpAmount <= 0) return { ok: false, xpAward: 0, leveledUp: false, newLevel: this.getLevel() };
+
+        const state = this.load();
+        const oldLevel = state.level;
+        state.totalXP = this._sanitizeInt((state.totalXP || 0) + xpAmount, 0, 0, this.MAX_TOTAL_XP);
+
+        const { level, xp, xpToNext } = this.calcLevel(state.totalXP);
+        Object.assign(state, { level, xp, xpToNext });
+        this.save(state);
+
+        if (level > oldLevel) this._onLevelUp(level, xpAmount, 0);
+        else if (!meta.silent) this._onGrant(xpAmount, 0, meta.source || 'liveops');
+
+        this.ensureLevelRewards?.(level);
+        this._refreshUI();
+        return { ok: true, xpAward: xpAmount, leveledUp: level > oldLevel, newLevel: level };
+    },
+
     spendChips(amount) {
         const state = this.load();
         if (state.chips < amount) return false;

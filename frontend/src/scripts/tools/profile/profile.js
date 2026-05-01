@@ -13,6 +13,24 @@ const Profile = {
     COLLAPSE_ECO: 'nyan_eco_collapsed',
 
     render() {
+        if (window.ProfileV2) {
+            const user = window.Auth?.getStoredUser?.() || {};
+            const username = user.username || 'Usuario';
+            const heroHtml = window.ProfileV2.renderHeroBanner({ editable: true });
+            const tabsHtml = this.renderTabs();
+            const contentHtml = this._tab === 'profile'
+                ? this._renderProfileTab(username)
+                : this._renderStatsTab();
+
+            return `<div class="profile-root">
+                ${heroHtml}
+                <input type="file" id="avatar-file-input" accept="image/*" style="display:none"
+                    onchange="Profile._onAvatarFileChange(event)"/>
+                ${tabsHtml}
+                <div class="profile-content">${contentHtml}</div>
+            </div>`;
+        }
+
         const user     = Auth?.getStoredUser?.() || {};
         const username = user.username || 'Usuário';
         const avatar   = Utils.loadData(this.KEYS.avatar);
@@ -73,7 +91,28 @@ const Profile = {
         </div>`;
     },
 
+    renderTabs() {
+        const tabs = [
+            { id: 'profile', label: 'Perfil' },
+            { id: 'stats', label: 'Estatisticas' },
+        ];
+
+        return `<div class="profile-tabs" style="margin-bottom:1.25rem;">
+            ${tabs.map((tab) => `
+                <button class="profile-tab ${this._tab === tab.id ? 'active' : ''}"
+                    onclick="Profile._setTab('${tab.id}')">
+                    ${tab.label}
+                </button>
+            `).join('')}
+        </div>`;
+    },
+
+    _renderTabs() {
+        return this.renderTabs();
+    },
+
     _renderProfileTab(username) {
+        if (window.ProfileV2) return window.ProfileV2.renderProfileEditorHub(username);
         return `
         <div class="profile-sections">
 
@@ -143,6 +182,7 @@ const Profile = {
     },
 
     _renderStatsTab() {
+        if (window.ProfileV2) return window.ProfileV2.renderStatsHub();
         const stats = this._collectStats();
         return `
         <div class="profile-sections">

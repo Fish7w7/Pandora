@@ -1,7 +1,7 @@
 ﻿
 
 const AutoUpdater = {
-    currentVersion: window.VersionManager?.getVersion?.() || window.NYAN_VERSION || '3.14.0',
+    currentVersion: window.VersionManager?.getVersion?.() || window.NYAN_VERSION || '3.15.0',
     updateUrl: 'https://api.github.com/repos/Fish7w7/Pandora/releases/latest',
     githubReleasesUrl: 'https://github.com/Fish7w7/Pandora/releases',
     checking: false,
@@ -35,9 +35,24 @@ const AutoUpdater = {
 
       changelog: [
     {
+        version: '3.15.0',
+        date: '2026-05-01T18:00:00',
+        label: 'Atual',
+        labelColor: 'bg-green-500',
+        author: 'Gabriel & Clara',
+        changes: [
+            { type: '💠', text: 'Eventos & Live Ops adiciona eventos temporarios com missoes, recompensas, loja e historico' },
+            { type: '🎯', text: 'Missoes de evento acompanham jogos, quiz e acoes de Cla com progresso persistente e resgate unico' },
+            { type: '🛍️', text: 'Loja temporaria de evento usa chips, respeita periodo ativo e evita compra duplicada de itens limitados' },
+            { type: '🏰', text: 'Clãs recebem bonus de pontuacao de evento, notificacoes oficiais e registros no mural' },
+            { type: '🔔', text: 'Notificacoes cobrem inicio/fim de evento, missao concluida, recompensa disponivel e item comprado' },
+            { type: '🧹', text: 'Patches antigos foram absorvidos pelos modulos donos e removidos do carregamento do app' },
+        ]
+    },
+    {
         version: '3.14.0',
         date: '2026-04-28T12:00:00',
-        label: 'Atual',
+        label: '',
         labelColor: 'bg-green-500',
         author: 'Gabriel',
         changes: [
@@ -52,24 +67,6 @@ const AutoUpdater = {
             { type: '📴', text: 'Modo offline agora mostra uma tela amigavel para usuario final, sem instrucoes de Firebase' },
             { type: '⚡', text: 'Listas grandes foram limitadas para reduzir render pesado em telas sociais e loja' },
             { type: '🗓️', text: 'NyanLiveOps fica pronto para eventos futuros sem ativar eventos nesta versao' },
-        ]
-    },
-    {
-        version: '3.13.3',
-        date: '2026-04-26T12:00:00',
-        label: '',
-        labelColor: 'bg-green-500',
-        author: 'Gabriel & Clara',
-        changes: [
-            { type: '🎯', text: 'Metas diarias e semanais do Clã com progresso coletivo por pontos, partidas, quizzes e ranking' },
-            { type: '💰', text: 'Recompensas de metas distribuem chips entre membros e debitam o cofre sem saldo negativo' },
-            { type: '⚔️', text: 'Desafios de 24h entre Clãs com placar sincronizado para os dois lados e limite de um desafio ativo' },
-            { type: '🛠️', text: 'Corrigido desafio aparecendo apenas para quem desafia; ambos os Clãs agora enxergam a disputa' },
-            { type: '🧩', text: 'HUB de Clãs redesenhado com header forte, Visao Geral, abas reais e sidebar mais leve' },
-            { type: '📌', text: 'Visao Geral resume top metas, atividade recente, desafio atual e ranking compacto' },
-            { type: '🎨', text: 'Layout visual unificado com grid principal/sidebar, cards padronizados e sidebar com scroll interno' },
-            { type: '🧹', text: 'Sistema de convites por amigos removido; entrada por codigo e pedidos de Clãs privados continuam' },
-            { type: '🔌', text: 'Hooks de metas, recompensas e desafios adicionados para integracoes futuras' },
         ]
     },
 ],

@@ -210,6 +210,7 @@ const Notes = {
     },
     
     renderNoteFooter(note) {
+        const integrationBtn = window.Integrations?.renderNoteToTaskBtn?.(note.id) || '';
         return `
             <div class="flex items-center justify-between pt-4 border-t-2 border-gray-300 dark:border-gray-600">
                 <span class="text-xs text-gray-600 dark:text-gray-400 font-semibold">
@@ -218,6 +219,7 @@ const Notes = {
                 <span class="text-xs text-gray-600 dark:text-gray-400">
                     ${note.content.length} caracteres
                 </span>
+                ${integrationBtn ? `<span>${integrationBtn}</span>` : ''}
             </div>
         `;
     },
@@ -352,6 +354,9 @@ const Notes = {
         this.notes.unshift(note);
         this.sortNotes(); // Reordenar após criar
         Utils.showNotification('✅ Nota criada! にゃん~', 'success');
+        window.ProfileV2?.recordActivity?.('note_created', { title: note.title });
+        window.Integrations?.onNoteCreated?.(note);
+        window.NyanLiveOps?.track?.({ event: 'note_created', noteId: note.id, key: `note:${note.id}` });
     },
     
     updateNote(title, content) {
@@ -364,6 +369,7 @@ const Notes = {
                 updated: Date.now()
             };
             Utils.showNotification('✅ Nota atualizada! にゃん~', 'success');
+            window.ProfileV2?.recordActivity?.('note_updated', { title });
         }
     },
     

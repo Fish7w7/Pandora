@@ -593,13 +593,14 @@ const Challenges = {
     },
 
     _watchOfflineZone(challengeId, gameId) {
-        if (this._ozPatched) return;
-        this._ozPatched = true;
+        if (this._offlineEndHandler) {
+            window.removeEventListener('nyan:offline-game-ended', this._offlineEndHandler);
+        }
 
-        const origBack = OfflineZone?.backToMenu?.bind(OfflineZone);
-        if (!origBack) { this._ozPatched = false; return; }
+        this._offlineEndHandler = () => {
+            window.removeEventListener('nyan:offline-game-ended', this._offlineEndHandler);
+            this._offlineEndHandler = null;
 
-        OfflineZone.backToMenu = () => {
             const active = window._activeChallenge;
             if (active && !active._submitted) {
                 const currentScore = Utils.loadData(this.GAME_KEYS[active.gameId]);
@@ -618,10 +619,8 @@ const Challenges = {
                     Utils.showNotification('⚠️ Jogue uma partida para registrar o score', 'warning');
                 }
             }
-            OfflineZone.backToMenu = origBack;
-            this._ozPatched = false;
-            origBack();
         };
+        window.addEventListener('nyan:offline-game-ended', this._offlineEndHandler);
     },
 
     _showChallengeBadge(gameId) {

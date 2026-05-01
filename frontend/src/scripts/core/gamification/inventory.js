@@ -16,6 +16,7 @@ const Inventory = {
         { id:'title_bundle_nebula_311', type:'title', name:'Comandante Nebula', icon:'\u{1F30C}', rarity:'bundle', price:750, minLevel:1, preview:'Titulo legado do Bundle Nebula', eventOnly:true, endsAt:'2026-04-30T23:59:59-03:00' },
         { id:'title_season1_silver', type:'title', name:'Aurora da Temporada', icon:'\u{1F338}', rarity:'seasonal', price:450, minLevel:1, preview:'Titulo sazonal da Temporada 1', seasonId:'season_1', endsAt:'2026-05-15T23:59:59-03:00', eventOnly:true },
         { id:'title_season1_champion', type:'title', name:'Despertar Supremo', icon:'\u{1F451}', rarity:'seasonal', price:0, minLevel:1, preview:'Titulo final da Temporada 1', seasonId:'season_1', endsAt:'2026-05-15T23:59:59-03:00', eventOnly:true, rewardOnly:true, seasonFinalReward:true },
+        { id:'title_liveops_315', type:'title', name:'Operador Live Ops', icon:'\u{1F4A0}', rarity:'event', price:700, minLevel:1, preview:'Titulo exclusivo do evento v3.15 Eventos & Live Ops', eventOnly:true, endsAt:'2026-05-12T23:59:59-03:00' },
         { id:'border_simple',  type:'border', name:'Borda Simples',     icon:'\u2B1C', rarity:'common',    price:400,  minLevel:5,  preview:'Borda branca discreta',
           css:'border: 2px solid rgba(255,255,255,0.6);' },
         { id:'border_purple',  type:'border', name:'Borda Roxa',        icon:'\u{1F49C}', rarity:'common',    price:400,  minLevel:5,  preview:'Borda na cor do tema',
@@ -91,6 +92,13 @@ const Inventory = {
               50% { border-color:#f97316; box-shadow:0 0 12px rgba(249,115,22,0.5),0 0 20px rgba(251,113,133,0.32); }
           }`
         },
+        { id:'border_liveops_315', type:'border', name:'Borda Operacao', icon:'\u{1F4A0}', rarity:'event', price:950, minLevel:1, preview:'Borda exclusiva do evento v3.15', eventOnly:true, endsAt:'2026-05-12T23:59:59-03:00',
+          css:'border:2.5px solid #14b8a6; box-shadow:0 0 9px rgba(20,184,166,0.5), 0 0 18px rgba(59,130,246,0.3); animation: liveOpsBorderPulse 2.7s ease-in-out infinite;',
+          extraStyle:`@keyframes liveOpsBorderPulse {
+              0%,100% { border-color:#14b8a6; box-shadow:0 0 9px rgba(20,184,166,0.5),0 0 18px rgba(59,130,246,0.3); }
+              50% { border-color:#60a5fa; box-shadow:0 0 11px rgba(96,165,250,0.58),0 0 22px rgba(20,184,166,0.35); }
+          }`
+        },
 
         { id:'theme_sakura',   type:'theme', name:'Sakura',            icon:'\u{1F338}', rarity:'rare',   price:1200, minLevel:10, preview:'Rosa - petalas caindo no login',  themeId:'pink',   effect:'sakura' },
         { id:'theme_midnight', type:'theme', name:'Midnight',          icon:'\u{1F319}', rarity:'rare',   price:1200, minLevel:10, preview:'Indigo - particulas de estrelas',  themeId:'indigo', effect:'stars' },
@@ -109,6 +117,7 @@ const Inventory = {
         { id:'particle_bundle_nebula_311', type:'particle', name:'Poeira Nebula', icon:'\u{1F30C}', rarity:'bundle', price:950, minLevel:1, preview:'Particulas exclusivas do Bundle Nebula', eventOnly:true, endsAt:'2026-04-30T23:59:59-03:00' },
         { id:'particle_veteran_spark', type:'particle', name:'Sigilos Veteranos', icon:'\u25C8', rarity:'milestone', price:0, minLevel:10, preview:'Particulas de marco - sigilos dourados ao atingir nivel 10', milestone:true },
         { id:'particle_season1_petals', type:'particle', name:'Petalas S1', icon:'\u{1F33A}', rarity:'seasonal', price:0, minLevel:1, preview:'Efeito raro de petalas da Temporada 1', seasonId:'season_1', endsAt:'2026-05-15T23:59:59-03:00', eventOnly:true, rewardOnly:true },
+        { id:'particle_liveops_315', type:'particle', name:'Pulso de Evento', icon:'\u{1F4A0}', rarity:'event', price:650, minLevel:1, preview:'Pulsos ciano e marcadores orbitais do evento v3.15', eventOnly:true, endsAt:'2026-05-12T23:59:59-03:00' },
     ],
 
     RARITY: {
@@ -119,6 +128,7 @@ const Inventory = {
         bundle:    { label:'Bundle',  color:'#10b981', bg:'rgba(16,185,129,0.12)'  },
         weekly:    { label:'Semanal', color:'#10b981', bg:'rgba(16,185,129,0.12)'  },
         seasonal:  { label:'Sazonal', color:'#fb7185', bg:'rgba(251,113,133,0.12)' },
+        event:     { label:'Evento',  color:'#14b8a6', bg:'rgba(20,184,166,0.12)' },
     },
 
     _defaultData() {
@@ -623,6 +633,29 @@ const Inventory = {
                 chars: ['\u{1F338}','\u{1F33A}','\u{1F339}','\u{1F338}','\u{1F33A}','\u{1F339}','\u{1F338}','\u{1F33A}'],
                 color: '#fb7185', glow: 'rgba(249,115,22,0.45)', anim: 'particleFloat',
             },
+            particle_liveops_315: {
+                chars: ['\u25C7','\u25C6','\u25AA','\u25C7','\u25C6','\u2022','\u25C7','\u25AA'],
+                color: '#14b8a6',
+                glow: 'rgba(20,184,166,0.5)',
+                anim: 'particleLiveOpsPing',
+                fontSize: '8px',
+                fontWeight: '900',
+                textColor: '#67e8f9',
+                textShadow: '0 0 8px rgba(34,211,238,0.6), 0 0 14px rgba(59,130,246,0.34)',
+                duration: '2.35s',
+                ringShadow: '0 0 0 1px rgba(20,184,166,0.75), 0 0 0 5px rgba(20,184,166,0.06), 0 0 14px rgba(59,130,246,0.28)',
+                ringBackground: 'radial-gradient(circle at 50% 50%, rgba(20,184,166,0.1), rgba(59,130,246,0.04) 54%, transparent 70%), conic-gradient(from 90deg, transparent 0 18%, rgba(96,165,250,0.2) 19% 21%, transparent 22% 48%, rgba(20,184,166,0.2) 49% 51%, transparent 52% 100%)',
+                positions: [
+                    { top:'3%', left:'22%' },
+                    { top:'-2%', left:'58%' },
+                    { top:'18%', right:'-1%' },
+                    { top:'58%', right:'3%' },
+                    { bottom:'2%', left:'63%' },
+                    { bottom:'7%', left:'26%' },
+                    { top:'58%', left:'3%' },
+                    { top:'20%', left:'-1%' },
+                ],
+            },
         };
         const cfg = configs[item.id] || configs.particle_stars;
 
@@ -656,6 +689,11 @@ const Inventory = {
             @keyframes particleNebulaTwinkle {
                 0%,100% { opacity:0.34; transform:translate(-50%,-50%) translateY(0) scale(0.88); }
                 50%     { opacity:0.95; transform:translate(-50%,-50%) translateY(-2px) scale(1.16); }
+            }
+            @keyframes particleLiveOpsPing {
+                0%,100% { opacity:0.36; transform:translate(-50%,-50%) scale(0.72) rotate(0deg); filter:saturate(0.9); }
+                35%     { opacity:1;    transform:translate(-50%,-50%) scale(1.22) rotate(45deg); filter:saturate(1.35); }
+                70%     { opacity:0.72; transform:translate(-50%,-50%) scale(0.92) rotate(90deg); filter:saturate(1.1); }
             }
             @keyframes particleGlow {
                 0%,100% { opacity:0.5; }

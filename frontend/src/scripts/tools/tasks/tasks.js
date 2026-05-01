@@ -159,6 +159,16 @@ const Tasks = {
             all:       { title: 'Nenhuma tarefa ainda',    msg: 'Organize seu dia criando a primeira tarefa にゃん~',        btn: true  },
         };
         const cfg = configs[this.filter] || configs.all;
+        const notes = window.Utils?.loadData?.('notes') || [];
+        const notesHint = notes.length > 0 && this.filter === 'all'
+            ? `<div style="margin-top:0.75rem;font-size:0.72rem;color:${sub};display:flex;align-items:center;justify-content:center;gap:0.4rem;flex-wrap:wrap;">
+                Voce tem ${notes.length} nota${notes.length > 1 ? 's' : ''}.
+                <button onclick="Router.navigate('notes')"
+                    style="background:none;border:none;cursor:pointer;color:var(--theme-primary,#a855f7);font-weight:800;font-size:0.72rem;text-decoration:underline;">
+                    converter em tarefa
+                </button>
+            </div>`
+            : '';
 
         return `
             <div style="
@@ -191,6 +201,7 @@ const Tasks = {
                         ✏️ Criar primeira tarefa
                     </button>
                 ` : ''}
+                ${notesHint}
             </div>
         `;
     },
@@ -458,6 +469,14 @@ const Tasks = {
         };
         this.tasks.unshift(task);
         Utils.showNotification('✅ Tarefa criada! にゃん~', 'success');
+        window.Integrations?._emitConnectedAction?.('task_created', {
+            taskId: task.id,
+            title: task.title,
+            priority: task.priority || priority || 'medium',
+            source: 'tasks',
+        });
+        window.Integrations?.trackToolUsage?.('tasks');
+        window.NyanLiveOps?.track?.({ event: 'task_created', taskId: task.id, key: `task:${task.id}` });
     },
     
     updateTask(title, description, priority) {
@@ -471,6 +490,7 @@ const Tasks = {
     toggleComplete(taskId) {
         const task = this.tasks.find(t => t.id === taskId);
         if (!task) return;
+        const wasCompleted = task.completed === true;
         
         task.completed = !task.completed;
         task.completedAt = task.completed ? Date.now() : null;
@@ -480,6 +500,11 @@ const Tasks = {
             task.completed ? '✅ Tarefa concluída! にゃん~' : '⏳ Tarefa reaberta! にゃん~',
             task.completed ? 'success' : 'info'
         );
+        if (!wasCompleted && task.completed) {
+            window.Integrations?.onTaskCompleted?.(task);
+            window.StateManager?.updateMissionsBadge?.();
+            window.NyanLiveOps?.track?.({ event: 'task_completed', taskId: task.id, key: `task-complete:${task.id}` });
+        }
         Router.render();
     },
     

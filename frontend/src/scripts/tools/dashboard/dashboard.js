@@ -914,3 +914,262 @@ const Dashboard = {
         if (score > current) Utils.saveData('game_2048_highscore', score);
     }
 };
+
+Dashboard._homePrefsKey = 'dash_home_prefs_v1';
+
+Dashboard._getHomePrefs = function() {
+    const saved = Utils.loadData(this._homePrefsKey) || {};
+    return {
+        continueCard: saved.continueCard !== false,
+        missionCard: saved.missionCard !== false,
+        notesCard: saved.notesCard !== false,
+        shortcutsCard: saved.shortcutsCard !== false,
+        friendsCard: saved.friendsCard !== false,
+    };
+};
+
+Dashboard._saveHomePrefs = function(next) {
+    Utils.saveData(this._homePrefsKey, next);
+};
+
+Dashboard._refreshHomeCustomizeModal = function() {
+    const modal = document.getElementById('dash-home-customize-modal');
+    if (!modal) return;
+    const prefs = this._getHomePrefs();
+    modal.querySelectorAll('[data-pref-key]').forEach((row) => {
+        const key = row.getAttribute('data-pref-key');
+        const badge = row.querySelector('[data-pref-badge]');
+        if (!badge) return;
+        const active = prefs[key] !== false;
+        badge.textContent = active ? 'Ativo' : 'Oculto';
+        badge.style.background = active ? 'rgba(34,197,94,0.18)' : 'rgba(239,68,68,0.16)';
+        badge.style.color = active ? '#22c55e' : '#f87171';
+        badge.style.border = active ? '1px solid rgba(34,197,94,0.3)' : '1px solid rgba(239,68,68,0.28)';
+    });
+};
+
+Dashboard._toggleHomePref = function(key) {
+    const prefs = this._getHomePrefs();
+    prefs[key] = !prefs[key];
+    this._saveHomePrefs(prefs);
+    this._refreshHomeCustomizeModal();
+    if (window.Router?.currentRoute === 'home') {
+        const refreshed = this.refreshRealtime?.({ keepCustomizeModal: true });
+        if (!refreshed) window.Router.render();
+        setTimeout(() => this._refreshHomeCustomizeModal?.(), 0);
+    }
+};
+
+Dashboard._openHomeCustomize = function() {
+    document.getElementById('dash-home-customize-modal')?.remove();
+    const d = document.body.classList.contains('dark-theme');
+    const bg = d ? '#0e0e18' : '#ffffff';
+    const text = d ? '#f1f5f9' : '#0f172a';
+    const sub = d ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.45)';
+    const bdr = d ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.08)';
+    const prefs = this._getHomePrefs();
+    const rows = [
+        { key: 'continueCard', label: 'Continuar' },
+        { key: 'missionCard', label: 'Missao do dia' },
+        { key: 'notesCard', label: 'Notas recentes' },
+        { key: 'shortcutsCard', label: 'Atalhos' },
+        { key: 'friendsCard', label: 'Amigos online' },
+    ];
+
+    const modal = document.createElement('div');
+    modal.id = 'dash-home-customize-modal';
+    modal.style.cssText = 'position:fixed;inset:0;z-index:99999;background:rgba(0,0,0,0.62);display:flex;align-items:center;justify-content:center;padding:1rem;';
+    modal.innerHTML = `
+        <div style="width:100%;max-width:360px;background:${bg};border:1px solid ${bdr};border-radius:16px;padding:1rem;font-family:'DM Sans',sans-serif;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;">
+                <div style="font-size:0.95rem;font-weight:900;color:${text};font-family:'Syne',sans-serif;">Personalizar Home</div>
+                <button onclick="document.getElementById('dash-home-customize-modal').remove()"
+                    style="border:none;background:transparent;color:${sub};cursor:pointer;font-size:1rem;">X</button>
+            </div>
+            <p style="font-size:0.72rem;color:${sub};margin:0 0 0.75rem;">Escolha os blocos que voce quer ver.</p>
+            ${rows.map((row) => `
+                <button onclick="Dashboard._toggleHomePref('${row.key}')" data-pref-key="${row.key}"
+                    style="width:100%;margin-bottom:0.45rem;padding:0.55rem 0.65rem;border-radius:10px;border:1px solid ${bdr};background:${d ? 'rgba(255,255,255,0.03)' : 'rgba(0,0,0,0.02)'};color:${text};display:flex;align-items:center;justify-content:space-between;cursor:pointer;font-size:0.78rem;font-weight:700;">
+                    <span>${row.label}</span>
+                    <span data-pref-badge style="font-size:0.66rem;padding:0.12rem 0.4rem;border-radius:999px;">${prefs[row.key] ? 'Ativo' : 'Oculto'}</span>
+                </button>
+            `).join('')}
+        </div>`;
+    modal.addEventListener('click', (event) => { if (event.target === modal) modal.remove(); });
+    document.body.appendChild(modal);
+    this._refreshHomeCustomizeModal();
+};
+
+Dashboard._renderPersonalizedHomeBase = Dashboard.renderPersonalizedHome?.bind(Dashboard);
+Dashboard.renderPersonalizedHome = function() {
+    const c = this._colors();
+    const prefs = this._getHomePrefs();
+    const lastRoute = Utils.loadData('last_tool_route');
+    const lastRouteAt = Utils.loadData('last_tool_route_at');
+    const lastTool = lastRoute ? this.getToolInfo(lastRoute) : null;
+    const lastSeen = lastRouteAt ? this.formatLastAccess(lastRouteAt) : 'agora ha pouco';
+    const missions = window.Missions?.getDailyMissions?.() || [];
+    const nextMission = missions.find((m) => !m.completed) || null;
+    const notes = (Utils.loadData('notes') || []).slice(0, 2);
+    const shortcuts = this.getDynamicShortcuts(3);
+    const cards = [];
+
+    if (prefs.continueCard) {
+        cards.push(`<div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:12px;padding:0.85rem;">
+            <div style="font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.4rem;">Continuar</div>
+            ${lastTool ? `<button onclick="Router.navigate('${lastRoute}')" style="width:100%;text-align:left;border:none;background:transparent;cursor:pointer;padding:0;">
+                <div style="font-size:0.9rem;font-weight:800;color:${c.title};">${lastTool.icon} ${lastTool.name}</div>
+                <div style="font-size:0.72rem;color:${c.sub};margin-top:0.15rem;">Ultimo acesso ${lastSeen}</div>
+            </button>` : `<div style="font-size:0.75rem;color:${c.sub};">Sem historico recente</div>`}
+        </div>`);
+    }
+
+    if (prefs.missionCard) {
+        cards.push(`<div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:12px;padding:0.85rem;">
+            <div style="font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.4rem;">Missao do dia</div>
+            ${nextMission ? `<button onclick="Router.navigate('missions')" style="width:100%;text-align:left;border:none;background:transparent;cursor:pointer;padding:0;">
+                <div style="font-size:0.85rem;font-weight:700;color:${c.title};">${nextMission.icon} ${nextMission.title}</div>
+                <div style="font-size:0.72rem;color:${c.sub};margin-top:0.15rem;">${nextMission.desc}</div>
+            </button>` : `<button onclick="Router.navigate('missions')" style="width:100%;text-align:left;border:none;background:transparent;cursor:pointer;padding:0;">
+                <div style="font-size:0.85rem;font-weight:700;color:#22c55e;">Tudo concluido hoje</div>
+            </button>`}
+        </div>`);
+    }
+
+    if (prefs.notesCard) {
+        const notesHtml = notes.length
+            ? notes.map((note) => `<button onclick="Router.navigate('notes')" style="width:100%;text-align:left;padding:0.5rem 0.625rem;border-radius:10px;border:1px solid ${c.innerBdr};background:${c.inner};color:${c.text};font-size:0.74rem;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${note.title || 'Sem titulo'}</button>`).join('')
+            : `<div style="font-size:0.72rem;color:${c.sub};">Sem notas recentes</div>`;
+        cards.push(`<div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:12px;padding:0.85rem;">
+            <div style="font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.4rem;">Notas recentes</div>
+            <div style="display:flex;flex-direction:column;gap:0.4rem;">${notesHtml}</div>
+        </div>`);
+    }
+
+    if (prefs.shortcutsCard) {
+        cards.push(`<div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:12px;padding:0.85rem;">
+            <div style="font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.4rem;">Atalhos</div>
+            <div style="display:grid;grid-template-columns:1fr;gap:0.4rem;">
+                ${shortcuts.map((shortcut) => `<button onclick="Router.navigate('${shortcut.id}')" style="padding:0.5rem 0.625rem;border-radius:10px;border:1px solid ${c.innerBdr};background:${c.inner};color:${c.text};font-size:0.72rem;font-weight:700;cursor:pointer;">${shortcut.name}</button>`).join('')}
+            </div>
+        </div>`);
+    }
+
+    if (prefs.friendsCard) {
+        cards.push(`<div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:12px;padding:0.85rem;">
+            <div style="font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.4rem;">Amigos online</div>
+            <div id="dash-online-count" style="font-size:0.9rem;font-weight:800;color:${c.title};">Carregando...</div>
+            <div id="dash-online-list" style="font-size:0.72rem;color:${c.sub};margin-top:0.15rem;">Buscando presenca em tempo real</div>
+        </div>`);
+    }
+
+    const body = cards.length
+        ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.6rem;">${cards.join('')}</div>`
+        : `<div style="background:${c.inner};border:1px dashed ${c.innerBdr};border-radius:12px;padding:1rem;text-align:center;color:${c.sub};font-size:0.78rem;">Nenhum bloco visivel.</div>`;
+
+    return this._section('🏠', 'Home personalizada', `
+        <div style="display:flex;justify-content:flex-end;margin-bottom:0.55rem;">
+            <button onclick="Dashboard._openHomeCustomize()" style="border:1px solid ${c.innerBdr};background:${c.inner};color:${c.text};font-size:0.72rem;font-weight:700;padding:0.36rem 0.6rem;border-radius:9px;cursor:pointer;">Personalizar</button>
+        </div>
+        ${body}
+    `);
+};
+
+Dashboard._baseRender = Dashboard.render?.bind(Dashboard);
+Dashboard.render = function() {
+    this.loadStats();
+    this.updateStats();
+    return `
+        <div id="dash-root" class="max-w-6xl mx-auto" style="padding-bottom:0.75rem;">
+            <div id="dash-header-slot">${this.renderHeader()}</div>
+            <div id="dash-quick-stats-slot">${this.renderQuickStats()}</div>
+            <div id="dash-home-personalized-slot">${this.renderPersonalizedHome()}</div>
+            <div id="dash-activity-slot">${this.renderActivitySection()}</div>
+            <div id="dash-productivity-slot">${this.renderProductivitySection()}</div>
+            <div id="dash-tools-slot">${this.renderToolsUsage()}</div>
+            <div id="dash-games-slot">${this.renderGamesSection()}</div>
+        </div>
+    `;
+};
+
+Dashboard._refreshSuggestionsWidget = function() {
+    if (window.Router?.currentRoute !== 'home') return;
+    const toolContainer = document.getElementById('tool-container');
+    if (!toolContainer || typeof window.Integrations?.renderSuggestionsWidget !== 'function') return;
+    const html = window.Integrations.renderSuggestionsWidget();
+    const existing = document.getElementById('nyan-smart-suggestions');
+    if (!html) {
+        existing?.remove();
+        return;
+    }
+    if (existing) {
+        existing.innerHTML = html;
+        return;
+    }
+    const wrapper = document.createElement('div');
+    wrapper.id = 'nyan-smart-suggestions';
+    wrapper.innerHTML = html;
+    const dashRoot = toolContainer.querySelector('#dash-root');
+    if (dashRoot) toolContainer.insertBefore(wrapper, dashRoot);
+    else toolContainer.insertBefore(wrapper, toolContainer.firstChild);
+};
+
+Dashboard.refreshRealtime = function(options = {}) {
+    if (window.Router?.currentRoute !== 'home') return false;
+    const toolContainer = document.getElementById('tool-container');
+    const dashRoot = toolContainer?.querySelector('#dash-root');
+    if (!dashRoot) return false;
+
+    this.loadStats();
+    this.updateStats();
+    const renderSlot = (id, html) => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = html;
+    };
+    renderSlot('dash-header-slot', this.renderHeader());
+    renderSlot('dash-quick-stats-slot', this.renderQuickStats());
+    renderSlot('dash-home-personalized-slot', this.renderPersonalizedHome());
+    renderSlot('dash-activity-slot', this.renderActivitySection());
+    renderSlot('dash-productivity-slot', this.renderProductivitySection());
+    renderSlot('dash-tools-slot', this.renderToolsUsage());
+    renderSlot('dash-games-slot', this.renderGamesSection());
+    this._refreshSuggestionsWidget?.();
+    if (options.hydrate !== false) setTimeout(() => this.hydratePersonalizedHome?.(), 60);
+    if (options.keepCustomizeModal) setTimeout(() => this._refreshHomeCustomizeModal?.(), 0);
+    return true;
+};
+
+Dashboard._homeRefreshTimer = null;
+Dashboard._homeRefreshQueuedAt = 0;
+Dashboard.queueHomeRefresh = function() {
+    if (window.Router?.currentRoute !== 'home') return;
+    const now = Date.now();
+    if (this._homeRefreshTimer && (now - this._homeRefreshQueuedAt) < 160) return;
+    this._homeRefreshQueuedAt = now;
+    if (this._homeRefreshTimer) clearTimeout(this._homeRefreshTimer);
+    this._homeRefreshTimer = setTimeout(() => {
+        this._homeRefreshTimer = null;
+        if (window.Router?.currentRoute !== 'home') return;
+        const refreshed = this.refreshRealtime?.();
+        if (!refreshed) {
+            window.Router.render();
+            setTimeout(() => this.hydratePersonalizedHome?.(), 60);
+        }
+    }, 180);
+};
+
+Dashboard._baseInit = Dashboard.init?.bind(Dashboard);
+Dashboard.init = function() {
+    this._baseInit?.();
+    if (this.__realtimeListenersBound) return;
+    this.__realtimeListenersBound = true;
+    window.addEventListener('nyan:connected-action', () => this.queueHomeRefresh());
+    window.addEventListener('nyan:presence-changed', () => this.queueHomeRefresh());
+    window.addEventListener('nyan:liveops-updated', () => this.queueHomeRefresh());
+    window.addEventListener('focus', () => this.queueHomeRefresh());
+    window.addEventListener('visibilitychange', () => {
+        if (!document.hidden) this.queueHomeRefresh();
+    });
+};
+
+window.Dashboard = Dashboard;

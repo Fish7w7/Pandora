@@ -1,35 +1,32 @@
 {
-    "version": "3.14.0",
-    "buildDate": "2026-04-28",
+    "version": "3.15.0",
+    "buildDate": "2026-05-01",
     "changelog": [
-        "Nyan Core finaliza a base v3.14.0 com versao, updater, storage, lifecycle e UI sincronizados",
-        "Boot do app estabilizado com init seguro, tema sem body null e Firebase iniciado somente com documento pronto",
-        "Preload, App, Updater, VersionManager e metadados agora usam a mesma versao 3.14.0",
-        "NyanStorage, NyanLifecycle e NyanLiveOps criam a base para evolucao futura sem migracao agressiva",
-        "Clãs foram estabilizados sem reload infinito, spam de permissoes ou multiplas escritas em leituras",
-        "Desafios de Clã agora liquidam recompensa do vencedor no cofre de forma idempotente",
-        "Tela offline virou experiencia de usuario final, sem instrucoes tecnicas de Firebase",
-        "UI de Clãs recebeu limpeza visual em tabs, cards, ranking, badges e textos",
-        "Listas grandes de chat, mural, feed, membros, desafios e loja foram limitadas para reduzir render pesado",
-        "Correcoes finais pos-QA cobrem tela preta, versionamento, sync social, permissao Firestore e layout"
+        "Eventos & Live Ops adiciona eventos temporarios com missoes, recompensas, loja e historico",
+        "Missoes de evento acompanham jogos, quiz e acoes de Cla com progresso persistente",
+        "Recompensas sazonais usam Economy, Inventory e Badges com resgate idempotente",
+        "Loja de evento usa chips, respeita periodo ativo e evita compra duplicada de itens limitados",
+        "Clans recebem bonus de pontuacao durante eventos, notificacoes oficiais e registros no mural",
+        "Patches antigos foram absorvidos pelos modulos donos e removidos do carregamento"
     ],
-    "tag_name": "v3.14.0",
-    "releaseDate": "2026-04-28",
-    "name": "NyanTools v3.14.0",
-    "codename": "Nyan Core",
-    "body": "## NyanTools v3.14.0 - Nyan Core\n\n### Fundacao\n- Versao unica em package.json, version.json, frontend/public/version.json, App, Updater, VersionManager e preload\n- Boot do app mais seguro: tema aguarda document.body, Firebase inicia depois do documento pronto e version.js nao apaga o DOM\n- NyanStorage padroniza novos acessos a dados sem migrar agressivamente o legado\n- NyanLifecycle organiza cleanup de rotas, timers, listeners e subscriptions\n- NyanLiveOps adiciona contrato base para eventos futuros sem ativar eventos ainda\n\n### Clãs e Social\n- Clãs nao entram mais em reload infinito ao abrir abas, snapshots ou presenca\n- Leituras de metas/desafios nao disparam escritas remotas desnecessarias\n- Desafios de Clã finalizados liquidam o premio no cofre do vencedor uma unica vez\n- Erros esperados de permissao do Firestore em sync secundario deixam de poluir o console\n- Tela offline agora explica o modo local para usuarios finais e oferece atalhos uteis\n\n### UI e Performance\n- Design system Nyan Core com tokens, cards, botoes, badges, inputs e correcoes de overflow\n- UI de Clãs limpa icones soltos, textos desconexos, badges em ingles e o titulo \"Posicao compacta\"\n- Listas grandes limitadas para reduzir re-render em chat, mural, feed, membros, desafios, loja e ranking\n- Fixes pos-QA corrigem tela preta, body null no tema, Firebase cedo demais e layout inconsistente\n\nVersao anterior: v3.13.3",
+    "tag_name": "v3.15.0",
+    "releaseDate": "2026-05-01",
+    "name": "NyanTools v3.15.0",
+    "codename": "Eventos & Live Ops",
+    "body": "## NyanTools v3.15.0 - Eventos & Live Ops\n\n### Eventos\n- Sistema de eventos temporarios com ativos, proximos e encerrados\n- Missoes especiais para jogos, quiz, social, economia e Clans\n- Recompensas sazonais com chips, XP, badges e itens via APIs oficiais\n- Loja temporaria de evento com bloqueio apos encerramento e compra unica de itens limitados\n\n### Clans e Live Ops\n- Bonus de pontuacao de Cla durante eventos ativos\n- Metas, chat e desafios de Cla registram progresso de missoes de evento\n- Mural de Cla recebe registros relevantes de recompensas e compras de evento\n- Notificacoes cobrem inicio/fim de evento, missao concluida, resgate e compra\n\n### Arquitetura\n- Patches antigos absorvidos por App, Router, Dashboard, Profile, Notes, Tasks, Integrations, Squads e Clans\n- Scripts de patch removidos do carregamento principal\n- NyanLiveOps usa NyanStorage e fallback local sem exigir backend\n\nVersao anterior: v3.14.0",
     "previousVersion": {
-        "version": "3.13.3",
-        "tag": "v3.13.3",
-        "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.13.3"
+        "version": "3.14.0",
+        "tag": "v3.14.0",
+        "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.14.0"
     },
-    "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.14.0",
-    "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.14.0",
+    "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.15.0",
+    "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.15.0",
     "statistics": {
-        "filesNew": 5,
-        "filesRewritten": 0,
-        "filesModified": 28,
-        "bugsFixed": 15,
-        "featuresAdded": 0
+        "filesNew": 1,
+        "filesRewritten": 2,
+        "filesModified": 24,
+        "filesDeleted": 7,
+        "bugsFixed": 8,
+        "featuresAdded": 6
     }
 }

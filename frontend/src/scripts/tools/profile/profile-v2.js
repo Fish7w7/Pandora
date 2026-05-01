@@ -540,6 +540,10 @@ const ProfileV2 = {
         const avatar = window.Utils?.loadData('nyan_profile_avatar');
         const nyanTag = window.NyanAuth?.getNyanTag?.() || null;
         const economy = window.Economy?.getState?.() || { level: 1, chips: 0 };
+        const currentSquad = window.Squads?.getCurrentSquadSync?.() || null;
+        const squadChip = currentSquad?.tag
+            ? `<span class="profile-edit-hero-chip">Cla [${window.Utils?.escapeHTML?.(currentSquad.tag) || currentSquad.tag}]</span>`
+            : '';
         const profileDoc = window.NyanAuth?.currentUser || null;
         const equippedTitle =
             window.Inventory?.getEquippedItem?.('title') ||
@@ -898,6 +902,7 @@ const ProfileV2 = {
                                 ${presence.label}
                             </span>
                             <span class="profile-edit-hero-chip">Chips ${Number(economy.chips || 0).toLocaleString('pt-BR')}</span>
+                            ${squadChip}
                             <span class="profile-edit-hero-chip">Hub de perfil</span>
                         </div>
 
@@ -1076,6 +1081,10 @@ const ProfileV2 = {
             window.Inventory?.getEquippedItem?.('title') ||
             window.Inventory?.getProfileTitleFromProfile?.(window.NyanAuth?.currentUser || null) ||
             null;
+        const currentSquad = window.Squads?.getCurrentSquadSync?.() || null;
+        const squadLabel = currentSquad
+            ? `${window.Utils?.escapeHTML?.(currentSquad.name) || currentSquad.name} [${window.Utils?.escapeHTML?.(currentSquad.tag) || currentSquad.tag}]`
+            : 'Nenhum';
         return `<div class="profile-subcard profile-subcard-soft ${wide ? 'profile-preview-summary-wide' : ''}" id="profile-preview-summary-panel">
             <div class="profile-subcard-head">
                 <div class="profile-subcard-copy">
@@ -1087,6 +1096,10 @@ const ProfileV2 = {
             </div>
 
             <div class="profile-preview-list">
+                <div class="profile-preview-item">
+                    <span class="profile-preview-label">Cla</span>
+                    <span class="profile-preview-value">${squadLabel}</span>
+                </div>
                 <div class="profile-preview-item">
                     <span class="profile-preview-label">Banner</span>
                     <span class="profile-preview-value">${banner.label}</span>

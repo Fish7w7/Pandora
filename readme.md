@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.14.0-purple?style=for-the-badge&logo=electron)
+![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.15.0-purple?style=for-the-badge&logo=electron)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)
 ![Electron](https://img.shields.io/badge/Electron-27.0.0-47848F?style=for-the-badge&logo=electron)
@@ -70,6 +70,7 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
 - ⚔️ **Desafios de 24h** — Duelos side-by-side entre amigos em qualquer jogo
 - 🖼️ **Murais por Jogo** — Feed com reações 🐱⭐💎🔥 e comentários
 - 🧩 **Clãs** — Grupos sociais com membros, convites, privacidade, cofre e presença integrada
+- 💠 **Eventos & Live Ops** — Eventos temporários com missões, recompensas, loja e integração com Clãs
 
 ---
 
@@ -83,7 +84,7 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
    ```
 
 2. **Execute o Instalador**
-   - Baixe `NyanTools-3.14.0-Setup.exe`
+   - Baixe `NyanTools-3.15.0-Setup.exe`
    - Execute e siga o assistente de instalação
 
 3. **Pronto! にゃん~**
@@ -244,7 +245,13 @@ Jogos sem internet:
 - **Placar Global** — Top 10 por jogo, filtro global vs amigos
 - **Feed de Atividade** — Linha do tempo de resultados, conquistas e recordes
 
-### 19. ⚙️ Configurações
+### 19. 💠 Eventos & Live Ops
+- Eventos ativos, próximos e encerrados com histórico
+- Missões especiais para jogos, quiz, economia, social e Clãs
+- Recompensas sazonais com chips, XP, badges, títulos e cosméticos
+- Loja temporária de evento usando chips e bloqueio após encerramento
+
+### 20. ⚙️ Configurações
 
 **5 Abas Completas:**
 
@@ -381,12 +388,12 @@ npm run build:all      # Todas as plataformas
 
 ```
 dist/
-├── NyanTools-3.14.0-Setup.exe       # Windows — instalador
-├── NyanTools 3.14.0.exe             # Windows — portátil
-├── NyanTools-3.14.0-x64.dmg        # macOS Intel
-├── NyanTools-3.14.0-arm64.dmg      # macOS Apple Silicon
-├── NyanTools-3.14.0-x64.AppImage   # Linux
-└── NyanTools-3.14.0-amd64.deb      # Linux Debian/Ubuntu
+├── NyanTools-3.15.0-Setup.exe       # Windows — instalador
+├── NyanTools 3.15.0.exe             # Windows — portátil
+├── NyanTools-3.15.0-x64.dmg        # macOS Intel
+├── NyanTools-3.15.0-arm64.dmg      # macOS Apple Silicon
+├── NyanTools-3.15.0-x64.AppImage   # Linux
+└── NyanTools-3.15.0-amd64.deb      # Linux Debian/Ubuntu
 ```
 
 ---
@@ -425,28 +432,29 @@ dist/
 - [x] **v3.11.x "Correções e Consistência"** — Estabilidade, economia e sincronização.
 - [x] **v3.12.x "DevLab Bundles & Update Reliability"** — Bundles, sync remoto e updater mais confiável.
 - [x] **v3.13.3 "Clãs: Metas, Desafios & Hub"** — Hub social de Clãs com metas, desafios, economia e ranking.
+- [x] **v3.14.0 "Nyan Core"** — Versionamento único, NyanStorage, NyanLifecycle, Nyan Core UI e base NyanLiveOps.
 
 ### 🚧 Atual
-#### v3.14.0 — Nyan Core
-- [x] Versão única em package.json, version.json, frontend/public/version.json, App, Updater, VersionManager e preload
-- [x] Boot estabilizado: tela preta corrigida, tema sem body null e Firebase inicializando depois do documento pronto
-- [x] NyanStorage, NyanLifecycle e NyanLiveOps criados como base segura para evolução futura
-- [x] Clãs sem reload infinito, sem spam de permissões e com listeners/leituras mais controlados
-- [x] Desafios de Clã liquidam recompensa no cofre vencedor uma única vez
-- [x] UI de Clãs polida com tabs limpas, badges revisados, ranking ajustado e textos mais consistentes
-- [x] Modo offline trocado para uma tela amigável de usuário final, sem instruções técnicas de Firebase
-- [x] Listas grandes limitadas em telas sociais, clãs, loja e ranking para reduzir render pesado
+#### v3.15.0 — Eventos & Live Ops
+- [x] Sistema de eventos temporários com eventos ativos, próximos e encerrados
+- [x] Missões especiais para jogos, quiz, economia, social e Clãs com progresso persistente
+- [x] Recompensas sazonais com chips, XP, badges, títulos e cosméticos via APIs oficiais
+- [x] Loja temporária de evento usando chips, período ativo e bloqueio de recompra limitada
+- [x] Nova tela Eventos com Visão Geral, Missões, Loja e Histórico seguindo Nyan Core
+- [x] Integração com Clãs: participação, metas, chat, desafios, bônus e mural
+- [x] Notificações para início/fim de evento, missão concluída, resgate e compra
+- [x] Patches antigos absorvidos pelos módulos donos e removidos do carregamento principal
 
 ### 🔮 Futuro (Próximas versões)
 
-#### 🧩 Pós v3.14 — Clãs (Polimento)
+#### 🧩 Pós v3.15 — Live Ops (Polimento)
 - [ ] Ajustes finos de UX
-- [ ] Balanceamento de metas e recompensas
-- [ ] Melhorias visuais no histórico competitivo
+- [ ] Balanceamento de missões e recompensas
+- [ ] Sync remoto de eventos e calendário sazonal
 
 ---
 
-#### 🤖 v3.15 — Smart Companion (Core)
+#### 🤖 v3.16 — Smart Companion (Core)
 **Objetivo:** produtividade assistida por IA
 
 **Escopo:**
@@ -566,7 +574,7 @@ MIT License — Copyright (c) 2026 Fish7w7
 
 *Your Purr-fect Toolkit! 🐱✨*
 
-**v3.14.0 — Nyan Core 🚀**
+**v3.15.0 — Eventos & Live Ops 🚀**
 
 **[⬆ Voltar ao topo](#-nyantools-にゃん)**
 

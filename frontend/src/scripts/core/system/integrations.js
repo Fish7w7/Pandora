@@ -267,43 +267,8 @@ const Integrations = {
     /**
      * Injeta hooks nos módulos Tasks e Notes após carregamento.
      */
-    patchModules() {
-        const tryPatchTasks = () => {
-            if (!window.Tasks) { setTimeout(tryPatchTasks, 500); return; }
-            const orig = Tasks.toggleComplete.bind(Tasks);
-            Tasks.toggleComplete = (taskId) => {
-                orig(taskId);
-                const tasks = window.Utils?.loadData('tasks') || [];
-                const task  = tasks.find(t => t.id === taskId);
-                if (task?.completed) {
-                    setTimeout(() => Integrations.onTaskCompleted(task), 100);
-                }
-            };
-        };
-
-        const tryPatchNotes = () => {
-            if (!window.Notes) { setTimeout(tryPatchNotes, 500); return; }
-            const orig = Notes.createNote.bind(Notes);
-            Notes.createNote = (title, content) => {
-                orig(title, content);
-                const notes = window.Utils?.loadData('notes') || [];
-                const note  = notes[0]; // mais recente
-                if (note) setTimeout(() => Integrations.onNoteCreated(note), 100);
-            };
-        };
-
-        const tryPatchRouter = () => {
-            if (!window.Router) { setTimeout(tryPatchRouter, 300); return; }
-            const orig = Router.navigate.bind(Router);
-            Router.navigate = (toolId) => {
-                orig(toolId);
-                Integrations.trackToolUsage(toolId);
-            };
-        };
-
-        setTimeout(tryPatchTasks,  300);
-        setTimeout(tryPatchNotes,  300);
-        setTimeout(tryPatchRouter, 200);
+    register() {
+        this.__officialHooksOnly = true;
     },
 
 
@@ -360,7 +325,7 @@ const Integrations = {
     },
 
     init() {
-        this.patchModules();
+        this.register();
     },
 };
 
@@ -673,37 +638,6 @@ Integrations.getSmartSuggestions = function() {
         .map(({ score, ...rest }) => rest);
 };
 
-const __nyanOrigPatchModules = Integrations.patchModules?.bind(Integrations);
-Integrations.patchModules = function() {
-    __nyanOrigPatchModules?.();
-
-    const tryPatchTaskCreate = () => {
-        if (!window.Tasks || window.Tasks.__nyanTaskCreatePatched) {
-            if (!window.Tasks) setTimeout(tryPatchTaskCreate, 400);
-            return;
-        }
-        window.Tasks.__nyanTaskCreatePatched = true;
-
-        const origCreateTask = window.Tasks.createTask?.bind(window.Tasks);
-        if (!origCreateTask) return;
-
-        window.Tasks.createTask = function(title, description, priority) {
-            origCreateTask(title, description, priority);
-            const created = window.Tasks.tasks?.[0];
-            if (created) {
-                Integrations._emitConnectedAction('task_created', {
-                    taskId: created.id,
-                    title: created.title,
-                    priority: created.priority || priority || 'medium',
-                    source: 'tasks',
-                });
-            }
-        };
-    };
-
-    setTimeout(tryPatchTaskCreate, 300);
-};
-
 window.Integrations = Integrations;
 
 (function finalizeIntegrationsV310() {
@@ -761,35 +695,4 @@ window.Integrations = Integrations;
         __origOnTaskCompleted?.(task);
     };
 
-    const __origPatchModules = Integrations.patchModules?.bind(Integrations);
-    Integrations.patchModules = function() {
-        __origPatchModules?.();
-
-        const tryPatchTaskCreate = () => {
-            if (!window.Tasks || window.Tasks.__nyanTaskCreatePatchedV310b) {
-                if (!window.Tasks) setTimeout(tryPatchTaskCreate, 350);
-                return;
-            }
-            window.Tasks.__nyanTaskCreatePatchedV310b = true;
-
-            const origCreateTask = window.Tasks.createTask?.bind(window.Tasks);
-            if (!origCreateTask) return;
-
-            window.Tasks.createTask = function(title, description, priority) {
-                const beforeIds = new Set((window.Tasks.tasks || []).map((t) => t.id));
-                origCreateTask(title, description, priority);
-                const created = (window.Tasks.tasks || []).find((t) => !beforeIds.has(t.id));
-                if (created) {
-                    Integrations._emitConnectedAction('task_created', {
-                        taskId: created.id,
-                        title: created.title,
-                        priority: created.priority || priority || 'medium',
-                        source: 'tasks',
-                    });
-                }
-            };
-        };
-
-        setTimeout(tryPatchTaskCreate, 300);
-    };
 })();

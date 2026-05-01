@@ -121,24 +121,20 @@ const FocusMode = {
         if (overlay) {
             overlay.addEventListener('click', () => this._endPeek());
         }
-        this._patchRouter();
+        this._bindRouterEvents();
     },
 
-    _patchRouter() {
-        if (!window.Router) {
-            setTimeout(() => this._patchRouter(), 500);
-            return;
-        }
-
-        const originalNavigate = Router.navigate.bind(Router);
-        Router.navigate = (toolId) => {
-            originalNavigate(toolId);
+    _bindRouterEvents() {
+        if (this._routeChangedHandler) return;
+        this._routeChangedHandler = (event) => {
+            const toolId = event.detail?.to || window.Router?.currentRoute || 'home';
             setTimeout(() => this._updateToolIndicator(toolId), 50);
             if (this.active && this.peeking) {
                 clearTimeout(this._peekTimeout);
                 this._peekTimeout = setTimeout(() => this._endPeek(), 1200);
             }
         };
+        window.addEventListener('nyan:route-changed', this._routeChangedHandler);
     },
 
 

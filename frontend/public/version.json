@@ -1,16 +1,12 @@
 {
-    "version": "3.14.0",
-    "buildDate": "2026-04-28",
+    "version": "3.15.0",
+    "buildDate": "2026-05-01",
     "changelog": [
-        "Nyan Core finaliza a base v3.14.0 com versao, updater, storage, lifecycle e UI sincronizados",
-        "Boot do app estabilizado com init seguro, tema sem body null e Firebase iniciado somente com documento pronto",
-        "Preload, App, Updater, VersionManager e metadados agora usam a mesma versao 3.14.0",
-        "NyanStorage, NyanLifecycle e NyanLiveOps criam a base para evolucao futura sem migracao agressiva",
-        "Clãs foram estabilizados sem reload infinito, spam de permissoes ou multiplas escritas em leituras",
-        "Desafios de Clã agora liquidam recompensa do vencedor no cofre de forma idempotente",
-        "Tela offline virou experiencia de usuario final, sem instrucoes tecnicas de Firebase",
-        "UI de Clãs recebeu limpeza visual em tabs, cards, ranking, badges e textos",
-        "Listas grandes de chat, mural, feed, membros, desafios e loja foram limitadas para reduzir render pesado",
-        "Correcoes finais pos-QA cobrem tela preta, versionamento, sync social, permissao Firestore e layout"
+        "Eventos & Live Ops adiciona eventos temporarios com missoes, recompensas, loja e historico",
+        "Missoes de evento acompanham jogos, quiz e acoes de Cla com progresso persistente",
+        "Recompensas sazonais usam Economy, Inventory e Badges com resgate idempotente",
+        "Loja de evento usa chips, respeita periodo ativo e evita compra duplicada de itens limitados",
+        "Clans recebem bonus de pontuacao durante eventos, notificacoes oficiais e registros no mural",
+        "Patches antigos foram absorvidos pelos modulos donos e removidos do carregamento"
     ]
 }

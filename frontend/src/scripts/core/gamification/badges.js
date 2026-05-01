@@ -20,6 +20,22 @@ const Badges = {
             source: { type: 'event', id: 'v310_patch_day' },
         },
         {
+            id: 'badge_liveops_315',
+            name: 'Live Ops v3.15',
+            icon: '\u{1F4A0}',
+            rarity: 'event',
+            description: 'Concluiu uma missao chave do evento Eventos & Live Ops.',
+            source: { type: 'event', id: 'event_liveops_315' },
+        },
+        {
+            id: 'badge_clan_ops_315',
+            name: 'Cla em Operacao',
+            icon: '\u{1F91D}',
+            rarity: 'event',
+            description: 'Contribuiu com metas de Cla durante Eventos & Live Ops.',
+            source: { type: 'event', id: 'event_liveops_315' },
+        },
+        {
             id: 'badge_security_sentinel_v310',
             name: 'Sentinela v3.10',
             icon: '\u{1F6E1}\uFE0F',

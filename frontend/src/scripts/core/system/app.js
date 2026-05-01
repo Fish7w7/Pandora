@@ -1,5 +1,5 @@
 const App = {
-    version: window.VersionManager?.getVersion?.() || window.NYAN_VERSION || '3.14.0',
+    version: window.VersionManager?.getVersion?.() || window.NYAN_VERSION || '3.15.0',
     __squadsNativeIntegrated: true,
     user: null,
     currentTool: 'home',
@@ -18,6 +18,7 @@ const App = {
         { id: 'tasks', name: 'Lista de Tarefas', icon: '\u2705', description: 'Gerencie tarefas' },
         { id: 'missions',   name: 'Missões',    icon: '\u{1F4CB}', description: 'Missões diárias e desafios' },
         { id: 'season',     name: 'Temporada',  icon: '\u{1F338}', description: 'Progresso e recompensas sazonais' },
+        { id: 'events',     name: 'Eventos',    icon: '\u{1F4A0}', description: 'Eventos temporarios e Live Ops' },
         { id: 'shop',       name: 'Loja',       icon: '\u{1F6CD}\uFE0F', description: 'Compre itens com chips' },
         { id: 'offline', name: 'Zona Offline', icon: '\u{1F4F6}', description: 'Jogos sem internet' },
         { id: 'settings', name: 'Configurações', icon: '\u2699\uFE0F', description: 'Personalize o app' },
@@ -270,6 +271,15 @@ const App = {
 
     initNewSystems() {
         window.VersionManager?.syncModules?.();
+        const safeInit = (name) => {
+            try {
+                const mod = window[name];
+                if (mod && typeof mod.init === 'function') mod.init();
+            } catch (err) {
+                console.warn(`[App] erro ao iniciar ${name}:`, err);
+            }
+        };
+        ['StateManager', 'Presence', 'Integrations', 'ProfileV2', 'V310Rewards', 'NyanLiveOps'].forEach(safeInit);
         if (window.KeyboardShortcuts) {
             KeyboardShortcuts.init();
         }
@@ -508,7 +518,7 @@ const App = {
             { label: null,             items: ['home'] },
             { label: 'Ferramentas',    items: ['password','weather','translator','ai-assistant','temp-email'] },
             { label: 'Entretenimento', items: ['mini-game','music','offline'] },
-            { label: 'Organização',    items: ['notes','tasks','missions','season','shop'] },
+            { label: 'Organização',    items: ['notes','tasks','missions','season','events','shop'] },
             { label: 'Social',         items: ['squads','friends','chat','leaderboard','feed','challenges'] },
             { label: 'Sistema',        items: ['settings','dev-lab'] }
         ];

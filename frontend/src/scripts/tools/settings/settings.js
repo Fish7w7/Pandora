@@ -563,7 +563,7 @@ const Settings = {
                         <p class="text-gray-400 mt-1 mb-4">にゃん~ Sua caixa de ferramentas purr-feita!</p>
                         <div class="inline-flex items-center gap-2 bg-white/10 px-4 py-1.5 rounded-full text-sm font-bold">
                             <span style="width:8px;height:8px;border-radius:50%;background:#34d399;display:inline-block;animation:aboutPulse 2s ease-in-out infinite;"></span>
-                            Versão ${App?.version || window.NYAN_VERSION || '3.14.0'}
+                            Versão ${App?.version || window.NYAN_VERSION || '3.15.0'}
                         </div>
                         <style>@keyframes aboutPulse{0%,100%{opacity:1}50%{opacity:0.35}}</style>
                     </div>

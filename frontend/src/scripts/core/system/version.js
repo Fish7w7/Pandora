@@ -1,8 +1,8 @@
 const VersionManager = {
-    version: '3.14.0',
-    codename: 'Nyan Core',
-    releaseDate: '2026-04-26',
-    previousVersion: '3.13.3',
+    version: '3.15.0',
+    codename: 'Eventos & Live Ops',
+    releaseDate: '2026-04-28',
+    previousVersion: '3.14.0',
 
     getVersion() {
         return this.version;

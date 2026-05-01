@@ -34,12 +34,42 @@ const Squads = {
         this._initialized = true;
         this._state = this._load();
         this._remoteBlocked = false;
+        if (this.getCurrentSquadSync?.()?.id) {
+            window.NyanLiveOps?.track?.({ event: 'clan_present', key: `clan-present:${this._todayKey(new Date())}` });
+        }
         if (window.NyanAuth?.isOnline?.() && window.NyanFirebase?.isReady?.()) {
             this.hydrateCurrentUser().catch(() => {});
         }
 
         window.addEventListener('nyan:online-ready', () => {
             this.hydrateCurrentUser().catch(() => {});
+        });
+
+        this._registerOfficialClanNotifications();
+    },
+
+    _registerOfficialClanNotifications() {
+        if (this._clanNotificationListenersRegistered) return;
+        this._clanNotificationListenersRegistered = true;
+
+        window.addEventListener('nyan:squad:onGoalCompleted', (event) => {
+            const goal = event.detail?.goal;
+            if (goal?.description && window.Router?.currentRoute === 'squads') {
+                window.Utils?.showNotification?.(`Meta do Cla concluida: ${goal.description}`, 'success');
+            }
+        });
+
+        window.addEventListener('nyan:squad:onRewardDistributed', (event) => {
+            const amount = Number(event.detail?.amount || 0).toLocaleString('pt-BR');
+            if (window.Router?.currentRoute === 'squads') {
+                window.Utils?.showNotification?.(`${amount} chips distribuidos pelo Cla.`, 'success');
+            }
+        });
+
+        window.addEventListener('nyan:squad:onChallengeEnded', () => {
+            if (window.Router?.currentRoute === 'squads') {
+                window.SquadsUI?.refresh?.({ silent: true });
+            }
         });
     },
 
@@ -1443,7 +1473,10 @@ const Squads = {
         if (!uid) return null;
 
         const source = ['game', 'record', 'daily_quiz', 'daily_mission'].includes(input.source) ? input.source : null;
-        const points = Math.max(0, Math.min(200, Math.floor(Number(input.points || 0))));
+        const basePoints = Math.max(0, Math.min(200, Math.floor(Number(input.points || 0))));
+        const bonusInfo = window.NyanLiveOps?.getClanPointBonus?.({ ...input, points: basePoints }) || { bonus: 0, event: null };
+        const bonusPoints = Math.max(0, Math.min(200 - basePoints, Math.floor(Number(bonusInfo.bonus || 0))));
+        const points = Math.max(0, Math.min(200, basePoints + bonusPoints));
         if (!source || points <= 0) return null;
 
         const squad = await this.getCurrentSquad({ force: true });
@@ -1466,15 +1499,16 @@ const Squads = {
         };
 
         const actor = input.actorLabel || this._formatActor(uid);
+        const bonusSuffix = bonusPoints > 0 ? ` (${basePoints}+${bonusPoints} evento)` : '';
         const feed = [...(squad.feed || [])];
         if (points >= 25) {
-            feed.unshift(this._feedEntry(`${squad.tag} ganhou ${points} pontos.`, 'event', now, {
+            feed.unshift(this._feedEntry(`${squad.tag} ganhou ${points} pontos${bonusSuffix}.`, 'event', now, {
                 actorUserId: uid,
                 actorLabel: actor,
                 action: `contribuiu com ${points} pontos.`,
             }));
         } else if (points >= 12) {
-            feed.unshift(this._feedEntry(`${actor} contribuiu com ${points} pontos.`, 'event', now, {
+            feed.unshift(this._feedEntry(`${actor} contribuiu com ${points} pontos${bonusSuffix}.`, 'event', now, {
                 actorUserId: uid,
                 actorLabel: actor,
                 action: `contribuiu com ${points} pontos.`,
@@ -1533,6 +1567,86 @@ const Squads = {
         goalResult.completedNow.forEach((goal) => this._emit('onGoalCompleted', { squad: updated, goal }));
         this._emit('onSquadUpdated', { squad: updated });
         return { squad: updated, entry, rankBefore, rankAfter };
+    },
+
+    async awardActivity(ctx = {}, options = {}) {
+        const current = this.getCurrentSquadSync?.();
+        if (!current?.id || !window.NyanAuth?.isOnline?.()) return [];
+
+        const day = this._todayKey(new Date());
+        const awards = [];
+        const event = String(ctx?.event || '');
+
+        if (event === 'quiz_finish') {
+            awards.push({
+                source: 'daily_quiz',
+                points: Math.max(5, Math.min(25, Number(ctx.score || 0) * 2)),
+                key: `daily_quiz:${day}`,
+            });
+        } else if (event === 'play_game') {
+            awards.push({
+                source: 'game',
+                points: 3,
+                key: `game:${day}:${ctx.game || 'any'}`,
+            });
+        } else if (['typeracer_finish', 'flappy_finish', 'score_2048', 'forca_win', 'termo_win'].includes(event)) {
+            awards.push({
+                source: 'game',
+                points: 5,
+                key: `game:${day}:${event}`,
+            });
+        } else if (event === 'beat_record') {
+            awards.push({
+                source: 'record',
+                points: 20,
+                key: `record:${ctx.storageKey || 'record'}:${ctx.newScore || day}`,
+            });
+        }
+
+        (options.completedMissions || []).forEach((mission) => {
+            if (!mission?.id) return;
+            const diff = mission.diff || 'easy';
+            awards.push({
+                source: 'daily_mission',
+                points: diff === 'hard' ? 24 : (diff === 'medium' ? 16 : 10),
+                key: `daily_mission:${day}:${mission.id}`,
+            });
+        });
+
+        const results = [];
+        for (const award of awards) {
+            const result = await this.awardPoints(award).catch(() => null);
+            if (result) results.push(result);
+        }
+        return results;
+    },
+
+    async addLiveOpsFeedEntry(content = '', meta = {}) {
+        const text = String(content || '').trim().slice(0, 220);
+        if (!text || !this._isReady()) return null;
+
+        const uid = this._uid();
+        const squad = await this.getCurrentSquad({ force: true }).catch(() => null);
+        if (!squad?.id || !this._isMember(squad, uid)) return null;
+
+        const refId = String(meta.refId || 'liveops').trim();
+        const alreadyExists = this._normalizeFeed(squad.feed || [])
+            .some((item) => item.refId === refId && item.content === text);
+        if (alreadyExists) return squad;
+
+        const now = Date.now();
+        const updated = this._withFeedEntry(squad, text, 'event', now, {
+            actorUserId: uid,
+            actorLabel: this._formatActor(uid),
+            action: String(meta.action || 'registrou atividade de evento.').slice(0, 80),
+            refId,
+        });
+
+        const saved = await window.NyanFirebase.setDoc(`${this.COLLECTION}/${updated.id}`, updated, false, { silent: true }).catch(() => false);
+        if (!saved) return null;
+        this._cacheSquad(updated, true);
+        this._emit('onSquadUpdated', { squad: updated });
+        return updated;
     },
 
     subscribeCurrentSquad(handler) {
