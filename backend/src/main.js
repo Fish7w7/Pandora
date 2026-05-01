@@ -205,7 +205,7 @@ function createWindow() {
     console.log('[>] Carregando:', indexPath);
 
     // Remove menubar padrão do Electron (nao apagar esse comentário)
-    //Menu.setApplicationMenu(null);
+    Menu.setApplicationMenu(null);
 
     mainWindow.loadFile(indexPath);
 

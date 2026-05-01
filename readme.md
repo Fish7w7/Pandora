@@ -452,34 +452,6 @@ dist/
 - [ ] Balanceamento de missões e recompensas
 - [ ] Sync remoto de eventos e calendário sazonal
 
----
-
-#### 🤖 v3.16 — Smart Companion (Core)
-**Objetivo:** produtividade assistida por IA
-
-**Escopo:**
-- [ ] Resumo de notas
-- [ ] Texto → tarefas
-
-**Métricas:**
-- [ ] Ações geradas por semana
-- [ ] % tarefas concluídas
-
----
-
-#### 🤖 Futuro — Assistente Pessoal
-- [ ] Sugestões de rotina
-- [ ] Organização do dia
-
----
-
-#### 🤖 Futuro — Social & Perfil IA
-- [ ] Bio assistida
-- [ ] Respostas no chat
-- [ ] Insights no dashboard
-
----
-
 #### 🚀 v4.0 — Quando fizer sentido
 **Gatilhos:**
 - [ ] Clãs funcionando bem
