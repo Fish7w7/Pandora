@@ -4,6 +4,54 @@ const Badges = {
 
     CATALOG: [
         {
+            id: 'badge_veteran_early_access_v316',
+            name: 'Veterano Early Access',
+            icon: '\u{1F31F}',
+            rarity: 'legendary',
+            description: 'Esteve presente desde o inicio. Viu o NyanTools nascer.',
+            source: { type: 'legacy', id: 'v316_early_access' },
+        },
+        {
+            id: 'badge_final_presence',
+            name: 'Eu Estive Aqui',
+            icon: '\u{1F305}',
+            rarity: 'legendary',
+            description: 'Abriu o NyanTools durante a Final Season Last Meow.',
+            source: { type: 'season', id: 'season_2' },
+        },
+        {
+            id: 'badge_last_meow',
+            name: 'Last Meow',
+            icon: '\u{1F43E}',
+            rarity: 'seasonal',
+            description: 'Insignia Bronze da Final Season - Ultima Faisca.',
+            source: { type: 'season', id: 'season_2' },
+        },
+        {
+            id: 'badge_memory_nyan',
+            name: 'Memoria Nyan',
+            icon: '\u{1F9E9}',
+            rarity: 'event',
+            description: 'Venceu uma partida do jogo final Memoria Nyan.',
+            source: { type: 'offline', id: 'memory_nyan' },
+        },
+        {
+            id: 'badge_memorial_keeper',
+            name: 'Guardiao da Memoria',
+            icon: '\u{1F48C}',
+            rarity: 'legendary',
+            description: 'Guardou a carta de encerramento da v3.16.',
+            source: { type: 'achievement', id: 'farewell_kept' },
+        },
+        {
+            id: 'badge_final_spark',
+            name: 'Ultima Faisca',
+            icon: '\u2728',
+            rarity: 'legendary',
+            description: 'Resgatou o pacote final da Final Season Last Meow.',
+            source: { type: 'season_final', id: 'season_2' },
+        },
+        {
             id: 'badge_season1',
             name: 'Badge da Temporada',
             icon: '\u{1F396}\uFE0F',
@@ -81,6 +129,11 @@ const Badges = {
             label: 'Exclusivo',
             light: { text: '#0f766e', bg: 'rgba(34,211,238,0.12)', border: 'rgba(20,184,166,0.34)' },
             dark: { text: '#99f6e4', bg: 'rgba(8,47,73,0.62)', border: 'rgba(45,212,191,0.45)' },
+        },
+        legendary: {
+            label: 'Lendaria',
+            light: { text: '#92400e', bg: 'rgba(245,158,11,0.14)', border: 'rgba(245,158,11,0.36)' },
+            dark: { text: '#fde68a', bg: 'rgba(69,26,3,0.72)', border: 'rgba(245,158,11,0.5)' },
         },
     },
 

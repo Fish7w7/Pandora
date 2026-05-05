@@ -1,259 +1,173 @@
 /* ========================================
-   DENSITY v2.7.1 - SELETORES ESPECÍFICOS
-   Reduz zoom excessivo e melhora densidade
+   NyanTools v3.16 density baseline
+   One visual scale for every routed tool.
    ======================================== */
 
-/* ===== FORÇA APLICAÇÃO COM !important ===== */
-
-/* Email Temporário - Cards de serviços */
-#temp-email .bg-gradient-to-br.from-blue-500,
-body #temp-email .bg-gradient-to-br {
-    padding: 1.25rem !important;
+:root {
+    --nyan-density-zoom: 0.94;
+    --nyan-content-pad-x: 1.45rem;
+    --nyan-content-pad-y: 1.25rem;
 }
 
-#temp-email h1.text-5xl {
-    font-size: 2rem !important;
-    margin-bottom: 0.5rem !important;
+#main-content {
+    padding: var(--nyan-content-pad-y) var(--nyan-content-pad-x) !important;
 }
 
-#temp-email .text-gray-600 {
-    font-size: 0.875rem !important;
-    margin-bottom: 1rem !important;
+#tool-container.nyan-density-root {
+    zoom: var(--nyan-density-zoom);
+    transform-origin: top center;
+    width: 100%;
+    max-width: 1180px;
+    margin-inline: auto;
+    font-size: 0.94rem;
+    line-height: 1.38;
 }
 
-#temp-email h2.text-3xl,
-#temp-email h2.text-4xl {
-    font-size: 1.5rem !important;
-    margin-bottom: 0.75rem !important;
+#tool-container.nyan-density-root,
+#tool-container.nyan-density-root * {
+    box-sizing: border-box;
 }
 
-#temp-email .text-lg {
-    font-size: 0.938rem !important;
+/* Typography scale */
+#tool-container.nyan-density-root :where(.text-8xl) { font-size: 3.6rem !important; }
+#tool-container.nyan-density-root :where(.text-7xl) { font-size: 3rem !important; }
+#tool-container.nyan-density-root :where(.text-6xl) { font-size: 2.55rem !important; }
+#tool-container.nyan-density-root :where(.text-5xl) { font-size: 2.05rem !important; }
+#tool-container.nyan-density-root :where(.text-4xl) { font-size: 1.65rem !important; }
+#tool-container.nyan-density-root :where(.text-3xl) { font-size: 1.34rem !important; }
+#tool-container.nyan-density-root :where(.text-2xl) { font-size: 1.12rem !important; }
+#tool-container.nyan-density-root :where(.text-xl)  { font-size: 0.98rem !important; }
+#tool-container.nyan-density-root :where(.text-lg)  { font-size: 0.9rem !important; }
+#tool-container.nyan-density-root :where(.text-base){ font-size: 0.82rem !important; }
+
+#tool-container.nyan-density-root :where(h1, h2, h3) {
+    line-height: 1.12 !important;
+    letter-spacing: 0 !important;
 }
 
-/* Cards de opções - menor padding */
-#temp-email .bg-white.rounded-2xl {
-    padding: 1.5rem !important;
+#tool-container.nyan-density-root :where(p) {
+    line-height: 1.42 !important;
 }
 
-#temp-email .space-y-6 > div {
-    margin-bottom: 1rem !important;
+/* Padding utilities */
+#tool-container.nyan-density-root :where(.p-12) { padding: 1.7rem !important; }
+#tool-container.nyan-density-root :where(.p-10) { padding: 1.5rem !important; }
+#tool-container.nyan-density-root :where(.p-8)  { padding: 1.25rem !important; }
+#tool-container.nyan-density-root :where(.p-7)  { padding: 1.15rem !important; }
+#tool-container.nyan-density-root :where(.p-6)  { padding: 1rem !important; }
+#tool-container.nyan-density-root :where(.p-5)  { padding: 0.9rem !important; }
+#tool-container.nyan-density-root :where(.p-4)  { padding: 0.78rem !important; }
+#tool-container.nyan-density-root :where(.p-3)  { padding: 0.6rem !important; }
+
+#tool-container.nyan-density-root :where(.px-8) { padding-left: 1.2rem !important; padding-right: 1.2rem !important; }
+#tool-container.nyan-density-root :where(.px-6) { padding-left: 1rem !important; padding-right: 1rem !important; }
+#tool-container.nyan-density-root :where(.px-5) { padding-left: 0.85rem !important; padding-right: 0.85rem !important; }
+#tool-container.nyan-density-root :where(.px-4) { padding-left: 0.72rem !important; padding-right: 0.72rem !important; }
+#tool-container.nyan-density-root :where(.px-3) { padding-left: 0.58rem !important; padding-right: 0.58rem !important; }
+
+#tool-container.nyan-density-root :where(.py-8) { padding-top: 1.2rem !important; padding-bottom: 1.2rem !important; }
+#tool-container.nyan-density-root :where(.py-6) { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+#tool-container.nyan-density-root :where(.py-5) { padding-top: 0.85rem !important; padding-bottom: 0.85rem !important; }
+#tool-container.nyan-density-root :where(.py-4) { padding-top: 0.72rem !important; padding-bottom: 0.72rem !important; }
+#tool-container.nyan-density-root :where(.py-3) { padding-top: 0.58rem !important; padding-bottom: 0.58rem !important; }
+#tool-container.nyan-density-root :where(.py-2\.5) { padding-top: 0.46rem !important; padding-bottom: 0.46rem !important; }
+#tool-container.nyan-density-root :where(.py-2) { padding-top: 0.4rem !important; padding-bottom: 0.4rem !important; }
+
+/* Margins and vertical rhythm */
+#tool-container.nyan-density-root :where(.mb-12) { margin-bottom: 1.65rem !important; }
+#tool-container.nyan-density-root :where(.mb-10) { margin-bottom: 1.45rem !important; }
+#tool-container.nyan-density-root :where(.mb-8)  { margin-bottom: 1.15rem !important; }
+#tool-container.nyan-density-root :where(.mb-6)  { margin-bottom: 0.9rem !important; }
+#tool-container.nyan-density-root :where(.mb-5)  { margin-bottom: 0.75rem !important; }
+#tool-container.nyan-density-root :where(.mb-4)  { margin-bottom: 0.62rem !important; }
+#tool-container.nyan-density-root :where(.mb-3)  { margin-bottom: 0.5rem !important; }
+#tool-container.nyan-density-root :where(.mb-2)  { margin-bottom: 0.34rem !important; }
+
+#tool-container.nyan-density-root :where(.mt-12) { margin-top: 1.65rem !important; }
+#tool-container.nyan-density-root :where(.mt-10) { margin-top: 1.45rem !important; }
+#tool-container.nyan-density-root :where(.mt-8)  { margin-top: 1.15rem !important; }
+#tool-container.nyan-density-root :where(.mt-6)  { margin-top: 0.9rem !important; }
+#tool-container.nyan-density-root :where(.mt-5)  { margin-top: 0.75rem !important; }
+#tool-container.nyan-density-root :where(.mt-4)  { margin-top: 0.62rem !important; }
+#tool-container.nyan-density-root :where(.mt-3)  { margin-top: 0.5rem !important; }
+
+#tool-container.nyan-density-root :where(.space-y-8 > * + *) { margin-top: 1.25rem !important; }
+#tool-container.nyan-density-root :where(.space-y-6 > * + *) { margin-top: 1rem !important; }
+#tool-container.nyan-density-root :where(.space-y-5 > * + *) { margin-top: 0.85rem !important; }
+#tool-container.nyan-density-root :where(.space-y-4 > * + *) { margin-top: 0.7rem !important; }
+#tool-container.nyan-density-root :where(.space-y-3 > * + *) { margin-top: 0.52rem !important; }
+#tool-container.nyan-density-root :where(.space-y-2 > * + *) { margin-top: 0.38rem !important; }
+
+/* Grid/flex gaps */
+#tool-container.nyan-density-root :where(.gap-8) { gap: 1.25rem !important; }
+#tool-container.nyan-density-root :where(.gap-6) { gap: 1rem !important; }
+#tool-container.nyan-density-root :where(.gap-5) { gap: 0.85rem !important; }
+#tool-container.nyan-density-root :where(.gap-4) { gap: 0.7rem !important; }
+#tool-container.nyan-density-root :where(.gap-3) { gap: 0.55rem !important; }
+#tool-container.nyan-density-root :where(.gap-2) { gap: 0.38rem !important; }
+
+/* Common cards/buttons */
+#tool-container.nyan-density-root :where(.rounded-3xl) { border-radius: 1rem !important; }
+#tool-container.nyan-density-root :where(.rounded-2xl) { border-radius: 0.85rem !important; }
+#tool-container.nyan-density-root :where(.rounded-xl)  { border-radius: 0.7rem !important; }
+
+#tool-container.nyan-density-root :where(.shadow-2xl) {
+    box-shadow: 0 14px 38px rgba(15, 23, 42, 0.16) !important;
 }
 
-/* Player de Música - compactar tudo */
-#music-player h1.text-5xl,
-body #music-player h1 {
-    font-size: 2rem !important;
-    margin-bottom: 0.5rem !important;
+#tool-container.nyan-density-root :where(.shadow-xl) {
+    box-shadow: 0 10px 28px rgba(15, 23, 42, 0.14) !important;
 }
 
-#music-player .text-7xl {
-    font-size: 3rem !important;
+#tool-container.nyan-density-root :where(button, .btn-primary, .btn-secondary, .btn-danger) {
+    min-height: 0;
 }
 
-#music-player .text-6xl {
-    font-size: 2.5rem !important;
+#tool-container.nyan-density-root :where(.btn-primary, .btn-secondary, .btn-danger) {
+    padding: 0.55rem 1rem !important;
+    font-size: 0.8rem !important;
 }
 
-/* Player card central menor */
-#music-player > div > div.bg-gradient-to-br {
-    padding: 1.5rem !important;
-    max-height: 400px !important;
+/* Forms */
+#tool-container.nyan-density-root :where(input, textarea, select) {
+    font-size: 0.86rem;
 }
 
-/* Controles do player menores */
-#music-player button.text-4xl,
-#music-player button.text-5xl {
-    font-size: 2rem !important;
+#tool-container.nyan-density-root :where(.input-field) {
+    padding: 0.62rem 0.8rem !important;
+    font-size: 0.86rem !important;
 }
 
-#music-player .space-y-3 {
-    gap: 0.75rem !important;
-    margin-top: 1rem !important;
-}
-
-#music-player .space-y-3 > * + * {
-    margin-top: 0 !important;
-}
-
-/* Lista de músicas */
-#music-player .space-y-2 {
-    gap: 0.5rem !important;
-}
-
-#music-player .space-y-2 > * + * {
-    margin-top: 0 !important;
-}
-
-/* Gerador de Senhas */
-#password-generator h1 {
-    font-size: 2.5rem !important;
-    margin-bottom: 0.75rem !important;
-}
-
-#password-generator .text-7xl {
-    font-size: 3.5rem !important;
-}
-
-#password-generator .text-lg {
-    font-size: 0.938rem !important;
-}
-
-/* Seção de configurações */
-#password-generator .bg-gradient-to-br.from-blue-50 {
-    padding: 1.25rem !important;
-}
-
-/* Option cards */
-#password-generator label.bg-gradient-to-br {
-    padding: 0.875rem !important;
-}
-
-#password-generator label .text-xl {
-    font-size: 0.938rem !important;
-}
-
-#password-generator label .text-sm {
-    font-size: 0.813rem !important;
-}
-
-/* Display da senha */
-#password-generator code#generated-password {
-    font-size: 1.25rem !important;
-    padding: 1.25rem !important;
-}
-
-/* Grid de opções */
-#password-generator .grid.gap-4,
-#password-generator .grid.gap-6 {
-    gap: 0.875rem !important;
-}
-
-/* Mini Game */
-#mini-game-container h1 {
-    font-size: 2rem !important;
-    margin-bottom: 0.75rem !important;
-}
-
-#mini-game-container .text-lg {
-    font-size: 0.938rem !important;
+/* Media/canvas should fit the viewport without making pages feel oversized. */
+#tool-container.nyan-density-root :where(canvas) {
+    max-width: 100%;
 }
 
 #game-canvas {
-    max-height: 450px !important;
+    max-height: 440px !important;
 }
 
-/* Configurações */
-#settings h1 {
-    font-size: 2rem !important;
-    margin-bottom: 0.75rem !important;
+/* Route shells that define their own max width should still center naturally. */
+#tool-container.nyan-density-root > :where(.max-w-3xl, .max-w-4xl, .max-w-5xl, .max-w-6xl, .max-w-7xl) {
+    width: 100%;
 }
 
-#settings .text-6xl {
-    font-size: 2.5rem !important;
-}
+@media (max-width: 900px) {
+    :root {
+        --nyan-content-pad-x: 1rem;
+        --nyan-content-pad-y: 1rem;
+        --nyan-density-zoom: 0.96;
+    }
 
-/* Tabs */
-#settings [role="tablist"] button {
-    padding: 0.625rem 1.25rem !important;
-    font-size: 0.875rem !important;
-}
-
-/* Cards de tema */
-#settings .bg-gradient-to-br.from-white,
-#settings .bg-gradient-to-br.from-gray-800 {
-    padding: 1.5rem !important;
-}
-
-#settings .text-6xl.mb-3 {
-    font-size: 2rem !important;
-    margin-bottom: 0.75rem !important;
-}
-
-/* Tecnologias em 4 colunas */
-#settings .grid.grid-cols-2.md\\:grid-cols-3 {
-    grid-template-columns: repeat(4, 1fr) !important;
-    gap: 0.75rem !important;
-}
-
-#settings .grid.grid-cols-2.md\\:grid-cols-3 > div {
-    padding: 0.75rem !important;
-}
-
-/* Notas */
-#notes-list {
-    gap: 1rem !important;
-}
-
-/* ===== AJUSTES GLOBAIS ===== */
-
-/* Títulos principais */
-body main h1.text-5xl,
-body main h1.text-6xl {
-    font-size: 2rem !important;
-    margin-bottom: 0.75rem !important;
-}
-
-body main .text-7xl {
-    font-size: 3rem !important;
-}
-
-/* Parágrafos e descrições */
-body main p.text-lg {
-    font-size: 0.938rem !important;
-}
-
-/* Espaçamento entre seções */
-body main .space-y-8 > * + * {
-    margin-top: 1.25rem !important;
-}
-
-body main .space-y-6 > * + * {
-    margin-top: 1rem !important;
-}
-
-body main .mb-8 {
-    margin-bottom: 1.25rem !important;
-}
-
-body main .mb-6 {
-    margin-bottom: 1rem !important;
-}
-
-/* Containers principais */
-body main > div {
-    padding-top: 1.5rem !important;
-    padding-bottom: 1.5rem !important;
-}
-
-/* Cards */
-body main .rounded-2xl,
-body main .rounded-3xl {
-    padding: 1.5rem !important;
-}
-
-/* ===== LAYOUT RESPONSIVO ===== */
-@media (min-width: 1920px) {
-    .max-w-7xl {
-        max-width: 100rem !important;
+    #tool-container.nyan-density-root {
+        max-width: 100%;
     }
 }
 
-/* ===== LINE HEIGHT ===== */
-h1, h2, h3 {
-    line-height: 1.2 !important;
-}
-
-p {
-    line-height: 1.5 !important;
-}
-
-/* ===== SCROLLBAR ===== */
-::-webkit-scrollbar {
-    width: 6px !important;
-    height: 6px !important;
-}
-  
-body main {
-    zoom: 0.85;
+@media (max-width: 640px) {
+    :root {
+        --nyan-content-pad-x: 0.75rem;
+        --nyan-content-pad-y: 0.75rem;
+        --nyan-density-zoom: 1;
+    }
 }

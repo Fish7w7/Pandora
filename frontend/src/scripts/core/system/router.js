@@ -13,6 +13,7 @@ const Router = {
         'offline':       'OfflineZone',
         'settings':      'Settings',
         'updates':       'AutoUpdater',
+        'credits':       'Credits',
         'notes':         'Notes',
         'tasks':         'Tasks',
         'missions':      'Missions',
@@ -40,6 +41,13 @@ const Router = {
     },
 
     navigate(toolId) {
+        if (toolId === 'credits' && window.FinalSeason?.isFinalSeasonActive?.() !== true) {
+            if (this.currentRoute !== 'home') {
+                toolId = 'home';
+            } else {
+                return;
+            }
+        }
         if (toolId === 'dev-lab' && !window.DevSecurity?.canShowTool?.()) {
             const snap = window.DevSecurity?.snapshot?.() || {};
             const msg = snap.isDevEnv
@@ -103,17 +111,23 @@ const Router = {
         const container = document.getElementById('tool-container');
         if (!container || !App.user) return;
 
+        if (this.currentRoute === 'credits' && window.FinalSeason?.isFinalSeasonActive?.() !== true) {
+            this.currentRoute = 'home';
+            App.updateActiveNav?.('home');
+        }
+
         this._beforeRenderRoute();
 
         const navEffect = window.Inventory?.getNavEffect?.();
         if (navEffect) this._applyNavEffect(container, navEffect);
 
         container.innerHTML = '';
+        container.classList.add('nyan-density-root');
+        container.setAttribute('data-route', this.currentRoute || 'home');
 
         if (this.currentRoute === 'home') {
             if (window.Dashboard) {
                 container.innerHTML = window.Dashboard.render();
-                window.Dashboard._refreshSuggestionsWidget?.();
                 if (window.Dashboard.init) {
                     const schedule = window.NyanLifecycle?.setTimeout?.bind(window.NyanLifecycle) || ((_, fn, delay) => setTimeout(fn, delay));
                     schedule('route:home', () => {

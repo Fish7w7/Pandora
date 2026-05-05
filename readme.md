@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.15.0-purple?style=for-the-badge&logo=electron)
+![NyanTools Logo](https://img.shields.io/badge/NyanTools-3.16.0-purple?style=for-the-badge&logo=electron)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
 ![Platform](https://img.shields.io/badge/Platform-Windows-0078D6?style=for-the-badge&logo=windows)
 ![Electron](https://img.shields.io/badge/Electron-27.0.0-47848F?style=for-the-badge&logo=electron)
@@ -84,7 +84,7 @@ Uma aplicação desktop moderna e kawaii que reúne diversas ferramentas úteis 
    ```
 
 2. **Execute o Instalador**
-   - Baixe `NyanTools-3.15.0-Setup.exe`
+   - Baixe `NyanTools-3.16.0-Setup.exe`
    - Execute e siga o assistente de instalação
 
 3. **Pronto! にゃん~**
@@ -388,12 +388,12 @@ npm run build:all      # Todas as plataformas
 
 ```
 dist/
-├── NyanTools-3.15.0-Setup.exe       # Windows — instalador
-├── NyanTools 3.15.0.exe             # Windows — portátil
-├── NyanTools-3.15.0-x64.dmg        # macOS Intel
-├── NyanTools-3.15.0-arm64.dmg      # macOS Apple Silicon
-├── NyanTools-3.15.0-x64.AppImage   # Linux
-└── NyanTools-3.15.0-amd64.deb      # Linux Debian/Ubuntu
+├── NyanTools-3.16.0-Setup.exe       # Windows — instalador
+├── NyanTools 3.16.0.exe             # Windows — portátil
+├── NyanTools-3.16.0-x64.dmg        # macOS Intel
+├── NyanTools-3.16.0-arm64.dmg      # macOS Apple Silicon
+├── NyanTools-3.16.0-x64.AppImage   # Linux
+└── NyanTools-3.16.0-amd64.deb      # Linux Debian/Ubuntu
 ```
 
 ---
@@ -435,22 +435,24 @@ dist/
 - [x] **v3.14.0 "Nyan Core"** — Versionamento único, NyanStorage, NyanLifecycle, Nyan Core UI e base NyanLiveOps.
 
 ### 🚧 Atual
-#### v3.15.0 — Eventos & Live Ops
-- [x] Sistema de eventos temporários com eventos ativos, próximos e encerrados
-- [x] Missões especiais para jogos, quiz, economia, social e Clãs com progresso persistente
-- [x] Recompensas sazonais com chips, XP, badges, títulos e cosméticos via APIs oficiais
-- [x] Loja temporária de evento usando chips, período ativo e bloqueio de recompra limitada
-- [x] Nova tela Eventos com Visão Geral, Missões, Loja e Histórico seguindo Nyan Core
-- [x] Integração com Clãs: participação, metas, chat, desafios, bônus e mural
-- [x] Notificações para início/fim de evento, missão concluída, resgate e compra
-- [x] Patches antigos absorvidos pelos módulos donos e removidos do carregamento principal
+#### v3.16.0 — Last Meow / Final Season
+- [x] Season 2 "Ultima Faisca" com 21 dias, progresso leve e recompensas permanentes
+- [x] Badge Veterano Early Access, badge "Eu Estive Aqui" e modal Farewell
+- [x] Dashboard Memorial com snapshot da jornada e exportacao em JSON/texto
+- [x] Legacy Mode para deixar claro que o app continua funcionando em pausa
+- [x] Tema Midnight Gold gratis durante a Season e Pacote Legado no encerramento
+- [x] Zona Offline recebe Memoria Nyan como jogo final de pares
+- [x] Missoes, conquistas e badge Guardiao da Memoria para fechar o ciclo
+- [x] Login com particulas douradas no clima Midnight Gold
+- [x] Musica Final Last Meow com volume baixo e player compacto
+- [x] Inventario com reparo cumulativo para preservar compras entre local e nuvem
 
 ### 🔮 Futuro (Próximas versões)
 
-#### 🧩 Pós v3.15 — Live Ops (Polimento)
+#### 🧩 Pós v3.16 — Manutencao e Estabilidade
 - [ ] Ajustes finos de UX
-- [ ] Balanceamento de missões e recompensas
-- [ ] Sync remoto de eventos e calendário sazonal
+- [ ] Correcoes pontuais reportadas por usuarios
+- [ ] Manutencao de integracoes, sync e build
 
 #### 🚀 v4.0 — Quando fizer sentido
 **Gatilhos:**
@@ -546,7 +548,7 @@ MIT License — Copyright (c) 2026 Fish7w7
 
 *Your Purr-fect Toolkit! 🐱✨*
 
-**v3.15.0 — Eventos & Live Ops 🚀**
+**v3.16.0 - Last Meow / Final Season**
 
 **[⬆ Voltar ao topo](#-nyantools-にゃん)**
 

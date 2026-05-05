@@ -13,6 +13,7 @@ const LoginIntro = {
         glitch:  'teal',
         fire:    'red',
         patchpulse: '*',
+        midnightGold: 'midnightGold',
     },
 
     _shouldPlay() {
@@ -22,10 +23,8 @@ const LoginIntro = {
     _getActiveEffect() {
         if (!window.Inventory) return null;
 
-        const equippedTheme = window.Inventory.getEquippedItem('theme');
-        if (!equippedTheme?.effect) return null;
-
-        const effect      = equippedTheme.effect;           // ex: 'sakura'
+        const effect = window.Inventory.getLoginEffect?.();
+        if (!effect) return null;
         const requiredTheme = this.EFFECT_THEME_MAP[effect]; // ex: 'pink'
         if (!requiredTheme) return null;
 
@@ -45,6 +44,7 @@ const LoginIntro = {
                 stars:  '#818cf8',
                 fire:   '#ef4444',
                 patchpulse: '#22d3ee',
+                midnightGold: '#f59e0b',
             };
             if (effectColors[effect]) return effectColors[effect];
         }
@@ -52,8 +52,21 @@ const LoginIntro = {
         const map = {
             purple:'#a855f7', blue:'#3b82f6', green:'#10b981', red:'#ef4444',
             orange:'#f97316', pink:'#ec4899', teal:'#14b8a6', indigo:'#6366f1',
+            midnightGold:'#f59e0b',
         };
         return map[theme] || '#a855f7';
+    },
+
+    _effectColor(effect = '') {
+        const effectColors = {
+            sakura: '#f472b6',
+            glitch: '#22d3ee',
+            stars: '#818cf8',
+            fire: '#ef4444',
+            patchpulse: '#22d3ee',
+            midnightGold: '#f59e0b',
+        };
+        return effectColors[effect] || '#a855f7';
     },
 
 
@@ -249,6 +262,78 @@ const LoginIntro = {
             return container;
         }
 
+        if (effect === 'midnightGold') {
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes introMidnightGoldAura {
+                    0%,100% { opacity:0.75; transform:scale(1); }
+                    50%     { opacity:1; transform:scale(1.04); }
+                }
+                @keyframes introMidnightGoldSpark {
+                    0%,100% { opacity:0.28; transform:translateY(0) scale(0.82) rotate(0deg); }
+                    45%     { opacity:1; transform:translateY(-10px) scale(1.22) rotate(30deg); }
+                    75%     { opacity:0.6; transform:translateY(-4px) scale(0.96) rotate(58deg); }
+                }
+                @keyframes introMidnightGoldRay {
+                    0%   { transform:translateX(-120%) rotate(-8deg); opacity:0; }
+                    18%  { opacity:0.6; }
+                    74%  { opacity:0.42; }
+                    100% { transform:translateX(120%) rotate(-8deg); opacity:0; }
+                }
+                .intro-midnight-gold-aura {
+                    position:absolute; inset:0; pointer-events:none;
+                    background:
+                        radial-gradient(circle at 50% 42%, rgba(245,158,11,0.18), transparent 28%),
+                        radial-gradient(circle at 24% 76%, rgba(168,85,247,0.16), transparent 34%),
+                        radial-gradient(circle at 82% 18%, rgba(252,211,77,0.12), transparent 30%),
+                        linear-gradient(135deg, rgba(14,8,31,0.96), rgba(4,3,12,0.98));
+                    animation:introMidnightGoldAura 3.4s ease-in-out infinite;
+                }
+                .intro-midnight-gold-ray {
+                    position:absolute; left:-12%; right:-12%; height:2px; pointer-events:none;
+                    background:linear-gradient(90deg, transparent, rgba(245,158,11,0.72), rgba(168,85,247,0.42), transparent);
+                    box-shadow:0 0 14px rgba(245,158,11,0.35);
+                    animation:introMidnightGoldRay linear infinite;
+                }
+                .intro-midnight-gold-spark {
+                    position:absolute; color:#fcd34d; pointer-events:none;
+                    text-shadow:0 0 10px rgba(245,158,11,0.62), 0 0 18px rgba(168,85,247,0.34);
+                    animation:introMidnightGoldSpark ease-in-out infinite;
+                }
+            `;
+            container.appendChild(style);
+
+            const aura = document.createElement('div');
+            aura.className = 'intro-midnight-gold-aura';
+            container.appendChild(aura);
+
+            for (let i = 0; i < 4; i++) {
+                const ray = document.createElement('div');
+                ray.className = 'intro-midnight-gold-ray';
+                ray.style.top = `${22 + i * 15}%`;
+                ray.style.animationDuration = `${3.4 + i * 0.7}s`;
+                ray.style.animationDelay = `${i * 0.55}s`;
+                container.appendChild(ray);
+            }
+
+            const glyphs = ['\u2728', '\u2726', '\u25C6', '\u25C7', '\u2727'];
+            const sizes = ['0.75rem', '1rem', '0.62rem', '0.86rem', '1.12rem'];
+            for (let i = 0; i < 24; i++) {
+                const spark = document.createElement('div');
+                spark.className = 'intro-midnight-gold-spark';
+                spark.textContent = glyphs[i % glyphs.length];
+                spark.style.left = `${(i * 41 + 8) % 94}%`;
+                spark.style.top = `${(i * 29 + 11) % 86}%`;
+                spark.style.fontSize = sizes[i % sizes.length];
+                spark.style.animationDuration = `${1.7 + (i % 5) * 0.34}s`;
+                spark.style.animationDelay = `${i * 0.11}s`;
+                if (i % 4 === 0) spark.style.color = '#c4b5fd';
+                container.appendChild(spark);
+            }
+
+            return container;
+        }
+
         if (effect === 'fire') {
             const style = document.createElement('style');
             style.textContent = `
@@ -421,6 +506,78 @@ const LoginIntro = {
         this._animateTitle();
         this._el.addEventListener('click', () => this._finish());
         setTimeout(() => this._finish(), 4500);
+    },
+
+    previewEffect(effect, label = 'Intro') {
+        const safeEffect = String(effect || '').trim();
+        if (!safeEffect) {
+            window.Utils?.showNotification?.('Esta intro nao possui previa.', 'warning');
+            return;
+        }
+
+        document.getElementById('login-intro-preview')?.remove();
+
+        const color = this._effectColor(safeEffect);
+        const preview = document.createElement('div');
+        preview.id = 'login-intro-preview';
+        preview.style.cssText = `
+            position:fixed; inset:0; z-index:99998;
+            display:flex; align-items:center; justify-content:center;
+            background:#000008; color:white; overflow:hidden;
+            font-family:'DM Sans',sans-serif; cursor:pointer;
+        `;
+        preview.innerHTML = `
+            <style>
+                #login-intro-preview * { box-sizing:border-box; }
+                @keyframes introPreviewIconIn {
+                    from { opacity:0; transform:scale(0.3) rotate(-15deg); }
+                    to { opacity:1; transform:scale(1) rotate(0deg); }
+                }
+                .login-intro-preview-content {
+                    position:relative; z-index:2; text-align:center;
+                    display:flex; flex-direction:column; align-items:center;
+                    pointer-events:none;
+                }
+                .login-intro-preview-icon {
+                    font-size:72px; line-height:1; filter:drop-shadow(0 0 28px ${color}88);
+                    animation:introPreviewIconIn 0.65s cubic-bezier(0.34,1.56,0.64,1) both;
+                }
+                .login-intro-preview-title {
+                    font-family:'Syne',sans-serif; font-weight:900; font-size:2.45rem;
+                    margin-top:18px; color:white; text-shadow:0 0 26px ${color}66;
+                }
+                .login-intro-preview-sub {
+                    margin-top:10px; color:${color}; font-size:0.82rem; font-weight:900;
+                    letter-spacing:0.18em; text-transform:uppercase;
+                }
+                .login-intro-preview-close {
+                    position:absolute; right:18px; top:18px; z-index:3;
+                    border:1px solid rgba(255,255,255,0.12); border-radius:9px;
+                    background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.72);
+                    width:34px; height:34px; cursor:pointer; font-weight:900;
+                }
+            </style>
+            <button class="login-intro-preview-close" aria-label="Fechar">X</button>
+            <div class="login-intro-preview-content">
+                <div class="login-intro-preview-icon">\u{1F431}</div>
+                <div class="login-intro-preview-title">NyanTools</div>
+                <div class="login-intro-preview-sub">${label || 'Intro'} preview</div>
+            </div>
+        `;
+
+        const overlay = this._createEffectOverlay(safeEffect);
+        if (overlay) preview.appendChild(overlay);
+
+        const close = () => preview.remove();
+        preview.querySelector('.login-intro-preview-close')?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            close();
+        });
+        preview.addEventListener('click', close);
+        document.body.appendChild(preview);
+        setTimeout(() => {
+            if (document.body.contains(preview)) close();
+        }, 5200);
     },
 
     setEnabled(enabled) {

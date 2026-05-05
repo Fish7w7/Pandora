@@ -995,7 +995,7 @@ const Friends = {
         }
         const favoriteGame = Friends._getFavoriteGame(scoreMap);
 
-        const myVersion    = window.App?.version || window.NYAN_VERSION || '3.15.0';
+        const myVersion    = window.App?.version || window.NYAN_VERSION || '3.16.0';
         const theirVersion = profile.version || '?';
         let vBadgeEmoji = '', vBadgeText = '', vBadgeTitle = '';
         if (theirVersion !== '?' && myVersion) {
@@ -1126,7 +1126,7 @@ const Friends = {
                 <span style="display:inline-flex;align-items:center;gap:0.28rem;padding:0.22rem 0.62rem;border-radius:999px;
                     border:1px solid rgba(168,85,247,0.25);background:rgba(168,85,247,0.1);
                     color:var(--theme-primary,#a855f7);font-size:0.66rem;font-weight:900;">
-                    Cla ${window.Utils?.escapeHTML?.(publicSquadName || '') || publicSquadName || ''} [${window.Utils?.escapeHTML?.(publicSquadTag) || publicSquadTag}]
+                    Clã ${window.Utils?.escapeHTML?.(publicSquadName || '') || publicSquadName || ''} [${window.Utils?.escapeHTML?.(publicSquadTag) || publicSquadTag}]
                 </span>
             </div>
         ` : '';
@@ -1188,11 +1188,11 @@ const Friends = {
         ppContent.innerHTML = `
             <div id="nyan-pp-name">${profile.username || 'Usuário'}</div>
 
-            ${publicTitleHtml}
-
             <div id="nyan-pp-tag-row">
                 <span class="nyan-pp-tag">${profile.nyanTag || ''}</span>
             </div>
+
+            ${publicTitleHtml}
 
             ${publicSquadHtml}
 

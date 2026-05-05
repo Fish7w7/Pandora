@@ -88,6 +88,39 @@
             check: () => (window.Seasons?.getTier?.() || 0) >= 2,
         },
         {
+            id: 'final_season_join', icon: '\u2728', name: 'Eu Estive Aqui',
+            desc: 'Participou da Final Season Last Meow',
+            hint: 'Abra o NyanTools durante a Final Season',
+            seasonal: 'season_2',
+            check: () => window.Badges?.owns?.('badge_final_presence') || window.FinalSeason?.isFinalSeasonActive?.(),
+        },
+        {
+            id: 'final_season_gold', icon: '\u{1F31F}', name: 'Ultima Faisca',
+            desc: 'Atingiu tier Ouro na Final Season',
+            hint: 'Chegue ao tier Ouro durante a Final Season',
+            seasonal: 'season_2',
+            check: () => {
+                const s = window.Seasons?.getCurrentSeason?.();
+                return !!s && s.id === 'season_2' && (s.tier || 1) >= 3;
+            },
+            progress: () => {
+                const s = window.Seasons?.getCurrentSeason?.();
+                return { current: Math.min(s?.tier || 1, 3), max: 3, unit: 'tier' };
+            },
+        },
+        {
+            id: 'memory_nyan_win', icon: '\u{1F9E9}', name: 'Memoria Guardada',
+            desc: 'Venceu uma partida de Memoria Nyan',
+            hint: 'Complete o jogo final na Zona Offline',
+            check: () => !!Utils.loadData('nyan_memory_nyan_first_win_v316'),
+        },
+        {
+            id: 'farewell_kept', icon: '\u{1F48C}', name: 'Carta Guardada',
+            desc: 'Guardou a carta de encerramento da v3.16',
+            hint: 'Use a acao principal do modal Farewell',
+            check: () => !!Utils.loadData('nyan_final_season_flags_v316')?.memoryKeptAt,
+        },
+        {
             id: 'social_butterfly', icon: '🦋', name: 'Borboleta Social',
             desc: 'Completou 5 desafios com amigos diferentes',
             hint: 'Desafie amigos diferentes e complete duelos',

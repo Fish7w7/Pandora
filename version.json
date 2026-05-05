@@ -1,32 +1,36 @@
 {
-    "version": "3.15.0",
-    "buildDate": "2026-05-01",
+    "version": "3.16.0",
+    "buildDate": "2026-05-05",
     "changelog": [
-        "Eventos & Live Ops adiciona eventos temporarios com missoes, recompensas, loja e historico",
-        "Missoes de evento acompanham jogos, quiz e acoes de Cla com progresso persistente",
-        "Recompensas sazonais usam Economy, Inventory e Badges com resgate idempotente",
-        "Loja de evento usa chips, respeita periodo ativo e evita compra duplicada de itens limitados",
-        "Clans recebem bonus de pontuacao durante eventos, notificacoes oficiais e registros no mural",
-        "Patches antigos foram absorvidos pelos modulos donos e removidos do carregamento"
+        "Final Season Last Meow adiciona a Season 2 Ultima Faisca por 21 dias",
+        "Dashboard Memorial salva um snapshot permanente da jornada no NyanTools",
+        "Modal Farewell, badge Veterano Early Access e Pacote Legado celebram o encerramento do ciclo",
+        "Exportar minha jornada gera lembranca em JSON ou texto fora do app",
+        "Musica Final Last Meow toca durante a Final Season com volume baixo e player compacto",
+        "Legacy Mode deixa claro que o NyanTools continua funcionando em pausa",
+        "Zona Offline recebe Memoria Nyan como jogo final de baixo risco",
+        "Missoes e conquistas finais adicionam progresso casual sem grind pesado",
+        "Inventario preserva itens comprados com reparo cumulativo entre local e nuvem",
+        "Login usa particulas douradas no clima Midnight Gold"
     ],
-    "tag_name": "v3.15.0",
-    "releaseDate": "2026-05-01",
-    "name": "NyanTools v3.15.0",
-    "codename": "Eventos & Live Ops",
-    "body": "## NyanTools v3.15.0 - Eventos & Live Ops\n\n### Eventos\n- Sistema de eventos temporarios com ativos, proximos e encerrados\n- Missoes especiais para jogos, quiz, social, economia e Clans\n- Recompensas sazonais com chips, XP, badges e itens via APIs oficiais\n- Loja temporaria de evento com bloqueio apos encerramento e compra unica de itens limitados\n\n### Clans e Live Ops\n- Bonus de pontuacao de Cla durante eventos ativos\n- Metas, chat e desafios de Cla registram progresso de missoes de evento\n- Mural de Cla recebe registros relevantes de recompensas e compras de evento\n- Notificacoes cobrem inicio/fim de evento, missao concluida, resgate e compra\n\n### Arquitetura\n- Patches antigos absorvidos por App, Router, Dashboard, Profile, Notes, Tasks, Integrations, Squads e Clans\n- Scripts de patch removidos do carregamento principal\n- NyanLiveOps usa NyanStorage e fallback local sem exigir backend\n\nVersao anterior: v3.14.0",
+    "tag_name": "v3.16.0",
+    "releaseDate": "2026-05-05",
+    "name": "NyanTools v3.16.0",
+    "codename": "Last Meow",
+    "body": "## NyanTools v3.16.0 - Last Meow\n\n### Final Season\n- Season 2 Ultima Faisca com 21 dias de duracao, progressao mais leve e recompensas permanentes\n- Countdown especial na sidebar com estados de ultima semana, ultimo dia e temporada arquivada\n- Recompensas Last Meow, Final Season, borda dourada e particulas finais\n- Pacote Legado Last Meow libera +316 chips, badge Ultima Faisca, titulo Legado Nyan e Intro Midnight Gold apos o encerramento\n- Missao diaria final para Memoria Nyan com XP sazonal leve\n\n### Memorial e Legado\n- Modal Farewell exibido uma unica vez apos login\n- Badge Veterano Early Access concedida automaticamente no primeiro boot da v3.16\n- Dashboard Memorial com snapshot da jornada, recordes pessoais, export JSON/texto e card compartilhavel\n- Badge Guardiao da Memoria para quem guarda a carta Farewell\n- Modo legado preserva a Final Season como memoria apos o encerramento\n\n### Zona Offline\n- Memoria Nyan estreia como jogo final usando pares de simbolos do app\n- Primeira vitoria libera recompensa de memoria sem grind\n\n### Visual e Audio\n- Tema Midnight Gold gratis durante a Final Season e particulas douradas no login\n- Musica Final Last Meow toca durante a Final Season com volume baixo, controle para desligar e player compacto\n\n### Confiabilidade\n- Inventario preserva itens comprados com reparo cumulativo entre local e nuvem\n- Temas, intros e recompensas finais foram separados para evitar desbloqueios indevidos",
     "previousVersion": {
-        "version": "3.14.0",
-        "tag": "v3.14.0",
-        "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.14.0"
+        "version": "3.15.0",
+        "tag": "v3.15.0",
+        "url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.15.0"
     },
-    "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.15.0",
-    "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.15.0",
+    "downloadUrl": "https://github.com/Fish7w7/Pandora/releases/tag/v3.16.0",
+    "html_url": "https://github.com/Fish7w7/Pandora/releases/tag/v3.16.0",
     "statistics": {
-        "filesNew": 1,
-        "filesRewritten": 2,
-        "filesModified": 24,
-        "filesDeleted": 7,
-        "bugsFixed": 8,
-        "featuresAdded": 6
+        "filesNew": 2,
+        "filesRewritten": 1,
+        "filesModified": 18,
+        "filesDeleted": 0,
+        "bugsFixed": 4,
+        "featuresAdded": 11
     }
 }

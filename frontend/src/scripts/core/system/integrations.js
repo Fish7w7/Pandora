@@ -638,6 +638,16 @@ Integrations.getSmartSuggestions = function() {
         .map(({ score, ...rest }) => rest);
 };
 
+Integrations.getSmartSuggestions = function() {
+    return [];
+};
+
+Integrations.renderSuggestionsWidget = function() {
+    return '';
+};
+
+Integrations._setSuggestionsHidden = function() {};
+
 window.Integrations = Integrations;
 
 (function finalizeIntegrationsV310() {

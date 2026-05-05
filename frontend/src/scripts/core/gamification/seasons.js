@@ -1,3 +1,21 @@
+const FINAL_SEASON = {
+    id: 'season_2',
+    name: 'Season 2 - Ultima Faisca',
+    icon: '\u2728',
+    codename: 'Last Meow',
+    theme: 'Ultima Faisca',
+    start: '2026-05-05T00:00:00-03:00',
+    end: '2026-05-25T23:59:59-03:00',
+    isFinal: true,
+    durationDays: 21,
+    tiers: [
+        { tier: 1, id: 'bronze', label: 'Bronze', xp: 0, reward: 'Badge Last Meow' },
+        { tier: 2, id: 'silver', label: 'Prata', xp: 300, reward: 'Titulo Final Season' },
+        { tier: 3, id: 'gold', label: 'Ouro', xp: 900, reward: 'Borda dourada final' },
+        { tier: 4, id: 'platinum', label: 'Platina', xp: 1800, reward: 'Particulas finais' },
+    ],
+};
+
 const Seasons = {
     KEY: 'nyan_season_current',
     HISTORY_KEY: 'nyan_season_history',
@@ -15,6 +33,17 @@ const Seasons = {
             icon: '\u{1F338}',
             startDate: Date.parse('2026-04-15T00:00:00-03:00'),
             endDate: Date.parse('2026-05-15T23:59:59-03:00'),
+        },
+        {
+            id: FINAL_SEASON.id,
+            name: FINAL_SEASON.name,
+            icon: FINAL_SEASON.icon,
+            codename: FINAL_SEASON.codename,
+            theme: FINAL_SEASON.theme,
+            startDate: Date.parse(FINAL_SEASON.start),
+            endDate: Date.parse(FINAL_SEASON.end),
+            isFinal: FINAL_SEASON.isFinal,
+            tiers: FINAL_SEASON.tiers,
         },
     ],
 
@@ -48,6 +77,32 @@ const Seasons = {
             final: [
                 { type: 'chips', amount: 650, label: '+650 chips' },
                 { type: 'item', itemId: 'title_season1_champion', label: 'Titulo Despertar Supremo' },
+            ],
+        },
+        season_2: {
+            tiers: {
+                1: [
+                    { type: 'chips', amount: 80, label: '+80 chips' },
+                    { type: 'badge', badgeId: 'badge_last_meow', label: 'Badge Last Meow' },
+                ],
+                2: [
+                    { type: 'chips', amount: 120, label: '+120 chips' },
+                    { type: 'item', itemId: 'title_final_season', label: 'Titulo Final Season' },
+                ],
+                3: [
+                    { type: 'chips', amount: 180, label: '+180 chips' },
+                    { type: 'item', itemId: 'border_final_gold', label: 'Borda Last Meow' },
+                ],
+                4: [
+                    { type: 'chips', amount: 260, label: '+260 chips' },
+                    { type: 'item', itemId: 'particle_final_sparks', label: 'Particulas Ultima Faisca' },
+                ],
+            },
+            final: [
+                { type: 'chips', amount: 316, label: '+316 chips' },
+                { type: 'badge', badgeId: 'badge_final_spark', label: 'Badge Ultima Faisca' },
+                { type: 'item', itemId: 'title_legacy_nyan', label: 'Titulo Legado Nyan' },
+                { type: 'item', itemId: 'intro_midnight_gold', label: 'Intro Midnight Gold' },
             ],
         },
     },
@@ -90,9 +145,19 @@ const Seasons = {
         return `${y}-${m}-${dd}`;
     },
 
+    _configById(seasonId = '') {
+        const id = String(seasonId || '').trim();
+        return this.CONFIG.find((cfg) => cfg.id === id) || null;
+    },
+
+    _tiersForSeason(seasonId = '') {
+        const cfg = this._configById(seasonId) || this._activeConfig();
+        return Array.isArray(cfg?.tiers) && cfg.tiers.length ? cfg.tiers : this.TIERS;
+    },
+
     _stateFromConfig(cfg, prev = {}) {
         const seasonXP = Math.max(0, Number(prev.seasonXP || 0));
-        const claimedTiers = this._normalizeClaimedTiers(prev.claimedTiers);
+        const claimedTiers = this._normalizeClaimedTiers(prev.claimedTiers, cfg.id);
         const rewardFlags = prev.rewardFlags && typeof prev.rewardFlags === 'object'
             ? { ...prev.rewardFlags }
             : {};
@@ -103,8 +168,10 @@ const Seasons = {
             icon: cfg.icon,
             startDate: cfg.startDate,
             endDate: cfg.endDate,
+            isFinal: cfg.isFinal === true,
+            codename: cfg.codename || '',
             seasonXP,
-            tier: this.getTierByXP(seasonXP),
+            tier: this.getTierByXP(seasonXP, cfg.id),
             claimed: finalClaimed,
             finalRewardClaimed: finalClaimed,
             claimedTiers,
@@ -113,7 +180,8 @@ const Seasons = {
     },
 
     _activeConfig(now = Date.now()) {
-        return this.CONFIG.find((c) => now >= c.startDate && now <= c.endDate)
+        const active = this.CONFIG.filter((c) => now >= c.startDate && now <= c.endDate);
+        return active[active.length - 1]
             || this.CONFIG[this.CONFIG.length - 1]
             || null;
     },
@@ -173,10 +241,11 @@ const Seasons = {
         return this.ensureCurrentSeason();
     },
 
-    getTierByXP(xp = 0) {
+    getTierByXP(xp = 0, seasonId = '') {
         const safe = Math.max(0, Number(xp || 0));
+        const tiers = this._tiersForSeason(seasonId);
         let current = 1;
-        this.TIERS.forEach((t) => {
+        tiers.forEach((t) => {
             if (safe >= t.xp) current = t.tier;
         });
         return current;
@@ -186,9 +255,9 @@ const Seasons = {
         return this.getCurrentSeason()?.tier || 1;
     },
 
-    _normalizeClaimedTiers(raw = null) {
+    _normalizeClaimedTiers(raw = null, seasonId = '') {
         const normalized = {};
-        this.TIERS.forEach((t) => {
+        this._tiersForSeason(seasonId).forEach((t) => {
             normalized[Number(t.tier)] = false;
         });
 
@@ -216,14 +285,14 @@ const Seasons = {
 
     _isTierClaimed(state, tier = 0) {
         const key = Number(tier);
-        const map = this._normalizeClaimedTiers(state?.claimedTiers);
+        const map = this._normalizeClaimedTiers(state?.claimedTiers, state?.id);
         return map[key] === true;
     },
 
     _setTierClaimed(state, tier = 0, claimed = true) {
         if (!state) return;
         const key = Number(tier);
-        const map = this._normalizeClaimedTiers(state.claimedTiers);
+        const map = this._normalizeClaimedTiers(state.claimedTiers, state.id);
         if (Object.prototype.hasOwnProperty.call(map, key)) {
             map[key] = claimed === true;
             state.claimedTiers = map;
@@ -267,6 +336,49 @@ const Seasons = {
         return 'Recompensa sazonal';
     },
 
+    _rewardEntryIcon(entry = {}) {
+        if (entry.type === 'chips') return '\u{1FA99}';
+        if (entry.type === 'badge') {
+            return window.Badges?.getBadge?.(entry.badgeId)?.icon || '\u{1F396}\uFE0F';
+        }
+        if (entry.type === 'item') {
+            return window.Inventory?.getItem?.(entry.itemId)?.icon || '\u2728';
+        }
+        return '\u2728';
+    },
+
+    _rewardEntryKind(entry = {}) {
+        if (entry.type === 'chips') return 'Chips';
+        if (entry.type === 'badge') return 'Badge';
+        if (entry.type === 'item') {
+            const item = window.Inventory?.getItem?.(entry.itemId);
+            const typeMap = {
+                title: 'Titulo',
+                intro: 'Intro',
+                theme: 'Tema',
+                border: 'Borda',
+                particle: 'Particula',
+                effect: 'Efeito',
+            };
+            return typeMap[item?.type] || 'Item';
+        }
+        return 'Extra';
+    },
+
+    _rewardPreviewPills(entries = []) {
+        const list = Array.isArray(entries) ? entries : [];
+        if (!list.length) return '';
+        return list.map((entry) => `
+            <span class="season-final-reward-pill">
+                <span class="season-final-reward-icon">${this._rewardEntryIcon(entry)}</span>
+                <span>
+                    <strong>${this._rewardEntryLabel(entry)}</strong>
+                    <small>${this._rewardEntryKind(entry)}</small>
+                </span>
+            </span>
+        `).join('');
+    },
+
     _tierRewardText(seasonId = '', tier = 0, fallback = '') {
         const entries = this._tierRewardEntries(seasonId, tier);
         if (!entries.length) return fallback || 'Sem recompensa configurada';
@@ -277,7 +389,7 @@ const Seasons = {
         const s = state || this.getCurrentSeason();
         if (!s) return [];
         const achievedTier = Math.max(1, Number(s.tier || 1));
-        return this.TIERS
+        return this._tiersForSeason(s.id)
             .map((t) => Number(t.tier))
             .filter((tier) => tier <= achievedTier && !this._isTierClaimed(s, tier));
     },
@@ -315,9 +427,10 @@ const Seasons = {
             if (entry.type === 'item') {
                 const itemId = String(entry.itemId || '').trim();
                 if (!itemId || !window.Inventory?.unlockItem) return;
+                const wasOwned = window.Inventory?.owns?.(itemId) === true;
                 const unlocked = window.Inventory.unlockItem(itemId);
                 const item = window.Inventory?.getItem?.(itemId);
-                if (unlocked) {
+                if (unlocked || wasOwned) {
                     grantedLabels.push(item?.name || this._rewardEntryLabel(entry));
                 }
                 return;
@@ -372,39 +485,64 @@ const Seasons = {
 
     _enforceSeasonRewardOwnership(state = null) {
         const s = state || this.load();
-        if (!s || String(s.id || '') !== 'season_1') return false;
+        if (!s) return false;
         if (!window.Inventory?.owns || !window.Inventory?.revokeItem) return false;
 
         let changed = false;
 
-        const bronzeAllowed = this._isTierClaimed(s, 1);
-        if (!bronzeAllowed) {
-            if (window.Badges?.owns?.('badge_season1') && window.Badges?.revoke) {
-                const revokedBadge = window.Badges.revoke('badge_season1', { silent: true, skipSync: true });
-                if (revokedBadge) changed = true;
-            }
-            if (window.Inventory.owns('title_season1_badge')) {
-                const revokedLegacy = window.Inventory.revokeItem('title_season1_badge', { silent: true });
-                if (revokedLegacy) changed = true;
+        if (String(s.id || '') === 'season_1') {
+            const bronzeAllowed = this._isTierClaimed(s, 1);
+            if (!bronzeAllowed) {
+                if (window.Badges?.owns?.('badge_season1') && window.Badges?.revoke) {
+                    const revokedBadge = window.Badges.revoke('badge_season1', { silent: true, skipSync: true });
+                    if (revokedBadge) changed = true;
+                }
+                if (window.Inventory.owns('title_season1_badge')) {
+                    const revokedLegacy = window.Inventory.revokeItem('title_season1_badge', { silent: true });
+                    if (revokedLegacy) changed = true;
+                }
             }
         }
 
-        const checks = [
-            {
-                itemId: 'particle_season1_petals',
-                allowed: this._isTierClaimed(s, 4),
-            },
-            {
-                itemId: 'title_season1_champion',
-                allowed: s.finalRewardClaimed === true || s.claimed === true,
-            },
-        ];
+        const checks = [];
+        const rewardConfig = this._seasonRewardConfig(s.id);
+        Object.entries(rewardConfig?.tiers || {}).forEach(([tier, entries]) => {
+            const safeTier = Number(tier);
+            if (!Number.isFinite(safeTier)) return;
+            const allowed = this._isTierClaimed(s, safeTier);
+            (Array.isArray(entries) ? entries : []).forEach((entry) => {
+                if (entry?.type !== 'item') return;
+                const item = window.Inventory.getItem?.(entry.itemId);
+                if (item?.rewardOnly !== true) return;
+                checks.push({ itemId: entry.itemId, allowed });
+            });
+        });
 
+        const finalAllowed = s.finalRewardClaimed === true || s.claimed === true;
+        this._finalRewardEntries(s.id).forEach((entry) => {
+            if (entry?.type !== 'item') return;
+            const item = window.Inventory.getItem?.(entry.itemId);
+            if (item?.rewardOnly !== true) return;
+            checks.push({ itemId: entry.itemId, allowed: finalAllowed });
+        });
+
+        const uniqueChecks = new Map();
         checks.forEach((entry) => {
-            if (!entry || entry.allowed) return;
+            if (!entry?.itemId) return;
+            const existing = uniqueChecks.get(entry.itemId);
+            uniqueChecks.set(entry.itemId, {
+                itemId: entry.itemId,
+                allowed: existing?.allowed === true || entry.allowed === true,
+            });
+        });
+
+        uniqueChecks.forEach((entry) => {
+            if (!entry?.itemId || entry.allowed) return;
             if (!window.Inventory.owns(entry.itemId)) return;
             const revoked = window.Inventory.revokeItem(entry.itemId, { silent: true });
-            if (revoked) changed = true;
+            if (revoked) {
+                changed = true;
+            }
         });
 
         return changed;
@@ -421,10 +559,11 @@ const Seasons = {
         const s = this.getCurrentSeason();
         if (!s) return null;
 
-        const currentTier = this.TIERS.find((t) => t.tier === s.tier) || this.TIERS[0];
-        const nextTier = this.TIERS.find((t) => t.tier === s.tier + 1) || null;
+        const tiers = this._tiersForSeason(s.id);
+        const currentTier = tiers.find((t) => t.tier === s.tier) || tiers[0];
+        const nextTier = tiers.find((t) => t.tier === s.tier + 1) || null;
         const floor = currentTier?.xp || 0;
-        const ceil = nextTier?.xp || this.TIERS[this.TIERS.length - 1].xp;
+        const ceil = nextTier?.xp || tiers[tiers.length - 1].xp;
         const inTierXP = Math.max(0, (s.seasonXP || 0) - floor);
         const span = Math.max(1, ceil - floor);
         const pct = nextTier ? Math.min(100, Math.round((inTierXP / span) * 100)) : 100;
@@ -456,6 +595,27 @@ const Seasons = {
             return `${hours}h ${mins}m`;
         }
         return `${days}d ${hours}h`;
+    },
+
+    _getDaysLeft(state = null) {
+        const s = state || this.getCurrentSeason();
+        if (!s) return 0;
+        const diff = Number(s.endDate || 0) - Date.now();
+        if (diff <= 0) return 0;
+        return Math.max(1, Math.ceil(diff / 86400000));
+    },
+
+    _getSidebarSubtitle(state = null, weekend = null) {
+        const s = state || this.getCurrentSeason();
+        if (!s) return '';
+        if (s.isFinal === true) {
+            if (!this.isActive(s)) return 'A Final Season terminou.';
+            const daysLeft = this._getDaysLeft(s);
+            if (daysLeft <= 1) return 'Ultimo dia da Final Season.';
+            if (daysLeft <= 7) return `Faltam ${daysLeft} dias para o fim.`;
+            return `Final Season - ${this.getRemainingText()}`;
+        }
+        return weekend ? weekend.name : `Termina em ${this.getRemainingText()}`;
     },
 
     getActiveWeekendEvent(date = new Date()) {
@@ -513,14 +673,14 @@ const Seasons = {
 
         const prevTier = season.tier || 1;
         season.seasonXP = (season.seasonXP || 0) + gain;
-        season.tier = this.getTierByXP(season.seasonXP);
+        season.tier = this.getTierByXP(season.seasonXP, season.id);
         this.save(season);
 
         this.syncRanking().catch(() => {});
 
         const tierUp = season.tier > prevTier;
         if (tierUp) {
-            const newTierLabel = this.TIERS.find((t) => t.tier === season.tier)?.label || `Tier ${season.tier}`;
+            const newTierLabel = this._tiersForSeason(season.id).find((t) => t.tier === season.tier)?.label || `Tier ${season.tier}`;
             Utils.showNotification?.(`Tier sazonal alcancado: ${newTierLabel}! Recompensa pronta para resgatar.`, 'success');
         }
 
@@ -537,11 +697,31 @@ const Seasons = {
         return { changed: true, tierUp, tier: season.tier, seasonXP: season.seasonXP };
     },
 
+    _finalRewardStatus(state = null) {
+        const s = state || this.getCurrentSeason();
+        if (!s) {
+            return { ready: false, label: 'Sem temporada ativa', buttonText: 'Bloqueado' };
+        }
+        if (s.claimed || s.finalRewardClaimed) {
+            return { ready: false, label: 'Pacote Legado guardado na sua conta', buttonText: 'Guardado' };
+        }
+
+        const endDate = Number(s.endDate || 0);
+        if (!Number.isFinite(endDate) || Date.now() <= endDate) {
+            return {
+                ready: false,
+                label: `Abre quando a Final Season terminar (${this.getRemainingText()})`,
+                buttonText: 'Bloqueado',
+            };
+        }
+
+        return { ready: true, label: 'Pacote Legado liberado', buttonText: 'Resgatar pacote' };
+    },
+
     canClaim() {
         const s = this.getCurrentSeason();
         if (!s) return false;
-        if (s.claimed || s.finalRewardClaimed) return false;
-        return Date.now() > Number(s.endDate || 0);
+        return this._finalRewardStatus(s).ready === true;
     },
 
     claimTier(tier = 0, options = {}) {
@@ -549,7 +729,7 @@ const Seasons = {
         const safeTier = Number(tier);
         if (!s || !Number.isFinite(safeTier)) return false;
 
-        const tierCfg = this.TIERS.find((t) => Number(t.tier) === safeTier);
+        const tierCfg = this._tiersForSeason(s.id).find((t) => Number(t.tier) === safeTier);
         if (!tierCfg) return false;
         if (Number(s.tier || 1) < safeTier) {
             if (!options.silent) {
@@ -623,17 +803,19 @@ const Seasons = {
         if (!s) return false;
 
         if (!this.canClaim()) {
-            Utils.showNotification?.('A recompensa final so pode ser resgatada apos o fim da temporada.', 'warning');
+            Utils.showNotification?.('O Pacote Legado so pode ser resgatado apos o fim da temporada.', 'warning');
             return false;
         }
 
         const claimedTierBundle = this.claimAllTierRewards({ silent: true, skipSync: true, skipRender: true });
+        const latestState = this.getCurrentSeason();
+        const targetState = latestState || s;
 
-        const finalEntries = this._finalRewardEntries(s.id);
-        const finalResult = this._applyRewardEntries(finalEntries, s);
-        s.finalRewardClaimed = true;
-        s.claimed = true;
-        this.save(s);
+        const finalEntries = this._finalRewardEntries(targetState.id);
+        const finalResult = this._applyRewardEntries(finalEntries, targetState);
+        targetState.finalRewardClaimed = true;
+        targetState.claimed = true;
+        this.save(targetState);
 
         this._syncAfterClaim(claimedTierBundle || finalResult.economyChanged);
         this.syncRanking(true).catch(() => {});
@@ -641,9 +823,9 @@ const Seasons = {
         if (window.Router?.currentRoute === 'season') window.Router.render();
 
         if (finalResult.grantedLabels.length > 0) {
-            Utils.showNotification?.(`Pacote final resgatado: ${finalResult.grantedLabels.join(' | ')}`, 'success');
+            Utils.showNotification?.(`Pacote Legado resgatado: ${finalResult.grantedLabels.join(' | ')}`, 'success');
         } else {
-            Utils.showNotification?.('Pacote final da temporada resgatado!', 'success');
+            Utils.showNotification?.('Pacote Legado da Final Season resgatado!', 'success');
         }
         return true;
     },
@@ -678,7 +860,7 @@ const Seasons = {
             const localXP = Math.max(0, Number(season.seasonXP || 0));
             if (remoteXP > localXP) {
                 season.seasonXP = remoteXP;
-                season.tier = this.getTierByXP(remoteXP);
+                season.tier = this.getTierByXP(remoteXP, season.id);
                 this.save(season);
                 this._refreshSidebarWidget?.();
                 if (window.Router?.currentRoute === 'season') {
@@ -694,7 +876,7 @@ const Seasons = {
             tier: Number(season.tier || 1),
             claimed: season.claimed === true,
             finalRewardClaimed: season.finalRewardClaimed === true,
-            claimedTiers: this._normalizeClaimedTiers(season.claimedTiers),
+            claimedTiers: this._normalizeClaimedTiers(season.claimedTiers, season.id),
             level: Number(window.Economy?.getLevel?.() || 1),
             nyanTag: profile.nyanTag || window.NyanAuth?.getNyanTag?.() || '',
             username: profile.username || window.Auth?.getStoredUser?.()?.username || 'Jogador',
@@ -816,7 +998,7 @@ const Seasons = {
                 const uid = s.uid || s.id || '';
                 const isMe = uid === myUID;
                 const score = Number(s.seasonXP || 0);
-                const tier = this.TIERS.find((t) => t.tier === Number(s.tier || 1));
+                const tier = this._tiersForSeason(season.id).find((t) => t.tier === Number(s.tier || 1));
                 const rank = medals[idx] || `#${idx + 1}`;
                 const userLabel = s.username || 'Jogador';
                 const tagLabel = s.nyanTag || 'Sem nyanTag';
@@ -852,38 +1034,59 @@ const Seasons = {
         const s = this.getCurrentSeason();
         if (!s) return '';
         const p = this.getProgress();
-        const seasonCap = this.TIERS[this.TIERS.length - 1].xp;
+        const tiers = this._tiersForSeason(s.id);
+        const seasonCap = tiers[tiers.length - 1].xp;
         const pctTotal = Math.min(100, Math.round(((p?.seasonXP || 0) / seasonCap) * 100));
         const tierLabel = p?.currentTier?.label || 'Bronze';
         const weekend = this.getActiveWeekendEvent();
-        const subtitle = weekend
-            ? weekend.name
-            : `Termina em ${this.getRemainingText()}`;
+        const subtitle = this._getSidebarSubtitle(s, weekend);
+        const isFinal = s.isFinal === true;
+        const isEnded = !this.isActive(s);
+        const daysLeft = this._getDaysLeft(s);
+        const urgent = isFinal && !isEnded && daysLeft <= 7;
+        const widgetBg = isFinal
+            ? (isEnded ? 'rgba(148,163,184,0.12)' : urgent ? 'rgba(245,158,11,0.18)' : 'rgba(168,85,247,0.16)')
+            : 'rgba(236,72,153,0.15)';
+        const widgetBorder = isFinal
+            ? (isEnded ? 'rgba(148,163,184,0.26)' : urgent ? 'rgba(245,158,11,0.42)' : 'rgba(245,158,11,0.34)')
+            : 'rgba(236,72,153,0.32)';
+        const widgetHover = isFinal
+            ? (isEnded ? 'rgba(148,163,184,0.16)' : urgent ? 'rgba(245,158,11,0.25)' : 'rgba(168,85,247,0.23)')
+            : 'rgba(236,72,153,0.23)';
+        const tierColor = isFinal ? '#fcd34d' : '#fda4af';
+        const barGradient = isFinal ? 'linear-gradient(90deg,#a855f7,#f59e0b)' : 'linear-gradient(90deg,#fb7185,#f97316)';
 
         return `
+        <style>
+            @keyframes finalSeasonSidebarPulse {
+                0%, 100% { box-shadow:0 0 0 rgba(245,158,11,0); }
+                50% { box-shadow:0 0 18px rgba(245,158,11,0.2); }
+            }
+        </style>
         <div id="season-sidebar-widget" style="
             margin:0 0.5rem 0.375rem;
             padding:0.625rem 0.75rem;
             border-radius:10px;
-            background:rgba(236,72,153,0.15);
-            border:1px solid rgba(236,72,153,0.32);
+            background:${widgetBg};
+            border:1px solid ${widgetBorder};
             cursor:pointer;
             transition:background 0.18s ease, border-color 0.18s ease;
+            ${urgent ? 'animation:finalSeasonSidebarPulse 2.4s ease-in-out infinite;' : ''}
         " onclick="Router.navigate('season')"
-           onmouseover="this.style.background='rgba(236,72,153,0.23)'"
-           onmouseout="this.style.background='rgba(236,72,153,0.15)'">
+           onmouseover="this.style.background='${widgetHover}'"
+           onmouseout="this.style.background='${widgetBg}'">
 
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.4rem;">
                 <span style="font-size:0.6rem;font-weight:800;letter-spacing:0.1em;text-transform:uppercase;color:rgba(255,255,255,0.62);font-family:'DM Sans',sans-serif;">
                     ${s.icon} Temporada
                 </span>
-                <span class="season-tier-text" style="font-size:0.68rem;font-weight:800;color:#fda4af;font-family:'Syne',sans-serif;">
+                <span class="season-tier-text" style="font-size:0.68rem;font-weight:800;color:${tierColor};font-family:'Syne',sans-serif;">
                     ${tierLabel}
                 </span>
             </div>
 
             <div style="height:4px;background:rgba(255,255,255,0.12);border-radius:99px;overflow:hidden;margin-bottom:0.4rem;">
-                <div class="season-progress-bar" style="height:100%;width:${pctTotal}%;background:linear-gradient(90deg,#fb7185,#f97316);border-radius:99px;transition:width 0.4s ease;"></div>
+                <div class="season-progress-bar" style="height:100%;width:${pctTotal}%;background:${barGradient};border-radius:99px;transition:width 0.4s ease;"></div>
             </div>
 
             <div class="season-subtitle" style="font-size:0.69rem;font-weight:600;color:rgba(255,255,255,0.8);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.3;">
@@ -901,7 +1104,8 @@ const Seasons = {
         const s = this.getCurrentSeason();
         if (!p || !s) return;
 
-        const cap = this.TIERS[this.TIERS.length - 1].xp;
+        const tiers = this._tiersForSeason(s.id);
+        const cap = tiers[tiers.length - 1].xp;
         const pct = Math.min(100, Math.round(((p.seasonXP || 0) / cap) * 100));
         const tierText = el.querySelector('.season-tier-text');
         const bar = el.querySelector('.season-progress-bar');
@@ -911,7 +1115,7 @@ const Seasons = {
         if (tierText) tierText.textContent = p.currentTier?.label || 'Bronze';
         if (bar) bar.style.width = `${pct}%`;
         if (subtitle) {
-            subtitle.textContent = event ? event.name : `Termina em ${this.getRemainingText()}`;
+            subtitle.textContent = this._getSidebarSubtitle(s, event);
         }
     },
 
@@ -922,36 +1126,60 @@ const Seasons = {
         }
 
         const d = document.body.classList.contains('dark-theme');
+        const isFinal = s.isFinal === true;
         const text = d ? '#f1f5f9' : '#0f172a';
         const sub = d ? 'rgba(255,255,255,0.66)' : 'rgba(15,23,42,0.72)';
         const muted = d ? 'rgba(255,255,255,0.52)' : 'rgba(15,23,42,0.52)';
-        const card = d ? 'rgba(10,14,23,0.88)' : '#ffffff';
-        const panel = d ? 'rgba(255,255,255,0.03)' : 'rgba(248,250,252,0.92)';
-        const border = d ? 'rgba(255,255,255,0.09)' : 'rgba(15,23,42,0.09)';
-        const borderStrong = d ? 'rgba(255,255,255,0.17)' : 'rgba(15,23,42,0.15)';
-        const glowA = d ? 'rgba(251,113,133,0.26)' : 'rgba(251,113,133,0.22)';
-        const glowB = d ? 'rgba(249,115,22,0.24)' : 'rgba(249,115,22,0.2)';
+        const card = isFinal ? (d ? 'rgba(16,9,31,0.94)' : '#fffaf0') : (d ? 'rgba(10,14,23,0.88)' : '#ffffff');
+        const panel = isFinal ? (d ? 'rgba(245,158,11,0.06)' : 'rgba(255,251,235,0.92)') : (d ? 'rgba(255,255,255,0.03)' : 'rgba(248,250,252,0.92)');
+        const border = isFinal ? (d ? 'rgba(245,158,11,0.14)' : 'rgba(146,64,14,0.13)') : (d ? 'rgba(255,255,255,0.09)' : 'rgba(15,23,42,0.09)');
+        const borderStrong = isFinal ? (d ? 'rgba(245,158,11,0.32)' : 'rgba(146,64,14,0.22)') : (d ? 'rgba(255,255,255,0.17)' : 'rgba(15,23,42,0.15)');
+        const glowA = isFinal ? (d ? 'rgba(245,158,11,0.22)' : 'rgba(245,158,11,0.18)') : (d ? 'rgba(251,113,133,0.26)' : 'rgba(251,113,133,0.22)');
+        const glowB = isFinal ? (d ? 'rgba(168,85,247,0.22)' : 'rgba(168,85,247,0.16)') : (d ? 'rgba(249,115,22,0.24)' : 'rgba(249,115,22,0.2)');
 
         const p = this.getProgress();
         const event = this.getActiveWeekendEvent();
         const remainingText = this.getRemainingText();
-        const status = this.isActive(s) ? `Ativa - termina em ${remainingText}` : 'Temporada encerrada';
+        const status = this.isActive(s)
+            ? (isFinal ? `Final Season - ${remainingText}` : `Ativa - termina em ${remainingText}`)
+            : (isFinal ? 'Final Season arquivada' : 'Temporada encerrada');
         const progressPct = Math.min(100, Math.max(0, Number(p?.progressPct || 0)));
-        const seasonCap = this.TIERS[this.TIERS.length - 1].xp || 1;
+        const tiers = this._tiersForSeason(s.id);
+        const seasonCap = tiers[tiers.length - 1].xp || 1;
         const seasonPct = Math.min(100, Math.round(((p?.seasonXP || 0) / seasonCap) * 100));
         const nextTierText = p?.nextTier
             ? `Faltam ${p.toNext} XP para ${p.nextTier.label}`
             : 'Tier maximo atingido nesta temporada!';
 
-        const claimReady = this.canClaim();
-        const claimLabel = s.claimed ? 'Recompensa final ja resgatada' : (claimReady ? 'Resgatar recompensa final' : 'Disponivel ao final da temporada');
+        const finalRewardState = this._finalRewardStatus(s);
+        const claimReady = finalRewardState.ready;
+        const claimLabel = finalRewardState.label;
+        const claimButtonText = finalRewardState.buttonText;
         const claimableTiers = this._claimableTiers(s);
-        const finalRewardText = this._finalRewardEntries(s.id).map((entry) => this._rewardEntryLabel(entry)).join(' | ') || 'Pacote final sazonal';
+        const finalRewardEntries = this._finalRewardEntries(s.id);
+        const finalRewardText = finalRewardEntries.map((entry) => this._rewardEntryLabel(entry)).join(' | ') || 'Pacote final sazonal';
+        const finalRewardPreview = this._rewardPreviewPills(finalRewardEntries);
         const claimableTiersText = claimableTiers.length > 0
             ? `${claimableTiers.length} recompensa${claimableTiers.length > 1 ? 's' : ''} de tier pronta${claimableTiers.length > 1 ? 's' : ''} para resgate.`
             : 'Sem recompensas de tier pendentes no momento.';
+        const finalArchived = isFinal && !this.isActive(s);
+        const claimedTierCount = Object.values(this._normalizeClaimedTiers(s.claimedTiers, s.id)).filter(Boolean).length;
+        const archivePanel = finalArchived ? `
+            <section class="season-panel season-archive-panel season-animate delay-2">
+                <div>
+                    <div class="season-panel-title">Arquivo Last Meow</div>
+                    <h3 class="season-reward-title">Final Season arquivada</h3>
+                    <p class="season-reward-subtitle">A temporada terminou, mas o progresso continua como memoria permanente do NyanTools.</p>
+                    <p class="season-reward-tier-note">${claimedTierCount}/${tiers.length} tiers resgatados - Pacote Legado ${s.finalRewardClaimed ? 'guardado' : 'pendente'}</p>
+                </div>
+                <div class="season-reward-actions">
+                    <button class="season-claim-alt-btn" onclick="FinalSeason?.exportJourney?.('text')">Exportar jornada</button>
+                    <button class="season-claim-alt-btn" onclick="Router?.navigate?.('home')">Abrir memorial</button>
+                </div>
+            </section>
+        ` : '';
 
-        const tierCards = this.TIERS.map((tier) => {
+        const tierCards = tiers.map((tier) => {
             const achieved = (s.tier || 1) >= tier.tier;
             const isCurrent = (s.tier || 1) === tier.tier;
             const claimed = this._isTierClaimed(s, tier.tier);
@@ -1316,6 +1544,47 @@ const Seasons = {
                 font-weight: 700;
                 line-height: 1.4;
             }
+            .season-final-reward-pills {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 0.38rem;
+                margin: 0.54rem 0 0.18rem;
+            }
+            .season-final-reward-pill {
+                display: inline-flex;
+                align-items: center;
+                gap: 0.42rem;
+                min-width: 132px;
+                border-radius: 11px;
+                border: 1px solid rgba(245, 158, 11, 0.22);
+                background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(168,85,247,0.1));
+                padding: 0.45rem 0.55rem;
+            }
+            .season-final-reward-icon {
+                width: 28px;
+                height: 28px;
+                border-radius: 9px;
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                flex: 0 0 auto;
+                color: #fcd34d;
+                background: rgba(245, 158, 11, 0.12);
+                border: 1px solid rgba(245, 158, 11, 0.22);
+            }
+            .season-final-reward-pill strong {
+                display: block;
+                color: var(--season-text);
+                font-size: 0.68rem;
+                line-height: 1.1;
+            }
+            .season-final-reward-pill small {
+                display: block;
+                color: var(--season-muted);
+                font-size: 0.58rem;
+                line-height: 1.1;
+                margin-top: 0.12rem;
+            }
             .season-reward-tier-note {
                 margin: 0;
                 font-size: 0.66rem;
@@ -1366,8 +1635,11 @@ const Seasons = {
                 box-shadow: 0 12px 22px rgba(249, 115, 22, 0.36);
             }
             .season-claim-btn:disabled {
-                opacity: 0.46;
+                opacity: 1;
                 cursor: not-allowed;
+                color: var(--season-muted);
+                background: var(--season-panel);
+                border: 1px solid var(--season-border);
                 box-shadow: none;
             }
             .season-ranking-panel {
@@ -1572,7 +1844,7 @@ const Seasons = {
                     <div>
                         <div class="season-status-chip ${this.isActive(s) ? '' : 'is-ended'}">${status}</div>
                         <h1 class="season-title">${s.name}</h1>
-                        <p class="season-subtitle">${event ? `Evento ativo: ${event.name}` : 'Complete missoes e atividades para subir de tier.'}</p>
+                        <p class="season-subtitle">${isFinal ? 'Uma temporada leve para guardar memoria, nao competir.' : (event ? `Evento ativo: ${event.name}` : 'Complete missoes e atividades para subir de tier.')}</p>
                     </div>
                     <div class="season-tier-chip">
                         <div class="season-tier-chip-label">Tier atual</div>
@@ -1611,15 +1883,17 @@ const Seasons = {
                     <div class="season-event-sub">Ativo enquanto durar o fim de semana.</div>
                 </section>` : ''}
 
+                ${archivePanel}
+
                 <div class="season-tier-grid season-animate delay-2">
                     ${tierCards}
                 </div>
 
                 <section class="season-panel season-reward-panel season-animate delay-3">
                     <div>
-                        <h3 class="season-reward-title">Recompensa final</h3>
+                        <h3 class="season-reward-title">Pacote Legado Last Meow</h3>
                         <p class="season-reward-subtitle">${claimLabel}</p>
-                        <p class="season-reward-list">${finalRewardText}</p>
+                        <div class="season-final-reward-pills">${finalRewardPreview || `<p class="season-reward-list">${finalRewardText}</p>`}</div>
                         <p class="season-reward-tier-note">${claimableTiersText}</p>
                     </div>
                     <div class="season-reward-actions">
@@ -1630,8 +1904,8 @@ const Seasons = {
                         >
                             Resgatar tiers (${claimableTiers.length})
                         </button>
-                        <button class="season-claim-btn" onclick="Seasons.claim()" ${claimReady ? '' : 'disabled'}>
-                            Resgatar final
+                        <button class="season-claim-btn" ${claimReady ? 'onclick="Seasons.claim()"' : 'disabled aria-disabled="true"'}>
+                            ${claimButtonText}
                         </button>
                     </div>
                 </section>
@@ -1679,5 +1953,6 @@ const Seasons = {
     },
 };
 
+window.FINAL_SEASON = FINAL_SEASON;
 window.Seasons = Seasons;
 

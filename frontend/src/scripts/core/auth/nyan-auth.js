@@ -17,6 +17,33 @@ const NyanAuth = {
         return Math.max(min, Math.min(max, parsed));
     },
 
+    _mergedProfileFlags(profile = null) {
+        const localUser = window.Auth?.getStoredUser?.() || {};
+        return {
+            ...((profile?.flags && typeof profile.flags === 'object') ? profile.flags : {}),
+            ...((this.currentUser?.flags && typeof this.currentUser.flags === 'object') ? this.currentUser.flags : {}),
+            ...((localUser.flags && typeof localUser.flags === 'object') ? localUser.flags : {}),
+        };
+    },
+
+    _applyProfileFlagsToLocal(profile = null) {
+        const flags = this._mergedProfileFlags(profile);
+        if (Object.keys(flags).length === 0) return false;
+
+        const localUser = window.Auth?.getStoredUser?.() || {};
+        if (localUser && typeof localUser === 'object' && Object.keys(localUser).length > 0) {
+            localUser.flags = { ...(localUser.flags || {}), ...flags };
+            window.Auth?.saveUser?.(localUser);
+        }
+        if (this.currentUser) {
+            this.currentUser.flags = { ...(this.currentUser.flags || {}), ...flags };
+        }
+        if (window.App?.user) {
+            window.App.user.flags = { ...(window.App.user.flags || {}), ...flags };
+        }
+        return true;
+    },
+
     _seasonScorePath(seasonId, uid = '') {
         const base = window.Seasons?._collectionPath?.(seasonId) || `leaderboards/season_${seasonId}/scores`;
         return uid ? `${base}/${uid}` : base;
@@ -163,6 +190,7 @@ const NyanAuth = {
         }
 
         this.currentUser = profile;
+        this._applyProfileFlagsToLocal(profile);
         Utils.saveData(this.KEY_UID, safeUID);
         Utils.saveData(this.KEY_TAG, profile.nyanTag || '');
         Utils.saveData(this.KEY_LINKED, true);
@@ -170,7 +198,13 @@ const NyanAuth = {
 
         this._applyRemoteEconomyToLocal(profile);
         await this._applyRemoteSeasonToLocal(safeUID).catch(() => false);
+        window.Inventory?.applyRemoteArchive?.(profile.inventoryArchiveData, { force: false });
         window.Inventory?.applyRemoteSync?.(profile.inventoryData, { force: false });
+        if (window.Inventory?.repairProfileInventoryFromProfile) {
+            window.Inventory.repairProfileInventoryFromProfile(profile, { sync: true });
+        } else {
+            window.Inventory?.repairProfileTitleFromProfile?.(profile, { sync: true });
+        }
         window.QuizDiario?.applyRemoteSync?.(profile.dailyQuiz, { force: false });
         window.Badges?.hydrateFromProfile?.(profile, { skipSync: true });
 
@@ -601,11 +635,13 @@ const NyanAuth = {
                 username:  localUser.username || tagName,
                 avatar:    Utils.loadData('nyan_profile_avatar') || null,
                 bio: '', status: 'online',
-                version:  window.App?.version || window.NYAN_VERSION || '3.15.0',
+                flags: localUser.flags && typeof localUser.flags === 'object' ? { ...localUser.flags } : {},
+                version:  window.App?.version || window.NYAN_VERSION || '3.16.0',
                 level:    economy.level   || 1,
                 chips:    economy.chips   || 0,
                 totalXP:  economy.totalXP || 0,
                 inventoryData: window.Inventory?.getCloudPayload?.() || null,
+                inventoryArchiveData: window.Inventory?.getArchiveCloudPayload?.() || null,
                 dailyQuiz: window.QuizDiario?.getCloudPayload?.() || null,
                 profileBadgeId: equippedBadge?.id || null,
                 profileBadge: equippedBadge
@@ -662,9 +698,16 @@ const NyanAuth = {
             Utils.saveData(this.KEY_LINKED, true);
             Utils.saveData('nyan_online_pwd', password);
             this.currentUser = profile;
+            this._applyProfileFlagsToLocal(profile);
             this._applyRemoteEconomyToLocal(profile);
             await this._applyRemoteSeasonToLocal(uid).catch(() => false);
+            window.Inventory?.applyRemoteArchive?.(profile.inventoryArchiveData, { force: false });
             window.Inventory?.applyRemoteSync?.(profile.inventoryData, { force: false });
+            if (window.Inventory?.repairProfileInventoryFromProfile) {
+                window.Inventory.repairProfileInventoryFromProfile(profile, { sync: true });
+            } else {
+                window.Inventory?.repairProfileTitleFromProfile?.(profile, { sync: true });
+            }
             window.QuizDiario?.applyRemoteSync?.(profile.dailyQuiz, { force: false });
             window.Badges?.hydrateFromProfile?.(profile, { skipSync: true });
 
@@ -730,11 +773,13 @@ const NyanAuth = {
         const payload = {
             username: localUser.username || this.currentUser?.username,
             avatar:   Utils.loadData('nyan_profile_avatar') || null,
-            version:  window.App?.version || window.NYAN_VERSION || '3.15.0',
+            version:  window.App?.version || window.NYAN_VERSION || '3.16.0',
             lastSeen: NyanFirebase.fn.serverTimestamp(),
             sc_updatedAt: NyanFirebase.fn.serverTimestamp(),
             inventoryData: window.Inventory?.getCloudPayload?.() || null,
+            inventoryArchiveData: window.Inventory?.getArchiveCloudPayload?.() || null,
             dailyQuiz: window.QuizDiario?.getCloudPayload?.() || null,
+            flags: this._mergedProfileFlags(),
             profileBadgeId: equippedBadge?.id || null,
             profileBadge: equippedBadge
                 ? {

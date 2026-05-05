@@ -10,6 +10,7 @@ const Shop = {
         { id:'title',    label:'Titulos',    icon:'\u{1F451}' },
         { id:'border',   label:'Bordas',     icon:'\u{1F5BC}\uFE0F' },
         { id:'theme',    label:'Temas',      icon:'\u{1F3A8}' },
+        { id:'intro',    label:'Intros de Login', icon:'\u{1F3AC}' },
         { id:'effect',   label:'Efeitos',    icon:'\u2728' },
         { id:'particle', label:'Particulas', icon:'\u{1F4AB}' },
     ],
@@ -679,7 +680,10 @@ const Shop = {
             const currentIds = Array.isArray(state.dailyCycle.categories?.[cat.id])
                 ? state.dailyCycle.categories[cat.id]
                 : [];
-            const validIds = currentIds.filter((id) => !!Inventory.getItem(id));
+            const validIds = currentIds.filter((id) => {
+                const item = Inventory.getItem(id);
+                return !!item && item.type === cat.id;
+            });
 
             if (validIds.length >= this.DAILY_PER_CAT) {
                 state.dailyCycle.categories[cat.id] = validIds.slice(0, this.DAILY_PER_CAT);
@@ -757,7 +761,7 @@ const Shop = {
             : [];
         const items = ids
             .map((id) => Inventory.getItem(id))
-            .filter(Boolean)
+            .filter((item) => !!item && item.type === catId)
             .slice(0, this.DAILY_PER_CAT);
 
         if (items[0]) items[0] = { ...items[0], isDailyExclusive: true };
@@ -1779,6 +1783,17 @@ const Shop = {
                          :            `1px solid ${c.border}`;
         const cardBg     = owned ? rarity.bg : c.bg;
         const cardShadow = equipped ? `box-shadow:0 0 0 2px ${rarity.color}44;` : '';
+        const previewButton = item.type === 'intro' && item.effect
+            ? `<button onclick="Shop._previewIntro('${item.id}')"
+                style="width:100%;padding:0.44rem 0.5rem;border-radius:9px;
+                font-size:0.7rem;font-weight:800;font-family:'DM Sans',sans-serif;
+                cursor:pointer;transition:filter .12s,transform .08s;
+                background:${c.inner};color:${c.text};border:1px solid ${c.border};"
+                onmouseover="this.style.filter='brightness(1.08)'"
+                onmouseout="this.style.filter=''"
+                onmousedown="this.style.transform='scale(0.97)'"
+                onmouseup="this.style.transform=''">Previa</button>`
+            : '';
 
         return `
         <div class="shop-item-card" style="background:${cardBg};border:${cardBorder};${cardShadow}
@@ -1835,6 +1850,7 @@ const Shop = {
                 onmouseup="this.style.transform=''">
                 ${btnText}
             </button>
+            ${previewButton}
         </div>`;
     },
 
@@ -1930,6 +1946,7 @@ const Shop = {
         const chips = window.Economy?.getChips?.() || 0;
         const d     = this._isDark();
         const prev  = Inventory.getEquippedItem(item.type);
+        const isFree = (item.price || 0) <= 0;
 
         const body = `
             <div style="display:flex;align-items:center;gap:0.625rem;margin-bottom:0.875rem;justify-content:center;">
@@ -1944,7 +1961,7 @@ const Shop = {
                 border-radius:10px;padding:0.625rem 0.875rem;margin-bottom:0.875rem;font-size:0.78rem;">
                 <div style="display:flex;justify-content:space-between;margin-bottom:0.2rem;">
                     <span style="color:${d?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)'};">Custo</span>
-                    <strong style="color:${d?'#fcd34d':'#b45309'};">${item.price.toLocaleString('pt-BR')} chips</strong>
+                    <strong style="color:${isFree ? '#10b981' : (d?'#fcd34d':'#b45309')};">${isFree ? 'Gratis' : `${item.price.toLocaleString('pt-BR')} chips`}</strong>
                 </div>
                 <div style="display:flex;justify-content:space-between;">
                     <span style="color:${d?'rgba(255,255,255,0.5)':'rgba(0,0,0,0.5)'};">Saldo apos</span>
@@ -1956,11 +1973,11 @@ const Shop = {
             </div>` : ''}`;
 
         this._showModal({
-            title:        'Confirmar compra',
+            title:        isFree ? 'Confirmar resgate' : 'Confirmar compra',
             body,
-            confirmText:  'Comprar e equipar',
+            confirmText:  isFree ? 'Resgatar e equipar' : 'Comprar e equipar',
             confirmColor: 'linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899))',
-            secondaryText:'Comprar sem equipar',
+            secondaryText: isFree ? 'Resgatar sem equipar' : 'Comprar sem equipar',
             onConfirm: () => {
                 const result = Inventory.buy(itemId);
                 if (result.ok) { Inventory.equip(itemId); this._afterAction(); }
@@ -1989,6 +2006,19 @@ const Shop = {
             confirmColor: 'var(--theme-primary,#a855f7)',
             onConfirm:    () => { Inventory.equip(itemId); this._afterAction(); },
         });
+    },
+
+    _previewIntro(itemId) {
+        const item = Inventory.getItem(itemId);
+        if (!item?.effect || item.type !== 'intro') {
+            Utils.showNotification?.('Previa indisponivel para este item.', 'warning');
+            return;
+        }
+        if (!window.LoginIntro?.previewEffect) {
+            Utils.showNotification?.('Sistema de intro ainda nao carregado.', 'warning');
+            return;
+        }
+        window.LoginIntro.previewEffect(item.effect, item.name);
     },
 
     _unequip(type) {

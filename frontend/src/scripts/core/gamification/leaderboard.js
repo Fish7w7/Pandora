@@ -13,6 +13,7 @@ const Leaderboard = {
 
     _currentGame:   'typeracer',
     _currentFilter: 'global', // 'global' | 'friends'
+    _currentTab:    'scores', // 'scores' | 'hall'
 
     async syncScore(gameId, score) {
         if (!NyanAuth.isOnline()) return;
@@ -77,6 +78,7 @@ const Leaderboard = {
         const bg   = d ? 'rgba(255,255,255,0.04)' : '#ffffff';
         const bdr  = d ? 'rgba(255,255,255,0.07)' : 'rgba(0,0,0,0.07)';
         const muted= d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
+        const isHall = this._currentTab === 'hall';
 
         return `
         <div style="max-width:640px;margin:0 auto;font-family:'DM Sans',sans-serif;">
@@ -90,6 +92,9 @@ const Leaderboard = {
                 </h1>
             </div>
 
+            ${this.renderMainTabs(bg, bdr, muted)}
+
+            ${isHall ? this.renderHallIntro(bg, bdr, muted) : `
             <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
                 <button id="lb-filter-global"
                         onclick="Leaderboard.setFilter('global')"
@@ -124,14 +129,47 @@ const Leaderboard = {
                     ${g.icon} ${g.name}
                 </button>`).join('')}
             </div>
+            `}
 
             <div id="leaderboard-table" style="background:${bg};border:1px solid ${bdr};border-radius:16px;overflow:hidden;">
                 <div style="text-align:center;padding:2rem;color:${muted};font-size:0.8rem;">Carregando...</div>
             </div>
 
-            <div id="my-position" style="margin-top:0.75rem;"></div>
+            ${isHall ? '' : '<div id="my-position" style="margin-top:0.75rem;"></div>'}
 
         </div>`;
+    },
+
+    renderMainTabs(bg, bdr, muted) {
+        const active = this._currentTab;
+        const tabStyle = (tab) => {
+            const isActive = active === tab;
+            return `flex:1;padding:0.65rem;border-radius:12px;border:${isActive ? 'none' : `1px solid ${bdr}`};cursor:pointer;
+                font-size:0.78rem;font-weight:800;font-family:'DM Sans',sans-serif;
+                background:${isActive ? 'linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899))' : bg};
+                color:${isActive ? 'white' : muted};transition:all 0.16s;`;
+        };
+
+        return `
+            <div style="display:flex;gap:0.5rem;margin-bottom:1rem;">
+                <button onclick="Leaderboard.setTab('scores')" style="${tabStyle('scores')}">🏆 Placares</button>
+                <button onclick="Leaderboard.setTab('hall')" style="${tabStyle('hall')}">🎗️ Hall da Fama</button>
+            </div>
+        `;
+    },
+
+    renderHallIntro(bg, bdr, muted) {
+        return `
+            <div style="background:${bg};border:1px solid ${bdr};border-radius:14px;padding:0.85rem 1rem;margin-bottom:1rem;">
+                <div style="display:flex;align-items:center;gap:0.7rem;">
+                    <div style="width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:rgba(245,158,11,0.14);border:1px solid rgba(245,158,11,0.28);font-size:1.1rem;">🌟</div>
+                    <div style="min-width:0;">
+                        <div style="font-weight:900;font-size:0.9rem;">Veteranos Early Access</div>
+                        <div style="font-size:0.72rem;color:${muted};line-height:1.45;">Ordenado por quem chegou primeiro no NyanTools.</div>
+                    </div>
+                </div>
+            </div>
+        `;
     },
 
     async loadScores() {
@@ -340,6 +378,118 @@ const Leaderboard = {
         }
     },
 
+    async loadVeterans() {
+        const table = document.getElementById('leaderboard-table');
+        if (!table) return;
+
+        const myUID  = NyanAuth.getUID();
+        const d      = document.body.classList.contains('dark-theme');
+        const text   = d ? '#f1f5f9' : '#0f172a';
+        const sub    = d ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.5)';
+        const muted  = d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
+        const sep    = d ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)';
+
+        table.innerHTML = `<div style="text-align:center;padding:2rem;color:${muted};font-size:0.8rem;">Carregando Hall da Fama...</div>`;
+
+        try {
+            const { query, collection, where, getDocs, limit } = NyanFirebase.fn;
+            let snap = null;
+
+            try {
+                snap = await getDocs(query(
+                    collection(NyanFirebase.db, 'users'),
+                    where('flags.earlyAccessV316', '==', true),
+                    limit(100)
+                ));
+            } catch (err) {
+                snap = await getDocs(query(collection(NyanFirebase.db, 'users'), limit(120)));
+            }
+
+            let veterans = snap.docs
+                .map((doc) => ({ id: doc.id, ...doc.data() }))
+                .filter((profile) => this.isVeteranProfile(profile));
+
+            const currentProfile = NyanAuth.currentUser || null;
+            if (currentProfile && this.isVeteranProfile(currentProfile) && !veterans.some((v) => v.uid === myUID || v.id === myUID)) {
+                veterans.push({ uid: myUID, ...currentProfile });
+            }
+
+            veterans = veterans
+                .sort((a, b) => this.profileJoinedTime(a) - this.profileJoinedTime(b))
+                .slice(0, 50);
+
+            table.innerHTML = veterans.length === 0
+                ? `<div style="text-align:center;padding:2rem;color:${muted};font-size:0.8rem;">Nenhum veterano encontrado ainda</div>`
+                : veterans.map((profile, i) => {
+                    const uid = profile.uid || profile.id;
+                    const isMe = uid === myUID;
+                    const joined = this.formatProfileDate(profile);
+                    const bgRow = isMe
+                        ? 'rgba(245,158,11,0.10)'
+                        : (i % 2 === 0 ? 'transparent' : (d ? 'rgba(255,255,255,0.02)' : 'rgba(0,0,0,0.02)'));
+
+                    return `
+                    <div style="display:flex;align-items:center;gap:0.875rem;padding:0.8rem 1rem;border-bottom:1px solid ${sep};background:${bgRow};${isMe ? 'border-left:3px solid #f59e0b;' : ''}">
+                        <div style="width:30px;text-align:center;font-size:${i < 3 ? '1.1rem' : '0.78rem'};font-weight:900;color:${i < 3 ? '#f59e0b' : muted};flex-shrink:0;">
+                            ${['🥇','🥈','🥉'][i] || `#${i + 1}`}
+                        </div>
+                        <div style="width:38px;height:38px;border-radius:11px;overflow:hidden;flex-shrink:0;border:1px solid rgba(245,158,11,0.28);">
+                            ${profile.avatar
+                                ? `<img src="${profile.avatar}" style="width:100%;height:100%;object-fit:cover;"/>`
+                                : (window.AvatarGenerator ? AvatarGenerator.generate(profile.username || 'nyan', 38) : `<div style="width:100%;height:100%;background:linear-gradient(135deg,#7c3aed,#f59e0b);display:flex;align-items:center;justify-content:center;color:white;font-weight:900;font-size:0.82rem;">${(profile.username || 'N')[0].toUpperCase()}</div>`)}
+                        </div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap;">
+                                <span style="font-size:0.88rem;font-weight:900;color:${text};">${profile.username || 'Jogador'}</span>
+                                ${isMe ? `<span style="font-size:0.6rem;font-weight:800;background:rgba(245,158,11,0.16);color:#f59e0b;border-radius:99px;padding:1px 6px;">Você</span>` : ''}
+                            </div>
+                            <div style="font-size:0.68rem;color:${sub};">${profile.nyanTag || ''}</div>
+                            <div style="font-size:0.66rem;color:${muted};margin-top:0.16rem;">Entrou em ${joined}</div>
+                        </div>
+                        <div style="text-align:right;flex-shrink:0;">
+                            <div style="display:inline-flex;align-items:center;gap:0.25rem;background:rgba(245,158,11,0.14);border:1px solid rgba(245,158,11,0.30);color:#f59e0b;border-radius:999px;padding:0.25rem 0.5rem;font-size:0.62rem;font-weight:900;">
+                                🌟 EA
+                            </div>
+                            ${uid ? `<button onclick="Leaderboard.viewPlayerProfile('${uid}')"
+                                style="display:block;margin-top:0.42rem;margin-left:auto;padding:3px 8px;border-radius:7px;border:none;cursor:pointer;font-size:0.62rem;font-weight:700;font-family:'DM Sans',sans-serif;background:rgba(59,130,246,0.14);color:rgba(59,130,246,0.95);">
+                                ${isMe ? 'Meu perfil' : 'Perfil'}
+                            </button>` : ''}
+                        </div>
+                    </div>`;
+                }).join('');
+        } catch (err) {
+            table.innerHTML = `<div style="text-align:center;padding:2rem;color:#ef4444;font-size:0.8rem;">Erro ao carregar Hall da Fama: ${err.message}</div>`;
+        }
+    },
+
+    isVeteranProfile(profile = null) {
+        if (!profile || typeof profile !== 'object') return false;
+        if (profile.flags?.earlyAccessV316 === true) return true;
+        if (profile.profileBadgeId === 'badge_veteran_early_access_v316' || profile.profileBadge?.id === 'badge_veteran_early_access_v316') return true;
+        return Array.isArray(profile.profileBadges)
+            && profile.profileBadges.some((badge) => String(badge?.id || badge || '') === 'badge_veteran_early_access_v316');
+    },
+
+    profileJoinedTime(profile = null) {
+        const value = profile?.joinedAt || profile?.createdAt || profile?.created_at || profile?.firstLogin || profile?.lastSeen;
+        if (!value) return Number.MAX_SAFE_INTEGER;
+        if (typeof value?.toDate === 'function') return value.toDate().getTime();
+        if (typeof value?.seconds === 'number') return value.seconds * 1000;
+        const parsed = new Date(value).getTime();
+        return Number.isFinite(parsed) ? parsed : Number.MAX_SAFE_INTEGER;
+    },
+
+    formatProfileDate(profile = null) {
+        const time = this.profileJoinedTime(profile);
+        if (!Number.isFinite(time) || time === Number.MAX_SAFE_INTEGER) return 'data desconhecida';
+        return new Date(time).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short', year: 'numeric' });
+    },
+
+    setTab(tab) {
+        this._currentTab = tab === 'hall' ? 'hall' : 'scores';
+        Router?.render();
+    },
+
     setGame(gameId) {
         this._currentGame = gameId;
         this.GAMES.forEach(g => {
@@ -431,13 +581,13 @@ const Leaderboard = {
             }
         }
         if (synced > 0) {
-            this.loadScores();
+            if (this._currentTab === 'scores') this.loadScores();
         }
     },
 
     init() {
         this.setupAutoSync();
-        setTimeout(() => this.loadScores(), 100);
+        setTimeout(() => this._currentTab === 'hall' ? this.loadVeterans() : this.loadScores(), 100);
         setTimeout(() => this.syncAllLocalScores(), 3000);
     },
 };

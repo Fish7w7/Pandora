@@ -1,12 +1,16 @@
 {
-    "version": "3.15.0",
-    "buildDate": "2026-05-01",
+    "version": "3.16.0",
+    "buildDate": "2026-05-05",
     "changelog": [
-        "Eventos & Live Ops adiciona eventos temporarios com missoes, recompensas, loja e historico",
-        "Missoes de evento acompanham jogos, quiz e acoes de Cla com progresso persistente",
-        "Recompensas sazonais usam Economy, Inventory e Badges com resgate idempotente",
-        "Loja de evento usa chips, respeita periodo ativo e evita compra duplicada de itens limitados",
-        "Clans recebem bonus de pontuacao durante eventos, notificacoes oficiais e registros no mural",
-        "Patches antigos foram absorvidos pelos modulos donos e removidos do carregamento"
+        "Final Season Last Meow adiciona a Season 2 Ultima Faisca por 21 dias",
+        "Dashboard Memorial salva um snapshot permanente da jornada no NyanTools",
+        "Modal Farewell, badge Veterano Early Access e Pacote Legado celebram o encerramento do ciclo",
+        "Exportar minha jornada gera lembranca em JSON ou texto fora do app",
+        "Musica Final Last Meow toca durante a Final Season com volume baixo e player compacto",
+        "Legacy Mode deixa claro que o NyanTools continua funcionando em pausa",
+        "Zona Offline recebe Memoria Nyan como jogo final de baixo risco",
+        "Missoes e conquistas finais adicionam progresso casual sem grind pesado",
+        "Inventario preserva itens comprados com reparo cumulativo entre local e nuvem",
+        "Login usa particulas douradas no clima Midnight Gold"
     ]
 }

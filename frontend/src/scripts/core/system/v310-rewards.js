@@ -69,6 +69,9 @@ const V310Rewards = {
             return null;
         }
 
+        const catalogTitle = window.Inventory?.resolveTitleItemFromProfile?.(profile);
+        if (catalogTitle) return catalogTitle;
+
         if (profile.specialTitle?.id) {
             return {
                 id: profile.specialTitle.id,

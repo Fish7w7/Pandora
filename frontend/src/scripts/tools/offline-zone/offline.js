@@ -154,7 +154,8 @@ const OfflineZone = {
             typeracer: () => TypeRacer?.render()    || this._loading('Type Racer'),
             quiz:      () => QuizDiario?.render()   || this._loading('Quiz Diário'),
             slot:      () => SlotMachine?.render()  || this._loading('Caça-Níquel'),
-            game2048:  () => Game2048?.render()    || this._loading('2048')
+            game2048:  () => Game2048?.render()    || this._loading('2048'),
+            memory:    () => NyanMemory?.render()   || this._loading('Memoria Nyan')
         })[this.currentGame]?.() || '';
 
         return `
@@ -227,6 +228,7 @@ const OfflineZone = {
         else if (game === 'typeracer') setTimeout(() => TypeRacer?.init(), 100);
         else if (game === 'quiz')      setTimeout(() => QuizDiario?.init(), 100);
         else if (game === 'slot')      setTimeout(() => SlotMachine?.init(), 100);
+        else if (game === 'memory')    setTimeout(() => NyanMemory?.init(), 100);
     },
 
     _initGame(game) {
@@ -240,6 +242,8 @@ const OfflineZone = {
             Forca.isReady = false; setTimeout(() => Forca.init(), 100);
         } else if (game === 'game2048' && Game2048) {
             Game2048.loadGameState(); setTimeout(() => Game2048.init(), 100);
+        } else if (game === 'memory' && NyanMemory) {
+            NyanMemory.reset();
         }
     },
 
@@ -252,6 +256,7 @@ const OfflineZone = {
         else if (game === 'typeracer') setTimeout(() => TypeRacer?.init(), 100);
         else if (game === 'quiz')      setTimeout(() => QuizDiario?.init(), 100);
         else if (game === 'slot')      setTimeout(() => SlotMachine?.init(), 100);
+        else if (game === 'memory')    setTimeout(() => NyanMemory?.init(), 100);
     },
 
     backToMenu() {
@@ -265,5 +270,14 @@ const OfflineZone = {
         Router?.render();
     }
 };
+
+Object.assign(OfflineZone.games.memory, {
+    name: 'Memoria Nyan',
+    icon: '\u{1F9E9}',
+    desc: 'Jogo final de pares da v3.16',
+    color: '#f59e0b',
+    glow: 'rgba(245,158,11,0.35)',
+});
+delete OfflineZone.games.memory.comingSoon;
 
 window.OfflineZone = OfflineZone;

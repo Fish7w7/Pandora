@@ -14,6 +14,7 @@ const NyanStorage = {
     MANIFEST: {
         nyan_economy: { owner: 'Economy', source: 'Economy', critical: true },
         nyan_inventory: { owner: 'Inventory', source: 'Inventory', critical: true },
+        nyan_inventory_archive_v316: { owner: 'Inventory', source: 'Inventory', critical: true },
         nyan_profile_avatar: { owner: 'Profile/Auth', source: 'Profile/Auth' },
         nyan_online_uid: { owner: 'Profile/Auth', source: 'Profile/Auth', critical: true },
         nyan_online_tag: { owner: 'Profile/Auth', source: 'Profile/Auth', critical: true },
@@ -30,6 +31,10 @@ const NyanStorage = {
         dashboard_stats: { owner: 'Dashboard', source: 'Tool' },
         app_theme: { owner: 'Settings', source: 'UI' },
         app_color_theme: { owner: 'Settings', source: 'UI' },
+        final_season_music_enabled: { owner: 'FinalSeasonMusic', source: 'System' },
+        final_season_music_volume: { owner: 'FinalSeasonMusic', source: 'System' },
+        final_season_music_url: { owner: 'FinalSeasonMusic', source: 'System' },
+        final_season_music_volume_v2: { owner: 'FinalSeasonMusic', source: 'System' },
     },
 
     get(key, fallback = null) {

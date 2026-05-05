@@ -115,7 +115,7 @@ const SquadsUI = {
         ${this._renderHubStyles()}
         <div style="display:grid;grid-template-columns:minmax(0,1fr);gap:1rem;">
             ${this._renderSquadHero(squad, c, isLeader)}
-            <div id="squad-hub-layout" style="display:grid;grid-template-columns:minmax(0,2fr) minmax(300px,1fr);gap:20px;align-items:start;background:transparent;">
+            <div id="squad-hub-layout" style="display:grid;grid-template-columns:minmax(0,2fr) minmax(280px,1fr);gap:16px;align-items:start;background:transparent;min-width:0;">
                 <main id="squad-hub-main" style="min-width:0;display:grid;gap:0.8rem;background:transparent;">
                     ${this._renderSquadTabs(c)}
                     <div id="squad-tab-content" style="min-width:0;">
@@ -135,9 +135,9 @@ const SquadsUI = {
             #squad-hub-main {
                 background: transparent !important;
             }
-            @media (max-width: 980px) {
+            @media (max-width: 1180px) {
                 #squad-hub-layout { grid-template-columns: 1fr !important; }
-                #squad-hub-sidebar { position: static !important; max-height: none !important; padding-right: 0 !important; }
+                #squad-hub-sidebar { position: static !important; max-height: none !important; padding-right: 0 !important; overflow: visible !important; }
                 #squad-hero-actions { grid-template-columns: repeat(2, minmax(0, 1fr)) !important; }
             }
             @media (max-width: 640px) {
@@ -261,16 +261,16 @@ const SquadsUI = {
 
     _renderClanSidebar(c, isLeader) {
         const sidePanel = `background:${c.bg};border:1px solid ${c.border};border-radius:12px;padding:0.66rem;box-shadow:none;`;
-        return `<aside id="squad-hub-sidebar" style="position:sticky;top:0.75rem;display:grid;gap:0.64rem;min-width:0;max-height:calc(100vh - 200px);overflow-y:auto;padding-right:16px;box-sizing:border-box;">
+        return `<aside id="squad-hub-sidebar" style="position:sticky;top:0.75rem;display:grid;gap:0.64rem;min-width:0;max-width:100%;max-height:calc(100vh - 200px);overflow-y:auto;overflow-x:hidden;padding-right:8px;box-sizing:border-box;">
             <section style="${sidePanel}">
                 <div style="${this._sectionBar()}margin-bottom:0.5rem;">
                     <div>
                         <div style="${this._eyebrow(c)}">Membros</div>
-                        <div style="${this._sectionTitle(c)}font-size:0.86rem;">Lista do Cla</div>
+                        <div style="${this._sectionTitle(c)}font-size:0.86rem;">Lista do Clã</div>
                     </div>
                     <button onclick="SquadsUI.loadMembers()" style="${this._btnGhost(c)}">Atualizar</button>
                 </div>
-                <div id="squad-members-list" style="max-height:260px;overflow-y:auto;padding-right:0.1rem;">
+                <div id="squad-members-list" style="max-height:260px;overflow-y:auto;overflow-x:hidden;padding-right:0.1rem;min-width:0;">
                     ${this._renderMembersSkeleton(c)}
                 </div>
             </section>
@@ -278,11 +278,11 @@ const SquadsUI = {
                 <div style="${this._sectionBar()}margin-bottom:0.5rem;">
                     <div>
                         <div style="${this._eyebrow(c)}">Pedidos</div>
-                        <div style="${this._sectionTitle(c)}font-size:0.86rem;">Entrada no cla</div>
+                        <div style="${this._sectionTitle(c)}font-size:0.86rem;">Entrada no clã</div>
                     </div>
                     <button onclick="SquadsUI.loadJoinRequests()" style="${this._btnGhost(c)}">Atualizar</button>
                 </div>
-                <div id="squad-join-requests-list" style="max-height:180px;overflow-y:auto;padding-right:0.1rem;">
+                <div id="squad-join-requests-list" style="max-height:180px;overflow-y:auto;overflow-x:hidden;padding-right:0.1rem;min-width:0;">
                     <div style="padding:0.8rem;text-align:center;color:${c.muted};font-size:0.76rem;">Carregando pedidos...</div>
                 </div>
             </section>` : ''}
@@ -373,7 +373,7 @@ const SquadsUI = {
             <div style="${this._sectionBar()}">
                 <div>
                     <div style="${this._eyebrow(c)}">Chat</div>
-                    <div style="${this._sectionTitle(c)}">Conversa do Cla</div>
+                    <div style="${this._sectionTitle(c)}">Conversa do Clã</div>
                 </div>
                 <span id="squad-chat-live-pill" style="${this._pill('rgba(16,185,129,0.1)', 'rgba(16,185,129,0.24)', '#10b981')}">Ao vivo</span>
             </div>
@@ -937,7 +937,7 @@ const SquadsUI = {
     },
 
     _sectionBar() {
-        return 'display:flex;align-items:center;justify-content:space-between;gap:0.75rem;margin-bottom:0.85rem;';
+        return 'display:flex;align-items:center;justify-content:space-between;gap:0.6rem;margin-bottom:0.85rem;flex-wrap:wrap;';
     },
 
     _eyebrow(c) {
@@ -1179,7 +1179,7 @@ const SquadsUI = {
 
             list.innerHTML = requests.map((request) => {
                 const name = request.username || request.nyanTag || request.userId?.slice(0, 8) || 'Usuario';
-                return `<div class="squad-request-row" style="display:flex;align-items:center;gap:0.52rem;padding:0.52rem;border:1px solid ${c.border};background:${c.bg2};border-radius:13px;margin-bottom:0.38rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);transition:transform .16s ease,border-color .16s ease;">
+                return `<div class="squad-request-row" style="display:grid;grid-template-columns:36px minmax(0,1fr);gap:0.45rem 0.52rem;align-items:center;padding:0.52rem;border:1px solid ${c.border};background:${c.bg2};border-radius:13px;margin-bottom:0.38rem;box-shadow:inset 0 1px 0 rgba(255,255,255,0.03);transition:transform .16s ease,border-color .16s ease;min-width:0;overflow:hidden;">
                     <div style="width:36px;height:36px;border-radius:12px;overflow:hidden;background:${c.bg};flex-shrink:0;">
                         ${request.avatar ? `<img src="${this._escape(request.avatar)}" style="width:100%;height:100%;object-fit:cover;" alt="Avatar"/>` : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-weight:900;color:white;background:linear-gradient(135deg,#7c3aed,#06b6d4);">${this._escape(name.charAt(0).toUpperCase())}</div>`}
                     </div>
@@ -1187,8 +1187,10 @@ const SquadsUI = {
                         <div style="font-size:0.76rem;font-weight:900;color:${c.text};">${this._escape(name)}</div>
                         <div style="font-size:0.61rem;color:${c.muted};">${this._escape(request.nyanTag || request.userId || '')}</div>
                     </div>
-                    <button onclick="SquadsUI.acceptJoinRequest('${this._escape(request.userId)}')" style="${this._btnSecondary(c)}min-height:31px;padding:0.45rem 0.55rem;font-size:0.68rem;">Aceitar</button>
-                    <button onclick="SquadsUI.rejectJoinRequest('${this._escape(request.userId)}')" style="${this._btnGhost(c)}min-height:31px;padding:0.45rem 0.55rem;font-size:0.68rem;">Recusar</button>
+                    <div style="grid-column:2;display:flex;gap:0.35rem;flex-wrap:wrap;min-width:0;">
+                        <button onclick="SquadsUI.acceptJoinRequest('${this._escape(request.userId)}')" style="${this._btnSecondary(c)}min-height:29px;padding:0.38rem 0.5rem;font-size:0.65rem;">Aceitar</button>
+                        <button onclick="SquadsUI.rejectJoinRequest('${this._escape(request.userId)}')" style="${this._btnGhost(c)}min-height:29px;padding:0.38rem 0.5rem;font-size:0.65rem;">Recusar</button>
+                    </div>
                 </div>`;
             }).join('');
         } catch (err) {
@@ -1308,13 +1310,19 @@ const SquadsUI = {
                 ? window.AvatarGenerator.generate(name, 42)
                 : `<div style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#7c3aed,#ec4899);color:white;font-weight:900;">${name.charAt(0).toUpperCase()}</div>`);
 
+        const actions = `
+            <div class="squad-member-actions" style="display:flex;align-items:center;gap:0.35rem;flex-wrap:wrap;min-width:0;">
+                <button onclick="event.stopPropagation();Friends.viewProfile('${this._escape(profileUid)}', 'squads')" style="${this._btnGhost(c)}min-height:29px;padding:0.38rem 0.5rem;font-size:0.65rem;">Perfil</button>
+                ${canKick ? `<button onclick="event.stopPropagation();SquadsUI.confirmKick('${this._escape(member.userId)}')" style="${this._btnDanger()}min-height:29px;padding:0.38rem 0.5rem;font-size:0.65rem;">Expulsar</button>` : ''}
+            </div>`;
+
         return `
-        <div class="squad-member-row" onclick="Friends.viewProfile('${this._escape(profileUid)}', 'squads')" style="display:flex;align-items:center;gap:0.54rem;padding:0.52rem;border:1px solid ${isLeader ? 'rgba(245,158,11,0.32)' : c.border};
-            background:${c.bg2};border-radius:10px;margin-bottom:0.38rem;box-shadow:none;cursor:pointer;transition:transform .16s ease,border-color .16s ease;">
-            <div style="width:36px;height:36px;border-radius:12px;overflow:hidden;flex-shrink:0;box-shadow:0 8px 18px rgba(0,0,0,0.12);">${avatar}</div>
-            <div style="flex:1;min-width:0;">
+        <div class="squad-member-row" onclick="Friends.viewProfile('${this._escape(profileUid)}', 'squads')" style="display:grid;grid-template-columns:36px minmax(0,1fr);gap:0.46rem 0.54rem;align-items:center;padding:0.52rem;border:1px solid ${isLeader ? 'rgba(245,158,11,0.32)' : c.border};
+            background:${c.bg2};border-radius:10px;margin-bottom:0.38rem;box-shadow:none;cursor:pointer;transition:transform .16s ease,border-color .16s ease;min-width:0;max-width:100%;overflow:hidden;">
+            <div style="width:36px;height:36px;border-radius:12px;overflow:hidden;box-shadow:0 8px 18px rgba(0,0,0,0.12);grid-row:span 2;">${avatar}</div>
+            <div style="min-width:0;">
                 <div style="display:flex;align-items:center;gap:0.45rem;flex-wrap:wrap;">
-                    <span style="font-size:0.75rem;font-weight:900;color:${c.text};">${this._escape(name)}</span>
+                    <span style="font-size:0.75rem;font-weight:900;color:${c.text};min-width:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${this._escape(name)}</span>
                     <span style="font-size:0.56rem;font-weight:900;color:${isLeader ? '#f59e0b' : c.muted};padding:0.16rem 0.36rem;border-radius:999px;background:${isLeader ? 'rgba(245,158,11,0.12)' : 'rgba(148,163,184,0.1)'};">
                         ${isLeader ? 'Líder' : 'Membro'}
                     </span>
@@ -1323,8 +1331,7 @@ const SquadsUI = {
                     ${this._escape(tag)}${joined ? ` · entrou em ${joined}` : ''}
                 </div>
             </div>
-            <button onclick="event.stopPropagation();Friends.viewProfile('${this._escape(profileUid)}', 'squads')" style="${this._btnGhost(c)}min-height:31px;padding:0.45rem 0.55rem;font-size:0.68rem;">Perfil</button>
-            ${canKick ? `<button onclick="event.stopPropagation();SquadsUI.confirmKick('${this._escape(member.userId)}')" style="${this._btnDanger()}min-height:31px;padding:0.45rem 0.55rem;font-size:0.68rem;">Expulsar</button>` : ''}
+            ${actions}
         </div>`;
     },
 

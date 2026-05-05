@@ -6,6 +6,10 @@ const Utils = {
         info:    { bg: 'from-blue-400 to-cyan-500',     icon: 'i', iconBg: 'bg-white/30' }
     },
 
+    isSilentMode() {
+        return this.loadData('silent_mode_enabled') === true;
+    },
+
     copyToClipboard(text) {
         navigator.clipboard.writeText(text)
             .then(() => this.showNotification('✅ Copiado!', 'success'))
@@ -15,6 +19,7 @@ const Utils = {
     showNotification(message, type = 'info') {
         const config = this.notificationConfig[type];
         if (!config) return;
+        if (this.isSilentMode()) return;
 
         try {
             const historyEnabled = this.loadData('notification_history_enabled') !== false;

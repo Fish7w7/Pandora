@@ -1,5 +1,5 @@
 const App = {
-    version: window.VersionManager?.getVersion?.() || window.NYAN_VERSION || '3.15.0',
+    version: window.VersionManager?.getVersion?.() || window.NYAN_VERSION || '3.16.0',
     __squadsNativeIntegrated: true,
     user: null,
     currentTool: 'home',
@@ -17,11 +17,12 @@ const App = {
         { id: 'notes', name: 'Notas Rápidas', icon: '\u{1F4DD}', description: 'Organize suas ideias' },
         { id: 'tasks', name: 'Lista de Tarefas', icon: '\u2705', description: 'Gerencie tarefas' },
         { id: 'missions',   name: 'Missões',    icon: '\u{1F4CB}', description: 'Missões diárias e desafios' },
-        { id: 'season',     name: 'Temporada',  icon: '\u{1F338}', description: 'Progresso e recompensas sazonais' },
+        { id: 'season',     name: 'Final Season',  icon: '\u2728', description: 'Ultima Faisca, progresso e recompensas finais' },
         { id: 'events',     name: 'Eventos',    icon: '\u{1F4A0}', description: 'Eventos temporarios e Live Ops' },
         { id: 'shop',       name: 'Loja',       icon: '\u{1F6CD}\uFE0F', description: 'Compre itens com chips' },
-        { id: 'offline', name: 'Zona Offline', icon: '\u{1F4F6}', description: 'Jogos sem internet' },
+        { id: 'offline', name: 'Zona Offline', icon: '\u{1F4F6}', description: 'Jogos sem internet, incluindo Memoria Nyan' },
         { id: 'settings', name: 'Configurações', icon: '\u2699\uFE0F', description: 'Personalize o app' },
+        { id: 'credits', name: 'Créditos', icon: '\u{1F3AC}', description: 'Tela final de créditos da v3.16' },
         { id: 'dev-lab', name: 'Dev Lab', icon: '\u{1F6E0}\uFE0F', description: 'Ajustes internos de desenvolvimento' },
         { id: 'squads', name: 'Clãs', icon: '◆', description: 'Clãs e grupos sociais' },
         { id: 'friends', name: 'Amigos', icon: '\u{1F465}', description: 'Lista de amigos e solicitações' },
@@ -32,6 +33,9 @@ const App = {
     ],
 
     isToolVisible(toolId) {
+        if (toolId === 'credits') {
+            return window.FinalSeason?.isFinalSeasonActive?.() === true;
+        }
         if (toolId === 'dev-lab') {
             return !!window.DevSecurity?.canShowTool?.();
         }
@@ -315,6 +319,15 @@ const App = {
         if (window.Badges) {
             Badges.init();
         }
+        if (window.FinalSeason) {
+            FinalSeason.init();
+        }
+        if (window.FinalSeasonMusic) {
+            FinalSeasonMusic.init();
+        }
+        if (window.Settings) {
+            Settings.applySilentMode?.();
+        }
         if (window.Squads && !window.Squads._initialized) {
             Squads.init();
         }
@@ -520,7 +533,7 @@ const App = {
             { label: 'Entretenimento', items: ['mini-game','music','offline'] },
             { label: 'Organização',    items: ['notes','tasks','missions','season','events','shop'] },
             { label: 'Social',         items: ['squads','friends','chat','leaderboard','feed','challenges'] },
-            { label: 'Sistema',        items: ['settings','dev-lab'] }
+            { label: 'Sistema',        items: ['settings','credits','dev-lab'] }
         ];
 
         const toolMap    = Object.fromEntries(this.getVisibleTools().map(t => [t.id, t]));

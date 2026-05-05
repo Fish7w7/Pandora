@@ -453,6 +453,18 @@
     transform: scale(1.02);
 }
 
+body.nyan-silent-mode #notifications-container,
+body.nyan-silent-mode .nav-update-dot,
+body.nyan-silent-mode #missions-nav-badge,
+body.nyan-silent-mode #chat-nav-badge,
+body.nyan-silent-mode #challenges-nav-badge {
+    display: none !important;
+}
+
+body.nyan-silent-mode .nav-update-dot {
+    animation: none !important;
+}
+
 /* Login effects */
 .glass-effect {
     background: rgba(255, 255, 255, 0.1);

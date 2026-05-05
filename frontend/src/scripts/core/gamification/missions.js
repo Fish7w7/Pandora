@@ -16,6 +16,17 @@ const Missions = {
         progress: (state) => ({ current: state.weekendPlays || 0, max: 5 }),
     },
 
+    FINAL_SEASON_MISSION: {
+        id: 'final_memory_daily',
+        diff: 'seasonal',
+        icon: '\u{1F9E9}',
+        title: 'Memoria da Final Season',
+        desc: 'Jogue uma partida de Memoria Nyan',
+        seasonXP: 120,
+        check: (ctx) => ctx.event === 'play_game' && ctx.game === 'memory',
+        progress: () => ({ current: 0, max: 1 }),
+    },
+
     POOL: [
         {
             id: 'play_any',
@@ -278,6 +289,11 @@ const Missions = {
         return !!event && !!window.Seasons?.isActive?.();
     },
 
+    _isFinalSeasonMissionActive() {
+        const season = window.Seasons?.getCurrentSeason?.();
+        return !!(season && season.id === 'season_2' && window.Seasons?.isActive?.(season));
+    },
+
     _buildWeekendMission() {
         return {
             id: this.WEEKEND_BONUS.id,
@@ -293,8 +309,24 @@ const Missions = {
         };
     },
 
+    _buildFinalSeasonMission() {
+        return {
+            id: this.FINAL_SEASON_MISSION.id,
+            diff: this.FINAL_SEASON_MISSION.diff,
+            icon: this.FINAL_SEASON_MISSION.icon,
+            title: this.FINAL_SEASON_MISSION.title,
+            desc: this.FINAL_SEASON_MISSION.desc,
+            completed: false,
+            progress: 0,
+            max: 1,
+            counter: false,
+            seasonXP: this.FINAL_SEASON_MISSION.seasonXP,
+        };
+    },
+
     _getMissionDefinition(id) {
         if (id === this.WEEKEND_BONUS.id) return this.WEEKEND_BONUS;
+        if (id === this.FINAL_SEASON_MISSION.id) return this.FINAL_SEASON_MISSION;
         return this.POOL.find((p) => p.id === id) || null;
     },
 
@@ -310,10 +342,12 @@ const Missions = {
         const today = this._getToday();
         const data = this.load();
         const needsWeekendMission = this._isWeekendSeasonMissionActive();
+        const needsFinalSeasonMission = this._isFinalSeasonMissionActive();
 
         if (data.date === today && Array.isArray(data.missions)) {
             const hasWeekend = data.missions.some((m) => m.id === this.WEEKEND_BONUS.id);
-            if (hasWeekend === needsWeekendMission) return data.missions;
+            const hasFinalSeason = data.missions.some((m) => m.id === this.FINAL_SEASON_MISSION.id);
+            if (hasWeekend === needsWeekendMission && hasFinalSeason === needsFinalSeasonMission) return data.missions;
         }
 
         const easy = this.POOL.filter((m) => m.diff === 'easy');
@@ -342,6 +376,10 @@ const Missions = {
 
         if (needsWeekendMission) {
             missions.push(this._buildWeekendMission());
+        }
+
+        if (needsFinalSeasonMission) {
+            missions.push(this._buildFinalSeasonMission());
         }
 
         const newData = {
@@ -538,7 +576,7 @@ const Missions = {
         }
 
         if (m.seasonXP && window.Seasons?.addXP) {
-            window.Seasons.addXP(m.seasonXP, { source: 'weekend_bonus_mission' });
+            window.Seasons.addXP(m.seasonXP, { source: m.id || 'seasonal_mission' });
         }
 
         const streakSuffix = mult > 1 ? ' +50% streak!' : ''; 
@@ -658,6 +696,8 @@ const Missions = {
         const sub    = d ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.5)';
         const muted  = d ? 'rgba(255,255,255,0.25)' : 'rgba(0,0,0,0.3)';
         const inner  = d ? 'rgba(255,255,255,0.05)' : '#f8fafc';
+        const finalSeasonActive = window.FinalSeason?.isFinalSeasonActive?.()
+            || window.Seasons?.getCurrentSeason?.()?.id === 'season_2';
 
         const now  = new Date();
         const mid  = new Date(now); mid.setHours(24,0,0,0);
@@ -674,7 +714,9 @@ const Missions = {
             easy:   { bg: d ? 'rgba(74,222,128,0.12)'  : '#f0fdf4', border: d ? 'rgba(74,222,128,0.25)'  : '#bbf7d0', text: d ? '#4ade80'  : '#15803d', label: 'Facil'   },
             medium: { bg: d ? 'rgba(168,85,247,0.12)'  : '#faf5ff', border: d ? 'rgba(168,85,247,0.25)'  : '#e9d5ff', text: d ? '#a855f7'  : '#7c3aed', label: 'Medio'   },
             hard:   { bg: d ? 'rgba(239,68,68,0.12)'   : '#fff1f2', border: d ? 'rgba(239,68,68,0.25)'   : '#fecdd3', text: d ? '#f87171'  : '#be123c', label: 'Dificil' },
-            seasonal: { bg: d ? 'rgba(244,114,182,0.14)' : '#fdf2f8', border: d ? 'rgba(244,114,182,0.25)' : '#fbcfe8', text: d ? '#f472b6' : '#be185d', label: 'Sazonal' },
+            seasonal: finalSeasonActive
+                ? { bg: d ? 'rgba(245,158,11,0.13)' : '#fffbeb', border: d ? 'rgba(245,158,11,0.32)' : '#fde68a', text: d ? '#fcd34d' : '#92400e', label: 'Final' }
+                : { bg: d ? 'rgba(244,114,182,0.14)' : '#fdf2f8', border: d ? 'rgba(244,114,182,0.25)' : '#fbcfe8', text: d ? '#f472b6' : '#be185d', label: 'Sazonal' },
         };
 
         const missionCards = missions.map(m => {

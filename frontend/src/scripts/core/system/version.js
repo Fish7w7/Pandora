@@ -1,8 +1,8 @@
 const VersionManager = {
-    version: '3.15.0',
-    codename: 'Eventos & Live Ops',
-    releaseDate: '2026-04-28',
-    previousVersion: '3.14.0',
+    version: '3.16.0',
+    codename: 'Last Meow',
+    releaseDate: '2026-05-05',
+    previousVersion: '3.15.0',
 
     getVersion() {
         return this.version;

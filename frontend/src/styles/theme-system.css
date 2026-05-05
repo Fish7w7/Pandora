@@ -120,6 +120,14 @@ body[data-theme="indigo"] {
     --theme-shadow: rgba(99, 102, 241, 0.3); --theme-glow: rgba(99, 102, 241, 0.5);
 }
 
+/* Midnight Gold (Final Season) */
+body[data-theme="midnightGold"] {
+    --theme-primary: #a855f7; --theme-primary-dark: #10091f; --theme-primary-light: #c084fc;
+    --theme-secondary: #f59e0b; --theme-secondary-dark: #d97706; --theme-secondary-light: #fcd34d;
+    --theme-gradient-start: #10091f; --theme-gradient-middle: #a855f7; --theme-gradient-end: #f59e0b;
+    --theme-shadow: rgba(245, 158, 11, 0.28); --theme-glow: rgba(168, 85, 247, 0.45);
+}
+
 /*  THEME APPLICATION  */
 
 /* Sidebar */

@@ -42,12 +42,12 @@ const Dashboard = {
             <div style="
                 background:${c.card}; border:1px solid ${c.border};
                 border-radius:var(--radius-xl,18px);
-                padding:1.125rem; ${mb ? 'margin-bottom:1rem;' : ''}
+                padding:0.85rem; ${mb ? 'margin-bottom:0.75rem;' : ''}
                 box-shadow:0 1px 2px rgba(0,0,0,0.06);
             ">
                 <h2 style="
                     font-family:var(--font-display,'Syne',sans-serif);
-                    font-size:var(--text-lg,1.05rem); font-weight:900;
+                    font-size:0.96rem; font-weight:900;
                     color:${c.title}; margin:0 ${isCollapsed ? '' : '0 1rem'};
                     display:flex; align-items:center; gap:0.5rem; cursor:pointer;
                     user-select:none;
@@ -66,7 +66,7 @@ const Dashboard = {
                     max-height:${isCollapsed ? '0' : '2000px'};
                     opacity:${isCollapsed ? '0' : '1'};
                 ">
-                    <div style="padding-top:0.35rem;">${content}</div>
+                    <div style="padding-top:0.2rem;">${content}</div>
                 </div>
             </div>`;
     },
@@ -126,14 +126,14 @@ const Dashboard = {
         const username = (window.App?.user?.username) || Utils.loadData('current_user') || 'Usuário';
         
         return `
-            <div class="text-center mb-6">
-                <div class="inline-flex items-center gap-3 mb-2">
-                    <div class="text-5xl animate-bounce-slow">📊</div>
-                    <h1 class="text-4xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent">
+            <div class="text-center mb-4">
+                <div class="inline-flex items-center gap-2.5 mb-1.5">
+                    <div class="text-3xl animate-bounce-slow">📊</div>
+                    <h1 class="text-3xl font-black bg-gradient-to-r from-purple-600 via-pink-600 to-red-600 bg-clip-text text-transparent">
                         ${greeting}, ${username}!
                     </h1>
                 </div>
-                <p class="text-gray-600 text-lg">Veja como você está usando o NyanTools にゃん~</p>
+                <p class="text-gray-600 text-sm">Veja como você está usando o NyanTools にゃん~</p>
             </div>
         `;
     },
@@ -226,7 +226,7 @@ const Dashboard = {
             .filter(id => id !== 'home' && id !== 'profile')
             .slice(0, limit);
 
-        const fallback = ['notes', 'tasks', 'offline', 'missions'];
+        const fallback = ['notes', 'tasks', 'weather', 'translator'];
         const chosen = [...new Set([...topIds, ...fallback])].slice(0, limit);
         return chosen.map(id => ({ id, ...this.getToolInfo(id) }));
     },
@@ -298,10 +298,10 @@ const Dashboard = {
         const streakEmoji = this.stats.dailyStreak >= 7 ? '🔥' : this.stats.dailyStreak >= 3 ? '⭐' : '📅';
         const normalizedAccess = this.normalizeToolAccess();
         const toolCount = Object.keys(normalizedAccess).length;
-        const totalTools = 12;
+        const totalTools = this.getUsageToolIds().length;
         
         return `
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3 mb-4">
                 ${this.renderStatCard('⏱️', 'Tempo Total', this.formatTime(this.stats.totalTime), 'from-blue-500 to-cyan-600')}
                 ${this.renderStatCard(streakEmoji, 'Sequência', `${this.stats.dailyStreak} dias`, 'from-orange-500 to-amber-600')}
                 ${this.renderStatCard('🛠️', 'Mais Usado', mostUsedTool.name, 'from-purple-500 to-pink-600')}
@@ -314,16 +314,16 @@ const Dashboard = {
         return `
             <div style="
                 background:linear-gradient(135deg,var(--theme-primary,#a855f7),var(--theme-secondary,#ec4899));
-                border-radius:var(--radius-lg,14px); padding:1.25rem;
+                border-radius:var(--radius-lg,14px); padding:0.85rem 1rem;
                 color:white; cursor:default;
                 transition:transform var(--transition-base,0.2s), box-shadow var(--transition-base,0.2s);
                 box-shadow:0 4px 14px var(--theme-shadow,rgba(168,85,247,0.25));
             "
             onmouseover="this.style.transform='translateY(-3px)';this.style.boxShadow='0 8px 24px var(--theme-shadow,rgba(168,85,247,0.35))'"
             onmouseout="this.style.transform='';this.style.boxShadow='0 4px 14px var(--theme-shadow,rgba(168,85,247,0.25))'">
-                <div style="font-size:1.75rem;margin-bottom:0.5rem;line-height:1;">${icon}</div>
-                <div style="font-size:var(--text-xs,0.68rem);font-weight:var(--weight-bold,700);opacity:0.8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.25rem;">${label}</div>
-                <div style="font-size:1.35rem;font-weight:var(--weight-black,900);font-family:var(--font-display,'Syne',sans-serif);line-height:1;">${value}</div>
+                <div style="font-size:1.25rem;margin-bottom:0.32rem;line-height:1;">${icon}</div>
+                <div style="font-size:0.62rem;font-weight:var(--weight-bold,700);opacity:0.8;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:0.18rem;">${label}</div>
+                <div style="font-size:1.08rem;font-weight:var(--weight-black,900);font-family:var(--font-display,'Syne',sans-serif);line-height:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${value}</div>
             </div>
         `;
     },
@@ -376,11 +376,11 @@ const Dashboard = {
             }
 
             const timeLabel = hasData
-                ? `<div style="font-size:10px;font-weight:700;color:#d1d5db;margin-bottom:4px;text-align:center;">${this.formatTime(usage)}</div>`
+                ? `<div style="font-size:9px;font-weight:700;color:#d1d5db;margin-bottom:3px;text-align:center;">${this.formatTime(usage)}</div>`
                 : '';
 
             const dayColor = isToday ? '#a855f7' : '#9ca3af';
-            const dotStyle = isToday ? `<div style="width:5px;height:5px;border-radius:50%;background:#a855f7;margin:3px auto 0;"></div>` : '';
+            const dotStyle = isToday ? `<div style="width:4px;height:4px;border-radius:50%;background:#a855f7;margin:2px auto 0;"></div>` : '';
 
             return `
                 <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;">
@@ -390,19 +390,19 @@ const Dashboard = {
                          onmouseleave="this.style.opacity='${barOpacity}'"
                          title="${day}: ${this.formatTime(usage)}">
                     </div>
-                    <div style="margin-top:8px;font-size:12px;font-weight:700;color:${dayColor};text-align:center;">
+                    <div style="margin-top:5px;font-size:11px;font-weight:700;color:${dayColor};text-align:center;">
                         ${day}${dotStyle}
                     </div>
                 </div>`;
         }).join('');
 
         const totalLabel = totalWeek > 0
-            ? `<div style="text-align:center;font-size:12px;font-weight:600;color:#9ca3af;margin-top:10px;">Total esta semana: <span style="color:#c084fc;font-weight:800;">${this.formatTime(totalWeek)}</span></div>`
-            : `<div style="text-align:center;font-size:12px;color:#6b7280;margin-top:10px;">Nenhuma atividade esta semana</div>`;
+            ? `<div style="text-align:center;font-size:11px;font-weight:600;color:#9ca3af;margin-top:6px;">Total esta semana: <span style="color:#c084fc;font-weight:800;">${this.formatTime(totalWeek)}</span></div>`
+            : `<div style="text-align:center;font-size:11px;color:#6b7280;margin-top:6px;">Nenhuma atividade esta semana</div>`;
 
         return `
-            <div style="margin-bottom:24px;">
-                <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:8px;height:180px;">
+            <div style="margin-bottom:14px;">
+                <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:6px;height:125px;">
                     ${bars}
                 </div>
                 ${totalLabel}
@@ -452,7 +452,7 @@ const Dashboard = {
         }
 
         const weekDayHeaders = DAYS_LABEL.map(l =>
-            `<div style="text-align:center;font-size:11px;font-weight:700;color:${c.label};width:28px;">${l}</div>`
+            `<div style="text-align:center;font-size:10px;font-weight:700;color:${c.label};width:24px;">${l}</div>`
         ).join('');
 
         const rows = [];
@@ -463,7 +463,7 @@ const Dashboard = {
                 const dayNum = cellIndex - firstDayOfWeek + 1;
 
                 if (dayNum < 1 || dayNum > daysInMonth) {
-                    cells.push(`<div style="width:28px;height:28px;"></div>`);
+                    cells.push(`<div style="width:24px;height:24px;"></div>`);
                     continue;
                 }
 
@@ -504,63 +504,63 @@ const Dashboard = {
                     : hasActivity
                         ? 'rgba(255,255,255,0.9)'
                         : isDark ? 'rgba(255,255,255,0.4)' : '#64748b';
-                const dayLabel = `<span style="font-size:8px;font-weight:700;color:${numColor};line-height:1;">${dayNum}</span>`;
+                const dayLabel = `<span style="font-size:7px;font-weight:700;color:${numColor};line-height:1;">${dayNum}</span>`;
 
                 cells.push(`
-                    <div style="width:28px;height:28px;border-radius:6px;${bg}${ring}${opacity}${borderStyle}
-                                cursor:pointer;transition:transform 0.15s;position:relative;
-                                display:flex;align-items:flex-start;justify-content:flex-end;padding:2px 3px;"
-                         onmouseenter="this.style.transform='scale(1.25)'"
+                    <div style="width:24px;height:24px;border-radius:5px;${bg}${ring}${opacity}${borderStyle}
+                                 cursor:pointer;transition:transform 0.15s;position:relative;
+                                 display:flex;align-items:flex-start;justify-content:flex-end;padding:2px;"
+                         onmouseenter="this.style.transform='scale(1.18)'"
                          onmouseleave="this.style.transform='scale(1)'"
                          title="${titleMsg}">${isFuture ? '' : dayLabel}</div>
                 `);
             }
-            rows.push(`<div style="display:flex;gap:4px;">${cells.join('')}</div>`);
+            rows.push(`<div style="display:flex;gap:3px;">${cells.join('')}</div>`);
         }
 
         return `
-            <div style="margin-top:24px;padding-top:20px;border-top:1px solid ${c.border}">
-                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
-                    <div style="display:flex;align-items:center;gap:10px;">
-                        <span style="font-size:15px;font-weight:900;color:${c.title};letter-spacing:0.04em;">HISTÓRICO DE USO</span>
-                        <span style="font-size:11px;font-weight:600;background:${c.badge_bg};color:${c.badge_color};padding:3px 10px;border-radius:20px;border:1px solid ${c.badge_bdr};text-transform:capitalize;">${monthName}</span>
+            <div style="margin-top:14px;padding-top:14px;border-top:1px solid ${c.border}">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:7px;">
+                    <div style="display:flex;align-items:center;gap:8px;">
+                        <span style="font-size:13px;font-weight:900;color:${c.title};letter-spacing:0.04em;">HISTÓRICO DE USO</span>
+                        <span style="font-size:10px;font-weight:600;background:${c.badge_bg};color:${c.badge_color};padding:2px 8px;border-radius:20px;border:1px solid ${c.badge_bdr};text-transform:capitalize;">${monthName}</span>
                     </div>
-                    <div style="display:flex;gap:20px;">
+                    <div style="display:flex;gap:14px;">
                         <div style="text-align:center;">
-                            <div style="font-size:18px;font-weight:900;color:#a855f7;">${activeDays}</div>
-                            <div style="font-size:10px;color:${c.label};font-weight:600;">DIAS ATIVOS</div>
+                            <div style="font-size:15px;font-weight:900;color:#a855f7;">${activeDays}</div>
+                            <div style="font-size:9px;color:${c.label};font-weight:600;">DIAS ATIVOS</div>
                         </div>
                         <div style="text-align:center;">
-                            <div style="font-size:18px;font-weight:900;color:#ec4899;">${this.stats.dailyStreak}</div>
-                            <div style="font-size:10px;color:${c.label};font-weight:600;">SEQUÊNCIA</div>
+                            <div style="font-size:15px;font-weight:900;color:#ec4899;">${this.stats.dailyStreak}</div>
+                            <div style="font-size:9px;color:${c.label};font-weight:600;">SEQUÊNCIA</div>
                         </div>
                     </div>
                 </div>
 
-                <div style="display:flex;gap:4px;margin-bottom:4px;">
+                <div style="display:flex;gap:3px;margin-bottom:3px;">
                     ${weekDayHeaders}
                 </div>
 
-                <div style="display:flex;flex-direction:column;gap:4px;">
+                <div style="display:flex;flex-direction:column;gap:3px;">
                     ${rows.join('')}
                 </div>
 
-                <div style="display:flex;align-items:center;gap:16px;margin-top:12px;flex-wrap:wrap;">
-                    <div style="display:flex;align-items:center;gap:5px;">
-                        <div style="width:11px;height:11px;border-radius:3px;background:${c.cell_empty};border:${c.cell_border}"></div>
-                        <span style="font-size:11px;color:${c.label};">Sem uso</span>
+                <div style="display:flex;align-items:center;gap:12px;margin-top:9px;flex-wrap:wrap;">
+                    <div style="display:flex;align-items:center;gap:4px;">
+                        <div style="width:9px;height:9px;border-radius:3px;background:${c.cell_empty};border:${c.cell_border}"></div>
+                        <span style="font-size:10px;color:${c.label};">Sem uso</span>
                     </div>
-                    <div style="display:flex;align-items:center;gap:5px;">
-                        <div style="width:11px;height:11px;border-radius:3px;background:rgba(34,197,94,0.5);"></div>
-                        <span style="font-size:11px;color:${c.label};">&lt; 30 min</span>
+                    <div style="display:flex;align-items:center;gap:4px;">
+                        <div style="width:9px;height:9px;border-radius:3px;background:rgba(34,197,94,0.5);"></div>
+                        <span style="font-size:10px;color:${c.label};">&lt; 30 min</span>
                     </div>
-                    <div style="display:flex;align-items:center;gap:5px;">
-                        <div style="width:11px;height:11px;border-radius:3px;background:rgba(34,197,94,0.95);"></div>
-                        <span style="font-size:11px;color:${c.label};">≥ 2h</span>
+                    <div style="display:flex;align-items:center;gap:4px;">
+                        <div style="width:9px;height:9px;border-radius:3px;background:rgba(34,197,94,0.95);"></div>
+                        <span style="font-size:10px;color:${c.label};">≥ 2h</span>
                     </div>
-                    <div style="display:flex;align-items:center;gap:5px;">
-                        <div style="width:11px;height:11px;border-radius:3px;background:linear-gradient(135deg,#a855f7,#ec4899);"></div>
-                        <span style="font-size:11px;color:${c.label};">Hoje</span>
+                    <div style="display:flex;align-items:center;gap:4px;">
+                        <div style="width:9px;height:9px;border-radius:3px;background:linear-gradient(135deg,#a855f7,#ec4899);"></div>
+                        <span style="font-size:10px;color:${c.label};">Hoje</span>
                     </div>
                 </div>
             </div>
@@ -607,6 +607,20 @@ const Dashboard = {
     
     normalizeToolAccess() {
         const normalized = {};
+        const allowed = new Set(this.getUsageToolIds());
+
+        Object.entries(this.stats.toolAccess).forEach(([toolId, count]) => {
+            const normalizedId = this.normalizeToolId(toolId);
+            const safeCount = Math.max(0, Number(count || 0));
+            if (!allowed.has(normalizedId) || safeCount <= 0) return;
+            if (!normalized[normalizedId]) normalized[normalizedId] = 0;
+            normalized[normalizedId] += safeCount;
+        });
+
+        return normalized;
+    },
+
+    normalizeToolId(toolId) {
         const idMap = {
             'password': 'password',
             'password-generator': 'password',
@@ -616,24 +630,31 @@ const Dashboard = {
             'temp-email': 'temp-email',
             'music': 'music',
             'music-player': 'music',
-            'offline': 'offline',
-            'offline-zone': 'offline'
+            'notes': 'notes',
+            'quick-notes': 'notes',
+            'v310-notes': 'notes',
+            'tasks': 'tasks',
+            'todo': 'tasks',
+            'task-list': 'tasks',
+            'weather': 'weather',
+            'translator': 'translator',
         };
-        
-        Object.entries(this.stats.toolAccess).forEach(([toolId, count]) => {
-            const normalizedId = idMap[toolId] || toolId;
-            if (!normalized[normalizedId]) normalized[normalizedId] = 0;
-            normalized[normalizedId] += count;
-        });
-        
-        const EXCLUDE = [
-            'home', 'dashboard', 'settings', 'updates',
-            'friends', 'chat', 'leaderboard', 'feed', 'challenges',
-            'profile', 'profile-public', 'offline'
-        ];
-        EXCLUDE.forEach(k => delete normalized[k]);
+        const safeId = String(toolId || '').trim();
+        return idMap[safeId] || safeId;
+    },
 
-        return normalized;
+    getUsageToolIds() {
+        return [
+            'password',
+            'weather',
+            'translator',
+            'ai-assistant',
+            'mini-game',
+            'temp-email',
+            'music',
+            'notes',
+            'tasks',
+        ];
     },
     
     renderGamesSection() {
@@ -897,8 +918,10 @@ const Dashboard = {
     },
     
     trackToolAccess(toolId) {
-        if (!this.stats.toolAccess[toolId]) this.stats.toolAccess[toolId] = 0;
-        this.stats.toolAccess[toolId]++;
+        const normalizedId = this.normalizeToolId(toolId);
+        if (!normalizedId || !this.getUsageToolIds().includes(normalizedId)) return;
+        if (!this.stats.toolAccess[normalizedId]) this.stats.toolAccess[normalizedId] = 0;
+        this.stats.toolAccess[normalizedId]++;
         this.saveStats();
     },
 
@@ -1015,61 +1038,61 @@ Dashboard.renderPersonalizedHome = function() {
     const cards = [];
 
     if (prefs.continueCard) {
-        cards.push(`<div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:12px;padding:0.85rem;">
-            <div style="font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.4rem;">Continuar</div>
+        cards.push(`<div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:10px;padding:0.68rem;">
+            <div style="font-size:0.58rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.32rem;">Continuar</div>
             ${lastTool ? `<button onclick="Router.navigate('${lastRoute}')" style="width:100%;text-align:left;border:none;background:transparent;cursor:pointer;padding:0;">
-                <div style="font-size:0.9rem;font-weight:800;color:${c.title};">${lastTool.icon} ${lastTool.name}</div>
-                <div style="font-size:0.72rem;color:${c.sub};margin-top:0.15rem;">Ultimo acesso ${lastSeen}</div>
-            </button>` : `<div style="font-size:0.75rem;color:${c.sub};">Sem historico recente</div>`}
+                <div style="font-size:0.8rem;font-weight:800;color:${c.title};">${lastTool.icon} ${lastTool.name}</div>
+                <div style="font-size:0.66rem;color:${c.sub};margin-top:0.1rem;">Ultimo acesso ${lastSeen}</div>
+            </button>` : `<div style="font-size:0.68rem;color:${c.sub};">Sem historico recente</div>`}
         </div>`);
     }
 
     if (prefs.missionCard) {
-        cards.push(`<div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:12px;padding:0.85rem;">
-            <div style="font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.4rem;">Missao do dia</div>
+        cards.push(`<div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:10px;padding:0.68rem;">
+            <div style="font-size:0.58rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.32rem;">Missao do dia</div>
             ${nextMission ? `<button onclick="Router.navigate('missions')" style="width:100%;text-align:left;border:none;background:transparent;cursor:pointer;padding:0;">
-                <div style="font-size:0.85rem;font-weight:700;color:${c.title};">${nextMission.icon} ${nextMission.title}</div>
-                <div style="font-size:0.72rem;color:${c.sub};margin-top:0.15rem;">${nextMission.desc}</div>
+                <div style="font-size:0.78rem;font-weight:700;color:${c.title};">${nextMission.icon} ${nextMission.title}</div>
+                <div style="font-size:0.66rem;color:${c.sub};margin-top:0.1rem;">${nextMission.desc}</div>
             </button>` : `<button onclick="Router.navigate('missions')" style="width:100%;text-align:left;border:none;background:transparent;cursor:pointer;padding:0;">
-                <div style="font-size:0.85rem;font-weight:700;color:#22c55e;">Tudo concluido hoje</div>
+                <div style="font-size:0.78rem;font-weight:700;color:#22c55e;">Tudo concluido hoje</div>
             </button>`}
         </div>`);
     }
 
     if (prefs.notesCard) {
         const notesHtml = notes.length
-            ? notes.map((note) => `<button onclick="Router.navigate('notes')" style="width:100%;text-align:left;padding:0.5rem 0.625rem;border-radius:10px;border:1px solid ${c.innerBdr};background:${c.inner};color:${c.text};font-size:0.74rem;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${note.title || 'Sem titulo'}</button>`).join('')
-            : `<div style="font-size:0.72rem;color:${c.sub};">Sem notas recentes</div>`;
-        cards.push(`<div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:12px;padding:0.85rem;">
-            <div style="font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.4rem;">Notas recentes</div>
-            <div style="display:flex;flex-direction:column;gap:0.4rem;">${notesHtml}</div>
+            ? notes.map((note) => `<button onclick="Router.navigate('notes')" style="width:100%;text-align:left;padding:0.42rem 0.55rem;border-radius:9px;border:1px solid ${c.innerBdr};background:${c.inner};color:${c.text};font-size:0.68rem;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${note.title || 'Sem titulo'}</button>`).join('')
+            : `<div style="font-size:0.66rem;color:${c.sub};">Sem notas recentes</div>`;
+        cards.push(`<div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:10px;padding:0.68rem;">
+            <div style="font-size:0.58rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.32rem;">Notas recentes</div>
+            <div style="display:flex;flex-direction:column;gap:0.32rem;">${notesHtml}</div>
         </div>`);
     }
 
     if (prefs.shortcutsCard) {
-        cards.push(`<div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:12px;padding:0.85rem;">
-            <div style="font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.4rem;">Atalhos</div>
-            <div style="display:grid;grid-template-columns:1fr;gap:0.4rem;">
-                ${shortcuts.map((shortcut) => `<button onclick="Router.navigate('${shortcut.id}')" style="padding:0.5rem 0.625rem;border-radius:10px;border:1px solid ${c.innerBdr};background:${c.inner};color:${c.text};font-size:0.72rem;font-weight:700;cursor:pointer;">${shortcut.name}</button>`).join('')}
+        cards.push(`<div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:10px;padding:0.68rem;">
+            <div style="font-size:0.58rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.32rem;">Atalhos</div>
+            <div style="display:grid;grid-template-columns:1fr;gap:0.32rem;">
+                ${shortcuts.map((shortcut) => `<button onclick="Router.navigate('${shortcut.id}')" style="padding:0.42rem 0.55rem;border-radius:9px;border:1px solid ${c.innerBdr};background:${c.inner};color:${c.text};font-size:0.66rem;font-weight:700;cursor:pointer;">${shortcut.name}</button>`).join('')}
             </div>
         </div>`);
     }
 
     if (prefs.friendsCard) {
-        cards.push(`<div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:12px;padding:0.85rem;">
-            <div style="font-size:0.62rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.4rem;">Amigos online</div>
-            <div id="dash-online-count" style="font-size:0.9rem;font-weight:800;color:${c.title};">Carregando...</div>
-            <div id="dash-online-list" style="font-size:0.72rem;color:${c.sub};margin-top:0.15rem;">Buscando presenca em tempo real</div>
+        cards.push(`<div style="background:${c.inner};border:1px solid ${c.innerBdr};border-radius:10px;padding:0.68rem;">
+            <div style="font-size:0.58rem;font-weight:800;letter-spacing:0.08em;text-transform:uppercase;color:${c.muted};margin-bottom:0.32rem;">Amigos online</div>
+            <div id="dash-online-count" style="font-size:0.8rem;font-weight:800;color:${c.title};">Carregando...</div>
+            <div id="dash-online-list" style="font-size:0.66rem;color:${c.sub};margin-top:0.1rem;">Buscando presenca em tempo real</div>
         </div>`);
     }
 
     const body = cards.length
-        ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0.6rem;">${cards.join('')}</div>`
-        : `<div style="background:${c.inner};border:1px dashed ${c.innerBdr};border-radius:12px;padding:1rem;text-align:center;color:${c.sub};font-size:0.78rem;">Nenhum bloco visivel.</div>`;
+        ? `<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:0.5rem;">${cards.join('')}</div>`
+        : `<div style="background:${c.inner};border:1px dashed ${c.innerBdr};border-radius:10px;padding:0.75rem;text-align:center;color:${c.sub};font-size:0.72rem;">Nenhum bloco visivel.</div>`;
 
     return this._section('🏠', 'Home personalizada', `
-        <div style="display:flex;justify-content:flex-end;margin-bottom:0.55rem;">
-            <button onclick="Dashboard._openHomeCustomize()" style="border:1px solid ${c.innerBdr};background:${c.inner};color:${c.text};font-size:0.72rem;font-weight:700;padding:0.36rem 0.6rem;border-radius:9px;cursor:pointer;">Personalizar</button>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:0.4rem;">
+            <button onclick="Dashboard._openHomeCustomize()" style="border:1px solid ${c.innerBdr};background:${c.inner};color:${c.text};font-size:0.66rem;font-weight:700;padding:0.3rem 0.5rem;border-radius:8px;cursor:pointer;">Personalizar</button>
         </div>
         ${body}
     `);
@@ -1080,12 +1103,13 @@ Dashboard.render = function() {
     this.loadStats();
     this.updateStats();
     return `
-        <div id="dash-root" class="max-w-6xl mx-auto" style="padding-bottom:0.75rem;">
-            <div id="dash-header-slot">${this.renderHeader()}</div>
-            <div id="dash-quick-stats-slot">${this.renderQuickStats()}</div>
-            <div id="dash-home-personalized-slot">${this.renderPersonalizedHome()}</div>
-            <div id="dash-activity-slot">${this.renderActivitySection()}</div>
-            <div id="dash-productivity-slot">${this.renderProductivitySection()}</div>
+            <div id="dash-root" class="max-w-6xl mx-auto" style="padding-bottom:0.5rem;font-size:0.94rem;">
+                <div id="dash-header-slot">${this.renderHeader()}</div>
+                <div id="dash-quick-stats-slot">${this.renderQuickStats()}</div>
+                <div id="dash-final-season-slot">${window.FinalSeason?.renderMemorialCard?.() || ''}</div>
+                <div id="dash-home-personalized-slot">${this.renderPersonalizedHome()}</div>
+                <div id="dash-activity-slot">${this.renderActivitySection()}</div>
+                <div id="dash-productivity-slot">${this.renderProductivitySection()}</div>
             <div id="dash-tools-slot">${this.renderToolsUsage()}</div>
             <div id="dash-games-slot">${this.renderGamesSection()}</div>
         </div>
@@ -1093,25 +1117,7 @@ Dashboard.render = function() {
 };
 
 Dashboard._refreshSuggestionsWidget = function() {
-    if (window.Router?.currentRoute !== 'home') return;
-    const toolContainer = document.getElementById('tool-container');
-    if (!toolContainer || typeof window.Integrations?.renderSuggestionsWidget !== 'function') return;
-    const html = window.Integrations.renderSuggestionsWidget();
-    const existing = document.getElementById('nyan-smart-suggestions');
-    if (!html) {
-        existing?.remove();
-        return;
-    }
-    if (existing) {
-        existing.innerHTML = html;
-        return;
-    }
-    const wrapper = document.createElement('div');
-    wrapper.id = 'nyan-smart-suggestions';
-    wrapper.innerHTML = html;
-    const dashRoot = toolContainer.querySelector('#dash-root');
-    if (dashRoot) toolContainer.insertBefore(wrapper, dashRoot);
-    else toolContainer.insertBefore(wrapper, toolContainer.firstChild);
+    document.getElementById('nyan-smart-suggestions')?.remove();
 };
 
 Dashboard.refreshRealtime = function(options = {}) {
@@ -1128,12 +1134,12 @@ Dashboard.refreshRealtime = function(options = {}) {
     };
     renderSlot('dash-header-slot', this.renderHeader());
     renderSlot('dash-quick-stats-slot', this.renderQuickStats());
+    renderSlot('dash-final-season-slot', window.FinalSeason?.renderMemorialCard?.() || '');
     renderSlot('dash-home-personalized-slot', this.renderPersonalizedHome());
     renderSlot('dash-activity-slot', this.renderActivitySection());
     renderSlot('dash-productivity-slot', this.renderProductivitySection());
     renderSlot('dash-tools-slot', this.renderToolsUsage());
     renderSlot('dash-games-slot', this.renderGamesSection());
-    this._refreshSuggestionsWidget?.();
     if (options.hydrate !== false) setTimeout(() => this.hydratePersonalizedHome?.(), 60);
     if (options.keepCustomizeModal) setTimeout(() => this._refreshHomeCustomizeModal?.(), 0);
     return true;
