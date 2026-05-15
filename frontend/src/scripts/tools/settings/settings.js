@@ -677,17 +677,6 @@ const Settings = {
                                     <div class="text-xs text-gray-500">Fish7w7/Pandora</div>
                                 </div>
                             </a>
-                            <a href="mailto:kik73261@gmail.com"
-                               class="flex items-center gap-2.5 p-2.5 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all">
-                                <svg class="w-5 h-5 text-gray-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                </svg>
-                                <div>
-                                    <div class="font-bold text-gray-800 text-sm">Email</div>
-                                    <div class="text-xs text-gray-500">kik73261@gmail.com</div>
-                                </div>
-                            </a>
-
                             <div class="flex items-center gap-3 py-1">
                                 <div class="flex-1 h-px bg-gray-100"></div>
                                 <div class="flex-1 h-px bg-gray-100"></div>
@@ -700,17 +689,6 @@ const Settings = {
                                     <div class="text-xs text-gray-500">Desenvolvedora Principal</div>
                                 </div>
                             </div>
-                            <a href="mailto:clara.mendes@proton.me"
-                               class="flex items-center gap-2.5 p-2.5 bg-gray-50 hover:bg-gray-100 rounded-lg transition-all">
-                                <svg class="w-5 h-5 text-gray-700 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-                                </svg>
-                                <div>
-                                    <div class="font-bold text-gray-800 text-sm">Email</div>
-                                    <div class="text-xs text-gray-500">clara.mendes@proton.me</div>
-                                </div>
-                            </a>
-
                         </div>
                     </div>
 
@@ -897,6 +875,10 @@ const Settings = {
         a.click();
         URL.revokeObjectURL(url);
         Utils.showNotification?.('📤 Backup exportado com sucesso!', 'success');
+        const tag = Utils?.loadData?.('nyan_online_tag');
+        if (tag) {
+            setTimeout(() => Utils.showNotification?.('Backup inclui NyanTag: ' + tag, 'info'), 600);
+        }
     },
 
     exportJourney() {

@@ -32,7 +32,6 @@
   ],
   "author": {
     "name": "Fish7w7",
-    "email": "kik73261@gmail.com",
     "url": "https://github.com/Fish7w7"
   },
   "license": "MIT",
@@ -164,7 +163,7 @@
       "artifactName": "${productName}-${version}-${arch}.${ext}",
       "description": "NyanTools - Your purr-fect toolkit nyan~",
       "vendor": "Fish7w7",
-      "maintainer": "Fish7w7 <kik73261@gmail.com>",
+      "maintainer": "Fish7w7",
       "synopsis": "Utilities toolkit with games, AI, music player and more"
     },
     "appImage": {

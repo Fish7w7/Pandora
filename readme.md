@@ -506,8 +506,8 @@ MIT License — Copyright (c) 2026 Fish7w7
 
 | Dev | Papel | Contato |
 |-----|-------|---------|
-| Gabriel | Desenvolvedor Principal | [GitHub](https://github.com/Fish7w7) · kik73261@gmail.com |
-| Clara | Desenvolvedora Principal | clara.mendes@proton.me |
+| Gabriel | Desenvolvedor Principal | [GitHub](https://github.com/Fish7w7) |
+| Clara | Desenvolvedora Principal | Pandora / NyanTools |
 
 **Encontrou um bug?** → [Abra um issue](https://github.com/Fish7w7/Pandora/issues/new)
 **Tem uma sugestão?** → [Discussions](https://github.com/Fish7w7/Pandora/discussions)

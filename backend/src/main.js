@@ -15,6 +15,12 @@ const APP_VERSION = app?.getVersion?.()
             return '0.0.0';
         }
     })();
+const IS_DEV = process.env.NODE_ENV === 'development';
+const VERBOSE_MAIN_LOGS = IS_DEV || process.env.NYAN_VERBOSE_LOGS === '1';
+
+function _logMain(...args) {
+    if (VERBOSE_MAIN_LOGS) console.log(...args);
+}
 
 function _safeEnvNumber(value, fallback, min = 0) {
     const n = Number(value);
@@ -141,7 +147,7 @@ function _getValidDevSession(event, uid = '') {
     return session;
 }
 
-console.log('[*] Aplicando otimizacoes de performance...');
+_logMain('[*] Aplicando otimizacoes de performance...');
 
 app.disableHardwareAcceleration();
 
@@ -200,9 +206,9 @@ function createWindow() {
 
     const indexPath = path.join(__dirname, '../../frontend/public/index.html');
 
-    console.log(`[~] NyanTools v${APP_VERSION}`);
-    console.log('[>] Diretorio:', __dirname);
-    console.log('[>] Carregando:', indexPath);
+    _logMain(`[~] NyanTools v${APP_VERSION}`);
+    _logMain('[>] Diretorio:', __dirname);
+    _logMain('[>] Carregando:', indexPath);
 
     // Remove menubar padrão do Electron (nao apagar esse comentário)
     Menu.setApplicationMenu(null);
@@ -213,12 +219,12 @@ function createWindow() {
         setTimeout(() => {
             if (!mainWindow?.isDestroyed()) {
                 mainWindow.show();
-                console.log('[OK] NyanTools iniciado! nyan~');
+                _logMain('[OK] NyanTools iniciado! nyan~');
             }
         }, 50);
     });
 
-    if (process.env.NODE_ENV === 'development') {
+    if (IS_DEV) {
         mainWindow.webContents.openDevTools({ mode: 'detach' });
     }
 
@@ -347,14 +353,14 @@ function _appendCacheBustParam(url, token = '') {
 
 function setupAutoUpdater() {
     autoUpdater.on('checking-for-update', () => {
-        console.log('[?] electron-updater: verificando...');
+        _logMain('[?] electron-updater: verificando...');
         if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('updater-status', { event: 'checking' });
         }
     });
 
     autoUpdater.on('update-available', (info) => {
-        console.log('[!] Update disponivel:', info.version);
+        _logMain('[!] Update disponivel:', info.version);
         if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('updater-status', {
                 event: 'update-available',
@@ -365,7 +371,7 @@ function setupAutoUpdater() {
     });
 
     autoUpdater.on('update-not-available', () => {
-        console.log('[OK] App atualizado.');
+        _logMain('[OK] App atualizado.');
         if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('updater-status', { event: 'up-to-date' });
         }
@@ -386,7 +392,7 @@ function setupAutoUpdater() {
     });
 
     autoUpdater.on('update-downloaded', (info) => {
-        console.log('[OK] Download concluido:', info.version);
+        _logMain('[OK] Download concluido:', info.version);
         if (mainWindow && !mainWindow.isDestroyed()) {
             mainWindow.webContents.send('updater-status', {
                 event: 'update-downloaded',
@@ -395,7 +401,7 @@ function setupAutoUpdater() {
         }
 
         setTimeout(() => {
-            console.log('[*] Reiniciando para instalar v' + info.version + '...');
+            _logMain('[*] Reiniciando para instalar v' + info.version + '...');
             autoUpdater.quitAndInstall(true, true);
         }, 5000);
     });
@@ -403,7 +409,7 @@ function setupAutoUpdater() {
     autoUpdater.on('error', (err) => {
         const msg = err?.message || '';
         if (msg.includes('dev-app-update') || msg.includes('ERR_NETWORK') || msg.includes('net::')) {
-            console.log('[~] AutoUpdater ignorado (dev/sem rede)');
+            _logMain('[~] AutoUpdater ignorado (dev/sem rede)');
             return;
         }
         console.error('[X] AutoUpdater erro:', msg);
@@ -415,12 +421,12 @@ function setupAutoUpdater() {
 
 ipcMain.handle('reset-update-cooldown', () => {
     lastUpdateCheck = 0;
-    console.log('[~] Cooldown de atualizacao resetado');
+    _logMain('[~] Cooldown de atualizacao resetado');
     return { success: true };
 });
 
 ipcMain.handle('is-dev-environment', () => {
-    return { isDev: process.env.NODE_ENV === 'development' };
+    return { isDev: IS_DEV };
 });
 
 ipcMain.handle('dev-security-status', (event, payload = {}) => {
@@ -539,7 +545,7 @@ ipcMain.handle('check-for-updates', async () => {
                 const safeTagName = String(data.tag_name || '').trim();
                 if (safeTagName && safeTagName !== lastDetectedReleaseTag) {
                     lastDetectedReleaseTag = safeTagName;
-                    console.log('[OK] GitHub API versao detectada:', safeTagName);
+                    _logMain('[OK] GitHub API versao detectada:', safeTagName);
                 }
                 return { success: true, data, fromFallback: !!data._fromFallback };
             } catch (_) {}
@@ -624,8 +630,8 @@ ipcMain.handle('install-update-now', () => {
 ipcMain.handle('download-and-install', async (_event, { url, filename }) => {
     try {
         const destPath = path.join(os.tmpdir(), filename || 'NyanTools-Setup.exe');
-        console.log('[*] Baixando update via fallback:', url);
-        console.log('[*] Destino:', destPath);
+        _logMain('[*] Baixando update via fallback:', url);
+        _logMain('[*] Destino:', destPath);
 
         await new Promise((resolve, reject) => {
             const https = require('https');
@@ -641,7 +647,7 @@ ipcMain.handle('download-and-install', async (_event, { url, filename }) => {
                     headers: { 'User-Agent': 'NyanTools-Updater' }
                 }, (res) => {
                     if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
-                        console.log('[*] Redirect:', res.headers.location.substring(0, 80) + '...');
+                        _logMain('[*] Redirect:', res.headers.location.substring(0, 80) + '...');
                         res.resume();
                         doRequest(res.headers.location);
                         return;
@@ -650,7 +656,7 @@ ipcMain.handle('download-and-install', async (_event, { url, filename }) => {
                     if (res.statusCode !== 200) { reject(new Error(`HTTP ${res.statusCode}`)); return; }
 
                     const total = parseInt(res.headers['content-length'] || '0');
-                    console.log('[*] Content-Length:', total);
+                    _logMain('[*] Content-Length:', total);
                     let received = 0;
                     let lastBytes = 0;
                     let lastTime  = Date.now();
@@ -692,7 +698,7 @@ ipcMain.handle('download-and-install', async (_event, { url, filename }) => {
 
                     res.on('end', () => {
                         writeStream.end(() => {
-                            console.log('[OK] Download concluido:', destPath);
+                            _logMain('[OK] Download concluido:', destPath);
                             if (mainWindow && !mainWindow.isDestroyed()) {
                                 mainWindow.webContents.send('download-progress', {
                                     progress: 100, downloadedBytes: received, totalBytes: received,
@@ -703,7 +709,7 @@ ipcMain.handle('download-and-install', async (_event, { url, filename }) => {
                                 });
                             }
                             setTimeout(() => {
-                                console.log('[*] Executando installer...');
+                                _logMain('[*] Executando installer...');
                                 const { spawn } = require('child_process');
                                 const child = spawn(destPath, [], {
                                     detached: true,
@@ -803,7 +809,7 @@ ipcMain.on('start-download-faf', (_event, { url, filename }) => {
 
                 res.on('end', () => {
                     writeStream.end(() => {
-                        console.log('[OK] [FAF] Download concluido:', destPath);
+                        _logMain('[OK] [FAF] Download concluido:', destPath);
                         if (mainWindow && !mainWindow.isDestroyed()) {
                             mainWindow.webContents.send('download-progress', {
                                 progress: 100, downloadedBytes: received, totalBytes: received,
@@ -866,9 +872,9 @@ ipcMain.handle('open-external', async (_event, url) => {
 
 
 app.whenReady().then(() => {
-    console.log(`[~] NyanTools v${APP_VERSION}`);
-    console.log('[>] App path:', app.getAppPath());
-    console.log('[>] Plataforma:', process.platform);
+    _logMain(`[~] NyanTools v${APP_VERSION}`);
+    _logMain('[>] App path:', app.getAppPath());
+    _logMain('[>] Plataforma:', process.platform);
 
     setupAutoUpdater();
     createWindow();

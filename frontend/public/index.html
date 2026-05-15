@@ -616,17 +616,6 @@
             const status = document.getElementById('sidebar-online-status');
             if (status) status.textContent = 'Offline';
         });
-
-        window.addEventListener('load', () => {
-            if (!window.Settings) return;
-            const originalExport = Settings.exportData.bind(Settings);
-            Settings.exportData = function() {
-                originalExport();
-                const tag = Utils?.loadData?.('nyan_online_tag');
-                if (!tag) return;
-                setTimeout(() => Utils.showNotification('Backup inclui NyanTag: ' + tag, 'info'), 600);
-            };
-        });
     </script>
 
 </body>

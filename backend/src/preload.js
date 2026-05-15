@@ -14,6 +14,11 @@ function getAppVersion() {
 }
 
 const APP_VERSION = getAppVersion();
+const PRELOAD_VERBOSE = process.env.NODE_ENV === 'development' || process.env.NYAN_VERBOSE_LOGS === '1';
+
+function logPreload(...args) {
+    if (PRELOAD_VERBOSE) console.log(...args);
+}
 
 function throttle(fn, ms = 100) {
     let last = 0;
@@ -79,7 +84,7 @@ try {
         }
     });
 
-    console.log(`[OK] [Preload v${APP_VERSION}] API exposta com sucesso`);
+    logPreload(`[OK] [Preload v${APP_VERSION}] API exposta com sucesso`);
 
 } catch (error) {
     console.error('[X] [Preload] ERRO CRITICO:', error);
